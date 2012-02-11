@@ -1,0 +1,7 @@
+<RCC>
+    <qresource prefix="/img">
+        <file>add-icon.png</file>
+        <file>delete-icon.png</file>
+        <file>menu-edit-icon.png</file>
+    </qresource>
+</RCC>
