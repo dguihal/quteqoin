@@ -3,5 +3,7 @@
         <file>add-icon.png</file>
         <file>delete-icon.png</file>
         <file>menu-edit-icon.png</file>
+        <file>Point_exclamation_rouge.svg</file>
+        <file>Fleche_verte.svg</file>
     </qresource>
 </RCC>

@@ -17,68 +17,114 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
 
-	pini = new QQPinipede(this);
+    ui->setupUi(this);
 
-	settings = new QQSettings(this);
-	settings->setPinipede(pini);
+    pini = new QQPinipede(this);
+    palmi = new QQPalmipede(this);
+    QLayout *layout = new QVBoxLayout();
+    layout->addWidget(pini);
+    layout->addWidget(palmi);
+    ui->centralWidget->setLayout(layout);
 
-	palmi = new QQPalmipede(this);
+    settings = new QQSettings(this);
 
-	ui->setupUi(this);
+    QList<QQBouchot *> bouchots = settings->listBouchots();
+    for(int i = 0; i < bouchots.size(); i++)
+    {
+        connect(bouchots.at(i), SIGNAL(newPostsInserted(QQBouchot *)), pini, SLOT(newPostsAvailable(QQBouchot *)));
+        pini->addPiniTab(bouchots.at(i)->settings().group());
+    }
 
-	QLayout *layout = new QVBoxLayout();
-	layout->addWidget(pini);
-	layout->addWidget(palmi);
-	ui->centralWidget->setLayout(layout);
+    connect(ui->actionOptions, SIGNAL(triggered()), this, SLOT(displayOptions()));
 
-	connect(ui->actionOptions, SIGNAL(triggered()), this, SLOT(displayOptions()));
+    connect(ui->actionEnregistrer_parametres, SIGNAL(triggered()), settings, SLOT(saveSettings()));
+    connect(ui->actionQuit, SIGNAL(triggered()), this, SLOT(close()));
 
-	connect(ui->actionEnregistrer_parametres, SIGNAL(triggered()), settings, SLOT(saveSettings()));
-	connect(ui->actionQuit, SIGNAL(triggered()), this, SLOT(close()));
 
-	settings->startBouchots();
+    settings->startBouchots();
 }
 
 MainWindow::~MainWindow()
 {
     delete ui;
-	delete pini;
-	delete palmi;
-	delete settings;
+    delete pini;
+    delete palmi;
+    delete settings;
 }
 
 
 void MainWindow::displayOptions()
 {
-	settings->stopBouchots();
-	QQSettingsDialog settingsDialog(this);
-	settingsDialog.setDefaultUA(settings->defaultUA());
-	settingsDialog.setDefaultLogin(settings->defaultLogin());
-	settingsDialog.setTotozServerUrl(settings->totozServerUrl());
-	settingsDialog.setTotozMode(settings->totozMode());
-	settingsDialog.setMaxHistoryLength(settings->maxHistoryLength());
-	settingsDialog.setListBouchots(settings->listBouchots());
-	if(settingsDialog.exec() == QDialog::Accepted)
-	{
-		settings->setDefaultUA(settingsDialog.defaultUA());
-		settings->setDefaultLogin(settingsDialog.defaultLogin());
-		settings->setTotozServerUrl(settingsDialog.totozServerUrl());
-		settings->setTotozMode((QQSettings::TotozMode) settingsDialog.totozMode());
-		settings->setMaxHistoryLength(settingsDialog.maxHistoryLength());
-		settings->setListBouchots(settingsDialog.listBouchots());
+    //On arrete le refresh avant de continuer
+    settings->stopBouchots();
 
-		settings->setPinipede(pini);
-	}
-	settings->startBouchots();
+    QQSettingsDialog settingsDialog(this);
+    settingsDialog.setDefaultUA(settings->defaultUA());
+    settingsDialog.setDefaultLogin(settings->defaultLogin());
+    settingsDialog.setTotozServerUrl(settings->totozServerUrl());
+    settingsDialog.setTotozMode(settings->totozMode());
+    settingsDialog.setMaxHistoryLength(settings->maxHistoryLength());
+
+    QMap<QString, QQBouchot::QQBouchotSettings> mapBouchotSettings;
+    QList<QQBouchot *> listBouchots = settings->listBouchots();
+    QQBouchot *bouchot = NULL;
+    for(int i = 0; i < listBouchots.size(); i++ )
+    {
+        bouchot = listBouchots.at(i);
+        mapBouchotSettings.insert(bouchot->name(), bouchot->settings() );
+    }
+    settingsDialog.setBouchots(mapBouchotSettings);
+
+    if(settingsDialog.exec() == QDialog::Accepted)
+    {
+        settings->setDefaultUA(settingsDialog.defaultUA());
+        settings->setDefaultLogin(settingsDialog.defaultLogin());
+        settings->setTotozServerUrl(settingsDialog.totozServerUrl());
+        settings->setTotozMode((QQSettings::TotozMode) settingsDialog.totozMode());
+        settings->setMaxHistoryLength(settingsDialog.maxHistoryLength());
+
+        //Les bouchots supprimes
+        QMap<QString, QQBouchot::QQBouchotSettings> settingsDeletedbouchots = settingsDialog.modifiedBouchots();
+        QMapIterator<QString, QQBouchot::QQBouchotSettings> iDel(settingsDeletedbouchots);
+        while(iDel.hasNext())
+        {
+            iDel.next();
+            settings->removeBouchot(iDel.key());
+        }
+
+        //Les bouchots modifies
+        QMap<QString, QQBouchot::QQBouchotSettings> settingsModifiedbouchots = settingsDialog.modifiedBouchots();
+        QMapIterator<QString, QQBouchot::QQBouchotSettings> iModif(settingsModifiedbouchots);
+        while(iModif.hasNext())
+        {
+            iModif.next();
+            QQBouchot * modifBouchot = settings->bouchot(iModif.key());
+            modifBouchot->setSettings(iModif.value());
+        }
+
+        //Les bouchots ajoutes
+        QMap<QString, QQBouchot::QQBouchotSettings> settingsNewBouchots = settingsDialog.newBouchots();
+        QMapIterator<QString, QQBouchot::QQBouchotSettings> iNew(settingsNewBouchots);
+        while(iNew.hasNext())
+        {
+            iNew.next();
+            QQBouchot * newBouchot = new QQBouchot(iNew.key(), settings);
+            newBouchot->setSettings(iNew.value());
+
+            connect(newBouchot, SIGNAL(newPostsInserted(QQBouchot *)), pini, SLOT(newPostsAvailable(QQBouchot *)));
+            settings->addBouchot(newBouchot);
+        }
+    }
+    settings->startBouchots();
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)
  {
-	qDebug()<<"MainWindow::closeEvent";
-	if(settings->maybeSave())
-	{
-		settings->saveSettings();
-		event->accept();
-	} else
-		 event->ignore();
+    qDebug()<<"MainWindow::closeEvent";
+    if(settings->maybeSave())
+    {
+        settings->saveSettings();
+        event->accept();
+    } else
+         event->ignore();
 }

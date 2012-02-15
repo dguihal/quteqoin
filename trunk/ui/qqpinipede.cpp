@@ -114,24 +114,32 @@ void QQPinipede::createQTextTableRows( QQTextBrowser* textBrowser, int pos, int 
 
 void QQPinipede::printPostAtCursor( QTextCursor & cursor, QQPost * post )
 {
-    //norloge
-    QTextTableCell cell = cursor.currentTable()->cellAt(cursor);
     QTextCharFormat cellMarkColorFormat;
-    cellMarkColorFormat.setBackground(post->bouchot()->color());
+    cellMarkColorFormat.setBackground(post->bouchot()->settings().color());
+
+    //Post / Reply
+    QTextTableCell cell = cursor.currentTable()->cellAt(cursor);
     cell.setFormat(cellMarkColorFormat);
+
+    qDebug() << "post->login() = " << post->login()
+             << ", post->UA() = " << post->UA();
+
+    if( post->isSelfPost())
+            cursor.insertImage(QImage(QString::fromAscii(":/img/Fleche_verte.svg")));
 
     cursor.movePosition(QTextCursor::NextCell);
 
 
     //qDebug() << "QQPinipede::printPostAtCursor : baseBgColor=" << post->bouchot()->color().name();
     //qDebug() << "QQPinipede::printPostAtCursor : baseBgColor=" << baseBgColor.name();
-    QColor baseBgColor = post->bouchot()->color().lighter(110);
+    QColor baseBgColor = post->bouchot()->settings().color().lighter(110);
 
     //norloge
     cell = cursor.currentTable()->cellAt(cursor);
+    cell.setFormat(cellMarkColorFormat);
+
     QTextCharFormat cellNormalColorFormat;
     cellNormalColorFormat.setBackground(baseBgColor);
-    cell.setFormat(cellMarkColorFormat);
 
     QTextCharFormat norlogeFormat;
     norlogeFormat.setFontWeight(QFont::Bold);
@@ -300,7 +308,7 @@ void QQPinipede::newPostsAvailable(QQBouchot *sender)
 
     QList<QQPost *> newPosts = sender->getNewPosts();
 
-    QList<QQPost *> *destlistPosts = m_listPostsTabMap[sender->group()];
+    QList<QQPost *> *destlistPosts = m_listPostsTabMap[sender->settings().group()];
 
     QTime time = QTime::currentTime();
     time.start();
@@ -308,7 +316,7 @@ void QQPinipede::newPostsAvailable(QQBouchot *sender)
     if(destlistPosts == NULL)
     {
         destlistPosts = new QList<QQPost *>(newPosts);
-        m_listPostsTabMap.insert(sender->group(), destlistPosts);
+        m_listPostsTabMap.insert(sender->settings().group(), destlistPosts);
         printPostsAtEnd(* destlistPosts);
     }
     else

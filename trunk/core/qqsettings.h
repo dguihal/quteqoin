@@ -13,58 +13,57 @@ class QString;
 
 class QQSettings : public QObject
 {
-	Q_OBJECT
+    Q_OBJECT
 
 public:
-	enum TotozMode { Inline_Mode = 0, Popup_Mode = 1, Bald_Mode = 2 };
+    enum TotozMode { Inline_Mode = 0, Popup_Mode = 1, Bald_Mode = 2 };
 
-	explicit QQSettings(QObject *parent = 0);
-	~QQSettings();
+    explicit QQSettings(QObject *parent = 0);
+    ~QQSettings();
 
-	void setMaxHistoryLength(uint);
-	uint maxHistoryLength();
+    void setMaxHistoryLength(uint);
+    uint maxHistoryLength();
 
-	void setDefaultUA(const QString&);
-	QString defaultUA();
+    void setDefaultUA(const QString&);
+    QString defaultUA();
 
-	void setTotozServerUrl(const QUrl&);
-	QUrl totozServerUrl();
+    void setTotozServerUrl(const QUrl&);
+    QUrl totozServerUrl();
 
-	void setTotozMode(TotozMode);
-	TotozMode totozMode();
+    void setTotozMode(TotozMode);
+    TotozMode totozMode();
 
-	void setDefaultLogin(const QString&);
-	QString defaultLogin();
+    void setDefaultLogin(const QString&);
+    QString defaultLogin();
 
-	void setListBouchots(const QList<QQBouchot *>&);
-	QList<QQBouchot *> listBouchots();
-	bool hasBouchot(QQBouchot *);
-	void addBouchot(QQBouchot *);
-	void addBouchots(const QList<QQBouchot *>&);
-	void removeBouchots(const QList<QQBouchot *>&);
-	void startBouchots();
-	void startBouchot(QString &);
-	void stopBouchots();
-	void stopBouchot(QString &);
+    void setListBouchots(const QList<QQBouchot *>&);
+    QList<QQBouchot *> listBouchots();
+    bool hasBouchot(QString bouchotName);
+    QQBouchot * bouchot(QString bouchotName);
+    void addBouchot(QQBouchot *);
+    void addBouchots(const QList<QQBouchot *>&);
+    void removeBouchot(const QString bouchotName);
+    void startBouchots();
+    void startBouchot(QString &);
+    void stopBouchots();
+    void stopBouchot(QString &);
 
-	QList<QString> getListTabs();
-
-	void setPinipede( QQPinipede * );
+    QList<QString> getListTabs();
 
 public slots:
-	bool readSettings();
-	bool saveSettings();
-	bool maybeSave();
+    bool readSettings();
+    bool saveSettings();
+    bool maybeSave();
 
 private:
-	uint m_maxHistoryLength;
-	QString m_defaultUA;
-	QString m_defaultLogin;
-	QUrl m_totozServerUrl;
-	TotozMode m_totozMode;
+    uint m_maxHistoryLength;
+    QString m_defaultUA;
+    QString m_defaultLogin;
+    QUrl m_totozServerUrl;
+    TotozMode m_totozMode;
 
-	QList<QQBouchot *> m_listBouchots;
-	bool dirty;
+    QList<QQBouchot *> m_listBouchots;
+    bool dirty;
 };
 
 #endif // QQSETTINGS_H
