@@ -33,11 +33,11 @@ QQPost::QQPost(QQBouchot * parent)
 QQPost::QQPost( const QQPost& post )
     : QObject( )
 {
-    this->m_Login = post.m_Login;
-    this->m_Norloge = post.m_Norloge;
-    this->m_Id = post.m_Id;
-    this->m_UA = post.m_UA;
-    this->m_Message = post.m_Message;
+    this->m_login = post.m_login;
+    this->m_norloge = post.m_norloge;
+    this->m_id = post.m_id;
+    this->m_ua = post.m_ua;
+    this->m_message = post.m_message;
 }
 //
 QQPost::~QQPost()
@@ -46,12 +46,25 @@ QQPost::~QQPost()
 //
 QString QQPost::toText()
 {
-    QString tmp(m_Login);
+    QString tmp(m_login);
     tmp.append(QString(" "));
     tmp.append(norlogeFormatee());
     tmp.append(QString(" "));
-    tmp.append(m_Message);
+    tmp.append(m_message);
     return tmp;
+}
+
+bool QQPost::isSelfPost()
+{
+    QQBouchot::QQBouchotSettings bouchotSettings = bouchot()->settings();
+
+    if(bouchotSettings.login().size() != 0 && bouchotSettings.login().compare(m_login) == 0)
+        return true;
+
+    if(bouchotSettings.ua().size() != 0 && bouchotSettings.ua().compare(m_ua) == 0)
+        return true;
+
+    return false;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -64,52 +77,52 @@ QQBouchot * QQPost::bouchot ()
 
 QString QQPost::login()
 {
-    return this->m_Login;
+    return this->m_login;
 }
 //
 void QQPost::setLogin(const QString &login)
 {
-    this->m_Login = login;
+    this->m_login = login;
 }
 //
 QString QQPost::norloge()
 {
-    return this->m_Norloge;
+    return this->m_norloge;
 }
 //
 void QQPost::setNorloge(const QString &norloge)
 {
-    this->m_Norloge = norloge;
+    this->m_norloge = norloge;
 }
 //
 QString QQPost::id()
 {
-    return this->m_Id;
+    return this->m_id;
 }
 //
 void QQPost::setId( const QString &id )
 {
-    this->m_Id = id;
+    this->m_id = id;
 }
 //
 QString QQPost::UA()
 {
-    return this->m_UA;
+    return this->m_ua;
 }
 //
 void QQPost::setUA(const QString &ua )
 {
-    this->m_UA = ua;
+    this->m_ua = ua;
 }
 //
 QString QQPost::message()
 {
-    return this->m_Message;
+    return this->m_message;
 }
 //
 void QQPost::setMessage(const QString& message)
 {
-    this->m_Message = message;
+    this->m_message = message;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -129,7 +142,7 @@ QString QQPost::norlogeFormatee()
 //
 bool QQPost::equal(QQPost &b)
 {
-    if( (b.m_Id == this->m_Id) &&
+    if( (b.m_id == this->m_id) &&
             true ) // comparaison bouchots
         return true;
     return false;
@@ -142,11 +155,11 @@ bool QQPost::operator== (QQPost &b)
 
 void QQPost::reset()
 {
-    m_Login.clear();
-    m_Norloge.clear();
-    m_UA.clear();
-    m_Message.clear();
-    m_Id.clear();
+    m_login.clear();
+    m_norloge.clear();
+    m_ua.clear();
+    m_message.clear();
+    m_id.clear();
 }
 
 //////////////////////////////////////////////////////////////////////////

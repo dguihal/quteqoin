@@ -1,7 +1,7 @@
 /* This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
+ * of the License, or(at your option) any later version.
 
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -31,8 +31,8 @@ public:
     //////////////////////////////////////////////////////////////////////////
     ////////////            Constructeurs        /////////////////////////////
     //////////////////////////////////////////////////////////////////////////
-    QQPost ( QQBouchot * parent = 0 );
-    QQPost ( const QQPost& post );
+    QQPost( QQBouchot * parent = 0 );
+    QQPost( const QQPost& post );
 
     //////////////////////////////////////////////////////////////////////////
     ////////////             Destructeurs        /////////////////////////////
@@ -42,34 +42,36 @@ public:
     //////////////////////////////////////////////////////////////////////////
     ////////////             Accesseurs          /////////////////////////////
     //////////////////////////////////////////////////////////////////////////
-    QQBouchot * bouchot ();
-    QString login ();
-    void setLogin ( const QString& login );
-    QString norloge ();
-    QString norlogeFormatee ();
-    void setNorloge ( const QString& norloge );
-    QString id ();
-    void setId ( const QString& id );
-    QString UA ();
-    void setUA ( const QString& ua );
-    QString message ();
-    void setMessage ( const QString& message );
+    QQBouchot * bouchot();
+    QString login();
+    void setLogin( const QString& login );
+    QString norloge();
+    QString norlogeFormatee();
+    void setNorloge( const QString& norloge );
+    QString id();
+    void setId( const QString& id );
+    QString UA();
+    void setUA( const QString& ua );
+    QString message();
+    void setMessage( const QString& message );
 
     //////////////////////////////////////////////////////////////////////////
     ////////////                                 /////////////////////////////
     //////////////////////////////////////////////////////////////////////////
-    QString toText ();
+    QString toText();
 
-    bool equal ( QQPost &b );
-    bool operator== ( QQPost& );
+    bool isSelfPost();
+
+    bool equal( QQPost &b );
+    bool operator==( QQPost& );
 
     void reset();
 
 private:
-    QString m_Norloge;
-    QString m_Login;
-    QString m_UA;
-    QString m_Message;
-    QString m_Id;
+    QString m_norloge;
+    QString m_login;
+    QString m_ua;
+    QString m_message;
+    QString m_id;
 };
 #endif
