@@ -117,6 +117,8 @@ void QQPinipede::printPostAtCursor( QTextCursor & cursor, QQPost * post )
     QTextCharFormat cellMarkColorFormat;
     cellMarkColorFormat.setBackground(post->bouchot()->settings().color());
 
+    QTextCharFormat defaultFormat;
+
     //Post / Reply
     QTextTableCell cell = cursor.currentTable()->cellAt(cursor);
     cell.setFormat(cellMarkColorFormat);
@@ -147,6 +149,9 @@ void QQPinipede::printPostAtCursor( QTextCursor & cursor, QQPost * post )
     norlogeFormat.setProperty(NorlogeData, post->norloge());
 
     cursor.insertText(post->norlogeFormatee(), norlogeFormat);
+
+    cursor.insertText(QString::fromLatin1(" "), defaultFormat);
+
     cursor.movePosition(QTextCursor::NextCell);
 
     //login ou ua
@@ -173,6 +178,9 @@ void QQPinipede::printPostAtCursor( QTextCursor & cursor, QQPost * post )
         txt = post->UA().left(12);
     }
     cursor.insertText(txt, loginUaFormat);
+
+    cursor.insertText(QString::fromLatin1(" "), defaultFormat);
+
     cursor.movePosition(QTextCursor::NextCell);
 
     //message
@@ -242,6 +250,8 @@ void QQPinipede::printPostAtCursor( QTextCursor & cursor, QQPost * post )
             qDebug() << "QQPinipede::printPostAtCursor Totoz !!!!!!!!!!! type : " << elt.type();
         }
     }
+
+    cursor.insertText(QString::fromLatin1(" "), defaultFormat);
 
 }
 
