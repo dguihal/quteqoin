@@ -19,8 +19,9 @@ MainWindow::MainWindow(QWidget *parent) :
 
     ui->setupUi(this);
 
-    pini = new QQPinipede(this);
     palmi = new QQPalmipede(this);
+    pini = new QQPinipede(this);
+
     QLayout *layout = new QVBoxLayout();
     layout->addWidget(pini);
     layout->addWidget(palmi);
@@ -34,9 +35,9 @@ MainWindow::MainWindow(QWidget *parent) :
         connect(bouchots.at(i), SIGNAL(newPostsInserted(QQBouchot *)), pini, SLOT(newPostsAvailable(QQBouchot *)));
         pini->addPiniTab(bouchots.at(i)->settings().group());
     }
+    connect(pini, SIGNAL(insertTextPalmi(QString)), palmi, SLOT(insertReplaceText(QString)));
 
     connect(ui->actionOptions, SIGNAL(triggered()), this, SLOT(displayOptions()));
-
     connect(ui->actionEnregistrer_parametres, SIGNAL(triggered()), settings, SLOT(saveSettings()));
     connect(ui->actionQuit, SIGNAL(triggered()), this, SLOT(close()));
 
@@ -51,7 +52,6 @@ MainWindow::~MainWindow()
     delete palmi;
     delete settings;
 }
-
 
 void MainWindow::displayOptions()
 {

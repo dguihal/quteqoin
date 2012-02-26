@@ -1,6 +1,8 @@
 #ifndef QQPINIPEDE_H
 #define QQPINIPEDE_H
 
+#include "core/qqnorloge.h"
+
 #include <QHash>
 #include <QRegExp>
 #include <QString>
@@ -34,9 +36,12 @@ public:
     QQPost * getPostForGroup(QString &groupName, int numPost);
 
 public slots:
-    void norlogeClicked( int );
-    void loginClicked( int );
+    void norlogeClicked(QQNorloge norloge);
+    void loginClicked(QString);
     void newPostsAvailable( QQBouchot * );
+
+signals:
+    void insertTextPalmi(QString text);
 
 private:
     void createQTextTableRows( QQTextBrowser*, int, int );
