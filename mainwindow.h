@@ -19,18 +19,20 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
+    QQPalmipede * getPalmi() {return palmi;}
+
 public slots:
-	void displayOptions();
+    void displayOptions();
 
 protected:
-	void closeEvent(QCloseEvent *event);
+    void closeEvent(QCloseEvent *event);
 
 private:
 
     Ui::MainWindow *ui;
-	QQPalmipede *palmi;
-	QQPinipede *pini;
-	QQSettings *settings;
+    QQPalmipede *palmi;
+    QQPinipede *pini;
+    QQSettings *settings;
 };
 
 #endif // MAINWINDOW_H

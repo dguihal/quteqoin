@@ -22,6 +22,18 @@ QQTextBrowser::~QQTextBrowser()
 {
 }
 
+
+QString QQTextBrowser::bouchotUnderCursor()
+{
+    return m_currBouchot;
+}
+
+QString QQTextBrowser::messageUnderCursor()
+{
+    return m_message;
+}
+
+
 void QQTextBrowser::mouseMoveEvent(QMouseEvent *event)
 {
     QTextEdit::mouseMoveEvent(event);
@@ -29,22 +41,24 @@ void QQTextBrowser::mouseMoveEvent(QMouseEvent *event)
     mousePressed = false;
 
     QTextCursor cursor = cursorForPosition(event->pos());
-    qDebug() << "QQTextBrowser::mouseMoveEvent 1 " << cursor.block().text();
-    QTextCharFormat format = cursor.charFormat();
-    qDebug() << "type : " << format.type()
-             << "ObjectType : " << format.objectType()
-             << "position : " << cursor.position()
-             << "positionInBlock : " << cursor.positionInBlock();
     QTextTable * table = cursor.currentTable();
+
     if(table != NULL)
     {
         QTextTableCell tableCell = table->cellAt(cursor);
-        switch (tableCell.column())
+
+        mouseColNum = tableCell.column();
+        QTextCharFormat format;
+        switch (mouseColNum)
         {
         case 0:
             break;
-        case 1: qDebug() << "QQTextBrowser::mouseMoveEvent 2 "
-                         << m_parent->getPostForGroup(m_groupName, tableCell.row())->norloge();
+        case 1: format = cursor.charFormat();
+            m_message = format.property(NorlogeData).toString();
+            m_currBouchot = format.property(BouchotData).toString();
+            //qDebug() << "QQTextBrowser::mouseMoveEvent 2 : "
+            //         << "m_currBouchot = " << m_currBouchot
+            //         << ", m_message = " << m_message;
             break;
         case 2: qDebug() << "QQTextBrowser::mouseMoveEvent 3 "
                          << m_parent->getPostForGroup(m_groupName, tableCell.row())->login();
@@ -61,6 +75,7 @@ void QQTextBrowser::mouseMoveEvent(QMouseEvent *event)
     {
         mouseRowNum = -1;
         mouseColNum = -1;
+        m_currBouchot.clear();
     }
 }
 
@@ -79,8 +94,11 @@ void QQTextBrowser::mouseReleaseEvent(QMouseEvent * event)
     if(mousePressed == false)
         return;
 
-    if(mouseColNum == 0)
-        emit norlogeClicked(mouseColNum);
-    else if(mouseColNum == 1)
-        emit loginClicked(mouseRowNum);
+    if(mouseColNum == 1)
+    {
+        QQNorloge norloge(m_currBouchot, m_message);
+        emit norlogeClicked(norloge);
+    }
+    else if(mouseColNum == 2)
+        emit loginClicked(m_groupName);
 }

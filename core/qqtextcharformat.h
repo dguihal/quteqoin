@@ -9,7 +9,8 @@ enum SpecialTextFormats
     DuckTextFormat,
     NorlogeTextFormat,
     UATextFormat,
-    LoginTextFormat
+    LoginTextFormat,
+    BouchotBgFormat
 };
 
 enum SpecialProperties
@@ -18,7 +19,8 @@ enum SpecialProperties
     NorlogeData,
     UAData,
 //zz        DuckData,
-    LoginData
+    LoginData,
+    BouchotData
 };
 
 

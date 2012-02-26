@@ -1,9 +1,11 @@
 #include "qqpinipede.h"
 
-#include "qqtextbrowser.h"
+#include "mainwindow.h"
 #include "core/qqbouchot.h"
 #include "core/qqtextcharformat.h"
 #include "core/qqmessageparser.h"
+#include "ui/qqpalmipede.h"
+#include "ui/qqtextbrowser.h"
 
 #include <QBrush>
 #include <QDebug>
@@ -47,13 +49,14 @@ void QQPinipede::addPiniTab(const QString& groupName)
     QScrollBar *vScrollBar = textBrowser->verticalScrollBar();
     vScrollBar->setSliderPosition( vScrollBar->maximum() );
 
-    m_textBrowserHash.insert(groupName, textBrowser);
-
-    qDebug() << "QQPinipede::addPiniTab this->m_textBrowserHash.size()=" << this->m_textBrowserHash.size();
-
     layout->addWidget(textBrowser);
 
     this->addTab(widget, groupName);
+
+    m_textBrowserHash.insert(groupName, textBrowser);
+    qDebug() << "QQPinipede::addPiniTab this->m_textBrowserHash.size()=" << this->m_textBrowserHash.size();
+
+    connect(textBrowser, SIGNAL(norlogeClicked(QQNorloge)), this, SLOT(norlogeClicked(QQNorloge)));
 
     if (this->count() > 1)
         this->tabBar()->show();
@@ -127,7 +130,7 @@ void QQPinipede::printPostAtCursor( QTextCursor & cursor, QQPost * post )
              << ", post->UA() = " << post->UA();
 
     if( post->isSelfPost())
-            cursor.insertImage(QImage(QString::fromAscii(":/img/Fleche_verte.svg")));
+        cursor.insertImage(QImage(QString::fromAscii(":/img/Fleche_verte.svg")));
 
     cursor.movePosition(QTextCursor::NextCell);
 
@@ -147,6 +150,7 @@ void QQPinipede::printPostAtCursor( QTextCursor & cursor, QQPost * post )
     norlogeFormat.setFontWeight(QFont::Bold);
     norlogeFormat.setObjectType(NorlogeTextFormat);
     norlogeFormat.setProperty(NorlogeData, post->norloge());
+    norlogeFormat.setProperty(BouchotData, post->bouchot()->name());
 
     cursor.insertText(post->norlogeFormatee(), norlogeFormat);
 
@@ -332,7 +336,7 @@ void QQPinipede::newPostsAvailable(QQBouchot *sender)
     else
     {
         qDebug() << "QQDisplayBackend::newPostsAvailable : newPosts.size=" << newPosts.size()
-                << ", destlistPosts->size=" << destlistPosts->size();
+                 << ", destlistPosts->size=" << destlistPosts->size();
 
         int lastInsert = 0;
         //on insère en commençant par le plus ancien
@@ -369,12 +373,12 @@ unsigned int QQPinipede::insertPostToList(QList<QQPost *> *listPosts, QQPost *po
 }
 
 
-void QQPinipede::norlogeClicked(int rowNum)
+void QQPinipede::norlogeClicked(QQNorloge norloge)
 {
-    //QQTextBrowser *qqTBSender = (QQTextBrowser *)sender();
+    emit insertTextPalmi(norloge.toStringPalmi());
 }
 
-void QQPinipede::loginClicked(int rowNum)
+void QQPinipede::loginClicked(QString tabGroupName)
 {
     //QQTextBrowser *qqTBSender = (QQTextBrowser *)sender();
 }
