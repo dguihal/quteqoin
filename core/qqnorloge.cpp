@@ -18,14 +18,9 @@ QString QQNorloge::toStringPalmi()
         format.append(QString::fromLatin1("yyyy/"));
         startPrint = true;
     }
-    if(startPrint || m_date.date().month() != currDateT.date().month())
+    if(startPrint || m_date.date().month() != currDateT.date().month() || m_date.date().day() != currDateT.date().day())
     {
-        format.append(QString::fromLatin1("MM/"));
-        startPrint = true;
-    }
-    if(startPrint || m_date.date().day() != currDateT.date().day())
-    {
-        format.append(QString::fromLatin1("dd#"));
+        format.append(QString::fromLatin1("MM/dd#"));
         startPrint = true;
     }
     //On a TOUJOURS l'heure
