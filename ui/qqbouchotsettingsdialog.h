@@ -4,6 +4,7 @@
 #include "core/qqbouchot.h"
 
 #include <QDialog>
+#include <QStringList>
 
 class QQBouchot;
 
@@ -22,6 +23,8 @@ public:
 
     QQBouchot::QQBouchotSettings bouchotSettings() { return m_bouchotSettings; }
     QString bouchotName() { return m_bouchotName; }
+
+    void setGroups(QStringList listGroups);
 
 public slots:
     void okPressed();

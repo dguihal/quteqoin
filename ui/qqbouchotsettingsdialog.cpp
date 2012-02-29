@@ -16,7 +16,6 @@ QQBouchotSettingsDialog::QQBouchotSettingsDialog(QWidget *parent) :
 
 }
 
-
 QQBouchotSettingsDialog::QQBouchotSettingsDialog(QString bouchotName, QQBouchot::QQBouchotSettings bouchotSettings, QWidget *parent) :
     QDialog(parent),
     ui(new Ui::QQBouchotSettingsDialog)
@@ -38,6 +37,12 @@ QQBouchotSettingsDialog::~QQBouchotSettingsDialog()
     delete ui;
 }
 
+void QQBouchotSettingsDialog::setGroups(QStringList listGroups)
+{
+    ui->groupSelComboBox->addItems(listGroups);
+    ui->groupSelComboBox->setCurrentIndex( -1 );
+}
+
 void QQBouchotSettingsDialog::setBouchot()
 {
     qDebug() << "QQBouchotSettingsDialog::setBouchot";
@@ -47,6 +52,7 @@ void QQBouchotSettingsDialog::setBouchot()
     ui->nameLineEdit->setReadOnly(true);
     ui->presetPushButton->setEnabled(false);
 
+    ui->groupSelComboBox->setCurrentIndex(ui->groupSelComboBox->findText(m_bouchotSettings.group(), Qt::MatchExactly | Qt::MatchCaseSensitive ));
     ui->colorLineEdit->setText(m_bouchotSettings.colorToString());
     ui->aliasLineEdit->setText(m_bouchotSettings.aliasesToString());
     ui->refreshRateLineEdit->setText(m_bouchotSettings.refreshToString());
@@ -63,8 +69,7 @@ void QQBouchotSettingsDialog::okPressed()
 {
     qDebug() << "QQBouchotSettingsDialog::okPressed";
 
-    QQBouchot::QQBouchotSettings settings;
-
+    m_bouchotSettings.setGroup(ui->groupSelComboBox->currentText());
     m_bouchotSettings.setColor(ui->colorLineEdit->text());
     m_bouchotSettings.setAliasesFromString(ui->aliasLineEdit->text());
     m_bouchotSettings.setRefreshFromString(ui->refreshRateLineEdit->text());
