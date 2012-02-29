@@ -6,6 +6,7 @@
 #include <QDialog>
 #include <QList>
 #include <QMap>
+#include <QStringList>
 
 class QQBouchot;
 class QUrl;
@@ -54,6 +55,8 @@ private:
     QMap<QString, QQBouchot::QQBouchotSettings > m_newBouchots;
     QMap<QString, QQBouchot::QQBouchotSettings > m_oldBouchots;
     QMap<QString, QQBouchot::QQBouchotSettings > m_modifBouchots;
+
+    QStringList m_listGroups;
 };
 
 #endif // QQSETTINGSDIALOG_H

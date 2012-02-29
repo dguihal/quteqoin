@@ -91,6 +91,10 @@ void QQSettingsDialog::setBouchots(const QMap<QString, QQBouchot::QQBouchotSetti
     while(i.hasNext())
     {
         i.next();
+        QQBouchot::QQBouchotSettings settings = i.value();
+        if(! m_listGroups.contains(settings.group()))
+            m_listGroups.append(settings.group());
+
         model->setData(model->index(index++), QVariant(i.key()));
     }
 }
@@ -98,6 +102,8 @@ void QQSettingsDialog::setBouchots(const QMap<QString, QQBouchot::QQBouchotSetti
 void QQSettingsDialog::addBouchot()
 {
     QQBouchotSettingsDialog bouchotSettingsDialog(this);
+    bouchotSettingsDialog.setGroups(m_listGroups);
+
     if(bouchotSettingsDialog.exec() == QDialog::Accepted)
     {
         QQBouchot::QQBouchotSettings bSettings = bouchotSettingsDialog.bouchotSettings();
@@ -139,6 +145,8 @@ void QQSettingsDialog::editBouchot()
         QString bouchotName = first.data().toString();
 
         QQBouchotSettingsDialog bouchotSettingsDialog(bouchotName, m_bouchots.value(bouchotName), this);
+        bouchotSettingsDialog.setGroups(m_listGroups);
+
         if(bouchotSettingsDialog.exec() == QDialog::Accepted)
             m_modifBouchots.insert(bouchotName, bouchotSettingsDialog.bouchotSettings());
     }

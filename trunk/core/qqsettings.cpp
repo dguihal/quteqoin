@@ -179,7 +179,7 @@ void QQSettings::stopBouchot(QString &nomBouchot)
     }
 }
 
-QList<QString> QQSettings::getListTabs()
+QList<QString> QQSettings::listTabs()
 {
     QList<QString> rep;
     for(int i = 0; i < m_listBouchots.size(); i++)

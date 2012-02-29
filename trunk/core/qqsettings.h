@@ -48,7 +48,7 @@ public:
     void stopBouchots();
     void stopBouchot(QString &);
 
-    QList<QString> getListTabs();
+    QList<QString> listTabs();
 
 public slots:
     bool readSettings();

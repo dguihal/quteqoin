@@ -112,6 +112,7 @@ void MainWindow::displayOptions()
             newBouchot->setSettings(iNew.value());
 
             connect(newBouchot, SIGNAL(newPostsInserted(QQBouchot *)), pini, SLOT(newPostsAvailable(QQBouchot *)));
+            pini->addPiniTab(newBouchot->settings().group());
             settings->addBouchot(newBouchot);
         }
     }

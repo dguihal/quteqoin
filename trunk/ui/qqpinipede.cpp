@@ -264,7 +264,7 @@ void QQPinipede::printPostsAtEnd( QList<QQPost *> & posts )
     if(posts.size() <= 0)
         return;
 
-    QQTextBrowser* textBrowser = m_textBrowserHash.value(posts[0]->bouchot()->name());
+    QQTextBrowser* textBrowser = m_textBrowserHash.value(posts[0]->bouchot()->settings().group());
     QScrollBar* vScrollBar = textBrowser->verticalScrollBar();
 
     bool atEnd = false;
@@ -295,7 +295,7 @@ void QQPinipede::printPostsAtEnd( QList<QQPost *> & posts )
 
 void QQPinipede::printPostAt( QQPost * post, int pos )
 {
-    QQTextBrowser* textBrowser = m_textBrowserHash.value(post->bouchot()->name());
+    QQTextBrowser* textBrowser = m_textBrowserHash.value(post->bouchot()->settings().group());
 
     createQTextTableRows( textBrowser, pos, 1 );
 
@@ -359,10 +359,12 @@ void QQPinipede::newPostsAvailable(QQBouchot *sender)
 
 unsigned int QQPinipede::insertPostToList(QList<QQPost *> *listPosts, QQPost *post, unsigned int indexStart)
 {
-    //qDebug() << "QQDisplayBackend::insertPostToList, indexStart=" << indexStart;
+    qDebug() << "QQDisplayBackend::insertPostToList, indexStart=" << indexStart;
     for( int i = indexStart; i < listPosts->size(); i++ )
     {
-        if(listPosts->at(i)->norloge().toInt() > post->norloge().toInt() )
+        qDebug() << "QQDisplayBackend::insertPostToList, listPosts->at(i)->norloge()=" << listPosts->at(i)->norloge()
+                 << ", post->norloge()=" << post->norloge();
+        if(listPosts->at(i)->norloge().toLongLong() > post->norloge().toLongLong() )
         {
             listPosts->insert(i, post);
             return i;
