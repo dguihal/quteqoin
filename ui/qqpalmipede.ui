@@ -138,7 +138,7 @@
       </spacer>
      </item>
      <item>
-      <widget class="QComboBox" name="BoardSelector"/>
+      <widget class="QComboBox" name="boardSelectorComboBox"/>
      </item>
     </layout>
    </item>

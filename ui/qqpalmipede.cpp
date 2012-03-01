@@ -1,7 +1,10 @@
 #include "qqpalmipede.h"
 #include "ui_qqpalmipede.h"
 
+#include "core/qqnorloge.h"
+
 #include <QDebug>
+#include <QRegExp>
 #include <QShortcut>
 
 QQPalmipede::QQPalmipede(QWidget *parent) :
@@ -22,7 +25,8 @@ QQPalmipede::QQPalmipede(QWidget *parent) :
     connect(ui->underlineButton, SIGNAL( clicked() ), this, SLOT( underlineClicked() ) );
     connect(ui->strikeButton, SIGNAL( clicked() ), this, SLOT( strikeClicked() ) );
     connect(ui->momentButton, SIGNAL( clicked() ), this, SLOT( momentClicked() ) );
-    connect(ui->blamPafComboBox, SIGNAL( activated(int) ), this, SLOT( blamPafActivated(int) ) );
+    connect(ui->blamPafComboBox, SIGNAL(activated(QString)), this, SLOT(blamPafActivated(QString)));
+    connect(ui->boardSelectorComboBox, SIGNAL(activated(int)), this, SLOT(bouchotSelectorActivated(int)));
 }
 
 QQPalmipede::~QQPalmipede()
@@ -93,6 +97,61 @@ void QQPalmipede::insertReplaceText(const QString& tag)
     }
 }
 
+void QQPalmipede::addBouchot(const QString &newBouchot, const QColor& newBouchotColor)
+{
+    ui->boardSelectorComboBox->addItem(newBouchot, newBouchotColor);
+    int index = ui->boardSelectorComboBox->currentIndex();
+    QColor bouchotColor = ui->boardSelectorComboBox->itemData(index).value<QColor>();
+    changePalmiColor(bouchotColor);
+
+}
+
+void QQPalmipede::removeBouchot(const QString &oldBouchot)
+{
+    int index = ui->boardSelectorComboBox->findText(oldBouchot, Qt::MatchExactly | Qt::MatchCaseSensitive);
+    if(index > 0 )
+        ui->boardSelectorComboBox->removeItem(index);
+}
+
+void QQPalmipede::changeNorloges(const QString & bouchot)
+{
+    QString text = ui->lineEdit->text();
+    QRegExp norlogeReg = QQNorloge::norlogeRegexp();
+    QRegExp bouchotRemoverReg = QRegExp(QString::fromAscii("@").append(bouchot),
+                                        Qt::CaseSensitive,
+                                        QRegExp::RegExp);
+    QRegExp bouchotAdderReg = QRegExp(QString::fromAscii("@[A-Za-z0-9_]+"),
+                                      Qt::CaseSensitive,
+                                      QRegExp::RegExp);
+    QString destText;
+
+    int firstIndex;
+    while((firstIndex = norlogeReg.indexIn(text)) != -1)
+    {
+        if(firstIndex > 0)
+        {
+            destText.append(text.left(firstIndex));
+            text.remove(0, firstIndex);
+        }
+
+        QString norloge = text.left(norlogeReg.matchedLength());
+
+        if(norloge.contains(bouchotRemoverReg))
+            destText.append(norloge.left(norloge.length() - bouchotRemoverReg.matchedLength()));
+        else if(! norloge.contains(bouchotAdderReg))
+            destText.append(norloge).append(QString::fromAscii("@")).append(m_oldBouchot);
+        else
+            destText.append(norloge);
+
+        text.remove(0, norlogeReg.matchedLength());
+    }
+
+    if(text.length() > 0)
+        destText.append(text);
+
+    ui->lineEdit->setText(destText);
+}
+
 void QQPalmipede::boldClicked()
 {
     insertSurroundText(QString::fromAscii("<b>"), QString::fromAscii("</b>"));
@@ -123,18 +182,26 @@ void QQPalmipede::momentClicked()
     qDebug()<<"QQPalmipede::momentClicked";
 }
 
-void QQPalmipede::blamPafActivated(int index)
+void QQPalmipede::blamPafActivated(const QString & text)
 {
-    qDebug()<<"QQPalmipede::momentClicked begin, index="<<index;
-    qDebug()<<"QQPalmipede::momentClicked itemText="<<ui->blamPafComboBox->itemText(index);
-    if(ui->blamPafComboBox->itemText(index).contains(QString::fromAscii("paf"), Qt::CaseInsensitive))
+    qDebug()<<"QQPalmipede::blamPafActivated itemText=" << text;
+    if(text.contains(QString::fromAscii("paf"), Qt::CaseInsensitive))
         insertPaf();
-    else if(ui->blamPafComboBox->itemText(index).contains(QString::fromAscii("BLAM"), Qt::CaseInsensitive))
+    else if(text.contains(QString::fromAscii("BLAM"), Qt::CaseInsensitive))
         insertBlam();
     else
-        qDebug()<<"QQPalmipede::momentClicked : index non reconnu";
+        qDebug()<<"QQPalmipede::momentClicked : index non reconnu : " << text;
 
-    qDebug()<<"QQPalmipede::momentClicked end";
+    qDebug()<<"QQPalmipede::blamPafActivated end";
+}
+
+void QQPalmipede::bouchotSelectorActivated(int index)
+{
+    QString bouchot = ui->boardSelectorComboBox->itemText(index);
+    changeNorloges(bouchot);
+    QColor bouchotColor = ui->boardSelectorComboBox->itemData(index).value<QColor>();
+    changePalmiColor(bouchotColor);
+    m_oldBouchot = bouchot;
 }
 
 void QQPalmipede::insertBlam()

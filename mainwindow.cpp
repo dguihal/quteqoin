@@ -34,6 +34,7 @@ MainWindow::MainWindow(QWidget *parent) :
     {
         connect(bouchots.at(i), SIGNAL(newPostsInserted(QQBouchot *)), pini, SLOT(newPostsAvailable(QQBouchot *)));
         pini->addPiniTab(bouchots.at(i)->settings().group());
+        palmi->addBouchot(bouchots.at(i)->name(), bouchots.at(i)->settings().colorLight());
     }
     connect(pini, SIGNAL(insertTextPalmi(QString)), palmi, SLOT(insertReplaceText(QString)));
 
@@ -113,6 +114,7 @@ void MainWindow::displayOptions()
 
             connect(newBouchot, SIGNAL(newPostsInserted(QQBouchot *)), pini, SLOT(newPostsAvailable(QQBouchot *)));
             pini->addPiniTab(newBouchot->settings().group());
+            palmi->addBouchot(newBouchot->name(), newBouchot->settings().colorLight());
             settings->addBouchot(newBouchot);
         }
     }
