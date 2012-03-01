@@ -10,7 +10,7 @@
 #include <QXmlInputSource>
 
 int defaultRefreshRate = 30;
-typedef struct
+typedef struct bouchotDef
 {
     char name[16];
     char getUrl[64];
