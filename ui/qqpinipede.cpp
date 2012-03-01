@@ -137,14 +137,12 @@ void QQPinipede::printPostAtCursor( QTextCursor & cursor, QQPost * post )
 
     //qDebug() << "QQPinipede::printPostAtCursor : baseBgColor=" << post->bouchot()->color().name();
     //qDebug() << "QQPinipede::printPostAtCursor : baseBgColor=" << baseBgColor.name();
-    QColor baseBgColor = post->bouchot()->settings().color().lighter(110);
+    QColor baseBgColor = post->bouchot()->settings().colorLight();
+    cellMarkColorFormat.setBackground(baseBgColor);
 
     //norloge
     cell = cursor.currentTable()->cellAt(cursor);
     cell.setFormat(cellMarkColorFormat);
-
-    QTextCharFormat cellNormalColorFormat;
-    cellNormalColorFormat.setBackground(baseBgColor);
 
     QTextCharFormat norlogeFormat;
     norlogeFormat.setFontWeight(QFont::Bold);

@@ -34,6 +34,7 @@ public:
         void setBackendUrl(const QString &newBackendUrl) { m_backendUrl = newBackendUrl; }
 
         QColor color() { return m_color; }
+        QColor colorLight() { return m_color.lighter(110); }
         void setColor(const QColor &newColor) { m_color = newColor; }
         QString colorToString() { return m_color.name(); }
         void setColorFromString(const QString &newColorString) { m_color.setNamedColor(newColorString); }
