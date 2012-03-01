@@ -1,5 +1,7 @@
 #include "qqmessageparser.h"
 
+#include "core/qqnorloge.h"
+
 
 QQMessageElt::QQMessageElt()
 {
@@ -19,12 +21,8 @@ QQMessageParser::QQMessageParser(QObject *parent) :
     QObject(parent)
 {
 
-    m_norlogeReg = QRegExp(QString::fromAscii("((?:(?:1[0-2]|0[1-9])/(?:3[0-1]|[1-2][0-9]|0[1-9])#)?" //date
-                                                      "(?:2[0-3]|[0-1][0-9]):(?:[0-5][0-9])(?::[0-5][0-9])?" //time
-                                                      "(?:[¹²³]|[:\\^][1-9]|[:\\^][1-9][0-9])?" //subtime
-                                                      "(?:@[A-Za-z0-9_]+)?)"), //tribune
-                                   Qt::CaseSensitive,
-                                   QRegExp::RegExp);
+    m_norlogeReg = QQNorloge::norlogeRegexp();
+
     QString tete = QString::fromAscii("(?:[o0ô°øòó@]|(?:&ocirc;)|(?:&deg;)|(?:&oslash;)|(?:&ograve;)|(?:&oacute;))");
     m_duck1Reg = QRegExp(QString::fromAscii("(\\\\_").append(tete).append(QString::fromAscii("&lt;)")),
                        Qt::CaseSensitive,

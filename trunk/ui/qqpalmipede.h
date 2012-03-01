@@ -2,6 +2,7 @@
 #define QQPALMIPEDE_H
 
 #include <QGroupBox>
+#include <QString>
 
 class QColor;
 class QShortcut;
@@ -21,19 +22,24 @@ public:
     //QString getCurrentBouchot();
 
     void insertText(const QString &);
+    void addBouchot(const QString & newBouchot, const QColor & newBouchotColor);
+    void removeBouchot(const QString & oldBouchot);
 
 signals:
-    void postMessage(const QString&);
+    void postMessage(const QString &);
 
 public slots:
-    void changePalmiColor(const QColor&);
-    void insertSurroundText(const QString&, const QString&);
-    void insertReplaceText(const QString&);
+    void changePalmiColor(const QColor &);
+    void insertSurroundText(const QString &, const QString &);
+    void insertReplaceText(const QString &);
 
 private:
+    void changeNorloges(const QString & bouchot);
+
     Ui::QQPalmipede *ui;
     QShortcut *blamShortcut;
     QShortcut *pafShortcut;
+    QString m_oldBouchot;
 
 private slots:
     void boldClicked();
@@ -41,7 +47,8 @@ private slots:
     void underlineClicked();
     void strikeClicked();
     void momentClicked();
-    void blamPafActivated(int);
+    void blamPafActivated(const QString & text);
+    void bouchotSelectorActivated(int index);
     void insertBlam();
     void insertPaf();
 };
