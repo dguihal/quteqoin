@@ -138,12 +138,6 @@ bouchot.postData = "missive=%m";
 bouchot.color = '#e9e9e9';
 GlobalBoards['bouchot'] = bouchot;
 
-var finss = new Board('finss', false);
-finss.getUrl = 'http://finss.free.fr/drupal/?q=tribune.xml';
-finss.postUrl = 'http://finss.free.fr/drupal/?q=tribune/post';
-finss.color = '#d0ffd0';
-GlobalBoards['finss'] = finss;
-
 var shoop = new Board('shoop', false);
 shoop.getUrl = 'http://dax.sveetch.net/tribune/remote.xml'; // ?last=%i inopÃ©rant pour le moment
 shoop.postUrl = 'http://dax.sveetch.net/tribune/post.xml';
