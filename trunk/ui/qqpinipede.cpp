@@ -81,38 +81,26 @@ void QQPinipede::removePiniTab(const QString& name)
         this->tabBar()->hide();
 }
 
-void QQPinipede::createQTextTableRows( QQTextBrowser* textBrowser, int pos, int num )
+void QQPinipede::createQTextTable( QQTextBrowser* textBrowser, int numRow )
 {
     QTextFrame* root = textBrowser->document()->rootFrame();
 
-    if(root->childFrames().size() == 0)
-    {
-        QTextCursor cursor = root->lastCursorPosition();
-        QTextTableFormat tableFormat;
-        tableFormat.setBorder(0);
-        tableFormat.setMargin(0);
-        tableFormat.setCellSpacing(0);
-        tableFormat.setCellPadding(0);
-        QVector<QTextLength> columnWidthConstraints = tableFormat.columnWidthConstraints();
-        columnWidthConstraints.clear();
-        columnWidthConstraints << QTextLength(QTextLength::FixedLength, 20.0)
-                               << QTextLength(QTextLength::FixedLength, 70.0)
-                               << QTextLength(QTextLength::FixedLength, 70.0)
-                               << QTextLength(QTextLength::VariableLength, 0.0);
-        tableFormat.setColumnWidthConstraints(columnWidthConstraints);
-        cursor.insertTable( num, 4, tableFormat)->columns();
-    }
-    else
-    {
-        QTextTable* mainTable = dynamic_cast<QTextTable *>(root->childFrames().at(0));
-        if( pos < 0 || pos >= mainTable->rows() )
-            mainTable->appendRows( num );
-        else
-            mainTable->insertRows( pos, num );
-    }
+    QTextCursor cursor = root->firstCursorPosition();
+    QTextTableFormat tableFormat;
+    tableFormat.setBorder(0);
+    tableFormat.setMargin(0);
+    tableFormat.setCellSpacing(0);
+    tableFormat.setCellPadding(0);
+    QVector<QTextLength> columnWidthConstraints = tableFormat.columnWidthConstraints();
+    columnWidthConstraints.clear();
+    columnWidthConstraints << QTextLength(QTextLength::FixedLength, 20.0)
+                           << QTextLength(QTextLength::FixedLength, 70.0)
+                           << QTextLength(QTextLength::FixedLength, 70.0)
+                           << QTextLength(QTextLength::VariableLength, 0.0);
+    tableFormat.setColumnWidthConstraints(columnWidthConstraints);
+    cursor.insertTable( numRow, 4, tableFormat)->columns();
 
-    QScrollBar* vScrollBar = textBrowser->verticalScrollBar();
-    vScrollBar->setSliderPosition( vScrollBar->maximum() );
+    textBrowser->verticalScrollBar()->triggerAction( QAbstractSlider::SliderToMaximum );
 }
 
 void QQPinipede::printPostAtCursor( QTextCursor & cursor, QQPost * post )
@@ -124,6 +112,9 @@ void QQPinipede::printPostAtCursor( QTextCursor & cursor, QQPost * post )
 
     //Post / Reply
     QTextTableCell cell = cursor.currentTable()->cellAt(cursor);
+
+    qDebug() << "Cell 1 : row=" << cell.row() << ", column=" << cell.column();
+
     cell.setFormat(cellMarkColorFormat);
 
     qDebug() << "post->login() = " << post->login()
@@ -142,6 +133,9 @@ void QQPinipede::printPostAtCursor( QTextCursor & cursor, QQPost * post )
 
     //norloge
     cell = cursor.currentTable()->cellAt(cursor);
+
+    qDebug() << "Cell 2 : row=" << cell.row() << ", column=" << cell.column();
+
     cell.setFormat(cellMarkColorFormat);
 
     QTextCharFormat norlogeFormat;
@@ -158,6 +152,9 @@ void QQPinipede::printPostAtCursor( QTextCursor & cursor, QQPost * post )
 
     //login ou ua
     cell = cursor.currentTable()->cellAt(cursor);
+
+    qDebug() << "Cell 3 : row=" << cell.row() << ", column=" << cell.column();
+
     cell.setFormat(cellMarkColorFormat);
 
     QTextCharFormat loginUaFormat;
@@ -187,6 +184,9 @@ void QQPinipede::printPostAtCursor( QTextCursor & cursor, QQPost * post )
 
     //message
     cell = cursor.currentTable()->cellAt(cursor);
+
+    qDebug() << "Cell 4 : row=" << cell.row() << ", column=" << cell.column();
+
     cell.setFormat(cellMarkColorFormat);
 
     QQMessageParser parser;
@@ -257,60 +257,6 @@ void QQPinipede::printPostAtCursor( QTextCursor & cursor, QQPost * post )
 
 }
 
-void QQPinipede::printPostsAtEnd( QList<QQPost *> & posts )
-{
-    if(posts.size() <= 0)
-        return;
-
-    QQTextBrowser* textBrowser = m_textBrowserHash.value(posts[0]->bouchot()->settings().group());
-    QScrollBar* vScrollBar = textBrowser->verticalScrollBar();
-
-    bool atEnd = false;
-    if( vScrollBar->sliderPosition() == vScrollBar->maximum() )
-        atEnd = true;
-
-    createQTextTableRows( textBrowser, -1, posts.size() );
-
-    QTextFrame* root = textBrowser->document()->rootFrame();
-
-    QTextTable *mainTable = dynamic_cast<QTextTable *>(root->childFrames().at(0));
-
-    QTextCursor cursor = mainTable->cellAt(mainTable->rows() - posts.size(), 0).firstCursorPosition();
-    QList<QQPost *>::iterator post;
-    int i=0;
-    cursor.beginEditBlock();
-    for (post = posts.begin(); post != posts.end(); ++post)
-    {
-        qDebug() << "QQPinipede::printPostsAtEnd : post " << ++i << "/" << posts.length();
-        printPostAtCursor(cursor, *post);
-        cursor.movePosition(QTextCursor::NextRow);
-    }
-    cursor.endEditBlock();
-
-    if( atEnd )
-        vScrollBar->setSliderPosition( vScrollBar->maximum() );
-}
-
-void QQPinipede::printPostAt( QQPost * post, int pos )
-{
-    QQTextBrowser* textBrowser = m_textBrowserHash.value(post->bouchot()->settings().group());
-
-    createQTextTableRows( textBrowser, pos, 1 );
-
-    QTextFrame* root = textBrowser->document()->rootFrame();
-
-    QTextTable* mainTable = dynamic_cast<QTextTable *>(root->childFrames().at(0));
-
-    QTextCursor cursor = mainTable->cellAt(pos, 0).firstCursorPosition();
-    printPostAtCursor(cursor, post);
-}
-
-QTextDocument* QQPinipede::document(const QString& name)
-{
-    QQTextBrowser* textBrowser = m_textBrowserHash.value(name);
-    return textBrowser->document();
-}
-
 void QQPinipede::newPostsAvailable(QQBouchot *sender)
 {
     qDebug() << "QQDisplayBackend::newPostsAvailable";
@@ -325,31 +271,104 @@ void QQPinipede::newPostsAvailable(QQBouchot *sender)
     QTime time = QTime::currentTime();
     time.start();
 
-    if(destlistPosts == NULL)
+    QQTextBrowser* textBrowser = m_textBrowserHash.value(sender->settings().group());
+    QTextFrame* root = textBrowser->document()->rootFrame();
+
+    if(root->childFrames().size() == 0)
     {
         destlistPosts = new QList<QQPost *>(newPosts);
         m_listPostsTabMap.insert(sender->settings().group(), destlistPosts);
-        printPostsAtEnd(* destlistPosts);
+
+        createQTextTable(textBrowser, newPosts.size());
+
+        QTextTable* mainTable = dynamic_cast<QTextTable *>(root->childFrames().at(0));
+        qDebug() << mainTable->rows();
+        QTextCursor cursor = mainTable->cellAt(0, 0).firstCursorPosition();
+        cursor.beginEditBlock();
+
+        int i = 0;
+        while(i < newPosts.size())
+        {
+            qDebug() << "QQPinipede, appending post " << i << "/" << newPosts.length();
+            printPostAtCursor(cursor, newPosts.at(i++));
+            cursor.movePosition(QTextCursor::NextRow);
+        }
+        cursor.endEditBlock();
+
+        textBrowser->verticalScrollBar()->triggerAction( QAbstractSlider::SliderToMaximum );
     }
     else
     {
-        qDebug() << "QQDisplayBackend::newPostsAvailable : newPosts.size=" << newPosts.size()
+        qDebug() << "QQPinipede inserting posts : newPosts.size=" << newPosts.size()
                  << ", destlistPosts->size=" << destlistPosts->size();
 
-        int lastInsert = 0;
-        //on insère en commençant par le plus ancien
+        bool wasAtEnd = false;
+        if( textBrowser->verticalScrollBar()->sliderPosition() == textBrowser->verticalScrollBar()->maximum() )
+            wasAtEnd = true;
 
-        while( newPosts.size() > 0)
+        QTextTable* mainTable = dynamic_cast<QTextTable *>(root->childFrames().at(0));
+        QTextCursor cursor = mainTable->cellAt(0, 0).firstCursorPosition();
+
+        cursor.beginEditBlock();
+
+        int newPostsIndex = 0;
+
+        if(newPosts.at(newPostsIndex)->norloge().toLongLong() < destlistPosts->at(0)->norloge().toLongLong())
         {
-            QQPost* post = newPosts.takeFirst();
-            lastInsert = insertPostToList( destlistPosts, post, lastInsert );
-            printPostAt( post, lastInsert );
-            if( lastInsert == destlistPosts->size() - 1 )
-                break;
-        }
-        destlistPosts->append(newPosts);
-        printPostsAtEnd(newPosts);
+            mainTable->insertRows(0, 1);
+            //ligne précedente + 3 colonnes
+            cursor.movePosition(QTextCursor::PreviousCell, QTextCursor::MoveAnchor, 4);
 
+            printPostAtCursor(cursor, newPosts.at(newPostsIndex));
+            destlistPosts->insert(0, newPosts.at(newPostsIndex));
+            newPostsIndex++;
+        }
+
+        int baseInsertIndex = 0, insertIndex = 0;
+
+        while(newPostsIndex < newPosts.size())
+        {
+            insertIndex = insertPostToList( destlistPosts, newPosts.at(newPostsIndex), baseInsertIndex );
+            qDebug() << "QQPinipede::newPostsAvailable insertIndex=" << insertIndex
+                     << ", destlistPosts->size()=" << destlistPosts->size();
+
+            if(newPosts.at(newPostsIndex) == destlistPosts->last()) //insertion a la fin
+                break;
+
+            //Deplacement vers l'element suivant la ligne qu'on va inserer
+            cursor.movePosition(QTextCursor::NextRow, QTextCursor::MoveAnchor, insertIndex - baseInsertIndex );
+            QTextTableCell cell = cursor.currentTable()->cellAt(cursor);
+            qDebug() << "Cell X1 : row=" << cell.row() << ", column=" << cell.column();
+
+            //Creation de la ligne
+            mainTable->insertRows(insertIndex, 1);
+            cell = cursor.currentTable()->cellAt(cursor);
+            qDebug() << "Cell X2 : row=" << cell.row() << ", column=" << cell.column();
+
+            //Deplacement vers le début de la nouvelle ligne
+            cursor.movePosition(QTextCursor::PreviousCell, QTextCursor::MoveAnchor, 4);
+            printPostAtCursor(cursor, newPosts.at(newPostsIndex++));
+
+            baseInsertIndex = insertIndex;
+        }
+
+        if(newPostsIndex < newPosts.size())
+        {
+            mainTable->appendRows(newPosts.size() - newPostsIndex);
+            cursor.movePosition(QTextCursor::NextRow, QTextCursor::MoveAnchor, insertIndex - baseInsertIndex );
+
+            while(newPostsIndex < newPosts.size())
+            {
+                qDebug() << "QQPinipede, appending post " << newPostsIndex << "/" << newPosts.length();
+                destlistPosts->append(newPosts.at(newPostsIndex));
+                printPostAtCursor(cursor, newPosts.at(newPostsIndex++));
+                cursor.movePosition(QTextCursor::NextRow);
+            }
+        }
+        cursor.endEditBlock();
+
+        if(wasAtEnd)
+            textBrowser->verticalScrollBar()->triggerAction( QAbstractSlider::SliderToMaximum );
     }
     qDebug() << "Time taken is: " << time.elapsed() << " ms";
 }
@@ -364,6 +383,7 @@ unsigned int QQPinipede::insertPostToList(QList<QQPost *> *listPosts, QQPost *po
                  << ", post->norloge()=" << post->norloge();
         if(listPosts->at(i)->norloge().toLongLong() > post->norloge().toLongLong() )
         {
+            qDebug() << "QQDisplayBackend::insertPostToList, listPosts->insert i=" << i;
             listPosts->insert(i, post);
             return i;
         }

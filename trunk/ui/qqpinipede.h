@@ -30,9 +30,6 @@ public:
     void createPiniTabs(const QList<QString> &);
     void removePiniTab(const QString &);
 
-    void printPostsAtEnd(QList<QQPost *> &);
-    void printPostAt(QQPost *, int);
-
     QQPost * getPostForGroup(QString &groupName, int numPost);
 
 public slots:
@@ -47,6 +44,7 @@ private:
     void createQTextTableRows( QQTextBrowser*, int, int );
     void printPostAtCursor( QTextCursor &, QQPost * );
     unsigned int insertPostToList(QList<QQPost *> *, QQPost *, unsigned int);
+    void createQTextTable( QQTextBrowser* textBrowser, int numRow );
 
     QHash<QString, QList<QQPost *> *> m_listPostsTabMap;
 
