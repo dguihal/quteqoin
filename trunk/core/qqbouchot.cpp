@@ -24,7 +24,7 @@ typedef struct bouchotDef
 
 //Définition des bouchots préconfigurés
 // tiré d'olcc by Chrisix
-int bouchotsDefSize = 3;
+int bouchotsDefSize = 4;
 bouchotDefStruct bouchotsDef[] =
 {
     { "dlfp", "http://linuxfr.org/board/index.xml", "http://linuxfr.org/board", "board[message]=%m",
@@ -32,7 +32,9 @@ bouchotDefStruct bouchotsDef[] =
     { "batavie", "http://batavie.leguyader.eu/remote.xml", "http://batavie.leguyader.eu/index.php/add", "",
       "#ffccaa", "llg", "", QQBouchot::SlipTagsRaw },
     { "euromussels", "http://euromussels.eu/?q=tribune.xml&last_id=%i", "http://euromussels.eu/?q=tribune/post", "",
-      "#d0d0ff", "euro,euroxers", "", QQBouchot::SlipTagsEncoded }
+      "#d0d0ff", "euro,euroxers", "", QQBouchot::SlipTagsEncoded },
+    { "finss", "http://finss.free.fr/drupal/?q=tribune.xml", "http://finss.free.fr/drupal/?q=tribune/post", "",
+      "#d0ffd0", "finss", QQBouchot::SlipTagsEncoded }
 };
 
 QQBouchot::QQBouchot(const QString& name, QObject* parent) :
