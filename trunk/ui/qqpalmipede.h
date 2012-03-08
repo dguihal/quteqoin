@@ -26,7 +26,7 @@ public:
     void removeBouchot(const QString & oldBouchot);
 
 signals:
-    void postMessage(const QString &);
+    void postMessage(const QString & bouchot, const QString & message);
 
 public slots:
     void changePalmiColor(const QColor &);
@@ -51,6 +51,7 @@ private slots:
     void bouchotSelectorActivated(int index);
     void insertBlam();
     void insertPaf();
+    void postPushButtonClicked();
 };
 
 #endif // QQPALMIPEDE_H

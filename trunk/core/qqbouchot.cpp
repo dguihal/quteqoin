@@ -29,11 +29,11 @@ bouchotDefStruct bouchotsDef[] =
 {
     { "dlfp", "http://linuxfr.org/board/index.xml", "http://linuxfr.org/board", "board[message]=%m",
       "#dac0de", "linuxfr,beyrouth,passite,dapassite", "_linuxfr.org_session=", QQBouchot::SlipTagsEncoded },
-    { "batavie", "http://batavie.leguyader.eu/remote.xml", "http://batavie.leguyader.eu/index.php/add", "",
+    { "batavie", "http://batavie.leguyader.eu/remote.xml", "http://batavie.leguyader.eu/index.php/add", "message=%m",
       "#ffccaa", "llg", "", QQBouchot::SlipTagsRaw },
-    { "euromussels", "http://euromussels.eu/?q=tribune.xml&last_id=%i", "http://euromussels.eu/?q=tribune/post", "",
+    { "euromussels", "http://euromussels.eu/?q=tribune.xml&last_id=%i", "http://euromussels.eu/?q=tribune/post", "message=%m",
       "#d0d0ff", "euro,euroxers", "", QQBouchot::SlipTagsEncoded },
-    { "finss", "http://finss.free.fr/drupal/?q=tribune.xml", "http://finss.free.fr/drupal/?q=tribune/post", "",
+    { "finss", "http://finss.free.fr/drupal/?q=tribune.xml", "http://finss.free.fr/drupal/?q=tribune/post", "message=%m",
       "#d0ffd0", "finss", QQBouchot::SlipTagsEncoded }
 };
 
@@ -54,20 +54,29 @@ QQBouchot::~QQBouchot()
 {
 }
 
-QQBouchot::QQBouchotSettings QQBouchot::settings()
+void QQBouchot::postMessage(const QString &message)
 {
-    return m_settings;
+    QString url = m_settings.postUrl();
+    QByteArray postData = m_settings.postData().toAscii();
+    QByteArray mark("%m");
+
+    if(postData.contains(mark))
+        postData.replace(mark, QUrl::toPercentEncoding(message));
+    else
+        postData=QUrl::toPercentEncoding(message);
+
+    QNetworkRequest request(QUrl::fromUserInput(url));
+    request.setHeader(QNetworkRequest::ContentTypeHeader,"application/x-www-form-urlencoded");
+
+    if(m_settings.ua().isEmpty() == false)
+        request.setRawHeader(QString::fromAscii("User-Agent").toAscii(), m_settings.ua().toAscii());
+
+    if(m_settings.cookie().isEmpty() == false)
+        request.setRawHeader(QString::fromAscii("Cookie").toAscii(), m_settings.cookie().toAscii());
+
+    m_netManager->post(request, postData);
 }
 
-void QQBouchot::setSettings(QQBouchotSettings newSettings)
-{
-    m_settings = newSettings;
-}
-
-void QQBouchot::setSettings(QQBouchot bouchotRef)
-{
-    setSettings(bouchotRef.settings());
-}
 
 void QQBouchot::startRefresh()
 {
@@ -124,7 +133,9 @@ void QQBouchot::fetchBackend()
 void QQBouchot::replyFinished(QNetworkReply *reply)
 {
     qDebug() << "QQBouchot::replyFinished isFinished=" << reply->isFinished()
-                << ", error=" << reply->errorString();
+             << ", error=" << reply->errorString();
+
+    qDebug() << "QQBouchot::replyFinished size=" << reply->size();
 
     m_newPostHistory.clear();
 

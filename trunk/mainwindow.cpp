@@ -38,6 +38,7 @@ MainWindow::MainWindow(QWidget *parent) :
     }
     connect(pini, SIGNAL(insertTextPalmi(QString)), palmi, SLOT(insertReplaceText(QString)));
 
+    connect(palmi, SIGNAL(postMessage(QString,QString)), this, SLOT(doPostMessage(QString,QString)));
     connect(ui->actionOptions, SIGNAL(triggered()), this, SLOT(displayOptions()));
     connect(ui->actionEnregistrer_parametres, SIGNAL(triggered()), settings, SLOT(saveSettings()));
     connect(ui->actionQuit, SIGNAL(triggered()), this, SLOT(close()));
@@ -120,6 +121,14 @@ void MainWindow::displayOptions()
     }
     settings->startBouchots();
 }
+
+void MainWindow::doPostMessage(const QString & bouchot, const QString & message)
+{
+    QQBouchot * bouchotDest = settings->bouchot(bouchot);
+
+    bouchotDest->postMessage(message);
+}
+
 
 void MainWindow::closeEvent(QCloseEvent *event)
  {
