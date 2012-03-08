@@ -23,6 +23,7 @@ public:
 
 public slots:
     void displayOptions();
+    void doPostMessage(const QString & bouchot, const QString & message);
 
 protected:
     void closeEvent(QCloseEvent *event);

@@ -85,9 +85,11 @@ public:
     QString name() { return m_name; }
     //void setName(const QString &newName) { m_name = newName; }
 
-    QQBouchotSettings settings();
-    void setSettings(QQBouchot);
-    void setSettings(QQBouchotSettings);
+    void postMessage(const QString & message);
+
+    QQBouchotSettings settings() { return m_settings; }
+    void setSettings(QQBouchot bouchotRef) { setSettings(bouchotRef.settings()); }
+    void setSettings(QQBouchotSettings newSettings) { m_settings = newSettings; }
 
     void startRefresh();
     void stopRefresh();

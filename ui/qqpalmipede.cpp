@@ -27,6 +27,8 @@ QQPalmipede::QQPalmipede(QWidget *parent) :
     connect(ui->momentButton, SIGNAL( clicked() ), this, SLOT( momentClicked() ) );
     connect(ui->blamPafComboBox, SIGNAL(activated(QString)), this, SLOT(blamPafActivated(QString)));
     connect(ui->boardSelectorComboBox, SIGNAL(activated(int)), this, SLOT(bouchotSelectorActivated(int)));
+    connect(ui->postPushButton, SIGNAL(clicked()), this, SLOT(postPushButtonClicked()));
+    connect(ui->postLineEdit, SIGNAL(returnPressed()), ui->postPushButton, SLOT(animateClick()));
 }
 
 QQPalmipede::~QQPalmipede()
@@ -34,66 +36,58 @@ QQPalmipede::~QQPalmipede()
     delete ui;
 }
 
-/*
-QString QQPalmipede::getCurrentBouchot()
-{
-    QString text;
-    return text;
-}
-*/
-
 void QQPalmipede::insertText(const QString &text)
 {
-    ui->lineEdit->insert(text);
+    ui->postLineEdit->insert(text);
 }
 
 void QQPalmipede::changePalmiColor(const QColor& newColor)
 {
-    QPalette p = ui->lineEdit->palette();
+    QPalette p = ui->postLineEdit->palette();
     p.setColor( QPalette::Base, newColor );
-    ui->lineEdit->setPalette(p);
+    ui->postLineEdit->setPalette(p);
     qDebug()<<"QQPalmipede::changePalmiColor";
 }
 
 void QQPalmipede::insertSurroundText(const QString& bTag, const QString& eTag)
 {
-    if(ui->lineEdit->hasSelectedText())
+    if(ui->postLineEdit->hasSelectedText())
     {
         qDebug()<<"QQPalmipede::insertTagsLineEdit : hasSelectedText";
-        QString text=ui->lineEdit->text();
-        int selectionStart=ui->lineEdit->selectionStart();
-        int selectedTextLength=ui->lineEdit->selectedText().length();
+        QString text=ui->postLineEdit->text();
+        int selectionStart=ui->postLineEdit->selectionStart();
+        int selectedTextLength=ui->postLineEdit->selectedText().length();
         text.insert(selectionStart, bTag);
         text.insert(selectionStart + bTag.length() + selectedTextLength, eTag);
-        ui->lineEdit->setText(text);
-        ui->lineEdit->setCursorPosition(selectionStart + bTag.length() + selectedTextLength);
+        ui->postLineEdit->setText(text);
+        ui->postLineEdit->setCursorPosition(selectionStart + bTag.length() + selectedTextLength);
     }
     else
     {
-        ui->lineEdit->insert(bTag);
-        ui->lineEdit->insert(eTag);
-        ui->lineEdit->setFocus(Qt::OtherFocusReason);
-        ui->lineEdit->setCursorPosition(ui->lineEdit->cursorPosition() - eTag.length());
+        ui->postLineEdit->insert(bTag);
+        ui->postLineEdit->insert(eTag);
+        ui->postLineEdit->setFocus(Qt::OtherFocusReason);
+        ui->postLineEdit->setCursorPosition(ui->postLineEdit->cursorPosition() - eTag.length());
     }
 }
 
 void QQPalmipede::insertReplaceText(const QString& tag)
 {
-    if(ui->lineEdit->hasSelectedText())
+    if(ui->postLineEdit->hasSelectedText())
     {
         qDebug()<<"QQPalmipede::insertTagsLineEdit : hasSelectedText";
-        QString text=ui->lineEdit->text();
-        int selectionStart=ui->lineEdit->selectionStart();
-        int selectedTextLength=ui->lineEdit->selectedText().length();
+        QString text=ui->postLineEdit->text();
+        int selectionStart=ui->postLineEdit->selectionStart();
+        int selectedTextLength=ui->postLineEdit->selectedText().length();
         text.replace(selectionStart, selectedTextLength, tag);
-        ui->lineEdit->setText(text);
-        ui->lineEdit->setCursorPosition(selectionStart + tag.length());
+        ui->postLineEdit->setText(text);
+        ui->postLineEdit->setCursorPosition(selectionStart + tag.length());
     }
     else
     {
-        ui->lineEdit->insert(tag);
-        ui->lineEdit->setFocus(Qt::OtherFocusReason);
-        ui->lineEdit->setCursorPosition(ui->lineEdit->cursorPosition());
+        ui->postLineEdit->insert(tag);
+        ui->postLineEdit->setFocus(Qt::OtherFocusReason);
+        ui->postLineEdit->setCursorPosition(ui->postLineEdit->cursorPosition());
     }
 }
 
@@ -115,7 +109,7 @@ void QQPalmipede::removeBouchot(const QString &oldBouchot)
 
 void QQPalmipede::changeNorloges(const QString & bouchot)
 {
-    QString text = ui->lineEdit->text();
+    QString text = ui->postLineEdit->text();
     QRegExp norlogeReg = QQNorloge::norlogeRegexp();
     QRegExp bouchotRemoverReg = QRegExp(QString::fromAscii("@").append(bouchot),
                                         Qt::CaseSensitive,
@@ -149,7 +143,7 @@ void QQPalmipede::changeNorloges(const QString & bouchot)
     if(text.length() > 0)
         destText.append(text);
 
-    ui->lineEdit->setText(destText);
+    ui->postLineEdit->setText(destText);
 }
 
 void QQPalmipede::boldClicked()
@@ -202,6 +196,16 @@ void QQPalmipede::bouchotSelectorActivated(int index)
     QColor bouchotColor = ui->boardSelectorComboBox->itemData(index).value<QColor>();
     changePalmiColor(bouchotColor);
     m_oldBouchot = bouchot;
+}
+
+void QQPalmipede::postPushButtonClicked()
+{
+    QString message = ui->postLineEdit->text();
+    QString bouchotDest = ui->boardSelectorComboBox->currentText();
+    emit postMessage(bouchotDest, message);
+
+    //envisager de garder un histo des derniers posts "Au cas ou"
+    ui->postLineEdit->clear();
 }
 
 void QQPalmipede::insertBlam()
