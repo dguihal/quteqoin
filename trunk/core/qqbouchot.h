@@ -2,6 +2,7 @@
 #define QQBOUCHOT_H
 
 #include "qqpost.h"
+#include "core/qqsettings.h"
 
 #include <QColor>
 #include <QObject>
@@ -79,7 +80,7 @@ public:
         QString m_group;
     };
 
-    QQBouchot(const QString& name, QObject* parent = 0);
+    QQBouchot(const QString & name, QQSettings * parent = 0);
     ~QQBouchot();
 
     QString name() { return m_name; }
