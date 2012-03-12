@@ -19,7 +19,7 @@
 QQSettings::QQSettings(QObject *parent) :
     QObject(parent)
 {
-    dirty = false;
+    m_dirty = false;
     readSettings();
 }
 
@@ -33,14 +33,9 @@ void QQSettings::setMaxHistoryLength(uint maxHistoryLength)
     if(this->m_maxHistoryLength != maxHistoryLength)
     {
         this->m_maxHistoryLength = maxHistoryLength;
-        dirty = true;
+        m_dirty = true;
     }
 
-}
-
-uint QQSettings::maxHistoryLength()
-{
-    return m_maxHistoryLength;
 }
 
 void QQSettings::setDefaultUA(const QString& defaultUA)
@@ -49,13 +44,8 @@ void QQSettings::setDefaultUA(const QString& defaultUA)
     if(this->m_defaultUA != defaultUA)
     {
         m_defaultUA = defaultUA;
-        dirty = true;
+        m_dirty = true;
     }
-}
-
-QString QQSettings::defaultUA()
-{
-    return m_defaultUA;
 }
 
 void QQSettings::setTotozServerUrl(const QUrl& totozServerUrl)
@@ -64,13 +54,8 @@ void QQSettings::setTotozServerUrl(const QUrl& totozServerUrl)
     if(this->m_totozServerUrl.toString() != totozServerUrl.toString())
     {
         m_totozServerUrl = totozServerUrl;
-        dirty = true;
+        m_dirty = true;
     }
-}
-
-QUrl QQSettings::totozServerUrl()
-{
-    return m_totozServerUrl;
 }
 
 void QQSettings::setTotozMode(QQSettings::TotozMode totozMode)
@@ -79,13 +64,8 @@ void QQSettings::setTotozMode(QQSettings::TotozMode totozMode)
     if(this->m_totozMode != totozMode)
     {
         m_totozMode = totozMode;
-        dirty = true;
+        m_dirty = true;
     }
-}
-
-QQSettings::TotozMode QQSettings::totozMode()
-{
-    return m_totozMode;
 }
 
 void QQSettings::setDefaultLogin(const QString& defaultLogin)
@@ -94,24 +74,8 @@ void QQSettings::setDefaultLogin(const QString& defaultLogin)
     if(this->m_defaultLogin != defaultLogin)
     {
         m_defaultLogin = defaultLogin;
-        dirty = true;
+        m_dirty = true;
     }
-}
-
-QString QQSettings::defaultLogin()
-{
-    return m_defaultLogin;
-}
-
-QList<QQBouchot *> QQSettings::listBouchots()
-{
-    return m_listBouchots;
-}
-
-bool QQSettings::hasBouchot(QString bouchotName)
-{
-    return bouchot(bouchotName) != NULL;
-
 }
 
 QQBouchot * QQSettings::bouchot(QString bouchotName)
@@ -125,11 +89,13 @@ QQBouchot * QQSettings::bouchot(QString bouchotName)
 void QQSettings::addBouchot(QQBouchot *bouchot)
 {
     m_listBouchots.append(bouchot);
+    m_dirty=true;
 }
 
 void QQSettings::addBouchots(const QList<QQBouchot *>& newBouchots)
 {
     m_listBouchots << newBouchots;
+    m_dirty=true;
 }
 
 void QQSettings::removeBouchot(const QString bouchotName)
@@ -140,6 +106,7 @@ void QQSettings::removeBouchot(const QString bouchotName)
     {
         m_listBouchots.removeOne(bouchot);
         delete bouchot;
+        m_dirty=true;
     }
 }
 
@@ -246,15 +213,15 @@ bool QQSettings::readSettings()
     settings.endGroup();
 
     if(! QFile::exists(settings.fileName()))
-        dirty = true;
+        m_dirty = true;
     else
-        dirty = false;
+        m_dirty = false;
     return true;
 }
 
 bool QQSettings::saveSettings()
 {
-    if(! dirty)
+    if(! m_dirty)
         return true;
 
     QSettings settings(QSettings::NativeFormat, QSettings::UserScope, "Moules Corp", "qoinqoin");
@@ -311,13 +278,13 @@ bool QQSettings::saveSettings()
     settings.setValue("bouchots", QVariant(bouchotNameList.join(QChar::fromAscii(BOUCHOTS_SPLIT_CHAR))));
     //qDebug() << settings.fileName();
 
-    dirty = false;
+    m_dirty = false;
     return true;
 }
 
 bool QQSettings::maybeSave()
 {
-    if(dirty)
+    if(m_dirty)
     {
         QMessageBox msgBox;
         msgBox.setText(tr("Settings have changed."));

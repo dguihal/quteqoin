@@ -22,23 +22,23 @@ public:
     ~QQSettings();
 
     void setMaxHistoryLength(uint);
-    uint maxHistoryLength();
+    uint maxHistoryLength() { return m_maxHistoryLength; }
 
     void setDefaultUA(const QString&);
-    QString defaultUA();
+    QString defaultUA() { return m_defaultUA; }
 
     void setTotozServerUrl(const QUrl&);
-    QUrl totozServerUrl();
+    QUrl totozServerUrl() { return m_totozServerUrl; }
 
     void setTotozMode(TotozMode);
-    TotozMode totozMode();
+    TotozMode totozMode() { return m_totozMode; }
 
     void setDefaultLogin(const QString&);
-    QString defaultLogin();
+    QString defaultLogin() { return m_defaultLogin; }
 
     void setListBouchots(const QList<QQBouchot *>&);
-    QList<QQBouchot *> listBouchots();
-    bool hasBouchot(QString bouchotName);
+    QList<QQBouchot *> listBouchots() { return m_listBouchots; }
+    bool hasBouchot(QString bouchotName) { return bouchot(bouchotName) != NULL; }
     QQBouchot * bouchot(QString bouchotName);
     void addBouchot(QQBouchot *);
     void addBouchots(const QList<QQBouchot *>&);
@@ -49,6 +49,8 @@ public:
     void stopBouchot(QString &);
 
     QList<QString> listTabs();
+
+    void setDirty() { m_dirty = true; }
 
 public slots:
     bool readSettings();
@@ -63,7 +65,7 @@ private:
     TotozMode m_totozMode;
 
     QList<QQBouchot *> m_listBouchots;
-    bool dirty;
+    bool m_dirty;
 };
 
 #endif // QQSETTINGS_H
