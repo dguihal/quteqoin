@@ -1,5 +1,6 @@
 #include "qqbouchot.h"
 
+#include "core/qqsettings.h"
 #include "xml/qqxmlparser.h"
 
 #include <QDebug>
@@ -37,7 +38,7 @@ bouchotDefStruct bouchotsDef[] =
       "#d0ffd0", "finss", QQBouchot::SlipTagsEncoded }
 };
 
-QQBouchot::QQBouchot(const QString& name, QObject* parent) :
+QQBouchot::QQBouchot(const QString & name, QQSettings * parent) :
     QObject(parent)
 {
     m_name = name;
@@ -70,6 +71,8 @@ void QQBouchot::postMessage(const QString &message)
 
     if(m_settings.ua().isEmpty() == false)
         request.setRawHeader(QString::fromAscii("User-Agent").toAscii(), m_settings.ua().toAscii());
+    else
+        request.setRawHeader(QString::fromAscii("User-Agent").toAscii(), ((QQSettings *)this->parent())->defaultUA().toAscii());
 
     if(m_settings.cookie().isEmpty() == false)
         request.setRawHeader(QString::fromAscii("Cookie").toAscii(), m_settings.cookie().toAscii());
