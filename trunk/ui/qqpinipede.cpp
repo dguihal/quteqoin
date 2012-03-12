@@ -93,7 +93,7 @@ void QQPinipede::createQTextTable( QQTextBrowser* textBrowser, int numRow )
     tableFormat.setCellPadding(0);
     QVector<QTextLength> columnWidthConstraints = tableFormat.columnWidthConstraints();
     columnWidthConstraints.clear();
-    columnWidthConstraints << QTextLength(QTextLength::FixedLength, 20.0)
+    columnWidthConstraints << QTextLength(QTextLength::VariableLength, 20.0)
                            << QTextLength(QTextLength::FixedLength, 70.0)
                            << QTextLength(QTextLength::FixedLength, 70.0)
                            << QTextLength(QTextLength::VariableLength, 0.0);
@@ -121,7 +121,11 @@ void QQPinipede::printPostAtCursor( QTextCursor & cursor, QQPost * post )
              << ", post->UA() = " << post->UA();
 
     if( post->isSelfPost())
-        cursor.insertImage(QImage(QString::fromAscii(":/img/Fleche_verte.svg")));
+    {
+        QFont defautFont = cellMarkColorFormat.font();
+        QFontMetrics fontMetrics = QFontMetrics(defautFont);
+        cursor.insertImage(QImage(QString::fromAscii(":/img/Fleche_verte.svg")).scaledToHeight(fontMetrics.height() - 2));
+    }
 
     cursor.movePosition(QTextCursor::NextCell);
 
