@@ -102,6 +102,7 @@ void MainWindow::displayOptions()
             iModif.next();
             QQBouchot * modifBouchot = settings->bouchot(iModif.key());
             modifBouchot->setSettings(iModif.value());
+            settings->setDirty();
         }
 
         //Les bouchots ajoutes
