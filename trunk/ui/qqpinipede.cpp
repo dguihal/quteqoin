@@ -91,6 +91,7 @@ void QQPinipede::createQTextTable( QQTextBrowser* textBrowser, int numRow )
     tableFormat.setMargin(0);
     tableFormat.setCellSpacing(0);
     tableFormat.setCellPadding(0);
+    tableFormat.setPosition(QTextFrameFormat::InFlow);
     QVector<QTextLength> columnWidthConstraints = tableFormat.columnWidthConstraints();
     columnWidthConstraints.clear();
     columnWidthConstraints << QTextLength(QTextLength::VariableLength, 20.0)
@@ -270,6 +271,11 @@ void QQPinipede::newPostsAvailable(QQBouchot *sender)
 
     QList<QQPost *> newPosts = sender->getNewPosts();
 
+    //On est obligé de locker pour éviter la pagaille dans le pini.
+    // un locking plus fin pourrait être obtenu en implémentant un lock par groupe
+    while(! newPostsAvailableMutex.tryLock(1000))
+        qWarning() << "newPostsAvailable " << sender->name() << "tryLock timeout";
+
     QList<QQPost *> *destlistPosts = m_listPostsTabMap[sender->settings().group()];
 
     QTime time = QTime::currentTime();
@@ -319,12 +325,15 @@ void QQPinipede::newPostsAvailable(QQBouchot *sender)
 
         if(newPosts.at(newPostsIndex)->norloge().toLongLong() < destlistPosts->at(0)->norloge().toLongLong())
         {
+            QQPost * newPost = newPosts.at(newPostsIndex);
+
             mainTable->insertRows(0, 1);
             //ligne précedente + 3 colonnes
             cursor.movePosition(QTextCursor::PreviousCell, QTextCursor::MoveAnchor, 4);
 
-            printPostAtCursor(cursor, newPosts.at(newPostsIndex));
-            destlistPosts->insert(0, newPosts.at(newPostsIndex));
+            printPostAtCursor(cursor, newPost);
+            destlistPosts->insert(0, newPost);
+
             newPostsIndex++;
         }
 
@@ -332,11 +341,13 @@ void QQPinipede::newPostsAvailable(QQBouchot *sender)
 
         while(newPostsIndex < newPosts.size())
         {
-            insertIndex = insertPostToList( destlistPosts, newPosts.at(newPostsIndex), baseInsertIndex );
+            QQPost * newPost = newPosts.at(newPostsIndex);
+
+            insertIndex = insertPostToList( destlistPosts, newPost, baseInsertIndex );
             qDebug() << "QQPinipede::newPostsAvailable insertIndex=" << insertIndex
                      << ", destlistPosts->size()=" << destlistPosts->size();
 
-            if(newPosts.at(newPostsIndex) == destlistPosts->last()) //insertion a la fin
+            if(newPost == destlistPosts->last()) //insertion a la fin
                 break;
 
             //Deplacement vers l'element suivant la ligne qu'on va inserer
@@ -351,8 +362,9 @@ void QQPinipede::newPostsAvailable(QQBouchot *sender)
 
             //Deplacement vers le début de la nouvelle ligne
             cursor.movePosition(QTextCursor::PreviousCell, QTextCursor::MoveAnchor, 4);
-            printPostAtCursor(cursor, newPosts.at(newPostsIndex++));
+            printPostAtCursor(cursor,newPost);
 
+            newPostsIndex++;
             baseInsertIndex = insertIndex;
         }
 
@@ -360,6 +372,10 @@ void QQPinipede::newPostsAvailable(QQBouchot *sender)
         {
             mainTable->appendRows(newPosts.size() - newPostsIndex);
             cursor.movePosition(QTextCursor::NextRow, QTextCursor::MoveAnchor, insertIndex - baseInsertIndex );
+            //Le premier item a déjà été inséré dans la liste destlistPosts dans la boucle while au dessus
+            //on a juste a l'afficher
+            printPostAtCursor(cursor, newPosts.at(newPostsIndex++));
+            cursor.movePosition(QTextCursor::NextRow);
 
             while(newPostsIndex < newPosts.size())
             {
@@ -374,6 +390,11 @@ void QQPinipede::newPostsAvailable(QQBouchot *sender)
         if(wasAtEnd)
             textBrowser->verticalScrollBar()->triggerAction( QAbstractSlider::SliderToMaximum );
     }
+
+    //TODO : insérer ici la purge des anciens messages
+    //Fin TODO
+
+    newPostsAvailableMutex.unlock();
     qDebug() << "Time taken is: " << time.elapsed() << " ms";
 }
 
@@ -399,7 +420,7 @@ unsigned int QQPinipede::insertPostToList(QList<QQPost *> *listPosts, QQPost *po
 
 void QQPinipede::norlogeClicked(QQNorloge norloge)
 {
-    emit insertTextPalmi(norloge.toStringPalmi());
+    emit insertTextPalmi(norloge.toStringPalmi() + QString::fromAscii(" "));
 }
 
 void QQPinipede::loginClicked(QString tabGroupName)
