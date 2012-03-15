@@ -4,6 +4,7 @@
 #include "core/qqnorloge.h"
 
 #include <QHash>
+#include <QMutex>
 #include <QRegExp>
 #include <QString>
 #include <QTabWidget>
@@ -54,6 +55,8 @@ private:
     int getNextTotoz(QString &);
 
     QHash<QString, QQTextBrowser *> m_textBrowserHash;
+
+    QMutex newPostsAvailableMutex;
 
     int norlogeMatchLength;
     int duckMatchLength;
