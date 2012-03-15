@@ -49,7 +49,7 @@ void QQPalmipede::changePalmiColor(const QColor& newColor)
     qDebug()<<"QQPalmipede::changePalmiColor";
 }
 
-void QQPalmipede::insertSurroundText(const QString& bTag, const QString& eTag)
+void QQPalmipede::insertSurroundText(const QString & bTag, const QString & eTag)
 {
     if(ui->postLineEdit->hasSelectedText())
     {
@@ -71,21 +71,26 @@ void QQPalmipede::insertSurroundText(const QString& bTag, const QString& eTag)
     }
 }
 
-void QQPalmipede::insertReplaceText(const QString& tag)
+void QQPalmipede::insertReplaceText(const QString & tag)
 {
+    QString text = tag;
+    //Suppression des @bouchot excédentaires lorsque l'on a déjà selectionné le dit bouchot
+    QRegExp regexp = QQNorloge::norlogeRegexp(ui->boardSelectorComboBox->currentText());
+    text.replace(regexp, QString::fromAscii("\\1"));
+
     if(ui->postLineEdit->hasSelectedText())
     {
         qDebug()<<"QQPalmipede::insertTagsLineEdit : hasSelectedText";
         QString text=ui->postLineEdit->text();
         int selectionStart=ui->postLineEdit->selectionStart();
         int selectedTextLength=ui->postLineEdit->selectedText().length();
-        text.replace(selectionStart, selectedTextLength, tag);
+        text.replace(selectionStart, selectedTextLength, text);
         ui->postLineEdit->setText(text);
-        ui->postLineEdit->setCursorPosition(selectionStart + tag.length());
+        ui->postLineEdit->setCursorPosition(selectionStart + text.length());
     }
     else
     {
-        ui->postLineEdit->insert(tag);
+        ui->postLineEdit->insert(text);
         ui->postLineEdit->setFocus(Qt::OtherFocusReason);
         ui->postLineEdit->setCursorPosition(ui->postLineEdit->cursorPosition());
     }
