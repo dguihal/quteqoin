@@ -19,6 +19,7 @@ public:
 
 signals:
     void norlogeClicked(QQNorloge norloge);
+    void norlogeRefHovered(QQNorloge norloge);
     void loginClicked(QString groupName);
 
 protected:
@@ -27,8 +28,8 @@ protected:
     void mouseReleaseEvent(QMouseEvent *event);
 
 private:
-    int mouseRowNum;
-    int mouseColNum;
+    void messageColumnIsHovered(const QTextCharFormat & textHoveredFormat);
+    void norlogeRefIsHovered();
 
     bool mousePressed;
 

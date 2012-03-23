@@ -3,9 +3,11 @@
 #include "mainwindow.h"
 #include "core/qqbouchot.h"
 #include "core/qqtextcharformat.h"
-#include "core/qqmessageparser.h"
+//#include "core/qqmessageparser.h"
 #include "ui/qqpalmipede.h"
+#include "ui/qqsyntaxhighlighter.h"
 #include "ui/qqtextbrowser.h"
+#include "ui/qqmessageblockuserdata.h"
 
 #include <QBrush>
 #include <QDebug>
@@ -54,9 +56,12 @@ void QQPinipede::addPiniTab(const QString& groupName)
     this->addTab(widget, groupName);
 
     m_textBrowserHash.insert(groupName, textBrowser);
+    m_textBMsgHighlighterHash.insert(groupName, new QQSyntaxHighlighter(textBrowser));
+
     qDebug() << "QQPinipede::addPiniTab this->m_textBrowserHash.size()=" << this->m_textBrowserHash.size();
 
     connect(textBrowser, SIGNAL(norlogeClicked(QQNorloge)), this, SLOT(norlogeClicked(QQNorloge)));
+    connect(textBrowser, SIGNAL(norlogeRefHovered(QQNorloge)), this, SLOT(norlogeRefHovered(QQNorloge)));
 
     if (this->count() > 1)
         this->tabBar()->show();
@@ -127,6 +132,10 @@ void QQPinipede::printPostAtCursor( QTextCursor & cursor, QQPost * post )
         QFontMetrics fontMetrics = QFontMetrics(defautFont);
         cursor.insertImage(QImage(QString::fromAscii(":/img/Fleche_verte.svg")).scaledToHeight(fontMetrics.height() - 2));
     }
+    else
+    {
+        cursor.insertText(QString::fromLatin1(" "));
+    }
 
     cursor.movePosition(QTextCursor::NextCell);
 
@@ -149,8 +158,14 @@ void QQPinipede::printPostAtCursor( QTextCursor & cursor, QQPost * post )
     norlogeFormat.setProperty(NorlogeData, post->norloge());
     norlogeFormat.setProperty(BouchotData, post->bouchot()->name());
 
-    cursor.insertText(post->norlogeFormatee(), norlogeFormat);
+    QTextBlock block = cursor.block();
+    QQMessageBlockUserData * data = new QQMessageBlockUserData();
+    data->storeData(QQMessageBlockUserData::BOUCHOT_NAME, post->bouchot()->name());
+    data->storeData(QQMessageBlockUserData::POST_NORLOGE, post->norloge());
+    data->storeData(QQMessageBlockUserData::IS_NORLOGE_ZONE, true);
+    block.setUserData(data);
 
+    cursor.insertText(post->norlogeFormatee(), norlogeFormat);
     cursor.insertText(QString::fromLatin1(" "), defaultFormat);
 
     cursor.movePosition(QTextCursor::NextCell);
@@ -181,6 +196,13 @@ void QQPinipede::printPostAtCursor( QTextCursor & cursor, QQPost * post )
 
         txt = post->UA().left(12);
     }
+    block = cursor.block();
+    data = new QQMessageBlockUserData();
+    data->storeData(QQMessageBlockUserData::BOUCHOT_NAME, post->bouchot()->name());
+    data->storeData(QQMessageBlockUserData::POST_NORLOGE, post->norloge());
+    data->storeData(QQMessageBlockUserData::IS_LOGIN_UA_ZONE, true);
+    block.setUserData(data);
+
     cursor.insertText(txt, loginUaFormat);
 
     cursor.insertText(QString::fromLatin1(" "), defaultFormat);
@@ -194,70 +216,13 @@ void QQPinipede::printPostAtCursor( QTextCursor & cursor, QQPost * post )
 
     cell.setFormat(cellMarkColorFormat);
 
-    QQMessageParser parser;
-    parser.parseMessage(post->message());
-    QVector<QQMessageElt> messageElts = parser.messageElts();
-
-    for(int i=0; i < messageElts.size(); ++i)
-    {
-        QQMessageElt elt = messageElts.at(i);
-        switch(elt.type())
-        {
-        case QQMessageElt::Txt:
-        {
-            QString txt = elt.txt();
-            if(txt[0].isSpace())
-            {
-                txt.remove(0, 1);
-                txt.prepend(QString("&nbsp;"));
-            }
-            cursor.insertHtml(txt);
-            break;
-        }
-
-        case QQMessageElt::Norloge:
-        {
-            QTextCharFormat norlogeMessageFormat;
-            norlogeMessageFormat.setForeground(QColor("#0000DD"));
-            norlogeMessageFormat.setObjectType(NorlogeTextFormat);
-            norlogeMessageFormat.setProperty(NorlogeData, elt.txt());
-
-            cursor.insertText(elt.txt(), norlogeMessageFormat);
-            break;
-        }
-
-        case QQMessageElt::Totoz:
-        {
-            QTextCharFormat totozMessageFormat;
-            totozMessageFormat.setForeground(QColor("#00AA11"));
-            totozMessageFormat.setFontWeight(QFont::Bold);
-            totozMessageFormat.setObjectType(TotozTextFormat);
-            totozMessageFormat.setProperty(TotozData, elt.txt());
-
-            cursor.insertText(elt.txt(), totozMessageFormat);
-            break;
-        }
-
-        case QQMessageElt::Duck:
-        {
-            QTextDocument duck;
-            duck.setHtml(elt.txt());
-
-            QTextCharFormat duckMessageFormat;
-            duckMessageFormat.setForeground(QColor("#9933CC"));
-            duckMessageFormat.setObjectType(DuckTextFormat);
-            // Inutile
-            //totozMessageFormat.setProperty(DuckData, duck.toPlainText());
-
-            cursor.insertText(duck.toPlainText(), duckMessageFormat);
-            break;
-        }
-
-        default:
-            qDebug() << "QQPinipede::printPostAtCursor Totoz !!!!!!!!!!! type : " << elt.type();
-        }
-    }
-
+    block = cursor.block();
+    data = new QQMessageBlockUserData();
+    data->storeData(QQMessageBlockUserData::BOUCHOT_NAME, post->bouchot()->name());
+    data->storeData(QQMessageBlockUserData::POST_NORLOGE, post->norloge());
+    data->storeData(QQMessageBlockUserData::IS_MESSAGE_ZONE, true);
+    block.setUserData(data);
+    cursor.insertHtml(post->message());
     cursor.insertText(QString::fromLatin1(" "), defaultFormat);
 
 }
@@ -421,6 +386,14 @@ unsigned int QQPinipede::insertPostToList(QList<QQPost *> *listPosts, QQPost *po
 void QQPinipede::norlogeClicked(QQNorloge norloge)
 {
     emit insertTextPalmi(norloge.toStringPalmi() + QString::fromAscii(" "));
+}
+
+void QQPinipede::norlogeRefHovered(QQNorloge norloge)
+{
+    QString bouchotDest = norloge.srcBouchot();
+    QString refNorloge = norloge.toStringPini();
+
+    qDebug() << "norlogeRefHovered, datetimepart=" << refNorloge << ", destbouchot=" << bouchotDest;
 }
 
 void QQPinipede::loginClicked(QString tabGroupName)

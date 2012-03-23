@@ -11,6 +11,7 @@
 #include <QTextFormat>
 
 class QQBouchot;
+class QQSyntaxHighlighter;
 class QQTextBrowser;
 class QTextCursor;
 class QTextFrame;
@@ -35,6 +36,7 @@ public:
 
 public slots:
     void norlogeClicked(QQNorloge norloge);
+    void norlogeRefHovered(QQNorloge norloge);
     void loginClicked(QString);
     void newPostsAvailable( QQBouchot * );
 
@@ -55,6 +57,7 @@ private:
     int getNextTotoz(QString &);
 
     QHash<QString, QQTextBrowser *> m_textBrowserHash;
+    QHash<QString, QQSyntaxHighlighter *> m_textBMsgHighlighterHash;
 
     QMutex newPostsAvailableMutex;
 
