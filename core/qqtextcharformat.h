@@ -6,8 +6,10 @@
 enum SpecialTextFormats
 {
     TotozTextFormat = QTextFormat::UserObject + 1,
+    TableVolanteTextFormat,
     DuckTextFormat,
     NorlogeTextFormat,
+    RefNorlogeTextFormat,
     UATextFormat,
     LoginTextFormat,
     BouchotBgFormat

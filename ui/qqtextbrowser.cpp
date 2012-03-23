@@ -2,6 +2,7 @@
 
 #include "core/qqpost.h"
 #include "core/qqtextcharformat.h"
+#include "ui/qqmessageblockuserdata.h"
 
 #include <QDebug>
 #include <QMouseEvent>
@@ -41,42 +42,43 @@ void QQTextBrowser::mouseMoveEvent(QMouseEvent *event)
     mousePressed = false;
 
     QTextCursor cursor = cursorForPosition(event->pos());
-    QTextTable * table = cursor.currentTable();
 
-    if(table != NULL)
+    QTextBlock block = cursor.block();
+    QQMessageBlockUserData * blockData = dynamic_cast<QQMessageBlockUserData *>(block.userData());
+    if(blockData != NULL)
     {
-        QTextTableCell tableCell = table->cellAt(cursor);
-
-        mouseColNum = tableCell.column();
-        QTextCharFormat format;
-        switch (mouseColNum)
-        {
-        case 0:
-            break;
-        case 1: format = cursor.charFormat();
-            m_message = format.property(NorlogeData).toString();
-            m_currBouchot = format.property(BouchotData).toString();
-            //qDebug() << "QQTextBrowser::mouseMoveEvent 2 : "
-            //         << "m_currBouchot = " << m_currBouchot
-            //         << ", m_message = " << m_message;
-            break;
-        case 2: qDebug() << "QQTextBrowser::mouseMoveEvent 3 "
-                         << m_parent->getPostForGroup(m_groupName, tableCell.row())->login();
-            break;
-        case 3: qDebug() << "QQTextBrowser::mouseMoveEvent 4 "
-                         << m_parent->getPostForGroup(m_groupName, tableCell.row())->message();
-
-            break;
-        default: qDebug() << "QQTextBrowser::mouseMoveEvent Oups !!!!!!! : tableCell.column()=" << tableCell.column();
-            break;
-        }
+        m_message = block.text();
+        m_currBouchot = blockData->getData(QQMessageBlockUserData::BOUCHOT_NAME).toString();
     }
     else
     {
-        mouseRowNum = -1;
-        mouseColNum = -1;
+        m_message.clear();
         m_currBouchot.clear();
     }
+}
+
+void QQTextBrowser::messageColumnIsHovered(const QTextCharFormat & textHoveredFormat)
+{
+    switch(textHoveredFormat.objectType())
+    {
+    case RefNorlogeTextFormat:
+        m_message = textHoveredFormat.property(NorlogeData).toString();
+        m_currBouchot = textHoveredFormat.property(BouchotData).toString();
+        norlogeRefIsHovered();
+        break;
+
+    default:
+        m_message.clear();
+        m_currBouchot.clear();
+        break;
+    }
+}
+
+void QQTextBrowser::norlogeRefIsHovered()
+{
+    QQNorloge norloge(m_currBouchot, m_message);
+    qDebug() << "Norloge : " << m_message << " highlighted";
+    emit norlogeRefHovered(norloge);
 }
 
 void QQTextBrowser::mousePressEvent ( QMouseEvent * event )
@@ -93,12 +95,26 @@ void QQTextBrowser::mouseReleaseEvent(QMouseEvent * event)
     //pour ne pas confondre clic et selection
     if(mousePressed == false)
         return;
+    mousePressed = false;
 
-    if(mouseColNum == 1)
+    QTextCursor cursor = cursorForPosition(event->pos());
+    QTextBlock block = cursor.block();
+    QQMessageBlockUserData * blockData = dynamic_cast<QQMessageBlockUserData *>(block.userData());
+
+    if(blockData != NULL)
     {
-        QQNorloge norloge(m_currBouchot, m_message);
-        emit norlogeClicked(norloge);
+
+        if(blockData->constainsData(QQMessageBlockUserData::IS_NORLOGE_ZONE) &&
+                blockData->getData(QQMessageBlockUserData::IS_NORLOGE_ZONE) == true)
+        {
+            QString bouchot = m_currBouchot = blockData->getData(QQMessageBlockUserData::BOUCHOT_NAME).toString();
+            QString postNorloge = m_message = blockData->getData(QQMessageBlockUserData::POST_NORLOGE).toString();
+
+            QQNorloge norloge(bouchot, postNorloge);
+            emit norlogeClicked(norloge);
+        }
+        else if(blockData->constainsData(QQMessageBlockUserData::IS_LOGIN_UA_ZONE) &&
+                blockData->getData(QQMessageBlockUserData::IS_LOGIN_UA_ZONE) == true)
+            emit loginClicked(m_groupName);
     }
-    else if(mouseColNum == 2)
-        emit loginClicked(m_groupName);
 }
