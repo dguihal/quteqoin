@@ -23,7 +23,8 @@ SOURCES += main.cpp\
 		xml/qqxmlparser.cpp \
     core/qqnorloge.cpp \
     ui/qqsyntaxhighlighter.cpp \
-    ui/qqmessageblockuserdata.cpp
+    ui/qqmessageblockuserdata.cpp \
+    core/qqnorlogeref.cpp
 
 HEADERS  += mainwindow.h \
 		core/qqsettings.h \
@@ -38,7 +39,8 @@ HEADERS  += mainwindow.h \
 		core/qqtextcharformat.h \
     core/qqnorloge.h \
     ui/qqsyntaxhighlighter.h \
-    ui/qqmessageblockuserdata.h
+    ui/qqmessageblockuserdata.h \
+    core/qqnorlogeref.h
 
 FORMS    += mainwindow.ui \
 		ui/qqpalmipede.ui \

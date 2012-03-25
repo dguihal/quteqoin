@@ -1,6 +1,7 @@
 #ifndef QQMESSAGEBLOCKUSERDATA_H
 #define QQMESSAGEBLOCKUSERDATA_H
 
+#include <QList>
 #include <QMap>
 #include <QString>
 #include <QTextBlockUserData>
@@ -11,10 +12,24 @@ class QQMessageBlockUserData : public QTextBlockUserData
 public:
     QQMessageBlockUserData();
 
+    ~QQMessageBlockUserData();
+
     bool constainsData(int key);
     QVariant getData(int key);
     void storeData(int key, const QVariant & data);
     void removeData(int key);
+
+    void addNorlogeRefZone(int index, const QString & norlogeRef) { m_mapNRef.insert(index, norlogeRef); }
+    QString norlogeRefForIndex(int index) { return stringForIndex(index, m_mapNRef); }
+
+    void addTotozZone(int index, const QString & totoz) { m_mapTotoz.insert(index, totoz); }
+    QString totozForIndex(int index) { return stringForIndex(index, m_mapTotoz); }
+
+    void addDuckZone(int index, const QString & duck) { m_mapDuck.insert(index, duck); }
+    QString duckForIndex(int index) { return stringForIndex(index, m_mapDuck); }
+
+    void addTableVZone(int index, const QString & tableV) { m_mapTableV.insert(index, tableV); }
+    QString tableVForIndex(int index) { return stringForIndex(index, m_mapTableV); }
 
     enum dateKeys
     {
@@ -26,7 +41,15 @@ public:
     };
 
 private:
+    QString stringForIndex(int index, const QMap<int, QString> & map);
+
     QMap<int, QVariant> m_customData;
+
+    QMap<int, QString> m_mapNRef;
+    QMap<int, QString> m_mapTotoz;
+    QMap<int, QString> m_mapDuck;
+    QMap<int, QString> m_mapTableV;
+
 };
 
 #endif // QQMESSAGEBLOCKUSERDATA_H
