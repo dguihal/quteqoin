@@ -8,7 +8,6 @@
 QQNorloge::QQNorloge(QString bouchot, QString dateh)
 {
     m_srcBouchot = bouchot;
-    m_dateIndexPart=0;
 
     m_dateYearPart = dateh.left(4);
     m_dateMonthPart = dateh.mid(4, 2);
@@ -48,7 +47,7 @@ QString QQNorloge::toStringPalmi()
             .append(m_dateSecondPart);
 
     //TODO index à placer ici
-    switch (m_dateIndexPart)
+    switch (m_norlogeIndex)
     {
     case 0:
         break;
@@ -62,7 +61,7 @@ QString QQNorloge::toStringPalmi()
         rep.append(QString::fromLatin1("³"));
         break;
     default:
-        rep.append(QString("^%d").arg(m_dateIndexPart));
+        rep.append(QString("^%d").arg(m_norlogeIndex));
     }
 
     rep.append(QString::fromLatin1("@")).append(m_srcBouchot);

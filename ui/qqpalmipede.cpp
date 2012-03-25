@@ -1,7 +1,7 @@
 #include "qqpalmipede.h"
 #include "ui_qqpalmipede.h"
 
-#include "core/qqnorloge.h"
+#include "core/qqnorlogeref.h"
 
 #include <QDebug>
 #include <QRegExp>
@@ -75,7 +75,7 @@ void QQPalmipede::insertReplaceText(const QString & tag)
 {
     QString text = tag;
     //Suppression des @bouchot excédentaires lorsque l'on a déjà selectionné le dit bouchot
-    QRegExp regexp = QQNorloge::norlogeRegexp(ui->boardSelectorComboBox->currentText());
+    QRegExp regexp = QQNorlogeRef::norlogeRegexp(ui->boardSelectorComboBox->currentText());
     text.replace(regexp, QString::fromAscii("\\1"));
 
     if(ui->postLineEdit->hasSelectedText())
@@ -115,7 +115,7 @@ void QQPalmipede::removeBouchot(const QString &oldBouchot)
 void QQPalmipede::changeNorloges(const QString & bouchot)
 {
     QString text = ui->postLineEdit->text();
-    QRegExp norlogeReg = QQNorloge::norlogeRegexp();
+    QRegExp norlogeReg = QQNorlogeRef::norlogeRegexp();
     QRegExp bouchotRemoverReg = QRegExp(QString::fromAscii("@").append(bouchot),
                                         Qt::CaseSensitive,
                                         QRegExp::RegExp);

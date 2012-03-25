@@ -2,6 +2,7 @@
 #define QQTEXTBROWSER_H
 
 #include "core/qqnorloge.h"
+#include "core/qqnorlogeref.h"
 #include "ui/qqpinipede.h"
 
 #include <QTextEdit>
@@ -14,12 +15,9 @@ public:
     explicit QQTextBrowser(QString groupName, QQPinipede *parent = 0);
     ~QQTextBrowser();
 
-    QString bouchotUnderCursor();
-    QString messageUnderCursor();
-
 signals:
     void norlogeClicked(QQNorloge norloge);
-    void norlogeRefHovered(QQNorloge norloge);
+    void norlogeRefHovered(QQNorlogeRef norloge);
     void loginClicked(QString groupName);
 
 protected:
@@ -28,15 +26,9 @@ protected:
     void mouseReleaseEvent(QMouseEvent *event);
 
 private:
-    void messageColumnIsHovered(const QTextCharFormat & textHoveredFormat);
-    void norlogeRefIsHovered();
-
     bool mousePressed;
 
     QString m_groupName;
-
-    QString m_currBouchot;
-    QString m_message;
 
     QQPinipede *m_parent;
 };

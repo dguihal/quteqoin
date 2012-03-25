@@ -23,18 +23,6 @@ QQTextBrowser::~QQTextBrowser()
 {
 }
 
-
-QString QQTextBrowser::bouchotUnderCursor()
-{
-    return m_currBouchot;
-}
-
-QString QQTextBrowser::messageUnderCursor()
-{
-    return m_message;
-}
-
-
 void QQTextBrowser::mouseMoveEvent(QMouseEvent *event)
 {
     QTextEdit::mouseMoveEvent(event);
@@ -47,38 +35,24 @@ void QQTextBrowser::mouseMoveEvent(QMouseEvent *event)
     QQMessageBlockUserData * blockData = dynamic_cast<QQMessageBlockUserData *>(block.userData());
     if(blockData != NULL)
     {
-        m_message = block.text();
-        m_currBouchot = blockData->getData(QQMessageBlockUserData::BOUCHOT_NAME).toString();
-    }
-    else
-    {
-        m_message.clear();
-        m_currBouchot.clear();
-    }
-}
+        QString currBouchot = blockData->getData(QQMessageBlockUserData::BOUCHOT_NAME).toString();
+        QString postNorloge = blockData->getData(QQMessageBlockUserData::POST_NORLOGE).toString();
 
-void QQTextBrowser::messageColumnIsHovered(const QTextCharFormat & textHoveredFormat)
-{
-    switch(textHoveredFormat.objectType())
-    {
-    case RefNorlogeTextFormat:
-        m_message = textHoveredFormat.property(NorlogeData).toString();
-        m_currBouchot = textHoveredFormat.property(BouchotData).toString();
-        norlogeRefIsHovered();
-        break;
-
-    default:
-        m_message.clear();
-        m_currBouchot.clear();
-        break;
+        //Zone message
+        if(blockData->constainsData(QQMessageBlockUserData::IS_MESSAGE_ZONE) &&
+                blockData->constainsData(QQMessageBlockUserData::IS_MESSAGE_ZONE) == true)
+        {
+            //Est-on au dessus d'une norloge
+            QString str = blockData->norlogeRefForIndex(cursor.positionInBlock());
+            qDebug() << "QQTextBrowser::mouseMoveEvent, str = " << str;
+            if(str.length() > 0)
+            {
+                QQNorlogeRef nRef = QQNorlogeRef(currBouchot, postNorloge, str);
+                qDebug() << "QQTextBrowser::mouseMoveEvent norlogeRefHovered";
+                emit norlogeRefHovered(nRef);
+            }
+        }
     }
-}
-
-void QQTextBrowser::norlogeRefIsHovered()
-{
-    QQNorloge norloge(m_currBouchot, m_message);
-    qDebug() << "Norloge : " << m_message << " highlighted";
-    emit norlogeRefHovered(norloge);
 }
 
 void QQTextBrowser::mousePressEvent ( QMouseEvent * event )
@@ -107,8 +81,8 @@ void QQTextBrowser::mouseReleaseEvent(QMouseEvent * event)
         if(blockData->constainsData(QQMessageBlockUserData::IS_NORLOGE_ZONE) &&
                 blockData->getData(QQMessageBlockUserData::IS_NORLOGE_ZONE) == true)
         {
-            QString bouchot = m_currBouchot = blockData->getData(QQMessageBlockUserData::BOUCHOT_NAME).toString();
-            QString postNorloge = m_message = blockData->getData(QQMessageBlockUserData::POST_NORLOGE).toString();
+            QString bouchot = blockData->getData(QQMessageBlockUserData::BOUCHOT_NAME).toString();
+            QString postNorloge = blockData->getData(QQMessageBlockUserData::POST_NORLOGE).toString();
 
             QQNorloge norloge(bouchot, postNorloge);
             emit norlogeClicked(norloge);
