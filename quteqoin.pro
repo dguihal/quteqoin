@@ -36,7 +36,6 @@ HEADERS  += mainwindow.h \
 		ui/qqsettingsdialog.h \
 		ui/qqtextbrowser.h \
 		xml/qqxmlparser.h \
-		core/qqtextcharformat.h \
     core/qqnorloge.h \
     ui/qqsyntaxhighlighter.h \
     ui/qqmessageblockuserdata.h \
