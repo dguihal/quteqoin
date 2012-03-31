@@ -19,15 +19,14 @@ MainWindow::MainWindow(QWidget *parent) :
 
     ui->setupUi(this);
 
+    settings = new QQSettings(this);
     palmi = new QQPalmipede(this);
-    pini = new QQPinipede(this);
+    pini = new QQPinipede(settings, this);
 
     QLayout *layout = new QVBoxLayout();
     layout->addWidget(pini);
     layout->addWidget(palmi);
     ui->centralWidget->setLayout(layout);
-
-    settings = new QQSettings(this);
 
     QList<QQBouchot *> bouchots = settings->listBouchots();
     for(int i = 0; i < bouchots.size(); i++)

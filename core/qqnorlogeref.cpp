@@ -30,7 +30,8 @@ QQNorlogeRef::QQNorlogeRef(QString bouchot, QString dateh, QString norlogeRef) :
         if(timeSplit.size() > 0)
         {
             QString sec = timeSplit.takeFirst();
-            m_refDateSecondPart = sec.remove(0, 2);
+            m_refDateSecondPart = sec.left(2);
+            sec.remove(0, 2);
             if(sec.length() > 0)
             {
                 if(sec.startsWith(QString::fromLatin1("¹")))
@@ -53,4 +54,23 @@ QQNorlogeRef::QQNorlogeRef(QString bouchot, QString dateh, QString norlogeRef) :
         //supression du @ initial
         m_refDateDayPart.remove(QChar::fromAscii('@'));
     }
+}
+
+QString QQNorlogeRef::dstBouchot()
+{
+    return (m_dstBouchot.size() > 0) ? m_dstBouchot : m_srcBouchot;
+}
+
+QString QQNorlogeRef::dstNorloge()
+{
+    QString dstNorloge;
+
+    dstNorloge.append((m_refDateYearPart.size() > 0) ? m_refDateYearPart : m_dateYearPart );
+    dstNorloge.append((m_refDateMonthPart.size() > 0) ? m_refDateMonthPart : m_dateMonthPart );
+    dstNorloge.append((m_refDateDayPart.size() > 0) ? m_refDateDayPart : m_dateDayPart );
+    dstNorloge.append((m_refDateHourPart.size() > 0) ? m_refDateHourPart : m_dateHourPart );
+    dstNorloge.append((m_refDateMinutePart.size() > 0) ? m_refDateMinutePart : m_dateMinutePart );
+    dstNorloge.append((m_refDateSecondPart.size() > 0) ? m_refDateSecondPart : QString::fromAscii("") );
+
+    return dstNorloge;
 }

@@ -1,7 +1,6 @@
 #include "qqsyntaxhighlighter.h"
 
 #include "core/qqnorlogeref.h"
-#include "core/qqtextcharformat.h"
 #include "ui/qqmessageblockuserdata.h"
 
 #include <QDebug>

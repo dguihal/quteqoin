@@ -16,7 +16,7 @@ public:
     void setNorlogeIndex(int index) { m_norlogeIndex = index;}
     int norlogeIndex() { return m_norlogeIndex; }
 
-private:
+protected:
     QString m_srcBouchot;
 
     QString m_dateYearPart;

@@ -3,6 +3,8 @@
 
 #include "core/qqnorloge.h"
 
+#include <QString>
+
 class QQNorlogeRef : public QQNorloge
 {
 public:
@@ -36,6 +38,9 @@ public:
     }
 
     int getNorlogeRefIndex() { return m_refDateIndexPart; }
+
+    QString dstBouchot();
+    QString dstNorloge();
 
 private:
     QString m_refDateYearPart;
