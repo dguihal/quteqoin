@@ -390,6 +390,8 @@ void QQPinipede::norlogeRefHovered(QQNorlogeRef norlogeRef)
 
     qDebug() << "norlogeRefHovered, datetimepart=" << dstNorloge << ", destbouchot=" << dstBouchot;
 
+    bool destFound = false;
+
     QQBouchot * bouchot = m_settings->bouchot(dstBouchot);
     QQTextBrowser* textBrowser = m_textBrowserHash.value(bouchot->settings().group());
     if(textBrowser->isVisible())
@@ -408,8 +410,12 @@ void QQPinipede::norlogeRefHovered(QQNorlogeRef norlogeRef)
                     m_rowHighlighted.append(row);
                     m_bouchotHighlighted = bouchot->name();
                     highlightRow(mainTable, row);
-                    break;
+
+                    destFound = true;
             }
+            else if(destFound == true)
+                break;
+
         }
     }
     else
@@ -432,10 +438,6 @@ void QQPinipede::unHighlight()
     for(int i = 0; i < m_rowHighlighted.size(); i++)
     {
         QTextTableCell cell = mainTable->cellAt(m_rowHighlighted[i], 0);
-/*
-        QQMessageBlockUserData * blockData = dynamic_cast<QQMessageBlockUserData *>(cell.firstCursorPosition().block().userData());
-        blockData->getData(QQMessageBlockUserData::BOUCHOT_NAME);
-*/
         QColor color = bouchot->settings().color();
         QTextCursor cursor = cell.firstCursorPosition();
         cursor.beginEditBlock();
