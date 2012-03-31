@@ -7,6 +7,8 @@
 
 #include <QTextEdit>
 
+class QQMessageBlockUserData;
+
 class QQTextBrowser : public QTextEdit
 {
     Q_OBJECT
@@ -18,15 +20,21 @@ public:
 signals:
     void norlogeClicked(QQNorloge norloge);
     void norlogeRefHovered(QQNorlogeRef norloge);
+    void unHighlight();
     void loginClicked(QString groupName);
 
 protected:
-    void mouseMoveEvent(QMouseEvent *event);
-    void mousePressEvent(QMouseEvent *event);
-    void mouseReleaseEvent(QMouseEvent *event);
+    void mouseMoveEvent(QMouseEvent * event);
+    void mousePressEvent(QMouseEvent * event);
+    void mouseReleaseEvent(QMouseEvent * event);
+    void paintEvent(QPaintEvent * event);
 
 private:
     bool mousePressed;
+
+    bool m_highlightAsked;
+    QQMessageBlockUserData * m_highlightedBlockUserData;
+    QString m_highlightedStrRef;
 
     QString m_groupName;
 

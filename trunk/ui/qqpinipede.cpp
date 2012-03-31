@@ -2,8 +2,6 @@
 
 #include "mainwindow.h"
 #include "core/qqbouchot.h"
-#include "core/qqtextcharformat.h"
-//#include "core/qqmessageparser.h"
 #include "ui/qqpalmipede.h"
 #include "ui/qqsyntaxhighlighter.h"
 #include "ui/qqtextbrowser.h"
@@ -14,6 +12,7 @@
 #include <QScrollBar>
 #include <QTabBar>
 #include <QTextBrowser>
+#include <QTextCharFormat>
 #include <QTextDocument>
 #include <QTextDocumentFragment>
 #include <QTextFormat>
@@ -26,10 +25,12 @@
 #include <QVBoxLayout>
 #include <QWidget>
 
-QQPinipede::QQPinipede(QWidget* parent) :
+QQPinipede::QQPinipede(QQSettings *settings, QWidget *parent) :
     QTabWidget(parent)
 {
     this->tabBar()->hide();
+
+    m_settings = settings;
 }
 
 QQPinipede::~QQPinipede()
@@ -61,7 +62,8 @@ void QQPinipede::addPiniTab(const QString& groupName)
     qDebug() << "QQPinipede::addPiniTab this->m_textBrowserHash.size()=" << this->m_textBrowserHash.size();
 
     connect(textBrowser, SIGNAL(norlogeClicked(QQNorloge)), this, SLOT(norlogeClicked(QQNorloge)));
-    connect(textBrowser, SIGNAL(norlogeRefHovered(QQNorloge)), this, SLOT(norlogeRefHovered(QQNorloge)));
+    connect(textBrowser, SIGNAL(norlogeRefHovered(QQNorlogeRef)), this, SLOT(norlogeRefHovered(QQNorlogeRef)));
+    connect(textBrowser, SIGNAL(unHighlight()), this, SLOT(unHighlight()));
 
     if (this->count() > 1)
         this->tabBar()->show();
@@ -154,9 +156,6 @@ void QQPinipede::printPostAtCursor( QTextCursor & cursor, QQPost * post )
 
     QTextCharFormat norlogeFormat;
     norlogeFormat.setFontWeight(QFont::Bold);
-    norlogeFormat.setObjectType(NorlogeTextFormat);
-    norlogeFormat.setProperty(NorlogeData, post->norloge());
-    norlogeFormat.setProperty(BouchotData, post->bouchot()->name());
 
     QTextBlock block = cursor.block();
     QQMessageBlockUserData * data = new QQMessageBlockUserData();
@@ -182,8 +181,6 @@ void QQPinipede::printPostAtCursor( QTextCursor & cursor, QQPost * post )
     if( post->login().size() != 0 )
     {
         loginUaFormat.setForeground(QColor("#553333"));
-        loginUaFormat.setObjectType(LoginTextFormat);
-        loginUaFormat.setProperty(LoginData, post->login());
 
         txt = post->login();
     }
@@ -191,8 +188,6 @@ void QQPinipede::printPostAtCursor( QTextCursor & cursor, QQPost * post )
     {
         loginUaFormat.setFontItalic(true);
         loginUaFormat.setForeground(QColor("#883333"));
-        loginUaFormat.setObjectType(UATextFormat);
-        loginUaFormat.setProperty(UAData, post->UA());
 
         txt = post->UA().left(12);
     }
@@ -388,12 +383,75 @@ void QQPinipede::norlogeClicked(QQNorloge norloge)
     emit insertTextPalmi(norloge.toStringPalmi() + QString::fromAscii(" "));
 }
 
-void QQPinipede::norlogeRefHovered(QQNorloge norloge)
+void QQPinipede::norlogeRefHovered(QQNorlogeRef norlogeRef)
 {
-    QString bouchotDest = norloge.srcBouchot();
-    QString refNorloge = norloge.toStringPini();
+    QString dstBouchot = norlogeRef.dstBouchot();
+    QString dstNorloge = norlogeRef.dstNorloge();
 
-    qDebug() << "norlogeRefHovered, datetimepart=" << refNorloge << ", destbouchot=" << bouchotDest;
+    qDebug() << "norlogeRefHovered, datetimepart=" << dstNorloge << ", destbouchot=" << dstBouchot;
+
+    QQBouchot * bouchot = m_settings->bouchot(dstBouchot);
+    QQTextBrowser* textBrowser = m_textBrowserHash.value(bouchot->settings().group());
+    if(textBrowser->isVisible())
+    {
+        QTextFrame* root = textBrowser->document()->rootFrame();
+        QTextTable* mainTable = dynamic_cast<QTextTable *>(root->childFrames().at(0));
+        QList<QQPost *> *destlistPosts = m_listPostsTabMap[bouchot->settings().group()];
+        QQPost * post = NULL;
+        for(int row = destlistPosts->size() - 1; row >= 0; row--)
+        {
+            post = destlistPosts->at(row);
+            if(post->bouchot()->name() == dstBouchot &&
+                    post->norloge().indexOf(dstNorloge) == 0)
+            {
+                    qDebug() << "QQPinipede::norlogeRefHovered : Found at row " << row << " !!!!!!!";
+                    m_rowHighlighted.append(row);
+                    m_bouchotHighlighted = bouchot->name();
+                    highlightRow(mainTable, row);
+                    break;
+            }
+        }
+    }
+    else
+    {
+        qDebug() << "Group " << bouchot->settings().group() << " is not visible";
+    }
+}
+
+void QQPinipede::unHighlight()
+{
+    qDebug() << "QQPinipede::unHighlight";
+    if(m_bouchotHighlighted.size() == 0 || m_rowHighlighted.size() == 0)
+        return;
+
+    QQBouchot * bouchot = m_settings->bouchot(m_bouchotHighlighted);
+    QQTextBrowser* textBrowser = m_textBrowserHash.value(bouchot->settings().group());
+    QTextFrame* root = textBrowser->document()->rootFrame();
+    QTextTable* mainTable = dynamic_cast<QTextTable *>(root->childFrames().at(0));
+
+    for(int i = 0; i < m_rowHighlighted.size(); i++)
+    {
+        QTextTableCell cell = mainTable->cellAt(m_rowHighlighted[i], 0);
+/*
+        QQMessageBlockUserData * blockData = dynamic_cast<QQMessageBlockUserData *>(cell.firstCursorPosition().block().userData());
+        blockData->getData(QQMessageBlockUserData::BOUCHOT_NAME);
+*/
+        QColor color = bouchot->settings().color();
+        QTextCursor cursor = cell.firstCursorPosition();
+        cursor.beginEditBlock();
+        for(int i = 0; i < 4; i++)
+        {
+            QTextCharFormat format = cursor.blockCharFormat();
+            format.setBackground(color);
+            cursor.setBlockCharFormat(format);
+            cursor.movePosition(QTextCursor::NextCell);
+            if(i == 0)
+                color = bouchot->settings().colorLight();
+        }
+        cursor.endEditBlock();
+    }
+
+    m_rowHighlighted.clear();
 }
 
 void QQPinipede::loginClicked(QString tabGroupName)
@@ -411,4 +469,20 @@ QQPost * QQPinipede::getPostForGroup(QString &groupName, int numPost)
     }
 
     return NULL;
+}
+
+void QQPinipede::highlightRow(QTextTable * mainTable, int row)
+{
+
+    QTextTableCell cell = mainTable->cellAt(row, 0);
+    QTextCursor cursor = cell.firstCursorPosition();
+    cursor.beginEditBlock();
+    for(int i = 0; i < 4; i++)
+    {
+        QTextCharFormat format = cursor.blockCharFormat();
+        format.setBackground(QColor(255, 255, 0, 255));
+        cursor.setBlockCharFormat(format);
+        cursor.movePosition(QTextCursor::NextCell);
+    }
+    cursor.endEditBlock();
 }

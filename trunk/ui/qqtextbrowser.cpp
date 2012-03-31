@@ -1,7 +1,6 @@
 #include "qqtextbrowser.h"
 
 #include "core/qqpost.h"
-#include "core/qqtextcharformat.h"
 #include "ui/qqmessageblockuserdata.h"
 
 #include <QDebug>
@@ -13,9 +12,11 @@
 QQTextBrowser::QQTextBrowser(QString groupName, QQPinipede *parent) :
     QTextEdit(parent)
 {
+    setFrameStyle(QFrame::NoFrame);
     setReadOnly(true);
     m_groupName = groupName;
     m_parent = parent;
+    m_highlightAsked = false;
     this->setMouseTracking(true);
 }
 
@@ -25,7 +26,12 @@ QQTextBrowser::~QQTextBrowser()
 
 void QQTextBrowser::mouseMoveEvent(QMouseEvent *event)
 {
+    qDebug() << "####################################";
+    qDebug() << "QQTextBrowser::mouseMoveEvent x=" << event->x() << ",y=" << event->y();
+    qDebug() << "####################################";
     QTextEdit::mouseMoveEvent(event);
+
+    bool highlightActivated = false;
 
     mousePressed = false;
 
@@ -33,6 +39,7 @@ void QQTextBrowser::mouseMoveEvent(QMouseEvent *event)
 
     QTextBlock block = cursor.block();
     QQMessageBlockUserData * blockData = dynamic_cast<QQMessageBlockUserData *>(block.userData());
+
     if(blockData != NULL)
     {
         QString currBouchot = blockData->getData(QQMessageBlockUserData::BOUCHOT_NAME).toString();
@@ -47,11 +54,26 @@ void QQTextBrowser::mouseMoveEvent(QMouseEvent *event)
             qDebug() << "QQTextBrowser::mouseMoveEvent, str = " << str;
             if(str.length() > 0)
             {
-                QQNorlogeRef nRef = QQNorlogeRef(currBouchot, postNorloge, str);
-                qDebug() << "QQTextBrowser::mouseMoveEvent norlogeRefHovered";
-                emit norlogeRefHovered(nRef);
+                if(m_highlightedBlockUserData != blockData || m_highlightedStrRef != str)
+                {
+                    m_highlightedBlockUserData = blockData;
+                    m_highlightedStrRef = str;
+                    QQNorlogeRef nRef = QQNorlogeRef(currBouchot, postNorloge, str);
+                    qDebug() << "QQTextBrowser::mouseMoveEvent norlogeRefHovered";
+                    emit unHighlight();
+                    emit norlogeRefHovered(nRef);
+                }
+                highlightActivated = true;
             }
         }
+    }
+
+    qDebug() << "highlightActivated = " << highlightActivated;
+    if(m_highlightedBlockUserData != NULL && highlightActivated == false)
+    {
+        m_highlightedBlockUserData = NULL;
+        m_highlightedStrRef.clear();
+        emit unHighlight();
     }
 }
 
@@ -77,7 +99,6 @@ void QQTextBrowser::mouseReleaseEvent(QMouseEvent * event)
 
     if(blockData != NULL)
     {
-
         if(blockData->constainsData(QQMessageBlockUserData::IS_NORLOGE_ZONE) &&
                 blockData->getData(QQMessageBlockUserData::IS_NORLOGE_ZONE) == true)
         {
@@ -91,4 +112,10 @@ void QQTextBrowser::mouseReleaseEvent(QMouseEvent * event)
                 blockData->getData(QQMessageBlockUserData::IS_LOGIN_UA_ZONE) == true)
             emit loginClicked(m_groupName);
     }
+}
+
+void QQTextBrowser::paintEvent( QPaintEvent * event )
+{
+    QTextEdit::paintEvent(event);
+
 }
