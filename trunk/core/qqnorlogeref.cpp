@@ -34,11 +34,11 @@ QQNorlogeRef::QQNorlogeRef(QString bouchot, QString dateh, QString norlogeRef) :
             sec.remove(0, 2);
             if(sec.length() > 0)
             {
-                if(sec.startsWith(QString::fromLatin1("¹")))
+                if(sec.startsWith(QString::fromUtf8("¹")))
                     m_refDateIndexPart = 1;
-                else if(sec.startsWith(QString::fromLatin1("²")))
+                else if(sec.startsWith(QString::fromUtf8("²")))
                     m_refDateIndexPart = 2;
-                else if(sec.startsWith(QString::fromLatin1("³")))
+                else if(sec.startsWith(QString::fromUtf8("³")))
                     m_refDateIndexPart = 3;
                 else
                 {

@@ -4,7 +4,7 @@
 #include <QDateTime>
 #include <QStringList>
 
-//m_date = QDateTime::fromString(dateh.left(14), QString::fromLatin1("yyyyMMddHHmmss"));
+//m_date = QDateTime::fromString(dateh.left(14), QString::fromUtf8("yyyyMMddHHmmss"));
 QQNorloge::QQNorloge(QString bouchot, QString dateh)
 {
     m_srcBouchot = bouchot;
@@ -28,22 +28,22 @@ QString QQNorloge::toStringPalmi()
     if(m_dateYearPart.toInt() != currDateT.date().year())
     {
         rep.append(m_dateYearPart)
-                .append(QString::fromLatin1("/"));
+                .append(QString::fromUtf8("/"));
         startPrint = true;
     }
     if(startPrint || m_dateMonthPart.toInt() != currDateT.date().month() || m_dateDayPart.toInt() != currDateT.date().day())
     {
         rep.append(m_dateMonthPart)
-                .append(QString::fromLatin1("/"))
+                .append(QString::fromUtf8("/"))
                 .append(m_dateDayPart)
-                .append(QString::fromLatin1("#"));
+                .append(QString::fromUtf8("#"));
         startPrint = true;
     }
     //On a TOUJOURS l'heure
     rep.append(m_dateHourPart)
-            .append(QString::fromLatin1(":"))
+            .append(QString::fromUtf8(":"))
             .append(m_dateDayPart)
-            .append(QString::fromLatin1(":"))
+            .append(QString::fromUtf8(":"))
             .append(m_dateSecondPart);
 
     //TODO index à placer ici
@@ -52,32 +52,32 @@ QString QQNorloge::toStringPalmi()
     case 0:
         break;
     case 1:
-        rep.append(QString::fromLatin1("¹"));
+        rep.append(QString::fromUtf8("¹"));
         break;
     case 2:
-        rep.append(QString::fromLatin1("²"));
+        rep.append(QString::fromUtf8("²"));
         break;
     case 3:
-        rep.append(QString::fromLatin1("³"));
+        rep.append(QString::fromUtf8("³"));
         break;
     default:
         rep.append(QString("^%d").arg(m_norlogeIndex));
     }
 
-    rep.append(QString::fromLatin1("@")).append(m_srcBouchot);
+    rep.append(QString::fromUtf8("@")).append(m_srcBouchot);
 
     return rep;
 }
 
 QString QQNorloge::toStringPini()
 {
-    QString rep = QString::fromLatin1("[");
+    QString rep = QString::fromUtf8("[");
 
     rep.append(m_dateHourPart)
-            .append(QString::fromLatin1(":"))
+            .append(QString::fromUtf8(":"))
             .append(m_dateDayPart)
-            .append(QString::fromLatin1(":"))
+            .append(QString::fromUtf8(":"))
             .append(m_dateSecondPart)
-            .append(QString::fromLatin1("]"));
+            .append(QString::fromUtf8("]"));
     return rep;
 }
