@@ -136,7 +136,7 @@ void QQPinipede::printPostAtCursor( QTextCursor & cursor, QQPost * post )
     }
     else
     {
-        cursor.insertText(QString::fromLatin1(" "));
+        cursor.insertText(QString::fromUtf8(" "));
     }
 
     cursor.movePosition(QTextCursor::NextCell);
@@ -165,7 +165,7 @@ void QQPinipede::printPostAtCursor( QTextCursor & cursor, QQPost * post )
     block.setUserData(data);
 
     cursor.insertText(post->norlogeFormatee(), norlogeFormat);
-    cursor.insertText(QString::fromLatin1(" "), defaultFormat);
+    cursor.insertText(QString::fromUtf8(" "), defaultFormat);
 
     cursor.movePosition(QTextCursor::NextCell);
 
@@ -200,7 +200,7 @@ void QQPinipede::printPostAtCursor( QTextCursor & cursor, QQPost * post )
 
     cursor.insertText(txt, loginUaFormat);
 
-    cursor.insertText(QString::fromLatin1(" "), defaultFormat);
+    cursor.insertText(QString::fromUtf8(" "), defaultFormat);
 
     cursor.movePosition(QTextCursor::NextCell);
 
@@ -218,7 +218,7 @@ void QQPinipede::printPostAtCursor( QTextCursor & cursor, QQPost * post )
     data->storeData(QQMessageBlockUserData::IS_MESSAGE_ZONE, true);
     block.setUserData(data);
     cursor.insertHtml(post->message());
-    cursor.insertText(QString::fromLatin1(" "), defaultFormat);
+    cursor.insertText(QString::fromUtf8(" "), defaultFormat);
 
 }
 
@@ -390,7 +390,7 @@ void QQPinipede::norlogeRefHovered(QQNorlogeRef norlogeRef)
 
     qDebug() << "norlogeRefHovered, datetimepart=" << dstNorloge << ", destbouchot=" << dstBouchot;
 
-    bool destFound = false;
+    int indexFound = 0;
 
     QQBouchot * bouchot = m_settings->bouchot(dstBouchot);
     QQTextBrowser* textBrowser = m_textBrowserHash.value(bouchot->settings().group());
@@ -400,20 +400,22 @@ void QQPinipede::norlogeRefHovered(QQNorlogeRef norlogeRef)
         QTextTable* mainTable = dynamic_cast<QTextTable *>(root->childFrames().at(0));
         QList<QQPost *> *destlistPosts = m_listPostsTabMap[bouchot->settings().group()];
         QQPost * post = NULL;
-        for(int row = destlistPosts->size() - 1; row >= 0; row--)
+        for(int row = 0; row < destlistPosts->size(); row++)
         {
             post = destlistPosts->at(row);
             if(post->bouchot()->name() == dstBouchot &&
                     post->norloge().indexOf(dstNorloge) == 0)
             {
                     qDebug() << "QQPinipede::norlogeRefHovered : Found at row " << row << " !!!!!!!";
-                    m_rowHighlighted.append(row);
-                    m_bouchotHighlighted = bouchot->name();
-                    highlightRow(mainTable, row);
-
-                    destFound = true;
+                    if(norlogeRef.getNorlogeRefIndex() == 0 ||
+                            norlogeRef.getNorlogeRefIndex() == ++indexFound)
+                    {
+                        m_rowHighlighted.append(row);
+                        m_bouchotHighlighted = bouchot->name();
+                        highlightRow(mainTable, row);
+                    }
             }
-            else if(destFound == true)
+            else if(indexFound > 0)
                 break;
 
         }
