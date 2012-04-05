@@ -7,117 +7,118 @@
 #include <QColor>
 #include <QObject>
 #include <QList>
+#include <QNetworkAccessManager>
 #include <QString>
 #include <QStringList>
 #include <QTimer>
 #include <QUrl>
 
-class QNetworkAccessManager;
 class QNetworkReply;
 
 class QQBouchot : public QObject
 {
 
-    Q_OBJECT
+	Q_OBJECT
 
 public:
-    enum TypeSlip { SlipTagsEncoded = 0, SlipTagsRaw = 1 };
+	enum TypeSlip { SlipTagsEncoded = 0, SlipTagsRaw = 1 };
 
-    class QQBouchotSettings {
+	class QQBouchotSettings {
 
-    public:
-        QStringList aliases() { return m_aliases; }
-        void setAliases(const QStringList &newAliases) { m_aliases = newAliases; }
-        QString aliasesToString() { return this->m_aliases.join(QChar::fromAscii(Separator)); }
-        void setAliasesFromString(const QString &newAliasesString) { m_aliases = newAliasesString.split(QChar::fromAscii(Separator)); }
+	public:
+		QStringList aliases() { return m_aliases; }
+		void setAliases(const QStringList &newAliases) { m_aliases = newAliases; }
+		QString aliasesToString() { return this->m_aliases.join(QChar::fromAscii(Separator)); }
+		void setAliasesFromString(const QString &newAliasesString) { m_aliases = newAliasesString.split(QChar::fromAscii(Separator)); }
 
-        QString backendUrl() { return m_backendUrl; }
-        void setBackendUrl(const QString &newBackendUrl) { m_backendUrl = newBackendUrl; }
+		QString backendUrl() { return m_backendUrl; }
+		void setBackendUrl(const QString &newBackendUrl) { m_backendUrl = newBackendUrl; }
 
-        QColor color() { return m_color; }
-        QColor colorLight() { return m_color.lighter(110); }
-        void setColor(const QColor &newColor) { m_color = newColor; }
-        QString colorToString() { return m_color.name(); }
-        void setColorFromString(const QString &newColorString) { m_color.setNamedColor(newColorString); }
+		QColor color() { return m_color; }
+		QColor colorLight() { return m_color.lighter(110); }
+		void setColor(const QColor &newColor) { m_color = newColor; }
+		QString colorToString() { return m_color.name(); }
+		void setColorFromString(const QString &newColorString) { m_color.setNamedColor(newColorString); }
 
-        QString cookie() { return m_cookie; }
-        void setCookie(const QString &newCookie) { m_cookie = newCookie; }
+		QString cookie() { return m_cookie; }
+		void setCookie(const QString &newCookie) { m_cookie = newCookie; }
 
-        QString login() { return m_login; }
-        void setLogin(const QString &newLogin) { m_login = newLogin; }
+		QString login() { return m_login; }
+		void setLogin(const QString &newLogin) { m_login = newLogin; }
 
-        QString postData() { return m_postData; }
-        void setPostData(const QString &newPostData) { m_postData = newPostData; }
+		QString postData() { return m_postData; }
+		void setPostData(const QString &newPostData) { m_postData = newPostData; }
 
-        QString postUrl() { return m_postUrl; }
-        void setPostUrl(const QString &newPostUrl) { m_postUrl = newPostUrl; }
+		QString postUrl() { return m_postUrl; }
+		void setPostUrl(const QString &newPostUrl) { m_postUrl = newPostUrl; }
 
-        int refresh() { return m_refresh; }
-        void setRefresh(int newRefresh) { m_refresh = newRefresh; }
-        QString refreshToString() { return QString::number(this->m_refresh); }
-        void setRefreshFromString(const QString &newRefreshString) { m_refresh = newRefreshString.toInt(); }
+		int refresh() { return m_refresh; }
+		void setRefresh(int newRefresh) { m_refresh = newRefresh; }
+		QString refreshToString() { return QString::number(this->m_refresh); }
+		void setRefreshFromString(const QString &newRefreshString) { m_refresh = newRefreshString.toInt(); }
 
-        QQBouchot::TypeSlip slipType() { return m_slipType; }
-        void setSlipType(QQBouchot::TypeSlip newSlipType) { m_slipType = newSlipType; }
+		QQBouchot::TypeSlip slipType() { return m_slipType; }
+		void setSlipType(QQBouchot::TypeSlip newSlipType) { m_slipType = newSlipType; }
 
-        QString ua() { return m_ua; }
-        void setUa(const QString &newUA) { m_ua = newUA; }
+		QString ua() { return m_ua; }
+		void setUa(const QString &newUA) { m_ua = newUA; }
 
-        QString group() { return m_group; }
-        void setGroup(const QString& newGroup) { m_group = newGroup; }
+		QString group() { return m_group; }
+		void setGroup(const QString& newGroup) { m_group = newGroup; }
 
-    private:
-        QStringList m_aliases;
-        QString m_backendUrl;
-        QColor m_color;
-        QString m_cookie;
-        QString m_login;
-        QString m_postData;
-        QString m_postUrl;
-        int m_refresh;
-        TypeSlip m_slipType;
-        QString m_ua;
-        QString m_group;
-    };
+	private:
+		QStringList m_aliases;
+		QString m_backendUrl;
+		QColor m_color;
+		QString m_cookie;
+		QString m_login;
+		QString m_postData;
+		QString m_postUrl;
+		int m_refresh;
+		TypeSlip m_slipType;
+		QString m_ua;
+		QString m_group;
+	};
 
-    QQBouchot(const QString & name, QQSettings * parent = 0);
-    ~QQBouchot();
+	QQBouchot(const QString & name, QQSettings * parent = 0);
+	~QQBouchot();
 
-    QString name() { return m_name; }
-    //void setName(const QString &newName) { m_name = newName; }
+	QString name() { return m_name; }
+	//void setName(const QString &newName) { m_name = newName; }
 
-    void postMessage(const QString & message);
+	void postMessage(const QString & message);
 
-    QQBouchotSettings settings() { return m_settings; }
-    void setSettings(QQBouchot bouchotRef) { setSettings(bouchotRef.settings()); }
-    void setSettings(QQBouchotSettings newSettings) { m_settings = newSettings; }
+	QQBouchotSettings settings() { return m_settings; }
+	void setSettings(QQBouchot bouchotRef) { setSettings(bouchotRef.settings()); }
+	void setSettings(QQBouchotSettings newSettings) { m_settings = newSettings; }
 
-    void startRefresh();
-    void stopRefresh();
+	void startRefresh();
+	void stopRefresh();
 
-    QList<QQPost *> getNewPosts();
+	QList<QQPost *> getNewPosts();
 
-    static const char Separator = ';';
-    static QQBouchotSettings getBouchotDef(const QString &);
-    static QStringList getBouchotDefNameList();
+	static const char Separator = ';';
+	static QQBouchotSettings getBouchotDef(const QString &);
+	static QStringList getBouchotDefNameList();
 
 signals:
-    void newPostsInserted(QQBouchot *);
+	void newPostsInserted(QQBouchot *);
 
 protected slots:
-    void fetchBackend();
-    void replyFinished(QNetworkReply *);
-    void insertNewPost(QQPost &);
+	void fetchBackend();
+	void replyFinished(QNetworkReply *);
+	void insertNewPost(QQPost &);
 
 private:
 
-    QList<QQPost *> m_history;
-    int m_lastId;
-    QString m_name;
-    QNetworkAccessManager *m_netManager;
-    QList<QQPost *> m_newPostHistory;
-    QQBouchotSettings m_settings;
-    QTimer timer;
+	QList<QQPost *> m_history;
+	int m_lastId;
+	QString m_name;
+	QList<QQPost *> m_newPostHistory;
+	QQBouchotSettings m_settings;
+	QTimer timer;
+
+	QNetworkAccessManager m_netManager;
 };
 
 /*
