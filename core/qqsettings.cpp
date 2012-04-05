@@ -159,7 +159,7 @@ QList<QString> QQSettings::listTabs()
 
 bool QQSettings::readSettings()
 {
-    QSettings settings(QSettings::NativeFormat, QSettings::UserScope, "Moules Corp", "qoinqoin");
+    QSettings settings(QSettings::NativeFormat, QSettings::UserScope, "Moules Corp", "quteqoin");
 
     setMaxHistoryLength(settings.value("max_hist_len", QVariant(DEFAULT_MAX_HIST_LEN)).toInt());
     setDefaultUA(settings.value("default_ua", QVariant(DEFAULT_DEFAULT_UA)).toString());
