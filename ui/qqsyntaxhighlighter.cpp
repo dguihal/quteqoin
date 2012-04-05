@@ -67,7 +67,7 @@ void QQSyntaxHighlighter::highlightDuck(const QString & text, QQMessageBlockUser
 {
 	QColor color = QColor("#9933CC");
 
-	QString tete = QString::fromAscii("(?:[o0Ã´Â°Ã¸Ã²Ã³@]|(?:&ocirc;)|(?:&deg;)|(?:&oslash;)|(?:&ograve;)|(?:&oacute;))");
+	QString tete = QString::fromAscii("(?:[o0ô°øòó@]|(?:&ocirc;)|(?:&deg;)|(?:&oslash;)|(?:&ograve;)|(?:&oacute;))");
 
 	//QRegExp m_duckReg = QRegExp(QString::fromAscii("(\\\\_").append(tete).append(QString::fromAscii("&lt;)")),
 	QRegExp m_duckReg = QRegExp(QString::fromAscii("\\\\_").append(tete).append(QString::fromAscii("<")),
