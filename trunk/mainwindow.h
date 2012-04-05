@@ -3,37 +3,39 @@
 
 #include <QMainWindow>
 
+class QQBouchot;
 class QQPalmipede;
 class QQPinipede;
 class QQSettings;
 
 namespace Ui {
-    class MainWindow;
+	class MainWindow;
 }
 
 class MainWindow : public QMainWindow
 {
-    Q_OBJECT
+	Q_OBJECT
 
 public:
-    explicit MainWindow(QWidget *parent = 0);
-    ~MainWindow();
+	explicit MainWindow(QWidget *parent = 0);
+	~MainWindow();
 
-    QQPalmipede * getPalmi() {return palmi;}
+	QQPalmipede * getPalmi() {return palmi;}
 
 public slots:
-    void displayOptions();
-    void doPostMessage(const QString & bouchot, const QString & message);
+	void displayOptions();
+	void doPostMessage(const QString & bouchot, const QString & message);
 
 protected:
-    void closeEvent(QCloseEvent *event);
+	void closeEvent(QCloseEvent *event);
 
 private:
+	void initBouchot(QQBouchot * bouchot);
 
-    Ui::MainWindow *ui;
-    QQPalmipede *palmi;
-    QQPinipede *pini;
-    QQSettings *settings;
+	Ui::MainWindow *ui;
+	QQPalmipede *palmi;
+	QQPinipede *pini;
+	QQSettings *settings;
 };
 
 #endif // MAINWINDOW_H

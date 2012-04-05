@@ -52,6 +52,8 @@ private:
     int m_refDateIndexPart;
 
     QString m_dstBouchot;
+
+    QString m_norlogeRef;
 };
 
 #endif // QQNORLOGEREF_H

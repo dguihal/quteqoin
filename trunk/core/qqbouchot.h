@@ -17,7 +17,6 @@ class QNetworkReply;
 
 class QQBouchot : public QObject
 {
-
 	Q_OBJECT
 
 public:

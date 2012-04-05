@@ -69,7 +69,7 @@ void QQTextBrowser::mouseMoveEvent(QMouseEvent *event)
     }
 
     qDebug() << "highlightActivated = " << highlightActivated;
-    if(m_highlightedBlockUserData != NULL && highlightActivated == false)
+	if(m_highlightedBlockUserData != NULL && highlightActivated == false)
     {
         m_highlightedBlockUserData = NULL;
         m_highlightedStrRef.clear();

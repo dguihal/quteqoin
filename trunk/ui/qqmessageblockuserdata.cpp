@@ -4,11 +4,11 @@
 
 QQMessageBlockUserData::QQMessageBlockUserData()
 {
+	m_wasParsed = false;
 }
 
 QQMessageBlockUserData::~QQMessageBlockUserData()
 {
-
     m_customData.clear();
 
     m_mapNRef.clear();

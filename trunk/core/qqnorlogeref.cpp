@@ -6,7 +6,11 @@
 QQNorlogeRef::QQNorlogeRef(QString bouchot, QString dateh, QString norlogeRef) :
     QQNorloge(bouchot, dateh)
 {
+    //On sauve la chaine de reference pour highlighter les semblables
+    m_norlogeRef = norlogeRef;
+
     QRegExp reg = norlogeRegexp();
+
     if(reg.exactMatch(norlogeRef))
     {
         QStringList capturedTexts = reg.capturedTexts();

@@ -1,10 +1,9 @@
 #ifndef QQSYNTAXHIGHLIGHTER_H
 #define QQSYNTAXHIGHLIGHTER_H
 
-#include "ui/qqtextbrowser.h"
-
 #include <QString>
 #include <QSyntaxHighlighter>
+#include <QTextDocument>
 
 class QQMessageBlockUserData;
 
@@ -12,7 +11,7 @@ class QQSyntaxHighlighter : public QSyntaxHighlighter
 {
 	Q_OBJECT
 public:
-	QQSyntaxHighlighter(QQTextBrowser *parent = 0);
+	QQSyntaxHighlighter(QTextDocument *parent = 0);
 
 signals:
 
