@@ -3,11 +3,12 @@
 #include "core/qqnorlogeref.h"
 #include "ui/qqmessageblockuserdata.h"
 
+#include <QDateTime>
 #include <QDebug>
 #include <QRegExp>
 #include <QTextCharFormat>
 
-QQSyntaxHighlighter::QQSyntaxHighlighter(QQTextBrowser *parent) :
+QQSyntaxHighlighter::QQSyntaxHighlighter(QTextDocument *parent) :
 	QSyntaxHighlighter(parent)
 {
 
@@ -15,17 +16,24 @@ QQSyntaxHighlighter::QQSyntaxHighlighter(QQTextBrowser *parent) :
 
 void QQSyntaxHighlighter::highlightBlock(const QString &text)
 {
+	qDebug() << QDateTime::currentDateTime().currentMSecsSinceEpoch() << " : "
+			 << "QQSyntaxHighlighter::highlightBlock";
+
 	QQMessageBlockUserData * userData = dynamic_cast<QQMessageBlockUserData *>(currentBlockUserData());
 
-	bool userDataWasNull = false;
-	if(userData == NULL)
+	if(text.length() > 1 &&
+			(userData == NULL || userData->wasParsed() == false))
 	{
-		userDataWasNull = true;
-		userData = new QQMessageBlockUserData();
+		if(userData == NULL)
+		{
+			userData = new QQMessageBlockUserData();
+			setCurrentBlockUserData(userData);
+		}
 
-		qDebug() << "QQSyntaxHighlighter::highlightBlock text=" << text;
-		if(userData != NULL &&
-				userData->constainsData(QQMessageBlockUserData::IS_MESSAGE_ZONE) &&
+		qDebug() << QDateTime::currentDateTime().currentMSecsSinceEpoch() << " : "
+				 << "QQSyntaxHighlighter::highlightBlock text=" << text;
+
+		if(userData->constainsData(QQMessageBlockUserData::IS_MESSAGE_ZONE) &&
 				userData->getData(QQMessageBlockUserData::IS_MESSAGE_ZONE) == true)
 		{
 			highlightNorloge(text, userData);
@@ -35,14 +43,13 @@ void QQSyntaxHighlighter::highlightBlock(const QString &text)
 		}
 		else
 		{
-			qDebug() << "QQSyntaxHighlighter::highlightBlock, userData is NULL";
+			qDebug() << QDateTime::currentDateTime().currentMSecsSinceEpoch() << " : "
+					 << "QQSyntaxHighlighter::highlightBlock, userData is NULL";
 		}
 
-		setCurrentBlockUserData(userData);
 	}
-	//Le message a déjà été parsé, aucun intérêt de le refaire
 	//else
-
+	//Le message a dÃ©jÃ  Ã©tÃ© parsÃ© ou est trop court, aucun intÃ©rÃªt de le refaire
 }
 
 
@@ -67,7 +74,7 @@ void QQSyntaxHighlighter::highlightDuck(const QString & text, QQMessageBlockUser
 {
 	QColor color = QColor("#9933CC");
 
-	QString tete = QString::fromAscii("(?:[o0ô°øòó@]|(?:&ocirc;)|(?:&deg;)|(?:&oslash;)|(?:&ograve;)|(?:&oacute;))");
+	QString tete = QString::fromAscii("(?:[o0Ã´Â°Ã¸Ã²Ã³@]|(?:&ocirc;)|(?:&deg;)|(?:&oslash;)|(?:&ograve;)|(?:&oacute;))");
 
 	//QRegExp m_duckReg = QRegExp(QString::fromAscii("(\\\\_").append(tete).append(QString::fromAscii("&lt;)")),
 	QRegExp m_duckReg = QRegExp(QString::fromAscii("\\\\_").append(tete).append(QString::fromAscii("<")),

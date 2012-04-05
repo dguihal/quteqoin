@@ -13,45 +13,45 @@ class QQPalmipede;
 
 class QQPalmipede : public QGroupBox
 {
-    Q_OBJECT
+	Q_OBJECT
 
 public:
-    explicit QQPalmipede(QWidget *parent = 0);
-    ~QQPalmipede();
+	explicit QQPalmipede(QWidget *parent = 0);
+	~QQPalmipede();
 
-    //QString getCurrentBouchot();
+	//QString getCurrentBouchot();
 
-    void insertText(const QString &);
-    void addBouchot(const QString & newBouchot, const QColor & newBouchotColor);
-    void removeBouchot(const QString & oldBouchot);
+	void insertText(const QString &);
+	void addBouchot(const QString & newBouchot, const QColor & newBouchotColor);
+	void removeBouchot(const QString & oldBouchot);
 
 signals:
-    void postMessage(const QString & bouchot, const QString & message);
+	void postMessage(const QString & bouchot, const QString & message);
 
 public slots:
-    void changePalmiColor(const QColor &);
-    void insertSurroundText(const QString &, const QString &);
-    void insertReplaceText(const QString &);
+	void changePalmiColor(const QColor &);
+	void insertSurroundText(const QString &, const QString &);
+	void insertReplaceText(const QString &);
 
 private:
-    void changeNorloges(const QString & bouchot);
+	void changeNorloges(const QString & bouchot);
 
-    Ui::QQPalmipede *ui;
-    QShortcut *blamShortcut;
-    QShortcut *pafShortcut;
-    QString m_oldBouchot;
+	Ui::QQPalmipede *ui;
+	QShortcut *blamShortcut;
+	QShortcut *pafShortcut;
+	QString m_oldBouchot;
 
 private slots:
-    void boldClicked();
-    void italicClicked();
-    void underlineClicked();
-    void strikeClicked();
-    void momentClicked();
-    void blamPafActivated(const QString & text);
-    void bouchotSelectorActivated(int index);
-    void insertBlam();
-    void insertPaf();
-    void postPushButtonClicked();
+	void boldClicked();
+	void italicClicked();
+	void underlineClicked();
+	void strikeClicked();
+	void momentClicked();
+	void blamPafActivated(const QString & text);
+	void bouchotSelectorActivated(int index);
+	void insertBlam();
+	void insertPaf();
+	void postPushButtonClicked();
 };
 
 #endif // QQPALMIPEDE_H

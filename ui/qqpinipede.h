@@ -66,8 +66,7 @@ private:
     int getNextNorloge(QString &);
     int getNextTotoz(QString &);
 
-    QHash<QString, QQTextBrowser *> m_textBrowserHash;
-    QHash<QString, QQSyntaxHighlighter *> m_textBMsgHighlighterHash;
+	QHash<QString, QQTextBrowser *> m_textBrowserHash;
 
     QMutex newPostsAvailableMutex;
 

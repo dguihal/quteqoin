@@ -57,7 +57,8 @@ void QQPinipede::addPiniTab(const QString& groupName)
     this->addTab(widget, groupName);
 
     m_textBrowserHash.insert(groupName, textBrowser);
-    m_textBMsgHighlighterHash.insert(groupName, new QQSyntaxHighlighter(textBrowser));
+	//textBrowser->document() devient le proprietaire du highlighter
+	QQSyntaxHighlighter * highlighter = new QQSyntaxHighlighter(textBrowser->document());
 
     qDebug() << "QQPinipede::addPiniTab this->m_textBrowserHash.size()=" << this->m_textBrowserHash.size();
 
@@ -121,11 +122,13 @@ void QQPinipede::printPostAtCursor( QTextCursor & cursor, QQPost * post )
     //Post / Reply
     QTextTableCell cell = cursor.currentTable()->cellAt(cursor);
 
-    qDebug() << "Cell 1 : row=" << cell.row() << ", column=" << cell.column();
+	qDebug() << QDateTime::currentDateTime().currentMSecsSinceEpoch() << " : "
+			 << "Cell 1 : row=" << cell.row() << ", column=" << cell.column();
 
     cell.setFormat(cellMarkColorFormat);
 
-    qDebug() << "post->login() = " << post->login()
+	qDebug() << QDateTime::currentDateTime().currentMSecsSinceEpoch() << " : "
+			 << "post->login() = " << post->login()
              << ", post->UA() = " << post->UA();
 
     if( post->isSelfPost())
@@ -141,16 +144,14 @@ void QQPinipede::printPostAtCursor( QTextCursor & cursor, QQPost * post )
 
     cursor.movePosition(QTextCursor::NextCell);
 
-
-    //qDebug() << "QQPinipede::printPostAtCursor : baseBgColor=" << post->bouchot()->color().name();
-    //qDebug() << "QQPinipede::printPostAtCursor : baseBgColor=" << baseBgColor.name();
     QColor baseBgColor = post->bouchot()->settings().colorLight();
     cellMarkColorFormat.setBackground(baseBgColor);
 
     //norloge
     cell = cursor.currentTable()->cellAt(cursor);
 
-    qDebug() << "Cell 2 : row=" << cell.row() << ", column=" << cell.column();
+	qDebug() << QDateTime::currentDateTime().currentMSecsSinceEpoch() << " : "
+			 << "Cell 2 : row=" << cell.row() << ", column=" << cell.column();
 
     cell.setFormat(cellMarkColorFormat);
 
@@ -172,7 +173,8 @@ void QQPinipede::printPostAtCursor( QTextCursor & cursor, QQPost * post )
     //login ou ua
     cell = cursor.currentTable()->cellAt(cursor);
 
-    qDebug() << "Cell 3 : row=" << cell.row() << ", column=" << cell.column();
+	qDebug() << QDateTime::currentDateTime().currentMSecsSinceEpoch() << " : "
+			 << "Cell 3 : row=" << cell.row() << ", column=" << cell.column();
 
     cell.setFormat(cellMarkColorFormat);
 
@@ -207,7 +209,8 @@ void QQPinipede::printPostAtCursor( QTextCursor & cursor, QQPost * post )
     //message
     cell = cursor.currentTable()->cellAt(cursor);
 
-    qDebug() << "Cell 4 : row=" << cell.row() << ", column=" << cell.column();
+	qDebug() << QDateTime::currentDateTime().currentMSecsSinceEpoch() << " : "
+			 << "Cell 4 : row=" << cell.row() << ", column=" << cell.column();
 
     cell.setFormat(cellMarkColorFormat);
 
@@ -224,42 +227,45 @@ void QQPinipede::printPostAtCursor( QTextCursor & cursor, QQPost * post )
 
 void QQPinipede::newPostsAvailable(QQBouchot *sender)
 {
-    qDebug() << "QQDisplayBackend::newPostsAvailable";
+	qDebug() << QDateTime::currentDateTime().currentMSecsSinceEpoch() << " : "
+			 << "QQPinipede::newPostsAvailable";
 
     if(sender == NULL)
-        return;
-
-    QList<QQPost *> newPosts = sender->getNewPosts();
+		return;
 
     //On est obligé de locker pour éviter la pagaille dans le pini.
     // un locking plus fin pourrait être obtenu en implémentant un lock par groupe
     while(! newPostsAvailableMutex.tryLock(1000))
         qWarning() << "newPostsAvailable " << sender->name() << "tryLock timeout";
 
-    QList<QQPost *> *destlistPosts = m_listPostsTabMap[sender->settings().group()];
+	QList<QQPost *> newPosts = sender->getNewPosts();
+	QList<QQPost *> *destlistPosts = m_listPostsTabMap[sender->settings().group()];
 
     QTime time = QTime::currentTime();
     time.start();
 
-    QQTextBrowser* textBrowser = m_textBrowserHash.value(sender->settings().group());
+	QQTextBrowser* textBrowser = m_textBrowserHash.value(sender->settings().group());
     QTextFrame* root = textBrowser->document()->rootFrame();
 
     if(root->childFrames().size() == 0)
     {
+		qDebug() << QDateTime::currentDateTime().currentMSecsSinceEpoch() << " : "
+				 << "QQPinipede, inserting " << newPosts.size() << " posts";
         destlistPosts = new QList<QQPost *>(newPosts);
         m_listPostsTabMap.insert(sender->settings().group(), destlistPosts);
 
         createQTextTable(textBrowser, newPosts.size());
 
         QTextTable* mainTable = dynamic_cast<QTextTable *>(root->childFrames().at(0));
-        qDebug() << mainTable->rows();
         QTextCursor cursor = mainTable->cellAt(0, 0).firstCursorPosition();
-        cursor.beginEditBlock();
+
+		cursor.beginEditBlock();
 
         int i = 0;
         while(i < newPosts.size())
         {
-            qDebug() << "QQPinipede, appending post " << i << "/" << newPosts.length();
+			qDebug() << QDateTime::currentDateTime().currentMSecsSinceEpoch() << " : "
+					 << "QQPinipede, appending post " << i << "/" << newPosts.length();
             printPostAtCursor(cursor, newPosts.at(i++));
             cursor.movePosition(QTextCursor::NextRow);
         }
@@ -269,7 +275,8 @@ void QQPinipede::newPostsAvailable(QQBouchot *sender)
     }
     else
     {
-        qDebug() << "QQPinipede inserting posts : newPosts.size=" << newPosts.size()
+		qDebug() << QDateTime::currentDateTime().currentMSecsSinceEpoch() << " : "
+				 << "QQPinipede inserting posts : newPosts.size=" << newPosts.size()
                  << ", destlistPosts->size=" << destlistPosts->size();
 
         bool wasAtEnd = false;
@@ -304,7 +311,8 @@ void QQPinipede::newPostsAvailable(QQBouchot *sender)
             QQPost * newPost = newPosts.at(newPostsIndex);
 
             insertIndex = insertPostToList( destlistPosts, newPost, baseInsertIndex );
-            qDebug() << "QQPinipede::newPostsAvailable insertIndex=" << insertIndex
+			qDebug() << QDateTime::currentDateTime().currentMSecsSinceEpoch() << " : "
+					 << "QQPinipede::newPostsAvailable insertIndex=" << insertIndex
                      << ", destlistPosts->size()=" << destlistPosts->size();
 
             if(newPost == destlistPosts->last()) //insertion a la fin
@@ -313,12 +321,14 @@ void QQPinipede::newPostsAvailable(QQBouchot *sender)
             //Deplacement vers l'element suivant la ligne qu'on va inserer
             cursor.movePosition(QTextCursor::NextRow, QTextCursor::MoveAnchor, insertIndex - baseInsertIndex );
             QTextTableCell cell = cursor.currentTable()->cellAt(cursor);
-            qDebug() << "Cell X1 : row=" << cell.row() << ", column=" << cell.column();
+			qDebug() << QDateTime::currentDateTime().currentMSecsSinceEpoch() << " : "
+					 << "Cell X1 : row=" << cell.row() << ", column=" << cell.column();
 
             //Creation de la ligne
             mainTable->insertRows(insertIndex, 1);
             cell = cursor.currentTable()->cellAt(cursor);
-            qDebug() << "Cell X2 : row=" << cell.row() << ", column=" << cell.column();
+			qDebug() << QDateTime::currentDateTime().currentMSecsSinceEpoch() << " : "
+					 << "Cell X2 : row=" << cell.row() << ", column=" << cell.column();
 
             //Deplacement vers le début de la nouvelle ligne
             cursor.movePosition(QTextCursor::PreviousCell, QTextCursor::MoveAnchor, 4);
@@ -332,14 +342,15 @@ void QQPinipede::newPostsAvailable(QQBouchot *sender)
         {
             mainTable->appendRows(newPosts.size() - newPostsIndex);
             cursor.movePosition(QTextCursor::NextRow, QTextCursor::MoveAnchor, insertIndex - baseInsertIndex );
-            //Le premier item a déjà été inséré dans la liste destlistPosts dans la boucle while au dessus
+            //Le premier item a déj�  été inséré dans la liste destlistPosts dans la boucle while au dessus
             //on a juste a l'afficher
             printPostAtCursor(cursor, newPosts.at(newPostsIndex++));
             cursor.movePosition(QTextCursor::NextRow);
 
             while(newPostsIndex < newPosts.size())
             {
-                qDebug() << "QQPinipede, appending post " << newPostsIndex << "/" << newPosts.length();
+				qDebug() << QDateTime::currentDateTime().currentMSecsSinceEpoch() << " : "
+						 << "QQPinipede, appending post " << newPostsIndex << "/" << newPosts.length();
                 destlistPosts->append(newPosts.at(newPostsIndex));
                 printPostAtCursor(cursor, newPosts.at(newPostsIndex++));
                 cursor.movePosition(QTextCursor::NextRow);
@@ -354,21 +365,27 @@ void QQPinipede::newPostsAvailable(QQBouchot *sender)
     //TODO : insérer ici la purge des anciens messages
     //Fin TODO
 
+	//m_textBMsgHighlighterHash.value(sender->settings().group())->rehighlight();
+
     newPostsAvailableMutex.unlock();
-    qDebug() << "Time taken is: " << time.elapsed() << " ms";
+	qDebug() << QDateTime::currentDateTime().currentMSecsSinceEpoch() << " : "
+			 << "Time taken is: " << time.elapsed() << " ms";
 }
 
 
 unsigned int QQPinipede::insertPostToList(QList<QQPost *> *listPosts, QQPost *post, unsigned int indexStart)
 {
-    qDebug() << "QQDisplayBackend::insertPostToList, indexStart=" << indexStart;
+	qDebug() << QDateTime::currentDateTime().currentMSecsSinceEpoch() << " : "
+			 << "QQPinipede::insertPostToList, indexStart=" << indexStart;
     for( int i = indexStart; i < listPosts->size(); i++ )
     {
-        qDebug() << "QQDisplayBackend::insertPostToList, listPosts->at(i)->norloge()=" << listPosts->at(i)->norloge()
+		qDebug() << QDateTime::currentDateTime().currentMSecsSinceEpoch() << " : "
+				 << "QQPinipede::insertPostToList, listPosts->at(i)->norloge()=" << listPosts->at(i)->norloge()
                  << ", post->norloge()=" << post->norloge();
         if(listPosts->at(i)->norloge().toLongLong() > post->norloge().toLongLong() )
         {
-            qDebug() << "QQDisplayBackend::insertPostToList, listPosts->insert i=" << i;
+			qDebug() << QDateTime::currentDateTime().currentMSecsSinceEpoch() << " : "
+					 << "QQPinipede::insertPostToList, listPosts->insert i=" << i;
             listPosts->insert(i, post);
             return i;
         }
@@ -388,47 +405,61 @@ void QQPinipede::norlogeRefHovered(QQNorlogeRef norlogeRef)
     QString dstBouchot = norlogeRef.dstBouchot();
     QString dstNorloge = norlogeRef.dstNorloge();
 
-    qDebug() << "norlogeRefHovered, datetimepart=" << dstNorloge << ", destbouchot=" << dstBouchot;
-
-    int indexFound = 0;
+	qDebug() << QDateTime::currentDateTime().currentMSecsSinceEpoch() << " : "
+			 << "norlogeRefHovered, datetimepart=" << dstNorloge << ", destbouchot=" << dstBouchot;
 
     QQBouchot * bouchot = m_settings->bouchot(dstBouchot);
     QQTextBrowser* textBrowser = m_textBrowserHash.value(bouchot->settings().group());
+
+	QList<int> candidateRows;
     if(textBrowser->isVisible())
     {
         QTextFrame* root = textBrowser->document()->rootFrame();
         QTextTable* mainTable = dynamic_cast<QTextTable *>(root->childFrames().at(0));
         QList<QQPost *> *destlistPosts = m_listPostsTabMap[bouchot->settings().group()];
         QQPost * post = NULL;
-        for(int row = 0; row < destlistPosts->size(); row++)
+		for(int row = destlistPosts->size() - 1; row >= 0; row--)
         {
             post = destlistPosts->at(row);
             if(post->bouchot()->name() == dstBouchot &&
                     post->norloge().indexOf(dstNorloge) == 0)
             {
-                    qDebug() << "QQPinipede::norlogeRefHovered : Found at row " << row << " !!!!!!!";
-                    if(norlogeRef.getNorlogeRefIndex() == 0 ||
-                            norlogeRef.getNorlogeRefIndex() == ++indexFound)
-                    {
-                        m_rowHighlighted.append(row);
-                        m_bouchotHighlighted = bouchot->name();
-                        highlightRow(mainTable, row);
-                    }
-            }
-            else if(indexFound > 0)
-                break;
+				//prepend pour renverser l'ordre de stockage par rapport a l'ordre parcouru
+				// ce qui permet d'avoir une liste dans l'ordre chronologique
+				candidateRows.prepend(row);
+				qDebug() << QDateTime::currentDateTime().currentMSecsSinceEpoch() << " : "
+						 << "QQPinipede::norlogeRefHovered : Found at row " << row << " !!!!!!!";
 
-        }
+            }
+			else if(candidateRows.size() > 0)
+			{
+				//Gestion des index de post
+				for(int matchedRow = 0; matchedRow < candidateRows.size(); matchedRow++)
+				{
+					if(norlogeRef.getNorlogeRefIndex() == 0 ||
+							norlogeRef.getNorlogeRefIndex() == matchedRow + 1 )
+					{
+						m_rowHighlighted.append(candidateRows.at(matchedRow));
+						m_bouchotHighlighted = bouchot->name();
+						highlightRow(mainTable, row);
+					}
+				}
+				//On arr�te de parcourir la liste des posts
+                break;
+			}
+		}
     }
     else
     {
-        qDebug() << "Group " << bouchot->settings().group() << " is not visible";
+		qDebug() << QDateTime::currentDateTime().currentMSecsSinceEpoch() << " : "
+				 << "Group " << bouchot->settings().group() << " is not visible";
     }
 }
 
 void QQPinipede::unHighlight()
 {
-    qDebug() << "QQPinipede::unHighlight";
+	qDebug() << QDateTime::currentDateTime().currentMSecsSinceEpoch() << " : "
+			 << "QQPinipede::unHighlight";
     if(m_bouchotHighlighted.size() == 0 || m_rowHighlighted.size() == 0)
         return;
 
@@ -452,7 +483,7 @@ void QQPinipede::unHighlight()
             if(i == 0)
                 color = bouchot->settings().colorLight();
         }
-        cursor.endEditBlock();
+		cursor.endEditBlock();
     }
 
     m_rowHighlighted.clear();

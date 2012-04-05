@@ -31,6 +31,10 @@ public:
     void addTableVZone(int index, const QString & tableV) { m_mapTableV.insert(index, tableV); }
     QString tableVForIndex(int index) { return stringForIndex(index, m_mapTableV); }
 
+	void setWasParsed(bool wasParsed) { m_wasParsed = wasParsed; }
+	bool wasParsed() { return m_wasParsed; }
+
+
     enum dateKeys
     {
         BOUCHOT_NAME,
@@ -49,6 +53,8 @@ private:
     QMap<int, QString> m_mapTotoz;
     QMap<int, QString> m_mapDuck;
     QMap<int, QString> m_mapTableV;
+
+	bool m_wasParsed;
 
 };
 

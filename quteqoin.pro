@@ -24,7 +24,8 @@ SOURCES += main.cpp\
     core/qqnorloge.cpp \
     ui/qqsyntaxhighlighter.cpp \
     ui/qqmessageblockuserdata.cpp \
-    core/qqnorlogeref.cpp
+    core/qqnorlogeref.cpp \
+    ui/qqproxyauthdialog.cpp
 
 HEADERS  += mainwindow.h \
 		core/qqsettings.h \
@@ -39,12 +40,14 @@ HEADERS  += mainwindow.h \
     core/qqnorloge.h \
     ui/qqsyntaxhighlighter.h \
     ui/qqmessageblockuserdata.h \
-    core/qqnorlogeref.h
+    core/qqnorlogeref.h \
+    ui/qqproxyauthdialog.h
 
 FORMS    += mainwindow.ui \
 		ui/qqpalmipede.ui \
 		ui/qqbouchotsettingsdialog.ui \
-		ui/qqsettingsdialog.ui
+		ui/qqsettingsdialog.ui \
+    ui/qqproxyauthdialog.ui
 
 OTHER_FILES +=
 

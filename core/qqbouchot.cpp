@@ -3,6 +3,7 @@
 #include "core/qqsettings.h"
 #include "xml/qqxmlparser.h"
 
+#include <QDateTime>
 #include <QDebug>
 #include <QNetworkProxyFactory>
 #include <QNetworkReply>
@@ -49,6 +50,8 @@ QQBouchot::QQBouchot(const QString & name, QQSettings * parent) :
 	m_lastId=-1;
 	connect(& m_netManager, SIGNAL(finished(QNetworkReply*)),
 			this, SLOT(replyFinished(QNetworkReply*)));
+	connect(& m_netManager, SIGNAL(proxyAuthenticationRequired(QNetworkProxy,QAuthenticator*)),
+			parent, SLOT(proxyAuthenticationRequired(QNetworkProxy,QAuthenticator*)));
 }
 
 QQBouchot::~QQBouchot()
@@ -83,7 +86,8 @@ void QQBouchot::postMessage(const QString &message)
 
 void QQBouchot::startRefresh()
 {
-	qDebug() << "QQBouchot::startRefresh";
+	qDebug() << QDateTime::currentDateTime().currentMSecsSinceEpoch() << " : "
+			 << "QQBouchot::startRefresh";
 	if(m_settings.refresh() <= 0)
 		return;
 
@@ -96,7 +100,8 @@ void QQBouchot::startRefresh()
 
 void QQBouchot::stopRefresh()
 {
-	qDebug() << "QQBouchot::stopRefresh";
+	qDebug() << QDateTime::currentDateTime().currentMSecsSinceEpoch() << " : "
+			 << "QQBouchot::stopRefresh";
 	timer.disconnect();
 	timer.stop();
 }
@@ -117,7 +122,8 @@ void QQBouchot::fetchBackend()
 	lastId.setNum(m_lastId);
 	url.replace(QString::fromAscii("%i"), lastId);
 
-	qDebug() << "QQBouchot::fetchBackend url=" << url;
+	qDebug() << QDateTime::currentDateTime().currentMSecsSinceEpoch() << " : "
+			 << "QQBouchot::fetchBackend url=" << url;
 
 	QNetworkRequest request(QUrl::fromUserInput(url));
 
@@ -135,10 +141,14 @@ void QQBouchot::fetchBackend()
 
 void QQBouchot::replyFinished(QNetworkReply *reply)
 {
-	qDebug() << "QQBouchot::replyFinished isFinished=" << reply->isFinished()
-			 << ", error=" << reply->errorString();
+	qDebug() << QDateTime::currentDateTime().currentMSecsSinceEpoch() << " : "
+			 << "QQBouchot::replyFinished isFinished=" << reply->isFinished();
 
-	qDebug() << "QQBouchot::replyFinished size=" << reply->size();
+	if(reply->error() != QNetworkReply::NoError)
+	{
+		 qWarning() << "QQBouchot::replyFinished, error=" << reply->errorString();
+		 return;
+	}
 
 	m_newPostHistory.clear();
 
@@ -157,7 +167,8 @@ void QQBouchot::replyFinished(QNetworkReply *reply)
 
 	if( m_newPostHistory.size() > 0 )
 	{
-		qDebug() << "QQBouchot::replyFinished, newPostsInserted emis";
+		qDebug() << QDateTime::currentDateTime().currentMSecsSinceEpoch() << " : "
+				 << "QQBouchot::replyFinished, newPostsInserted emis";
 		m_history.append(m_newPostHistory);
 		m_lastId = m_history.last()->id().toInt();
 		emit newPostsInserted(this);
@@ -166,7 +177,6 @@ void QQBouchot::replyFinished(QNetworkReply *reply)
 
 void QQBouchot::insertNewPost(QQPost &newPost)
 {
-	//qDebug() << "MainWindow::insertNewPost ;; " << newPost.norloge();
 	QQPost * tmpNewPost = new QQPost(newPost);
 	tmpNewPost->setParent( this );
 
