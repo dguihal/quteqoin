@@ -233,8 +233,8 @@ void QQPinipede::newPostsAvailable(QQBouchot *sender)
 	if(sender == NULL)
 		return;
 
-	//On est obligÃ© de locker pour Ã©viter la pagaille dans le pini.
-	// un locking plus fin pourrait Ãªtre obtenu en implÃ©mentant un lock par groupe
+	//On est obligé de locker pour éviter la pagaille dans le pini.
+	// un locking plus fin pourrait être obtenu en implémentant un lock par groupe
 	while(! newPostsAvailableMutex.tryLock(1000))
 		qWarning() << "newPostsAvailable " << sender->name() << "tryLock timeout";
 
@@ -295,7 +295,7 @@ void QQPinipede::newPostsAvailable(QQBouchot *sender)
 			QQPost * newPost = newPosts.at(newPostsIndex);
 
 			mainTable->insertRows(0, 1);
-			//ligne prÃ©cedente + 3 colonnes
+			//ligne précedente + 3 colonnes
 			cursor.movePosition(QTextCursor::PreviousCell, QTextCursor::MoveAnchor, 4);
 
 			printPostAtCursor(cursor, newPost);
@@ -330,7 +330,7 @@ void QQPinipede::newPostsAvailable(QQBouchot *sender)
 			qDebug() << QDateTime::currentDateTime().currentMSecsSinceEpoch() << " : "
 					 << "Cell X2 : row=" << cell.row() << ", column=" << cell.column();
 
-			//Deplacement vers le dÃ©but de la nouvelle ligne
+			//Deplacement vers le début de la nouvelle ligne
 			cursor.movePosition(QTextCursor::PreviousCell, QTextCursor::MoveAnchor, 4);
 			printPostAtCursor(cursor,newPost);
 
@@ -342,7 +342,7 @@ void QQPinipede::newPostsAvailable(QQBouchot *sender)
 		{
 			mainTable->appendRows(newPosts.size() - newPostsIndex);
 			cursor.movePosition(QTextCursor::NextRow, QTextCursor::MoveAnchor, insertIndex - baseInsertIndex );
-			//Le premier item a dÃ©jÃ  Ã©tÃ© insÃ©rÃ© dans la liste destlistPosts dans la boucle while au dessus
+			//Le premier item a déjà  été inséré dans la liste destlistPosts dans la boucle while au dessus
 			//on a juste a l'afficher
 			printPostAtCursor(cursor, newPosts.at(newPostsIndex++));
 			cursor.movePosition(QTextCursor::NextRow);
@@ -362,7 +362,7 @@ void QQPinipede::newPostsAvailable(QQBouchot *sender)
 			textBrowser->verticalScrollBar()->triggerAction( QAbstractSlider::SliderToMaximum );
 	}
 
-	//TODO : insÃ©rer ici la purge des anciens messages
+	//TODO : insérer ici la purge des anciens messages
 	//Fin TODO
 
 	//m_textBMsgHighlighterHash.value(sender->settings().group())->rehighlight();
