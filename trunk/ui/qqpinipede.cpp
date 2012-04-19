@@ -471,14 +471,14 @@ void QQPinipede::unHighlight()
 	for(int i = 0; i < m_rowHighlighted.size(); i++)
 	{
 		QTextTableCell cell = mainTable->cellAt(m_rowHighlighted[i], 1);
-		QColor color = bouchot->settings().colorLight();
 		QTextCursor cursor = cell.firstCursorPosition();
+		QTextCharFormat format;
+		format.setBackground(bouchot->settings().colorLight());
+
 		cursor.beginEditBlock();
 		for(int j = 1; j < 4; j++)
 		{
-			QTextCharFormat format = cursor.blockCharFormat();
-			format.setBackground(color);
-			cursor.setBlockCharFormat(format);
+			cursor.mergeBlockCharFormat(format);
 			cursor.movePosition(QTextCursor::NextCell);
 		}
 		cursor.endEditBlock();
@@ -509,12 +509,13 @@ void QQPinipede::highlightRow(QTextTable * mainTable, int row)
 
 	QTextTableCell cell = mainTable->cellAt(row, 1);
 	QTextCursor cursor = cell.firstCursorPosition();
+	QTextCharFormat format;
+	format.setBackground(Qt::yellow);
+
 	cursor.beginEditBlock();
 	for(int i = 1; i < 4; i++)
 	{
-		QTextCharFormat format = cursor.blockCharFormat();
-		format.setBackground(QColor(255, 255, 0, 255));
-		cursor.setBlockCharFormat(format);
+		cursor.mergeBlockCharFormat(format);
 		cursor.movePosition(QTextCursor::NextCell);
 	}
 	cursor.endEditBlock();
