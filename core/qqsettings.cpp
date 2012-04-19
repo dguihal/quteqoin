@@ -226,7 +226,7 @@ bool QQSettings::saveSettings()
 	if(! m_dirty)
 		return true;
 
-	QSettings settings(QSettings::NativeFormat, QSettings::UserScope, "Moules Corp", "qoinqoin");
+	QSettings settings(QSettings::NativeFormat, QSettings::UserScope, "Moules Corp", "quteqoin");
 
 	settings.setValue(QString::fromAscii("max_hist_len"),
 					  QVariant(m_maxHistoryLength));

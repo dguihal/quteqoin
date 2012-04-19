@@ -102,7 +102,7 @@ void QQPinipede::createQTextTable( QQTextBrowser* textBrowser, int numRow )
 	tableFormat.setPosition(QTextFrameFormat::InFlow);
 	QVector<QTextLength> columnWidthConstraints = tableFormat.columnWidthConstraints();
 	columnWidthConstraints.clear();
-	columnWidthConstraints << QTextLength(QTextLength::VariableLength, 20.0)
+	columnWidthConstraints << QTextLength(QTextLength::FixedLength, 20.0)
 						   << QTextLength(QTextLength::FixedLength, 70.0)
 						   << QTextLength(QTextLength::FixedLength, 70.0)
 						   << QTextLength(QTextLength::VariableLength, 0.0);
@@ -470,18 +470,16 @@ void QQPinipede::unHighlight()
 
 	for(int i = 0; i < m_rowHighlighted.size(); i++)
 	{
-		QTextTableCell cell = mainTable->cellAt(m_rowHighlighted[i], 0);
-		QColor color = bouchot->settings().color();
+		QTextTableCell cell = mainTable->cellAt(m_rowHighlighted[i], 1);
+		QColor color = bouchot->settings().colorLight();
 		QTextCursor cursor = cell.firstCursorPosition();
 		cursor.beginEditBlock();
-		for(int i = 0; i < 4; i++)
+		for(int j = 1; j < 4; j++)
 		{
 			QTextCharFormat format = cursor.blockCharFormat();
 			format.setBackground(color);
 			cursor.setBlockCharFormat(format);
 			cursor.movePosition(QTextCursor::NextCell);
-			if(i == 0)
-				color = bouchot->settings().colorLight();
 		}
 		cursor.endEditBlock();
 	}
@@ -509,10 +507,10 @@ QQPost * QQPinipede::getPostForGroup(QString &groupName, int numPost)
 void QQPinipede::highlightRow(QTextTable * mainTable, int row)
 {
 
-	QTextTableCell cell = mainTable->cellAt(row, 0);
+	QTextTableCell cell = mainTable->cellAt(row, 1);
 	QTextCursor cursor = cell.firstCursorPosition();
 	cursor.beginEditBlock();
-	for(int i = 0; i < 4; i++)
+	for(int i = 1; i < 4; i++)
 	{
 		QTextCharFormat format = cursor.blockCharFormat();
 		format.setBackground(QColor(255, 255, 0, 255));

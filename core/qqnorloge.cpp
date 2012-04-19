@@ -15,6 +15,8 @@ QQNorloge::QQNorloge(QString bouchot, QString dateh)
     m_dateHourPart = dateh.mid(8, 2);
     m_dateMinutePart = dateh.mid(10, 2);
     m_dateSecondPart = dateh.mid(12, 2);
+
+    m_norlogeIndex = 0;
 }
 
 
@@ -42,7 +44,7 @@ QString QQNorloge::toStringPalmi()
     //On a TOUJOURS l'heure
     rep.append(m_dateHourPart)
             .append(QString::fromUtf8(":"))
-            .append(m_dateDayPart)
+            .append(m_dateMinutePart)
             .append(QString::fromUtf8(":"))
             .append(m_dateSecondPart);
 
