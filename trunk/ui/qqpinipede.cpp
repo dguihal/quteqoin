@@ -49,6 +49,7 @@ void QQPinipede::addPiniTab(const QString& groupName)
 
 	QQTextBrowser *textBrowser = new QQTextBrowser(groupName, this);
 	textBrowser->document()->setUndoRedoEnabled(false);
+	textBrowser->document()->setDocumentMargin(0);
 	QScrollBar *vScrollBar = textBrowser->verticalScrollBar();
 	vScrollBar->setSliderPosition( vScrollBar->maximum() );
 
@@ -99,6 +100,10 @@ void QQPinipede::createQTextTable( QQTextBrowser* textBrowser, int numRow )
 	tableFormat.setMargin(0);
 	tableFormat.setCellSpacing(0);
 	tableFormat.setCellPadding(0);
+	tableFormat.setLeftMargin(0);
+	tableFormat.setRightMargin(0);
+	tableFormat.setTopMargin(0);
+	tableFormat.setBottomMargin(0);
 	tableFormat.setPosition(QTextFrameFormat::InFlow);
 	QVector<QTextLength> columnWidthConstraints = tableFormat.columnWidthConstraints();
 	columnWidthConstraints.clear();
@@ -411,43 +416,37 @@ void QQPinipede::norlogeRefHovered(QQNorlogeRef norlogeRef)
 	QQBouchot * bouchot = m_settings->bouchot(dstBouchot);
 	QQTextBrowser* textBrowser = m_textBrowserHash.value(bouchot->settings().group());
 
-	QList<int> candidateRows;
 	if(textBrowser->isVisible())
 	{
-		QTextFrame* root = textBrowser->document()->rootFrame();
-		QTextTable* mainTable = dynamic_cast<QTextTable *>(root->childFrames().at(0));
-		QList<QQPost *> *destlistPosts = m_listPostsTabMap[bouchot->settings().group()];
-		QQPost * post = NULL;
-		for(int row = destlistPosts->size() - 1; row >= 0; row--)
-		{
-			post = destlistPosts->at(row);
-			if(post->bouchot()->name() == dstBouchot &&
-					post->norloge().indexOf(dstNorloge) == 0)
-			{
-				//prepend pour renverser l'ordre de stockage par rapport a l'ordre parcouru
-				// ce qui permet d'avoir une liste dans l'ordre chronologique
-				candidateRows.prepend(row);
-				qDebug() << QDateTime::currentDateTime().currentMSecsSinceEpoch() << " : "
-						 << "QQPinipede::norlogeRefHovered : Found at row " << row << " !!!!!!!";
+		if( m_tBrowserHighlighted != NULL )
+			unHighlight();
 
-			}
-			else if(candidateRows.size() > 0)
-			{
-				//Gestion des index de post
-				for(int matchedRow = 0; matchedRow < candidateRows.size(); matchedRow++)
-				{
-					if(norlogeRef.getNorlogeRefIndex() == 0 ||
-							norlogeRef.getNorlogeRefIndex() == matchedRow + 1 )
-					{
-						m_rowHighlighted.append(candidateRows.at(matchedRow));
-						m_bouchotHighlighted = bouchot->name();
-						highlightRow(mainTable, candidateRows.at(matchedRow));
-					}
-				}
-				//On arrête de parcourir la liste des posts
-				break;
-			}
-		}
+		m_tBrowserHighlighted = textBrowser;
+		QQSyntaxHighlighter * highlighter = textBrowser->document()->findChildren<QQSyntaxHighlighter *>().at(0);
+		highlighter->setNorlogeRefToHighlight(norlogeRef);
+
+        QTextCursor cursor = textBrowser->cursorForPosition(QPoint(0, 0)); //get the cursor position near the top left corner of the current viewport.
+        QTextCursor endPosition = textBrowser->cursorForPosition(QPoint(textBrowser->viewport()->width(), textBrowser->viewport()->height())); //get the cursor position near the bottom left corner of the current viewport.
+        qDebug() << "QQPinipede::norlogeRefHovered from position: " << cursor.blockNumber()
+                        << " to " << endPosition.blockNumber();
+
+        cursor.beginEditBlock();
+
+        bool moveSuccess = cursor.movePosition(QTextCursor::NextCell, QTextCursor::MoveAnchor, 1);
+        do
+        {
+            QQMessageBlockUserData * userData = dynamic_cast<QQMessageBlockUserData *>(cursor.block().userData());
+            moveSuccess &= cursor.movePosition(QTextCursor::NextCell, QTextCursor::KeepAnchor, 2);
+
+            if( ! highlighter->highlightLine(cursor, userData) )
+            {
+                cursor.clearSelection();
+                highlighter->rehighlightMessageBlockAtCursor(cursor, dynamic_cast<QQMessageBlockUserData *>(cursor.block().userData()));
+            }
+            moveSuccess &= cursor.movePosition(QTextCursor::NextCell, QTextCursor::MoveAnchor, 2);
+        } while ( moveSuccess && cursor.blockNumber() <= endPosition.blockNumber() );
+
+		cursor.endEditBlock();
 	}
 	else
 	{
@@ -460,31 +459,49 @@ void QQPinipede::unHighlight()
 {
 	qDebug() << QDateTime::currentDateTime().currentMSecsSinceEpoch() << " : "
 			 << "QQPinipede::unHighlight";
-	if(m_bouchotHighlighted.size() == 0 || m_rowHighlighted.size() == 0)
+
+	if(m_tBrowserHighlighted == NULL)
 		return;
 
-	QQBouchot * bouchot = m_settings->bouchot(m_bouchotHighlighted);
-	QQTextBrowser* textBrowser = m_textBrowserHash.value(bouchot->settings().group());
-	QTextFrame* root = textBrowser->document()->rootFrame();
+	QTextFrame* root = m_tBrowserHighlighted->document()->rootFrame();
 	QTextTable* mainTable = dynamic_cast<QTextTable *>(root->childFrames().at(0));
+	QTextCursor cursor = mainTable->cellAt(0, 1).firstCursorPosition();
 
-	for(int i = 0; i < m_rowHighlighted.size(); i++)
+	cursor.beginEditBlock();
+
+	bool moveSuccess = true;
+	while(moveSuccess == true)
 	{
-		QTextTableCell cell = mainTable->cellAt(m_rowHighlighted[i], 1);
-		QTextCursor cursor = cell.firstCursorPosition();
-		QTextCharFormat format;
-		format.setBackground(bouchot->settings().colorLight());
-
-		cursor.beginEditBlock();
-		for(int j = 1; j < 4; j++)
+		QQMessageBlockUserData * userData = dynamic_cast<QQMessageBlockUserData *>(cursor.block().userData());
+		moveSuccess &= cursor.movePosition(QTextCursor::NextCell, QTextCursor::KeepAnchor, 2);
+		if( userData->isHighlighted() )
 		{
+			QTextCharFormat format;
+			format.setBackground(m_settings->bouchot(userData->getData(QQMessageBlockUserData::BOUCHOT_NAME).toString())->settings().colorLight());
 			cursor.mergeBlockCharFormat(format);
-			cursor.movePosition(QTextCursor::NextCell);
+			userData->resetHighlighted();
 		}
-		cursor.endEditBlock();
+		else
+		{
+			cursor.clearSelection();
+			userData = dynamic_cast<QQMessageBlockUserData *>(cursor.block().userData());
+
+			if( userData->isHighlighted() )
+			{
+				QTextCharFormat format;
+				format.setBackground(QBrush(Qt::NoBrush));
+				cursor.movePosition(QTextCursor::StartOfBlock, QTextCursor::MoveAnchor);
+				cursor.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
+				cursor.mergeCharFormat(format);
+			}
+		}
+
+		moveSuccess &= cursor.movePosition(QTextCursor::NextCell, QTextCursor::MoveAnchor, 2);
 	}
 
-	m_rowHighlighted.clear();
+	cursor.endEditBlock();
+
+	m_tBrowserHighlighted = NULL;
 }
 
 void QQPinipede::loginClicked(QString tabGroupName)
@@ -502,21 +519,4 @@ QQPost * QQPinipede::getPostForGroup(QString &groupName, int numPost)
 	}
 
 	return NULL;
-}
-
-void QQPinipede::highlightRow(QTextTable * mainTable, int row)
-{
-
-	QTextTableCell cell = mainTable->cellAt(row, 1);
-	QTextCursor cursor = cell.firstCursorPosition();
-	QTextCharFormat format;
-	format.setBackground(Qt::yellow);
-
-	cursor.beginEditBlock();
-	for(int i = 1; i < 4; i++)
-	{
-		cursor.mergeBlockCharFormat(format);
-		cursor.movePosition(QTextCursor::NextCell);
-	}
-	cursor.endEditBlock();
 }

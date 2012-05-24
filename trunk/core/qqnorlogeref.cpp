@@ -3,11 +3,20 @@
 #include <QString>
 #include <QStringList>
 
-QQNorlogeRef::QQNorlogeRef(QString bouchot, QString dateh, QString norlogeRef) :
+
+QQNorlogeRef::QQNorlogeRef() :
+    QQNorloge()
+{
+    m_refDateIndexPart = 0;
+    m_posInMessage = -1;
+}
+
+QQNorlogeRef::QQNorlogeRef(const QString &bouchot, const QString &dateh, const QString &norlogeRef, int posInMessage) :
     QQNorloge(bouchot, dateh)
 {
     //On sauve la chaine de reference pour highlighter les semblables
-    m_norlogeRef = norlogeRef;
+    m_origNRef = norlogeRef;
+    m_posInMessage = posInMessage;
 
     QRegExp reg = norlogeRegexp();
 
@@ -60,6 +69,24 @@ QQNorlogeRef::QQNorlogeRef(QString bouchot, QString dateh, QString norlogeRef) :
     }
 }
 
+
+QQNorlogeRef::QQNorlogeRef(const QQNorlogeRef & norlogeRef) :
+    QQNorloge(norlogeRef)
+{
+    m_refDateYearPart = norlogeRef.m_refDateDayPart;
+    m_refDateMonthPart = norlogeRef.m_refDateMonthPart;
+    m_refDateDayPart = norlogeRef.m_refDateDayPart;
+    m_refDateHourPart = norlogeRef.m_refDateHourPart;
+    m_refDateMinutePart = norlogeRef.m_refDateMinutePart;
+    m_refDateSecondPart = norlogeRef.m_refDateSecondPart;
+    m_refDateIndexPart = norlogeRef.m_refDateIndexPart;
+
+    m_dstBouchot = norlogeRef.m_dstBouchot;
+
+    m_origNRef = norlogeRef.m_origNRef;
+    m_posInMessage = norlogeRef.m_posInMessage;
+}
+
 QString QQNorlogeRef::dstBouchot()
 {
     return (m_dstBouchot.size() > 0) ? m_dstBouchot : m_srcBouchot;
@@ -75,6 +102,14 @@ QString QQNorlogeRef::dstNorloge()
     dstNorloge.append((m_refDateHourPart.size() > 0) ? m_refDateHourPart : m_dateHourPart );
     dstNorloge.append((m_refDateMinutePart.size() > 0) ? m_refDateMinutePart : m_dateMinutePart );
     dstNorloge.append((m_refDateSecondPart.size() > 0) ? m_refDateSecondPart : QString::fromAscii("") );
+    dstNorloge.append((m_refDateIndexPart > 0) ? QString::fromAscii("^").append(QString::number(m_refDateIndexPart)) : QString::fromAscii("") );
 
     return dstNorloge;
+}
+
+QString QQNorlogeRef::nRefId()
+{
+    QString ret = m_dstBouchot;
+    ret.append(QChar::fromAscii('#')).append(dstNorloge());
+    return ret;
 }

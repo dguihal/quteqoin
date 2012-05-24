@@ -8,7 +8,9 @@
 class QQNorlogeRef : public QQNorloge
 {
 public:
-    QQNorlogeRef(QString bouchot, QString dateh, QString norlogeRef);
+    QQNorlogeRef();
+    QQNorlogeRef(const QString & bouchot, const QString & dateh, const QString & norlogeRef, int posInMessage);
+    QQNorlogeRef(const QQNorlogeRef & norlogeRef);
 
     //Les zones capturées sont :
     // 0 - Norloge complète
@@ -38,9 +40,20 @@ public:
     }
 
     int getNorlogeRefIndex() { return m_refDateIndexPart; }
+    QString getOrigNRef() { return m_origNRef; }
+    int getPosInMessage() { return m_posInMessage; }
 
     QString dstBouchot();
     QString dstNorloge();
+
+    QString nRefId();
+
+
+    bool operator == ( const QQNorlogeRef & other ) const
+        { return ( this->m_origNRef == other.m_origNRef && this->m_posInMessage == other.m_posInMessage); }
+    bool operator != ( const QQNorlogeRef & other ) const
+        { return !( (* this) == other ); }
+
 
 private:
     QString m_refDateYearPart;
@@ -53,7 +66,8 @@ private:
 
     QString m_dstBouchot;
 
-    QString m_norlogeRef;
+    QString m_origNRef;
+    int m_posInMessage;
 };
 
 #endif // QQNORLOGEREF_H

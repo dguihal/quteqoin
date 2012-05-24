@@ -74,7 +74,7 @@ void QQPalmipede::insertSurroundText(const QString & bTag, const QString & eTag)
 void QQPalmipede::insertReplaceText(const QString & tag)
 {
 	QString text = tag;
-	//Suppression des @bouchot excédentaires lorsque l'on a déj�  selectionné le dit bouchot
+	//Suppression des @bouchot excedentaires lorsque l'on a deja  selectionne le dit bouchot
 	QRegExp regexp = QQNorlogeRef::norlogeRegexp(ui->boardSelectorComboBox->currentText());
 	text.replace(regexp, QString::fromAscii("\\1"));
 

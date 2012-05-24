@@ -7,7 +7,9 @@
 class QQNorloge
 {
 public:
+    QQNorloge();
     QQNorloge(QString bouchot, QString dateh);
+    QQNorloge(const QQNorloge& norloge);
 
     QString toStringPalmi();
     QString toStringPini();

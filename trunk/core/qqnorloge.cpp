@@ -4,6 +4,21 @@
 #include <QDateTime>
 #include <QStringList>
 
+
+QQNorloge::QQNorloge()
+{
+    m_srcBouchot = QString();
+
+    m_dateYearPart = QString();
+    m_dateMonthPart = QString();
+    m_dateDayPart = QString();
+    m_dateHourPart = QString();
+    m_dateMinutePart = QString();
+    m_dateSecondPart = QString();
+
+    m_norlogeIndex = 0;
+}
+
 //m_date = QDateTime::fromString(dateh.left(14), QString::fromUtf8("yyyyMMddHHmmss"));
 QQNorloge::QQNorloge(QString bouchot, QString dateh)
 {
@@ -17,6 +32,20 @@ QQNorloge::QQNorloge(QString bouchot, QString dateh)
     m_dateSecondPart = dateh.mid(12, 2);
 
     m_norlogeIndex = 0;
+}
+
+QQNorloge::QQNorloge(const QQNorloge& norloge)
+{
+    m_srcBouchot = norloge.m_srcBouchot;
+
+    m_dateYearPart = norloge.m_dateYearPart;
+    m_dateMonthPart = norloge.m_dateMonthPart;
+    m_dateDayPart = norloge.m_dateDayPart;
+    m_dateHourPart = norloge.m_dateHourPart;
+    m_dateMinutePart = norloge.m_dateMinutePart;
+    m_dateSecondPart = norloge.m_dateSecondPart;
+
+    m_norlogeIndex = norloge.m_norlogeIndex;
 }
 
 
