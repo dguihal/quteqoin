@@ -7,17 +7,79 @@
 #include <QDebug>
 #include <QRegExp>
 #include <QTextCharFormat>
+#include <QTextCursor>
 
-QQSyntaxHighlighter::QQSyntaxHighlighter(QTextDocument *parent) :
+QQSyntaxHighlighter::QQSyntaxHighlighter(QTextDocument * parent) :
 	QSyntaxHighlighter(parent)
 {
+}
 
+void QQSyntaxHighlighter::setNorlogeRefToHighlight(const QQNorlogeRef &norlogeRef)
+{
+	resetNorlogeRefToHighlight();
+	this->m_nRef = norlogeRef;
+}
+
+void QQSyntaxHighlighter::resetNorlogeRefToHighlight()
+{
+}
+
+QQSyntaxHighlighter::~QQSyntaxHighlighter()
+{
+	resetNorlogeRefToHighlight();
+}
+
+
+bool QQSyntaxHighlighter::highlightLine(QTextCursor & lineSelection, QQMessageBlockUserData * userData)
+{
+
+	QString dstNorloge = m_nRef.dstNorloge();
+	QString dstBouchot = m_nRef.dstBouchot();
+
+	QString currNorloge = userData->getData(QQMessageBlockUserData::POST_NORLOGE).toString();
+	QString currBouchot = userData->getData(QQMessageBlockUserData::BOUCHOT_NAME).toString();
+
+	if( currBouchot.compare(dstBouchot, Qt::CaseInsensitive) == 0 &&
+			currNorloge.startsWith(dstNorloge) )
+	{
+		QTextCharFormat format;
+		format.setBackground(Qt::yellow);
+
+		lineSelection.mergeBlockCharFormat(format);
+		userData->setHighlighted();
+		return true;
+	}
+	return false;
+}
+
+void QQSyntaxHighlighter::rehighlightMessageBlockAtCursor (QTextCursor cursor, QQMessageBlockUserData * userData)
+{
+	if(userData->constainsData(QQMessageBlockUserData::IS_MESSAGE_ZONE))
+	{
+		QTextCharFormat format;
+		format.setBackground(Qt::yellow);
+
+		QList<QQNorlogeRef> norlogeRefs = userData->norlogeRefs();
+
+		for (int i = 0; i < norlogeRefs.size(); ++i)
+		{
+			QQNorlogeRef norlogeRef = norlogeRefs.at(i);
+			if(m_nRef == norlogeRef)
+			{
+				cursor.movePosition(QTextCursor::StartOfBlock, QTextCursor::MoveAnchor);
+				cursor.movePosition(QTextCursor::NextCharacter, QTextCursor::MoveAnchor, norlogeRef.getPosInMessage());
+				cursor.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor, norlogeRef.getOrigNRef().length());
+				cursor.mergeCharFormat(format);
+				userData->setHighlighted();
+			}
+		}
+	}
 }
 
 void QQSyntaxHighlighter::highlightBlock(const QString &text)
 {
-	qDebug() << QDateTime::currentDateTime().currentMSecsSinceEpoch() << " : "
-			 << "QQSyntaxHighlighter::highlightBlock";
+	//qDebug() << QDateTime::currentDateTime().currentMSecsSinceEpoch() << " : "
+	//		 << "QQSyntaxHighlighter::highlightBlock";
 
 	QQMessageBlockUserData * userData = dynamic_cast<QQMessageBlockUserData *>(currentBlockUserData());
 
@@ -30,11 +92,10 @@ void QQSyntaxHighlighter::highlightBlock(const QString &text)
 			setCurrentBlockUserData(userData);
 		}
 
-		qDebug() << QDateTime::currentDateTime().currentMSecsSinceEpoch() << " : "
-				 << "QQSyntaxHighlighter::highlightBlock text=" << text;
+		//qDebug() << QDateTime::currentDateTime().currentMSecsSinceEpoch() << " : "
+		//		 << "QQSyntaxHighlighter::highlightBlock text=" << text;
 
-		if(userData->constainsData(QQMessageBlockUserData::IS_MESSAGE_ZONE) &&
-				userData->getData(QQMessageBlockUserData::IS_MESSAGE_ZONE) == true)
+		if(userData->constainsData(QQMessageBlockUserData::IS_MESSAGE_ZONE))
 		{
 			highlightNorloge(text, userData);
 			highlightDuck(text, userData);
@@ -43,13 +104,11 @@ void QQSyntaxHighlighter::highlightBlock(const QString &text)
 		}
 		else
 		{
-			qDebug() << QDateTime::currentDateTime().currentMSecsSinceEpoch() << " : "
-					 << "QQSyntaxHighlighter::highlightBlock, userData is NULL";
+			//qDebug() << QDateTime::currentDateTime().currentMSecsSinceEpoch() << " : "
+			//		 << "QQSyntaxHighlighter::highlightBlock, userData is NULL";
 		}
 
 	}
-	//else
-	//Le message a déjà été parsé ou est trop court, aucun intérêt de le refaire
 }
 
 
@@ -63,7 +122,11 @@ void QQSyntaxHighlighter::highlightNorloge(const QString & text, QQMessageBlockU
 	while (index >= 0)
 	{
 		int length = m_norlogeReg.matchedLength();
-		userData->addNorlogeRefZone(index, text.mid(index, length));
+		QQNorlogeRef nRef = QQNorlogeRef(userData->getData(QQMessageBlockUserData::BOUCHOT_NAME).toString(),
+										 userData->getData(QQMessageBlockUserData::POST_NORLOGE).toString(),
+										 text.mid(index, length),
+										 index);
+		userData->addNorlogeRefZone(nRef);
 		setFormat(index, length, color);
 
 		index = text.indexOf(m_norlogeReg, index + length);

@@ -34,7 +34,7 @@ private:
 
     bool m_highlightAsked;
     QQMessageBlockUserData * m_highlightedBlockUserData;
-    QString m_highlightedStrRef;
+    QQNorlogeRef m_highlightedNRef;
 
     QString m_groupName;
 

@@ -52,14 +52,12 @@ private:
 	void printPostAtCursor( QTextCursor &, QQPost * );
 	unsigned int insertPostToList(QList<QQPost *> *, QQPost *, unsigned int);
 	void createQTextTable( QQTextBrowser* textBrowser, int numRow );
-	void highlightRow(QTextTable * mainTable, int row);
 
 	QQSettings * m_settings;
 
 	QHash<QString, QList<QQPost *> *> m_listPostsTabMap;
 
-	QList<int> m_rowHighlighted;
-	QString m_bouchotHighlighted;
+	QQTextBrowser* m_tBrowserHighlighted;
 
 	QTextDocument * document(const QString &);
 	int getNextDuck(QString &);
