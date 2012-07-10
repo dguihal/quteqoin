@@ -87,12 +87,12 @@ QQNorlogeRef::QQNorlogeRef(const QQNorlogeRef & norlogeRef) :
     m_posInMessage = norlogeRef.m_posInMessage;
 }
 
-QString QQNorlogeRef::dstBouchot()
+QString QQNorlogeRef::dstBouchot() const
 {
     return (m_dstBouchot.size() > 0) ? m_dstBouchot : m_srcBouchot;
 }
 
-QString QQNorlogeRef::dstNorloge()
+QString QQNorlogeRef::dstNorloge() const
 {
     QString dstNorloge;
 
@@ -101,15 +101,16 @@ QString QQNorlogeRef::dstNorloge()
     dstNorloge.append((m_refDateDayPart.size() > 0) ? m_refDateDayPart : m_dateDayPart );
     dstNorloge.append((m_refDateHourPart.size() > 0) ? m_refDateHourPart : m_dateHourPart );
     dstNorloge.append((m_refDateMinutePart.size() > 0) ? m_refDateMinutePart : m_dateMinutePart );
-    dstNorloge.append((m_refDateSecondPart.size() > 0) ? m_refDateSecondPart : QString::fromAscii("") );
+    dstNorloge.append((m_refDateSecondPart.size() > 0) ? m_refDateSecondPart : m_dateSecondPart );
+    //dstNorloge.append((m_refDateSecondPart.size() > 0) ? m_refDateSecondPart : QString::fromAscii("") );
     dstNorloge.append((m_refDateIndexPart > 0) ? QString::fromAscii("^").append(QString::number(m_refDateIndexPart)) : QString::fromAscii("") );
 
     return dstNorloge;
 }
 
-QString QQNorlogeRef::nRefId()
+QString QQNorlogeRef::nRefId() const
 {
-    QString ret = m_dstBouchot;
+    QString ret = dstBouchot();
     ret.append(QChar::fromAscii('#')).append(dstNorloge());
     return ret;
 }

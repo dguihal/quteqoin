@@ -42,39 +42,43 @@ void QQTextBrowser::mouseMoveEvent(QMouseEvent *event)
 
     if(blockData != NULL)
     {
-        /*
-        QString currBouchot = blockData->getData(QQMessageBlockUserData::BOUCHOT_NAME).toString();
-        QString postNorloge = blockData->getData(QQMessageBlockUserData::POST_NORLOGE).toString();
-*/
         //Zone message
-        if(blockData->constainsData(QQMessageBlockUserData::IS_MESSAGE_ZONE) &&
-                blockData->constainsData(QQMessageBlockUserData::IS_MESSAGE_ZONE) == true)
+        QQNorlogeRef nRef;
+
+        if(blockData->constainsData(QQMessageBlockUserData::IS_MESSAGE_ZONE))
         {
             //Est-on au dessus d'une norloge
-            QQNorlogeRef nRef = blockData->norlogeRefForIndex(cursor.positionInBlock());
-            qDebug() << "QQTextBrowser::mouseMoveEvent, str = " << nRef.getOrigNRef() << " position : " << nRef.getPosInMessage();
-            if(nRef.getOrigNRef().length() > 0)
+            nRef = blockData->norlogeRefForIndex(cursor.positionInBlock());
+        }
+        else if(blockData->constainsData(QQMessageBlockUserData::IS_NORLOGE_ZONE))
+        {
+            QString norlogeString = blockData->getData(QQMessageBlockUserData::POST_NORLOGE).toString();
+            nRef = QQNorlogeRef(blockData->getData(QQMessageBlockUserData::BOUCHOT_NAME).toString(),
+                                norlogeString, norlogeString, 1);
+
+        }
+        qDebug() << "QQTextBrowser::mouseMoveEvent, str = " << nRef.getOrigNRef() << " position : " << nRef.getPosInMessage();
+        if(nRef.getOrigNRef().length() > 0)
+        {
+            if(m_highlightedBlockUserData != blockData || m_highlightedNRef != nRef)
             {
-                if(m_highlightedBlockUserData != blockData || m_highlightedNRef != nRef)
-                {
-                    m_highlightedBlockUserData = blockData;
-                    m_highlightedNRef = nRef;
-                    qDebug() << "QQTextBrowser::mouseMoveEvent norlogeRefHovered";
-                    emit unHighlight();
-                    emit norlogeRefHovered(nRef);
-                }
-                highlightActivated = true;
+                m_highlightedBlockUserData = blockData;
+                m_highlightedNRef = nRef;
+                qDebug() << "QQTextBrowser::mouseMoveEvent norlogeRefHovered";
+                emit unHighlight();
+                emit norlogeRefHovered(nRef);
             }
+            highlightActivated = true;
         }
     }
 
-	qDebug() << "highlightActivated = " << highlightActivated;
-	if(m_highlightedBlockUserData != NULL && highlightActivated == false)
-	{
-		m_highlightedBlockUserData = NULL;
-		m_highlightedNRef = QQNorlogeRef();
-		emit unHighlight();
-	}
+    qDebug() << "highlightActivated = " << highlightActivated;
+    if(m_highlightedBlockUserData != NULL && highlightActivated == false)
+    {
+        m_highlightedBlockUserData = NULL;
+        m_highlightedNRef = QQNorlogeRef();
+        emit unHighlight();
+    }
 }
 
 void QQTextBrowser::mousePressEvent ( QMouseEvent * event )
