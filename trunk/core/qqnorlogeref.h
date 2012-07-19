@@ -52,8 +52,10 @@ public:
 
 	bool operator == ( const QQNorlogeRef & other ) const
 	{
-		// qDebug() << "this->nRefId = " << this->nRefId() << ",other->nRefId = " << other.nRefId();
-		return QString::compare(this->nRefId(), other.nRefId()) == 0;
+		bool res = ( QString::compare(this->nRefId(), other.nRefId()) == 0 );
+		qDebug() << "this->nRefId = " << this->nRefId() << ",other->nRefId = " << other.nRefId() << ", res=" <<  res;
+
+		return res;
 	}
 	bool operator != ( const QQNorlogeRef & other ) const
 		{ return !( (* this) == other ); }
