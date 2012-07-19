@@ -67,8 +67,11 @@ void QQSyntaxHighlighter::rehighlightMessageBlockAtCursor (QTextCursor cursor, Q
 			if(m_nRef == norlogeRef)
 			{
 				cursor.movePosition(QTextCursor::StartOfBlock, QTextCursor::MoveAnchor);
+				//int pos1 = cursor.positionInBlock();
 				cursor.movePosition(QTextCursor::NextCharacter, QTextCursor::MoveAnchor, norlogeRef.getPosInMessage());
+				//int pos2 = cursor.positionInBlock();
 				cursor.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor, norlogeRef.getOrigNRef().length());
+				//qDebug() << "pos1=" << pos1 << ", pos2=" << pos2 << ", pos3=" << cursor.positionInBlock();
 				cursor.mergeCharFormat(format);
 				userData->setHighlighted();
 			}
