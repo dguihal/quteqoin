@@ -269,6 +269,12 @@ void QQPinipede::newPostsAvailable(QQBouchot *sender)
 		int i = 0;
 		while(i < newPosts.size())
 		{
+			// Gestion de l'index de norloge multiple
+			if(i > 0 &&
+					newPosts.at(i)->norloge().toLongLong() == newPosts.at(i - 1)->norloge().toLongLong() &&
+					newPosts.at(i)->bouchot()->name().compare(newPosts.at(i - 1)->bouchot()->name()) == 0)
+				newPosts.at(i)->setIndex(newPosts.at(i - 1)->index() + 1);
+
 			qDebug() << QDateTime::currentDateTime().currentMSecsSinceEpoch() << " : "
 					 << "QQPinipede, appending post " << i << "/" << newPosts.length();
 			printPostAtCursor(cursor, newPosts.at(i++));
@@ -354,8 +360,14 @@ void QQPinipede::newPostsAvailable(QQBouchot *sender)
 
 			while(newPostsIndex < newPosts.size())
 			{
+				// Gestion de l'index de norloge multiple
+				if(newPosts.at(newPostsIndex)->norloge().toLongLong() == destlistPosts->last()->norloge().toLongLong() &&
+						newPosts.at(newPostsIndex)->bouchot()->name().compare(destlistPosts->last()->bouchot()->name()) == 0)
+					newPosts.at(newPostsIndex)->setIndex(destlistPosts->last()->index() + 1);
+
 				qDebug() << QDateTime::currentDateTime().currentMSecsSinceEpoch() << " : "
 						 << "QQPinipede, appending post " << newPostsIndex << "/" << newPosts.length();
+
 				destlistPosts->append(newPosts.at(newPostsIndex));
 				printPostAtCursor(cursor, newPosts.at(newPostsIndex++));
 				cursor.movePosition(QTextCursor::NextRow);
@@ -394,6 +406,12 @@ unsigned int QQPinipede::insertPostToList(QList<QQPost *> *listPosts, QQPost *po
 			listPosts->insert(i, post);
 			return i;
 		}
+		// Gestion de l'index de norloge multiple
+		else if(listPosts->at(i)->norloge().toLongLong() == post->norloge().toLongLong() &&
+				listPosts->at(i)->bouchot()->name().compare(post->bouchot()->name()) == 0)
+		{
+			post->incrIndex();
+		}
 	}
 	listPosts->append(post);
 	return listPosts->size() - 1;
@@ -425,26 +443,26 @@ void QQPinipede::norlogeRefHovered(QQNorlogeRef norlogeRef)
 		QQSyntaxHighlighter * highlighter = textBrowser->document()->findChildren<QQSyntaxHighlighter *>().at(0);
 		highlighter->setNorlogeRefToHighlight(norlogeRef);
 
-        QTextCursor cursor = textBrowser->cursorForPosition(QPoint(0, 0)); //get the cursor position near the top left corner of the current viewport.
-        QTextCursor endPosition = textBrowser->cursorForPosition(QPoint(textBrowser->viewport()->width(), textBrowser->viewport()->height())); //get the cursor position near the bottom left corner of the current viewport.
-        qDebug() << "QQPinipede::norlogeRefHovered from position: " << cursor.blockNumber()
-                        << " to " << endPosition.blockNumber();
+		QTextCursor cursor = textBrowser->cursorForPosition(QPoint(0, 0)); //get the cursor position near the top left corner of the current viewport.
+		QTextCursor endPosition = textBrowser->cursorForPosition(QPoint(textBrowser->viewport()->width(), textBrowser->viewport()->height())); //get the cursor position near the bottom left corner of the current viewport.
+		qDebug() << "QQPinipede::norlogeRefHovered from position: " << cursor.blockNumber()
+						<< " to " << endPosition.blockNumber();
 
-        cursor.beginEditBlock();
+		cursor.beginEditBlock();
 
-        bool moveSuccess = cursor.movePosition(QTextCursor::NextCell, QTextCursor::MoveAnchor, 1);
-        do
-        {
-            QQMessageBlockUserData * userData = dynamic_cast<QQMessageBlockUserData *>(cursor.block().userData());
-            moveSuccess &= cursor.movePosition(QTextCursor::NextCell, QTextCursor::KeepAnchor, 2);
+		bool moveSuccess = cursor.movePosition(QTextCursor::NextCell, QTextCursor::MoveAnchor, 1);
+		do
+		{
+			QQMessageBlockUserData * userData = dynamic_cast<QQMessageBlockUserData *>(cursor.block().userData());
+			moveSuccess &= cursor.movePosition(QTextCursor::NextCell, QTextCursor::KeepAnchor, 2);
 
-            if( ! highlighter->highlightLine(cursor, userData) )
-            {
-                cursor.clearSelection();
-                highlighter->rehighlightMessageBlockAtCursor(cursor, dynamic_cast<QQMessageBlockUserData *>(cursor.block().userData()));
-            }
-            moveSuccess &= cursor.movePosition(QTextCursor::NextCell, QTextCursor::MoveAnchor, 2);
-        } while ( moveSuccess && cursor.blockNumber() <= endPosition.blockNumber() );
+			if( ! highlighter->highlightLine(cursor, userData) )
+			{
+				cursor.clearSelection();
+				highlighter->rehighlightMessageBlockAtCursor(cursor, dynamic_cast<QQMessageBlockUserData *>(cursor.block().userData()));
+			}
+			moveSuccess &= cursor.movePosition(QTextCursor::NextCell, QTextCursor::MoveAnchor, 2);
+		} while ( moveSuccess && cursor.blockNumber() <= endPosition.blockNumber() );
 
 		cursor.endEditBlock();
 	}
