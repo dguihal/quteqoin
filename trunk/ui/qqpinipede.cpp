@@ -165,9 +165,9 @@ void QQPinipede::printPostAtCursor( QTextCursor & cursor, QQPost * post )
 
 	QTextBlock block = cursor.block();
 	QQMessageBlockUserData * data = new QQMessageBlockUserData();
-	data->storeData(QQMessageBlockUserData::BOUCHOT_NAME, post->bouchot()->name());
-	data->storeData(QQMessageBlockUserData::POST_NORLOGE, post->norloge());
-	data->storeData(QQMessageBlockUserData::IS_NORLOGE_ZONE, true);
+	QPointer<QQPost> ptrPost = post;
+	data->setPost(ptrPost);
+	data->setBlockZone(QQMessageBlockUserData::NORLOGE_ZONE);
 	block.setUserData(data);
 
 	cursor.insertText(post->norlogeFormatee(), norlogeFormat);
@@ -200,9 +200,8 @@ void QQPinipede::printPostAtCursor( QTextCursor & cursor, QQPost * post )
 	}
 	block = cursor.block();
 	data = new QQMessageBlockUserData();
-	data->storeData(QQMessageBlockUserData::BOUCHOT_NAME, post->bouchot()->name());
-	data->storeData(QQMessageBlockUserData::POST_NORLOGE, post->norloge());
-	data->storeData(QQMessageBlockUserData::IS_LOGIN_UA_ZONE, true);
+	data->setPost(ptrPost);
+	data->setBlockZone(QQMessageBlockUserData::LOGIN_UA_ZONE);
 	block.setUserData(data);
 
 	cursor.insertText(txt, loginUaFormat);
@@ -221,9 +220,8 @@ void QQPinipede::printPostAtCursor( QTextCursor & cursor, QQPost * post )
 
 	block = cursor.block();
 	data = new QQMessageBlockUserData();
-	data->storeData(QQMessageBlockUserData::BOUCHOT_NAME, post->bouchot()->name());
-	data->storeData(QQMessageBlockUserData::POST_NORLOGE, post->norloge());
-	data->storeData(QQMessageBlockUserData::IS_MESSAGE_ZONE, true);
+	data->setPost(ptrPost);
+	data->setBlockZone(QQMessageBlockUserData::MESSAGE_ZONE);
 	block.setUserData(data);
 	cursor.insertHtml(post->message());
 	cursor.insertText(QString::fromUtf8(" "), defaultFormat);
@@ -495,7 +493,8 @@ void QQPinipede::unHighlight()
 		if( userData->isHighlighted() )
 		{
 			QTextCharFormat format;
-			format.setBackground(m_settings->bouchot(userData->getData(QQMessageBlockUserData::BOUCHOT_NAME).toString())->settings().colorLight());
+			Q_ASSERT(! userData->post().isNull());
+			format.setBackground(userData->post().data()->bouchot()->settings().colorLight());
 			cursor.mergeBlockCharFormat(format);
 			userData->resetHighlighted();
 		}

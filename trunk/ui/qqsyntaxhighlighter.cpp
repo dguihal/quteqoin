@@ -1,6 +1,8 @@
 #include "qqsyntaxhighlighter.h"
 
 #include "core/qqnorlogeref.h"
+#include "core/qqpost.h"
+#include "core/qqbouchot.h"
 #include "ui/qqmessageblockuserdata.h"
 
 #include <QDateTime>
@@ -36,8 +38,8 @@ bool QQSyntaxHighlighter::highlightLine(QTextCursor & lineSelection, QQMessageBl
 	QString dstNorloge = m_nRef.dstNorloge();
 	QString dstBouchot = m_nRef.dstBouchot();
 
-	QString currNorloge = userData->getData(QQMessageBlockUserData::POST_NORLOGE).toString();
-	QString currBouchot = userData->getData(QQMessageBlockUserData::BOUCHOT_NAME).toString();
+	QString currNorloge = userData->post().data()->norloge();
+	QString currBouchot = userData->post().data()->bouchot()->name();
 
 	if( currBouchot.compare(dstBouchot, Qt::CaseInsensitive) == 0 &&
 			currNorloge.startsWith(dstNorloge) )
@@ -54,7 +56,7 @@ bool QQSyntaxHighlighter::highlightLine(QTextCursor & lineSelection, QQMessageBl
 
 void QQSyntaxHighlighter::rehighlightMessageBlockAtCursor (QTextCursor cursor, QQMessageBlockUserData * userData)
 {
-	if(userData->constainsData(QQMessageBlockUserData::IS_MESSAGE_ZONE))
+	if(userData->blockZone() == QQMessageBlockUserData::MESSAGE_ZONE)
 	{
 		QTextCharFormat format;
 		format.setBackground(Qt::yellow);
@@ -98,7 +100,7 @@ void QQSyntaxHighlighter::highlightBlock(const QString &text)
 		//qDebug() << QDateTime::currentDateTime().currentMSecsSinceEpoch() << " : "
 		//		 << "QQSyntaxHighlighter::highlightBlock text=" << text;
 
-		if(userData->constainsData(QQMessageBlockUserData::IS_MESSAGE_ZONE))
+		if(userData->blockZone() == QQMessageBlockUserData::MESSAGE_ZONE)
 		{
 			highlightNorloge(text, userData);
 			highlightDuck(text, userData);
@@ -125,8 +127,8 @@ void QQSyntaxHighlighter::highlightNorloge(const QString & text, QQMessageBlockU
 	while (index >= 0)
 	{
 		int length = m_norlogeReg.matchedLength();
-		QQNorlogeRef nRef = QQNorlogeRef(userData->getData(QQMessageBlockUserData::BOUCHOT_NAME).toString(),
-										 userData->getData(QQMessageBlockUserData::POST_NORLOGE).toString(),
+		QQNorlogeRef nRef = QQNorlogeRef(userData->post().data()->bouchot()->name(),
+										 userData->post().data()->norloge(),
 										 text.mid(index, length),
 										 index);
 		userData->addNorlogeRefZone(nRef);
