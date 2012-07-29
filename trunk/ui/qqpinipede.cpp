@@ -165,8 +165,7 @@ void QQPinipede::printPostAtCursor( QTextCursor & cursor, QQPost * post )
 
 	QTextBlock block = cursor.block();
 	QQMessageBlockUserData * data = new QQMessageBlockUserData();
-	QPointer<QQPost> ptrPost = post;
-	data->setPost(ptrPost);
+	data->setPost(post);
 	data->setBlockZone(QQMessageBlockUserData::NORLOGE_ZONE);
 	block.setUserData(data);
 
@@ -200,7 +199,7 @@ void QQPinipede::printPostAtCursor( QTextCursor & cursor, QQPost * post )
 	}
 	block = cursor.block();
 	data = new QQMessageBlockUserData();
-	data->setPost(ptrPost);
+	data->setPost(post);
 	data->setBlockZone(QQMessageBlockUserData::LOGIN_UA_ZONE);
 	block.setUserData(data);
 
@@ -220,7 +219,7 @@ void QQPinipede::printPostAtCursor( QTextCursor & cursor, QQPost * post )
 
 	block = cursor.block();
 	data = new QQMessageBlockUserData();
-	data->setPost(ptrPost);
+	data->setPost(post);
 	data->setBlockZone(QQMessageBlockUserData::MESSAGE_ZONE);
 	block.setUserData(data);
 	cursor.insertHtml(post->message());
@@ -493,8 +492,8 @@ void QQPinipede::unHighlight()
 		if( userData->isHighlighted() )
 		{
 			QTextCharFormat format;
-			Q_ASSERT(! userData->post().isNull());
-			format.setBackground(userData->post().data()->bouchot()->settings().colorLight());
+			Q_ASSERT(userData->post() != NULL);
+			format.setBackground(userData->post()->bouchot()->settings().colorLight());
 			cursor.mergeBlockCharFormat(format);
 			userData->resetHighlighted();
 		}

@@ -38,8 +38,8 @@ bool QQSyntaxHighlighter::highlightLine(QTextCursor & lineSelection, QQMessageBl
 	QString dstNorloge = m_nRef.dstNorloge();
 	QString dstBouchot = m_nRef.dstBouchot();
 
-	QString currNorloge = userData->post().data()->norloge();
-	QString currBouchot = userData->post().data()->bouchot()->name();
+	QString currNorloge = userData->post()->norloge();
+	QString currBouchot = userData->post()->bouchot()->name();
 
 	if( currBouchot.compare(dstBouchot, Qt::CaseInsensitive) == 0 &&
 			currNorloge.startsWith(dstNorloge) )
@@ -116,7 +116,6 @@ void QQSyntaxHighlighter::highlightBlock(const QString &text)
 	}
 }
 
-
 void QQSyntaxHighlighter::highlightNorloge(const QString & text, QQMessageBlockUserData * userData)
 {
 	QColor color = QColor("#0000DD");
@@ -127,8 +126,9 @@ void QQSyntaxHighlighter::highlightNorloge(const QString & text, QQMessageBlockU
 	while (index >= 0)
 	{
 		int length = m_norlogeReg.matchedLength();
-		QQNorlogeRef nRef = QQNorlogeRef(userData->post().data()->bouchot()->name(),
-										 userData->post().data()->norloge(),
+		Q_ASSERT(userData->post() != NULL);
+		QQNorlogeRef nRef = QQNorlogeRef(userData->post()->bouchot()->name(),
+										 userData->post()->norloge(),
 										 text.mid(index, length),
 										 index);
 		userData->addNorlogeRefZone(nRef);
