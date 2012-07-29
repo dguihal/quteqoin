@@ -55,8 +55,8 @@ void QQTextBrowser::mouseMoveEvent(QMouseEvent *event)
 		{
 			QPointer<QQPost> post = blockData->post();
 			Q_ASSERT(!post.isNull());
-			QString norlogeString = post.data()->norloge();
-			nRef = QQNorlogeRef(post.data()->bouchot()->name(),
+			QString norlogeString = post->norloge();
+			nRef = QQNorlogeRef(post->bouchot()->name(),
 								norlogeString, norlogeString, 1);
 
 		}
@@ -108,11 +108,10 @@ void QQTextBrowser::mouseReleaseEvent(QMouseEvent * event)
 	{
 		if(blockData->blockZone() == QQMessageBlockUserData::NORLOGE_ZONE)
 		{
-			QPointer<QQPost> ptrPost = blockData->post();
-			Q_ASSERT(!ptrPost.isNull());
+			Q_ASSERT(blockData->post() != NULL);
 
-			QQNorloge norloge(ptrPost.data()->bouchot()->name(),
-							  ptrPost.data()->norloge());
+			QQNorloge norloge(blockData->post()->bouchot()->name(),
+							  blockData->post()->norloge());
 			emit norlogeClicked(norloge);
 		}
 		else if(blockData->blockZone() == QQMessageBlockUserData::LOGIN_UA_ZONE)

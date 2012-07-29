@@ -29,8 +29,8 @@ public:
 	MsgBlckZone blockZone() { return m_blkZone; }
 	void setBlockZone(MsgBlckZone newZone) { m_blkZone = newZone; }
 
-	QPointer<QQPost> post() { return m_post; }
-	void setPost(QPointer<QQPost> newPost) { m_post = newPost; }
+	QQPost * post() { return m_post; }
+	void setPost(QQPost * newPost) { m_post = QPointer<QQPost>(newPost); }
 
 	void addNorlogeRefZone(const QQNorlogeRef & norlogeRef) { m_listNRef.append(norlogeRef); }
 	QQNorlogeRef norlogeRefForIndex(int index);
