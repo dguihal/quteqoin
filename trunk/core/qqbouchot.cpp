@@ -36,7 +36,7 @@ bouchotDefStruct bouchotsDef[] =
 	{ "euromussels", "http://euromussels.eu/?q=tribune.xml&last_id=%i", "http://euromussels.eu/?q=tribune/post", "message=%m",
 	  "#d0d0ff", "euro,euroxers", "", QQBouchot::SlipTagsEncoded },
 	{ "finss", "http://finss.free.fr/drupal/?q=tribune.xml", "http://finss.free.fr/drupal/?q=tribune/post", "message=%m",
-	  "#d0ffd0", "finss", QQBouchot::SlipTagsEncoded }
+	  "#d0ffd0", "finss", "", QQBouchot::SlipTagsEncoded }
 };
 
 QQBouchot::QQBouchot(const QString & name, QQSettings * parent) :

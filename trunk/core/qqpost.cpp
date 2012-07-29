@@ -14,11 +14,8 @@
  * 02110-1301, USA.
  */
 #include "qqpost.h"
-
 #include "qqbouchot.h"
 
-#include <QObject>
-#include <QString>
 #include <QtDebug>
 //
 QQPost::QQPost(QQBouchot * parent)
@@ -29,7 +26,8 @@ QQPost::QQPost(QQBouchot * parent)
 	this->m_id = QString();
 	this->m_ua = QString();
 	this->m_message = QString();
-	this->m_index = 1;
+	this->m_norlogeIndex = 1;
+	this->m_isNorlogeMultiple = false;
 }
 //
 QQPost::QQPost( const QQPost& post )
@@ -40,7 +38,8 @@ QQPost::QQPost( const QQPost& post )
 	this->m_id = post.m_id;
 	this->m_ua = post.m_ua;
 	this->m_message = post.m_message;
-	this->m_index = post.m_index;
+	this->m_norlogeIndex = post.m_norlogeIndex;
+	this->m_isNorlogeMultiple = post.m_isNorlogeMultiple;;
 }
 //
 QQPost::~QQPost()
@@ -69,83 +68,6 @@ bool QQPost::isSelfPost()
 
 	return false;
 }
-
-//////////////////////////////////////////////////////////////////////////
-////////////             Accesseurs          /////////////////////////////
-//////////////////////////////////////////////////////////////////////////
-QQBouchot * QQPost::bouchot ()
-{
-	return dynamic_cast<QQBouchot *>( parent() );
-}
-
-QString QQPost::login()
-{
-	return this->m_login;
-}
-//
-void QQPost::setLogin(const QString &login)
-{
-	this->m_login = login;
-}
-//
-QString QQPost::norloge()
-{
-	return this->m_norloge;
-}
-//
-void QQPost::setNorloge(const QString &norloge)
-{
-	this->m_norloge = norloge;
-}
-//
-int QQPost::index()
-{
-	return this->m_index;
-}
-//
-void QQPost::setIndex(const int index)
-{
-	this->m_index = index;
-}
-//
-void QQPost::incrIndex()
-{
-	this->m_index ++;
-}
-//
-QString QQPost::id()
-{
-	return this->m_id;
-}
-//
-void QQPost::setId( const QString &id )
-{
-	this->m_id = id;
-}
-//
-QString QQPost::UA()
-{
-	return this->m_ua;
-}
-//
-void QQPost::setUA(const QString &ua )
-{
-	this->m_ua = ua;
-}
-//
-QString QQPost::message()
-{
-	return this->m_message;
-}
-//
-void QQPost::setMessage(const QString& message)
-{
-	this->m_message = message;
-}
-
-//////////////////////////////////////////////////////////////////////////
-////////////       Fonctions protected       /////////////////////////////
-//////////////////////////////////////////////////////////////////////////
 
 //
 QString QQPost::norlogeFormatee()

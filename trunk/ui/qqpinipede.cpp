@@ -60,6 +60,8 @@ void QQPinipede::addPiniTab(const QString& groupName)
 	m_textBrowserHash.insert(groupName, textBrowser);
 	//textBrowser->document() devient le proprietaire du highlighter
 	QQSyntaxHighlighter * highlighter = new QQSyntaxHighlighter(textBrowser->document());
+	// Pour éviter le warning
+	(void) highlighter;
 
 	qDebug() << "QQPinipede::addPiniTab this->m_textBrowserHash.size()=" << this->m_textBrowserHash.size();
 
@@ -270,7 +272,10 @@ void QQPinipede::newPostsAvailable(QQBouchot *sender)
 			if(i > 0 &&
 					newPosts.at(i)->norloge().toLongLong() == newPosts.at(i - 1)->norloge().toLongLong() &&
 					newPosts.at(i)->bouchot()->name().compare(newPosts.at(i - 1)->bouchot()->name()) == 0)
-				newPosts.at(i)->setIndex(newPosts.at(i - 1)->index() + 1);
+			{
+				newPosts.at(i - 1)->setNorlogeMultiple(true);
+				newPosts.at(i)->setNorlogeIndex(newPosts.at(i - 1)->norlogeIndex() + 1);
+			}
 
 			qDebug() << QDateTime::currentDateTime().currentMSecsSinceEpoch() << " : "
 					 << "QQPinipede, appending post " << i << "/" << newPosts.length();
@@ -360,7 +365,10 @@ void QQPinipede::newPostsAvailable(QQBouchot *sender)
 				// Gestion de l'index de norloge multiple
 				if(newPosts.at(newPostsIndex)->norloge().toLongLong() == destlistPosts->last()->norloge().toLongLong() &&
 						newPosts.at(newPostsIndex)->bouchot()->name().compare(destlistPosts->last()->bouchot()->name()) == 0)
-					newPosts.at(newPostsIndex)->setIndex(destlistPosts->last()->index() + 1);
+				{
+					destlistPosts->last()->setNorlogeMultiple(true);
+					newPosts.at(newPostsIndex)->setNorlogeIndex(destlistPosts->last()->norlogeIndex() + 1);
+				}
 
 				qDebug() << QDateTime::currentDateTime().currentMSecsSinceEpoch() << " : "
 						 << "QQPinipede, appending post " << newPostsIndex << "/" << newPosts.length();
@@ -407,6 +415,7 @@ unsigned int QQPinipede::insertPostToList(QList<QQPost *> *listPosts, QQPost *po
 		else if(listPosts->at(i)->norloge().toLongLong() == post->norloge().toLongLong() &&
 				listPosts->at(i)->bouchot()->name().compare(post->bouchot()->name()) == 0)
 		{
+			listPosts->at(i)->setNorlogeMultiple(true);
 			post->incrIndex();
 		}
 	}
@@ -522,6 +531,8 @@ void QQPinipede::unHighlight()
 
 void QQPinipede::loginClicked(QString tabGroupName)
 {
+	// Pour éviter le warning
+	(void) tabGroupName;
 	//QQTextBrowser *qqTBSender = (QQTextBrowser *)sender();
 }
 
