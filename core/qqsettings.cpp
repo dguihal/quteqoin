@@ -305,6 +305,9 @@ bool QQSettings::maybeSave()
 
 void QQSettings::proxyAuthenticationRequired(const QNetworkProxy & proxy, QAuthenticator * authenticator)
 {
+	// Pour éviter le warning
+	(void) proxy;
+
 	m_proxyPopupMutex.lock();
 	qDebug() << "QQSettings::proxyAuthenticationRequired";
 	//Premier echec

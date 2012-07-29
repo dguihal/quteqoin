@@ -17,13 +17,12 @@
 
 #ifndef QQPOST_H
 #define QQPOST_H
-//
+
+
 #include <QObject>
+#include <QString>
 
 class QQBouchot;
-
-class QString;
-//
 class QQPost : public QObject
 {
 Q_OBJECT
@@ -42,21 +41,30 @@ public:
 	//////////////////////////////////////////////////////////////////////////
 	////////////             Accesseurs          /////////////////////////////
 	//////////////////////////////////////////////////////////////////////////
-	QQBouchot * bouchot();
-	QString login();
-	void setLogin( const QString& login );
-	QString norloge();
+	QQBouchot * bouchot() { return (QQBouchot *)( this->parent() ); }
+
+	QString login() { return this->m_login; }
+	void setLogin( const QString& login ) { this->m_login = login; }
+
+	QString norloge() { return this->m_norloge; }
 	QString norlogeFormatee();
-	void setNorloge( const QString& norloge );
-	int index();
-	void setIndex(const int index);
-	void incrIndex();
-	QString id();
-	void setId( const QString& id );
-	QString UA();
-	void setUA( const QString& ua );
-	QString message();
-	void setMessage( const QString& message );
+	void setNorloge( const QString& norloge ) { this->m_norloge = norloge; }
+
+	/* Gestion des index de norloges en cas de post a horodatage identique */
+	int norlogeIndex() { return this->m_norlogeIndex; }
+	void setNorlogeIndex(const int index) { this->m_norlogeIndex = index; }
+	void incrIndex() { this->m_norlogeIndex ++; }
+	bool isNorlogeMultiple() { return this->m_isNorlogeMultiple || this->m_norlogeIndex > 1; }
+	void setNorlogeMultiple(const bool isNorlogeMultiple) { this->m_isNorlogeMultiple = isNorlogeMultiple; }
+
+	QString id() { return this->m_id; }
+	void setId( const QString& id ) { this->m_id = id; }
+
+	QString UA() { return this->m_ua; }
+	void setUA( const QString& ua ) { this->m_ua = ua; }
+
+	QString message() { return this->m_message; }
+	void setMessage( const QString& message ) { this->m_message = message; }
 
 	//////////////////////////////////////////////////////////////////////////
 	////////////                                 /////////////////////////////
@@ -72,7 +80,8 @@ public:
 
 private:
 	QString m_norloge;
-	int m_index;
+	bool m_isNorlogeMultiple;
+	int m_norlogeIndex;
 	QString m_login;
 	QString m_ua;
 	QString m_message;

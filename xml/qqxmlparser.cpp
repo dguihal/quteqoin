@@ -17,7 +17,7 @@
 #include "qqxmlparser.h"
 
 //
-QQXmlParser::QQXmlParser( ) 
+QQXmlParser::QQXmlParser( )
 	: QXmlDefaultHandler()
 {
 	m_currentPost.reset();
@@ -125,6 +125,10 @@ bool QQXmlParser::endDocument ()
 bool QQXmlParser::startElement ( const QString &namespaceURI, const QString &localName,
 								const QString &qName, const QXmlAttributes &atts )
 {
+	// Pour éviter le warning
+	(void) namespaceURI;
+	(void) qName;
+
 	//qDebug() << "QQXmlParser::startElement" << namespaceURI << " ;; " << localName << " ;; " << qName << " ;; " << atts.count() << endl;
 	m_elementNames.push(localName);
 	if (localName == "post")
@@ -152,6 +156,10 @@ bool QQXmlParser::startElement ( const QString &namespaceURI, const QString &loc
 bool QQXmlParser::endElement ( const QString &namespaceURI, const QString &localName,
 							  const QString &qName )
 {
+	// Pour éviter le warning
+	(void) namespaceURI;
+	(void) qName;
+
 	//qDebug() << "QQXmlParser::endElement" << namespaceURI << " ;; " << localName << " ;; " << qName << endl;
 	if (localName != m_elementNames.top())
 	{
