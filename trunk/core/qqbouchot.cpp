@@ -47,7 +47,7 @@ QQBouchot::QQBouchot(const QString & name, QQSettings * parent) :
 	m_netManager.proxyFactory()->setUseSystemConfiguration(true);
 	m_history.clear();
 	m_newPostHistory.clear();
-	m_lastId=1;
+	m_lastId=0;
 	connect(& m_netManager, SIGNAL(finished(QNetworkReply*)),
 			this, SLOT(replyFinished(QNetworkReply*)));
 	connect(& m_netManager, SIGNAL(proxyAuthenticationRequired(QNetworkProxy,QAuthenticator*)),
