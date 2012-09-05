@@ -27,9 +27,9 @@ QQTextBrowser::~QQTextBrowser()
 
 void QQTextBrowser::mouseMoveEvent(QMouseEvent *event)
 {
-	qDebug() << "####################################";
-	qDebug() << "QQTextBrowser::mouseMoveEvent x=" << event->x() << ",y=" << event->y();
-	qDebug() << "####################################";
+	//qDebug() << "####################################";
+	//qDebug() << "QQTextBrowser::mouseMoveEvent x=" << event->x() << ",y=" << event->y();
+	//qDebug() << "####################################";
 	QTextEdit::mouseMoveEvent(event);
 
 	bool highlightActivated = false;

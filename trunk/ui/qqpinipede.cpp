@@ -131,14 +131,14 @@ void QQPinipede::printPostAtCursor( QTextCursor & cursor, QQPost * post )
 	//Post / Reply
 	QTextTableCell cell = cursor.currentTable()->cellAt(cursor);
 
-	qDebug() << QDateTime::currentDateTime().currentMSecsSinceEpoch() << " : "
-			 << "Cell 1 : row=" << cell.row() << ", column=" << cell.column();
+	//qDebug() << QDateTime::currentDateTime().currentMSecsSinceEpoch() << " : "
+	//		 << "Cell 1 : row=" << cell.row() << ", column=" << cell.column();
 
 	cell.setFormat(cellMarkColorFormat);
 
-	qDebug() << QDateTime::currentDateTime().currentMSecsSinceEpoch() << " : "
-			 << "post->login() = " << post->login()
-			 << ", post->UA() = " << post->UA();
+	//qDebug() << QDateTime::currentDateTime().currentMSecsSinceEpoch() << " : "
+	//		 << "post->login() = " << post->login()
+	//		 << ", post->UA() = " << post->UA();
 
 	if( post->isSelfPost())
 	{
@@ -159,8 +159,8 @@ void QQPinipede::printPostAtCursor( QTextCursor & cursor, QQPost * post )
 	//norloge
 	cell = cursor.currentTable()->cellAt(cursor);
 
-	qDebug() << QDateTime::currentDateTime().currentMSecsSinceEpoch() << " : "
-			 << "Cell 2 : row=" << cell.row() << ", column=" << cell.column();
+	//qDebug() << QDateTime::currentDateTime().currentMSecsSinceEpoch() << " : "
+	//		 << "Cell 2 : row=" << cell.row() << ", column=" << cell.column();
 
 	cell.setFormat(cellMarkColorFormat);
 
@@ -181,8 +181,8 @@ void QQPinipede::printPostAtCursor( QTextCursor & cursor, QQPost * post )
 	//login ou ua
 	cell = cursor.currentTable()->cellAt(cursor);
 
-	qDebug() << QDateTime::currentDateTime().currentMSecsSinceEpoch() << " : "
-			 << "Cell 3 : row=" << cell.row() << ", column=" << cell.column();
+	//qDebug() << QDateTime::currentDateTime().currentMSecsSinceEpoch() << " : "
+	//		 << "Cell 3 : row=" << cell.row() << ", column=" << cell.column();
 
 	cell.setFormat(cellMarkColorFormat);
 
@@ -217,7 +217,8 @@ void QQPinipede::printPostAtCursor( QTextCursor & cursor, QQPost * post )
 	cell = cursor.currentTable()->cellAt(cursor);
 
 	qDebug() << QDateTime::currentDateTime().currentMSecsSinceEpoch() << " : "
-			 << "Cell 4 : row=" << cell.row() << ", column=" << cell.column();
+			 << "Cell 4 : row=" << cell.row() << ", column=" << cell.column()
+			 << ", Message=" << post->message();
 
 	cell.setFormat(cellMarkColorFormat);
 
