@@ -45,7 +45,11 @@ bool QQSyntaxHighlighter::highlightLine(QTextCursor & lineSelection, QQMessageBl
 			currNorloge.startsWith(dstNorloge) )
 	{
 		QTextCharFormat format;
-		format.setBackground(Qt::yellow);
+		QColor highlightColor;
+		highlightColor.setNamedColor("#FFE940");
+		format.setBackground(highlightColor);
+		//format.setBackground(QColor::fromRgb(255, 210, 02));
+		//format.setBackground(Qt::yellow);
 
 		lineSelection.mergeBlockCharFormat(format);
 		userData->setHighlighted();
@@ -59,7 +63,9 @@ void QQSyntaxHighlighter::rehighlightMessageBlockAtCursor (QTextCursor cursor, Q
 	if(userData->blockZone() == QQMessageBlockUserData::MESSAGE_ZONE)
 	{
 		QTextCharFormat format;
-		format.setBackground(Qt::yellow);
+		QColor highlightColor;
+		highlightColor.setNamedColor("#FFE940");
+		format.setBackground(highlightColor);
 
 		QList<QQNorlogeRef> norlogeRefs = userData->norlogeRefs();
 
