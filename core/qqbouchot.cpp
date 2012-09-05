@@ -156,6 +156,7 @@ void QQBouchot::replyFinished(QNetworkReply *reply)
 	QXmlInputSource xmlSource;
 	QQXmlParser xmlParser;
 	xmlParser.setLastId(m_lastId);
+	xmlParser.setTypeSlip(this->m_settings.slipType());
 
 	connect(&xmlParser, SIGNAL(newPostReady(QQPost&)), this, SLOT(insertNewPost(QQPost&)));
 	xmlSource.setData(reply->readAll());
