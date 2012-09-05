@@ -16,22 +16,19 @@
 
 #include "qqxmlparser.h"
 
+#include <QTextDocument>
+
 //
 QQXmlParser::QQXmlParser( )
 	: QXmlDefaultHandler()
 {
 	m_currentPost.reset();
-	this->m_lastId = -1;
+	this->m_lastId = 0;
 }
 
 //
 QQXmlParser::~QQXmlParser()
 {
-}
-
-void QQXmlParser::setLastId(int lastId)
-{
-	this->m_lastId = lastId;
 }
 
 QString QQXmlParser::errorString () const
@@ -70,7 +67,10 @@ bool QQXmlParser::characters ( const QString & ch )
 		 (m_elementNames.top() == "message") ||
 		 (m_elementNames.top() == "login") )
 	{
-			m_tmpString += ch;
+		QString tmp = ch;
+		if (m_typeSlip == QQBouchot::SlipTagsRaw)
+			tmp.replace("&","&amp;").replace(">","&gt;").replace("<","&lt;");
+		m_tmpString.append(tmp);
 	}
 	return true;
 }
@@ -130,7 +130,6 @@ bool QQXmlParser::startElement ( const QString &namespaceURI, const QString &loc
 	(void) qName;
 
 	//qDebug() << "QQXmlParser::startElement" << namespaceURI << " ;; " << localName << " ;; " << qName << " ;; " << atts.count() << endl;
-	m_elementNames.push(localName);
 	if (localName == "post")
 	{
 		int i;
@@ -150,6 +149,17 @@ bool QQXmlParser::startElement ( const QString &namespaceURI, const QString &loc
 			else if(atts.localName(i) == "time") m_currentPost.setNorloge(atts.value(i));
 		}
 	}
+
+	if (m_elementNames.size() > 0 &&
+			((m_elementNames.top() == "info") ||
+			(m_elementNames.top() == "message") ||
+			(m_elementNames.top() == "login"))
+	   )
+	{
+		m_tmpString.append("<").append(localName).append(">");
+	}
+	else
+		m_elementNames.push(localName);
 	return true;
 }
 //
@@ -163,8 +173,10 @@ bool QQXmlParser::endElement ( const QString &namespaceURI, const QString &local
 	//qDebug() << "QQXmlParser::endElement" << namespaceURI << " ;; " << localName << " ;; " << qName << endl;
 	if (localName != m_elementNames.top())
 	{
-		return false;
+		m_tmpString.append("<").append(localName).append(">");
+		return true;
 	}
+
 	if (localName == "post")
 	{
 		emit newPostReady(m_currentPost);
@@ -172,9 +184,12 @@ bool QQXmlParser::endElement ( const QString &namespaceURI, const QString &local
 	}
 	else
 	{
-		if (localName == "info") m_currentPost.setUA(m_tmpString);
-		else if (localName == "message") m_currentPost.setMessage(m_tmpString);
-		else if (localName == "login") m_currentPost.setLogin(m_tmpString);
+		if (localName == "info")
+			m_currentPost.setUA(Qt::escape(m_tmpString));
+		else if (localName == "message")
+			m_currentPost.setMessage(m_tmpString);
+		else if (localName == "login")
+			m_currentPost.setLogin(Qt::escape(m_tmpString));
 		m_tmpString.clear();
 	}
 	m_elementNames.pop();

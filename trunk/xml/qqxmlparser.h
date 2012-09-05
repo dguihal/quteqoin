@@ -25,6 +25,7 @@
 #include <QXmlDefaultHandler>
 
 #include "core/qqpost.h"
+#include "core/qqbouchot.h"
 
 //
 class QQXmlParser : public QObject, public QXmlDefaultHandler
@@ -36,7 +37,8 @@ class QQXmlParser : public QObject, public QXmlDefaultHandler
 		virtual ~QQXmlParser();
 
 		QString errorString () const;
-		void setLastId(int);
+		void setLastId(int lastId) { this->m_lastId = lastId; }
+		void setTypeSlip(QQBouchot::TypeSlip typeSlip) { this->m_typeSlip = typeSlip; }
 
 		// Methodes héritées de QXmlErrorHandler
 //		bool error ( const QXmlParseException & );
@@ -58,7 +60,7 @@ class QQXmlParser : public QObject, public QXmlDefaultHandler
 
 	signals:
 		void newPostReady ( QQPost &newPost );
-		
+
 	private:
 		QStack<QString>	m_elementNames;
 		QString			m_tmpString;
@@ -66,5 +68,6 @@ class QQXmlParser : public QObject, public QXmlDefaultHandler
 		QQPost			m_currentPost;
 
 		int m_lastId;
+		QQBouchot::TypeSlip m_typeSlip;
 };
 #endif
