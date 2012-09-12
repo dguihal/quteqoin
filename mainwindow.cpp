@@ -81,7 +81,7 @@ void MainWindow::displayOptions()
 		settings->setMaxHistoryLength(settingsDialog.maxHistoryLength());
 
 		//Les bouchots supprimes
-		QMap<QString, QQBouchot::QQBouchotSettings> settingsDeletedbouchots = settingsDialog.modifiedBouchots();
+		QMap<QString, QQBouchot::QQBouchotSettings> settingsDeletedbouchots = settingsDialog.oldBouchots();
 		QMapIterator<QString, QQBouchot::QQBouchotSettings> iDel(settingsDeletedbouchots);
 		while(iDel.hasNext())
 		{
