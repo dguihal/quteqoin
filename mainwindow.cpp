@@ -96,7 +96,21 @@ void MainWindow::displayOptions()
 		{
 			iModif.next();
 			QQBouchot * modifBouchot = settings->bouchot(iModif.key());
+			//Sauvegarde de l'ancien groupe au cas ou il aurait été modifié pour pouvoir
+			// effectuer une maj du pini au cas ou ...
+			QString oldGroup = modifBouchot->settings().group();
+
 			modifBouchot->setSettings(iModif.value());
+
+			// Si c'est le groupe qui est modifié il faut impérativement faire un rafraichissement du Pini
+			// afin d'effectuer la migration
+			if(modifBouchot->settings().group().compare(oldGroup) != 0)
+			{
+				modifBouchot->setNewPostsFromHistory();
+				pini->newPostsAvailable(modifBouchot);
+				pini->purgePiniTab(oldGroup, modifBouchot->name());
+			}
+
 			settings->setDirty();
 		}
 
@@ -113,7 +127,7 @@ void MainWindow::displayOptions()
 			settings->addBouchot(newBouchot);
 		}
 	}
-	settings->startBouchots();
+	//settings->startBouchots();
 }
 
 void MainWindow::doPostMessage(const QString & bouchot, const QString & message)

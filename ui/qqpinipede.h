@@ -32,8 +32,11 @@ public:
 	~QQPinipede();
 
 	void addPiniTab(const QString &);
-	void createPiniTabs(const QList<QString> &);
+	void createPiniTabs(const QList<QString> &groups);
 	void removePiniTab(const QString &);
+
+	void purgePiniTab(const QString &groupName, const QString &bouchotName);
+	void purgePinitab(const QString &groupName, const QString &bouchotName, unsigned int max);
 
 	QQPost * getPostForGroup(QString &groupName, int numPost);
 
