@@ -94,7 +94,9 @@ public:
 	void startRefresh();
 	void stopRefresh();
 
-	QList<QQPost *> getNewPosts();
+	QList<QQPost *> getNewPosts() {	return m_newPostHistory; }
+	QList<QQPost *> getPostsHistory() {	return m_history; }
+	void setNewPostsFromHistory();
 
 	static const char Separator = ';';
 	static QQBouchotSettings getBouchotDef(const QString &);

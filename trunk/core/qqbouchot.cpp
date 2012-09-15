@@ -106,9 +106,13 @@ void QQBouchot::stopRefresh()
 	timer.stop();
 }
 
-QList<QQPost *> QQBouchot::getNewPosts()
+
+void QQBouchot::setNewPostsFromHistory()
 {
-	return m_newPostHistory;
+	QQPost * firstNew = m_newPostHistory.first();
+	int index = m_history.indexOf(firstNew);
+	while (--index >= 0)
+		m_newPostHistory.prepend(m_history.at(index));
 }
 
 void QQBouchot::fetchBackend()

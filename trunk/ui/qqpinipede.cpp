@@ -75,10 +75,10 @@ void QQPinipede::addPiniTab(const QString& groupName)
 		this->tabBar()->show();
 }
 
-void QQPinipede::createPiniTabs(const QList<QString> &tabs)
+void QQPinipede::createPiniTabs(const QList<QString> &groups)
 {
-	for (int i = 0; i < tabs.size(); i++)
-		this->addPiniTab(tabs[i]);
+	for (int i = 0; i < groups.size(); i++)
+		this->addPiniTab(groups[i]);
 }
 
 void QQPinipede::removePiniTab(const QString& name)
@@ -86,12 +86,57 @@ void QQPinipede::removePiniTab(const QString& name)
 	for (int i = 0; i < this->count(); i++)
 		if (this->tabText(i) == name)
 		{
+			delete this->widget(i);
 			this->removeTab(i);
 			break;
 		}
 
 	if (this->count() < 2)
 		this->tabBar()->hide();
+}
+
+void QQPinipede::purgePiniTab(const QString &groupName, const QString &bouchotName)
+{
+	purgePinitab(groupName, bouchotName, INT_MAX);
+}
+
+void QQPinipede::purgePinitab(const QString &groupName, const QString &bouchotName, unsigned int max)
+{
+	QQTextBrowser *textBrowser = m_textBrowserHash.value(groupName);
+
+	if (textBrowser == NULL)
+		return;
+
+	int count = 0;
+
+	QTextFrame* root = textBrowser->document()->rootFrame();
+	QTextTable* mainTable = dynamic_cast<QTextTable *>(root->childFrames().at(0));
+	QTextCursor cursor = textBrowser->textCursor();
+	QTextTableCell rowStart, rowEnd;
+	cursor.beginEditBlock();
+
+	for(int row = 0; row < mainTable->rows(); )
+	{
+		qDebug() << "QQPinipede::purgePiniTab row=" << row << ", mainTable->rows()=" << mainTable->rows();
+		rowStart = mainTable->cellAt(row, 0);
+		rowEnd = mainTable->cellAt(row, mainTable->columns() - 1);
+
+		cursor.setPosition(rowStart.firstCursorPosition().position());
+		cursor.setPosition(rowEnd.lastCursorPosition().position(), QTextCursor::KeepAnchor);
+		QQMessageBlockUserData * userData = dynamic_cast<QQMessageBlockUserData *>(cursor.block().userData());
+		qDebug() << "QQPinipede::purgePiniTab userData->post()->bouchot()->name()=" << userData->post()->bouchot()->name() << ", bouchotName=" << bouchotName;
+		if ( userData->post()->bouchot()->name().compare(bouchotName) == 0 )
+		{
+			cursor.removeSelectedText();
+			mainTable->removeRows(row, 1);
+			if (count >= max)
+				break;
+		}
+		else
+			row++;
+	}
+
+	cursor.endEditBlock();
 }
 
 void QQPinipede::createQTextTable( QQTextBrowser* textBrowser, int numRow )
