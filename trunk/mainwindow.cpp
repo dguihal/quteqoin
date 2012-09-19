@@ -127,14 +127,17 @@ void MainWindow::displayOptions()
 			settings->addBouchot(newBouchot);
 		}
 	}
-	//settings->startBouchots();
+	settings->startBouchots();
 }
 
 void MainWindow::doPostMessage(const QString & bouchot, const QString & message)
 {
 	QQBouchot * bouchotDest = settings->bouchot(bouchot);
 
-	bouchotDest->postMessage(message);
+	if( bouchotDest != NULL)
+		bouchotDest->postMessage(message);
+	//else
+	// Bouchot non trouvé ???
 }
 
 void MainWindow::initBouchot(QQBouchot * bouchot)
