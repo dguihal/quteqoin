@@ -35,11 +35,14 @@ public slots:
 
 private:
 	void changeNorloges(const QString & bouchot);
+	void setMinimal(bool minimal);
 
 	Ui::QQPalmipede *ui;
 	QShortcut *blamShortcut;
 	QShortcut *pafShortcut;
 	QString m_oldBouchot;
+
+	bool m_minimal;
 
 private slots:
 	void boldClicked();
@@ -52,6 +55,8 @@ private slots:
 	void insertBlam();
 	void insertPaf();
 	void postPushButtonClicked();
+	void minimizePalmi();
+	void maximizePalmi();
 };
 
 #endif // QQPALMIPEDE_H

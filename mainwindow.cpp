@@ -38,6 +38,15 @@ MainWindow::MainWindow(QWidget *parent) :
 	connect(ui->actionOptions, SIGNAL(triggered()), this, SLOT(displayOptions()));
 	connect(ui->actionEnregistrer_parametres, SIGNAL(triggered()), settings, SLOT(saveSettings()));
 	connect(ui->actionQuit, SIGNAL(triggered()), this, SLOT(close()));
+	connect(this->ui->actionEtendu, SIGNAL(triggered()), this, SLOT(doTriggerMaxiPalmi()));
+	connect(this->ui->actionMinimal, SIGNAL(triggered()), this, SLOT(doTriggerMiniPalmi()));
+	connect(this->ui->actionEtendu, SIGNAL(triggered()), this->palmi, SLOT(maximizePalmi()));
+	connect(this->ui->actionMinimal, SIGNAL(triggered()), this->palmi, SLOT(minimizePalmi()));
+
+	if(settings->palmiMinimized())
+		this->ui->actionMinimal->trigger();
+	else
+		this->ui->actionEtendu->trigger();
 
 	settings->startBouchots();
 }
@@ -138,6 +147,22 @@ void MainWindow::doPostMessage(const QString & bouchot, const QString & message)
 		bouchotDest->postMessage(message);
 	//else
 	// Bouchot non trouvé ???
+}
+
+void MainWindow::doTriggerMiniPalmi()
+{
+	this->ui->actionEtendu->setChecked(false);
+	this->ui->actionMinimal->setChecked(true);
+
+	settings->setPalmiMinimized(true);
+}
+
+void MainWindow::doTriggerMaxiPalmi()
+{
+	this->ui->actionEtendu->setChecked(true);
+	this->ui->actionMinimal->setChecked(false);
+
+	settings->setPalmiMinimized(false);
 }
 
 void MainWindow::initBouchot(QQBouchot * bouchot)
