@@ -25,6 +25,8 @@ public:
 public slots:
 	void displayOptions();
 	void doPostMessage(const QString & bouchot, const QString & message);
+	void doTriggerMiniPalmi();
+	void doTriggerMaxiPalmi();
 
 protected:
 	void closeEvent(QCloseEvent *event);

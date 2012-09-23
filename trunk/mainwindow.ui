@@ -40,6 +40,14 @@
     <property name="title">
      <string>&amp;Affichage</string>
     </property>
+    <widget class="QMenu" name="menuPalmipede">
+     <property name="title">
+      <string>Palmipède</string>
+     </property>
+     <addaction name="actionEtendu"/>
+     <addaction name="actionMinimal"/>
+    </widget>
+    <addaction name="menuPalmipede"/>
    </widget>
    <widget class="QMenu" name="menuOutils">
     <property name="title">
@@ -99,6 +107,25 @@
   <action name="actionEnregistrer_parametres">
    <property name="text">
     <string>Enregistrer parametres</string>
+   </property>
+  </action>
+  <action name="actionEtendu">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Etendu</string>
+   </property>
+  </action>
+  <action name="actionMinimal">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Minimal</string>
    </property>
   </action>
  </widget>

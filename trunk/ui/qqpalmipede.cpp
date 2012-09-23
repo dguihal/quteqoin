@@ -11,6 +11,8 @@ QQPalmipede::QQPalmipede(QWidget *parent) :
 	QGroupBox(parent),
 	ui(new Ui::QQPalmipede)
 {
+	this->m_minimal = false;
+
 	ui->setupUi(this);
 
 	QKeySequence keySeqBlam(Qt::ALT + Qt::Key_O);
@@ -27,8 +29,11 @@ QQPalmipede::QQPalmipede(QWidget *parent) :
 	connect(ui->momentButton, SIGNAL( clicked() ), this, SLOT( momentClicked() ) );
 	connect(ui->blamPafComboBox, SIGNAL(activated(QString)), this, SLOT(blamPafActivated(QString)));
 	connect(ui->boardSelectorComboBox, SIGNAL(activated(int)), this, SLOT(bouchotSelectorActivated(int)));
+	connect(ui->boardSelectorComboBoxMin, SIGNAL(activated(int)), this, SLOT(bouchotSelectorActivated(int)));
 	connect(ui->postPushButton, SIGNAL(clicked()), this, SLOT(postPushButtonClicked()));
 	connect(ui->postLineEdit, SIGNAL(returnPressed()), ui->postPushButton, SLOT(animateClick()));
+
+	this->ui->boardSelectorComboBoxMin->setVisible(this->m_minimal);
 }
 
 QQPalmipede::~QQPalmipede()
@@ -99,6 +104,7 @@ void QQPalmipede::insertReplaceText(const QString & tag)
 void QQPalmipede::addBouchot(const QString &newBouchot, const QColor& newBouchotColor)
 {
 	ui->boardSelectorComboBox->addItem(newBouchot, newBouchotColor);
+	ui->boardSelectorComboBoxMin->addItem(newBouchot, newBouchotColor);
 	int index = ui->boardSelectorComboBox->currentIndex();
 	QColor bouchotColor = ui->boardSelectorComboBox->itemData(index).value<QColor>();
 	changePalmiColor(bouchotColor);
@@ -109,7 +115,20 @@ void QQPalmipede::removeBouchot(const QString &oldBouchot)
 {
 	int index = ui->boardSelectorComboBox->findText(oldBouchot, Qt::MatchExactly | Qt::MatchCaseSensitive);
 	if(index > 0 )
+	{
 		ui->boardSelectorComboBox->removeItem(index);
+		ui->boardSelectorComboBoxMin->removeItem(index);
+	}
+}
+
+void QQPalmipede::minimizePalmi()
+{
+	setMinimal(true);
+}
+
+void QQPalmipede::maximizePalmi()
+{
+	setMinimal(false);
 }
 
 void QQPalmipede::changeNorloges(const QString & bouchot)
@@ -150,6 +169,15 @@ void QQPalmipede::changeNorloges(const QString & bouchot)
 
 	ui->postLineEdit->setText(destText);
 }
+
+void QQPalmipede::setMinimal(bool minimal)
+{
+	m_minimal = minimal;
+
+	this->ui->cmdGrpWidget->setVisible(! m_minimal);
+	this->ui->boardSelectorComboBoxMin->setVisible(m_minimal);
+}
+
 
 void QQPalmipede::boldClicked()
 {
@@ -196,7 +224,17 @@ void QQPalmipede::blamPafActivated(const QString & text)
 
 void QQPalmipede::bouchotSelectorActivated(int index)
 {
-	QString bouchot = ui->boardSelectorComboBox->itemText(index);
+	QString bouchot;
+	if(m_minimal)
+	{
+		bouchot = ui->boardSelectorComboBoxMin->itemText(index);
+		ui->boardSelectorComboBox->setCurrentIndex(index);
+	}
+	else
+	{
+		bouchot = ui->boardSelectorComboBox->itemText(index);
+		ui->boardSelectorComboBoxMin->setCurrentIndex(index);
+	}
 	changeNorloges(bouchot);
 	QColor bouchotColor = ui->boardSelectorComboBox->itemData(index).value<QColor>();
 	changePalmiColor(bouchotColor);

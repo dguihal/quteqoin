@@ -17,11 +17,13 @@
 #define DEFAULT_DEFAULT_UA "quteqoin 0.01 alpha"
 #define DEFAULT_TOTOZ_SERVER_URL "http://totoz.eu/"
 #define DEFAULT_TOTOZ_MODE "1"
+#define DEFAULT_PALMI_MINI "0"
 
 QQSettings::QQSettings(QObject *parent) :
 	QObject(parent)
 {
 	m_dirty = false;
+	m_palmiMini = false;
 	readSettings();
 }
 
@@ -159,12 +161,22 @@ QList<QString> QQSettings::listTabs()
 	return rep;
 }
 
+void QQSettings::setPalmiMinimized(bool palmiMini)
+{
+	if(m_palmiMini != palmiMini)
+	{
+		m_palmiMini = palmiMini;
+		setDirty();
+	}
+}
+
 bool QQSettings::readSettings()
 {
 	QSettings settings(QSettings::NativeFormat, QSettings::UserScope, "Moules Corp", "quteqoin");
 
 	setMaxHistoryLength(settings.value("max_hist_len", QVariant(DEFAULT_MAX_HIST_LEN)).toInt());
 	setDefaultUA(settings.value("default_ua", QVariant(DEFAULT_DEFAULT_UA)).toString());
+	setPalmiMinimized(settings.value("palmi_minimized", QVariant(DEFAULT_PALMI_MINI)).toBool());
 	QUrl totozUrl(settings.value("totoz_server_url", QVariant(DEFAULT_TOTOZ_SERVER_URL)).toString());
 	setTotozServerUrl(totozUrl);
 	setTotozMode((QQSettings::TotozMode)settings.value("totoz_mode", QVariant(DEFAULT_TOTOZ_MODE)).toInt());
@@ -232,6 +244,8 @@ bool QQSettings::saveSettings()
 					  QVariant(m_maxHistoryLength));
 	settings.setValue(QString::fromAscii("default_ua"),
 					  QVariant(m_defaultUA));
+	settings.setValue(QString::fromAscii("palmi_minimized"),
+					  QVariant(m_palmiMini));
 	settings.setValue(QString::fromAscii("totoz_server_url"),
 					  QVariant(m_totozServerUrl.toString()));
 	settings.setValue(QString::fromAscii("totoz_mode"),

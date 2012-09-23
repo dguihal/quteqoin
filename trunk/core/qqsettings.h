@@ -59,6 +59,9 @@ public:
 
 	QList<QString> listTabs();
 
+	void setPalmiMinimized(bool palmiMini);
+	bool palmiMinimized() { return m_palmiMini; }
+
 	void setDirty() { m_dirty = true; }
 
 public slots:
@@ -73,6 +76,7 @@ private:
 	QString m_defaultLogin;
 	QUrl m_totozServerUrl;
 	TotozMode m_totozMode;
+	bool m_palmiMini;
 
 	QString m_proxyUser;
 	QString m_proxyPasswd;
