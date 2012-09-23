@@ -311,6 +311,8 @@ bool QQSettings::maybeSave()
 
 		if (ret == QMessageBox::Save)
 			return saveSettings();
+		else if (ret == QMessageBox::Discard)
+			return true;
 		else if (ret == QMessageBox::Cancel)
 			return false;
 	}

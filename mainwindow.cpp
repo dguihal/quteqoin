@@ -177,9 +177,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
  {
 	qDebug()<<"MainWindow::closeEvent";
 	if(settings->maybeSave())
-	{
-		settings->saveSettings();
 		event->accept();
-	} else
-		 event->ignore();
+	else
+		event->ignore();
 }
