@@ -175,6 +175,7 @@ void QQPalmipede::setMinimal(bool minimal)
 	m_minimal = minimal;
 
 	this->ui->cmdGrpWidget->setVisible(! m_minimal);
+	this->ui->postPushButton->setVisible(! m_minimal);
 	this->ui->boardSelectorComboBoxMin->setVisible(m_minimal);
 }
 
