@@ -32,8 +32,6 @@ void QQTextBrowser::mouseMoveEvent(QMouseEvent *event)
 	//qDebug() << "####################################";
 	QTextEdit::mouseMoveEvent(event);
 
-	bool highlightActivated = false;
-
 	mousePressed = false;
 
 	QTextCursor cursor = cursorForPosition(event->pos());
@@ -48,18 +46,15 @@ void QQTextBrowser::mouseMoveEvent(QMouseEvent *event)
 		{
 			//Est-on au dessus d'une norloge
 			QQNorlogeRef nRef = blockData->norlogeRefForIndex(cursor.positionInBlock());
-			qDebug() << "QQTextBrowser::mouseMoveEvent, str = " << nRef.getOrigNRef() << " position : " << nRef.getPosInMessage();
-			highlightActivated = highlightNorloge(blockData, nRef);
-
-			if( ! highlightActivated )
+			if( nRef.isValid() )
+			{
+				qDebug() << "QQTextBrowser::mouseMoveEvent, str = " << nRef.getOrigNRef() << " position : " << nRef.getPosInMessage();
+				highlightNorloge(blockData, nRef);
+			}
+			else
 			{
 				// Il faut unhilighter puisqu'on ne survole pas de norloge
-				if(m_highlightedBlockUserData != NULL)
-				{
-					m_highlightedBlockUserData = NULL;
-					m_highlightedNRef = QQNorlogeRef();
-					emit unHighlight();
-				}
+				unHighlight();
 
 				//Gestion des Totoz
 			}
@@ -71,28 +66,21 @@ void QQTextBrowser::mouseMoveEvent(QMouseEvent *event)
 			QString norlogeString = post->norloge();
 			QQNorlogeRef nRef = QQNorlogeRef(post->bouchot()->name(),
 											 norlogeString, norlogeString, 1);
-			highlightActivated = highlightNorloge(blockData, nRef);
+			highlightNorloge(blockData, nRef);
 		}
 		else
 		{
 			// Il faut unhilighter puisqu'on ne survole pas de zone de norloge ni de zone de message
-			if(m_highlightedBlockUserData != NULL)
-			{
-				m_highlightedBlockUserData = NULL;
-				m_highlightedNRef = QQNorlogeRef();
-				emit unHighlight();
-			}
+			unHighlight();
 		}
 	}
-
-	qDebug() << "highlightActivated = " << highlightActivated;
 }
 
-bool QQTextBrowser::highlightNorloge(QQMessageBlockUserData * blockData, QQNorlogeRef nRef)
+void QQTextBrowser::highlightNorloge(QQMessageBlockUserData * blockData, QQNorlogeRef nRef)
 {
 	qDebug() << "nRef.getOrigNRef() = " << nRef.getOrigNRef();
 	if( nRef.isValid() == 0 )
-		return false;
+		return ;
 
 	if(m_highlightedBlockUserData != blockData || m_highlightedNRef != nRef)
 	{
@@ -102,7 +90,16 @@ bool QQTextBrowser::highlightNorloge(QQMessageBlockUserData * blockData, QQNorlo
 		emit unHighlight();
 		emit norlogeRefHovered(nRef);
 	}
-	return true;
+}
+
+void QQTextBrowser::unHighlightNorloge()
+{
+	if(m_highlightedBlockUserData != NULL)
+	{
+		m_highlightedBlockUserData = NULL;
+		m_highlightedNRef = QQNorlogeRef();
+		emit unHighlight();
+	}
 }
 
 void QQTextBrowser::mousePressEvent ( QMouseEvent * event )

@@ -30,7 +30,8 @@ protected:
 	void paintEvent(QPaintEvent * event);
 
 private:
-	bool highlightNorloge(QQMessageBlockUserData * blockData, QQNorlogeRef nRef);
+	void highlightNorloge(QQMessageBlockUserData * blockData, QQNorlogeRef nRef);
+	void unHighlightNorloge();
 
 	bool mousePressed;
 
