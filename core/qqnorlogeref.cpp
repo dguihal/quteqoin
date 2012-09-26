@@ -20,6 +20,8 @@ QQNorlogeRef::QQNorlogeRef(const QString &bouchot, const QString &dateh, const Q
 
 	QRegExp reg = norlogeRegexp();
 
+	m_refDateIndexPart = 0; //tous les correspondants par défaut
+
 	if(reg.exactMatch(norlogeRef))
 	{
 		QStringList capturedTexts = reg.capturedTexts();
@@ -39,7 +41,6 @@ QQNorlogeRef::QQNorlogeRef(const QString &bouchot, const QString &dateh, const Q
 		QStringList timeSplit = time.split(QChar::fromAscii(':'));
 		m_refDateHourPart = timeSplit.takeFirst();
 		m_refDateMinutePart = timeSplit.takeFirst();
-		m_refDateIndexPart = 0; //tous les correspondants par défaut
 		if(timeSplit.size() > 0)
 		{
 			QString sec = timeSplit.takeFirst();
