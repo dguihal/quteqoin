@@ -9,6 +9,7 @@ QQNorlogeRef::QQNorlogeRef() :
 {
 	m_refDateIndexPart = 0;
 	m_posInMessage = -1;
+	m_valid = false;
 }
 
 QQNorlogeRef::QQNorlogeRef(const QString &bouchot, const QString &dateh, const QString &norlogeRef, int posInMessage) :
@@ -17,6 +18,7 @@ QQNorlogeRef::QQNorlogeRef(const QString &bouchot, const QString &dateh, const Q
 	//On sauve la chaine de reference pour highlighter les semblables
 	m_origNRef = norlogeRef;
 	m_posInMessage = posInMessage;
+	m_valid = true;
 
 	QRegExp reg = norlogeRegexp();
 
@@ -74,6 +76,7 @@ QQNorlogeRef::QQNorlogeRef(const QString &bouchot, const QString &dateh, const Q
 QQNorlogeRef::QQNorlogeRef(const QQNorlogeRef & norlogeRef) :
 	QQNorloge(norlogeRef)
 {
+	m_valid = norlogeRef.m_valid;
 	m_refDateYearPart = norlogeRef.m_refDateYearPart;
 	m_refDateMonthPart = norlogeRef.m_refDateMonthPart;
 	m_refDateDayPart = norlogeRef.m_refDateDayPart;

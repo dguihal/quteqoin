@@ -11,34 +11,36 @@ class QQMessageBlockUserData;
 
 class QQTextBrowser : public QTextEdit
 {
-    Q_OBJECT
+	Q_OBJECT
 
 public:
-    explicit QQTextBrowser(QString groupName, QQPinipede *parent = 0);
-    ~QQTextBrowser();
+	explicit QQTextBrowser(QString groupName, QQPinipede *parent = 0);
+	~QQTextBrowser();
 
 signals:
-    void norlogeClicked(QQNorloge norloge);
-    void norlogeRefHovered(QQNorlogeRef norloge);
-    void unHighlight();
-    void loginClicked(QString groupName);
+	void norlogeClicked(QQNorloge norloge);
+	void norlogeRefHovered(QQNorlogeRef norloge);
+	void unHighlight();
+	void loginClicked(QString groupName);
 
 protected:
-    void mouseMoveEvent(QMouseEvent * event);
-    void mousePressEvent(QMouseEvent * event);
-    void mouseReleaseEvent(QMouseEvent * event);
-    void paintEvent(QPaintEvent * event);
+	void mouseMoveEvent(QMouseEvent * event);
+	void mousePressEvent(QMouseEvent * event);
+	void mouseReleaseEvent(QMouseEvent * event);
+	void paintEvent(QPaintEvent * event);
 
 private:
-    bool mousePressed;
+	bool highlightNorloge(QQMessageBlockUserData * blockData, QQNorlogeRef nRef);
 
-    bool m_highlightAsked;
-    QQMessageBlockUserData * m_highlightedBlockUserData;
-    QQNorlogeRef m_highlightedNRef;
+	bool mousePressed;
 
-    QString m_groupName;
+	bool m_highlightAsked;
+	QQMessageBlockUserData * m_highlightedBlockUserData;
+	QQNorlogeRef m_highlightedNRef;
 
-    QQPinipede *m_parent;
+	QString m_groupName;
+
+	QQPinipede *m_parent;
 };
 
 #endif // QQTEXTBROWSER_H

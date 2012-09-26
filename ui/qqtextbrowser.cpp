@@ -44,44 +44,65 @@ void QQTextBrowser::mouseMoveEvent(QMouseEvent *event)
 	if(blockData != NULL)
 	{
 		//Zone message
-		QQNorlogeRef nRef;
-
 		if(blockData->blockZone() == QQMessageBlockUserData::MESSAGE_ZONE)
 		{
 			//Est-on au dessus d'une norloge
-			nRef = blockData->norlogeRefForIndex(cursor.positionInBlock());
+			QQNorlogeRef nRef = blockData->norlogeRefForIndex(cursor.positionInBlock());
+			qDebug() << "QQTextBrowser::mouseMoveEvent, str = " << nRef.getOrigNRef() << " position : " << nRef.getPosInMessage();
+			highlightActivated = highlightNorloge(blockData, nRef);
+
+			if( ! highlightActivated )
+			{
+				// Il faut unhilighter puisqu'on ne survole pas de norloge
+				if(m_highlightedBlockUserData != NULL)
+				{
+					m_highlightedBlockUserData = NULL;
+					m_highlightedNRef = QQNorlogeRef();
+					emit unHighlight();
+				}
+
+				//Gestion des Totoz
+			}
 		}
 		else if(blockData->blockZone() == QQMessageBlockUserData::NORLOGE_ZONE)
 		{
 			QPointer<QQPost> post = blockData->post();
 			Q_ASSERT(!post.isNull());
 			QString norlogeString = post->norloge();
-			nRef = QQNorlogeRef(post->bouchot()->name(),
-								norlogeString, norlogeString, 1);
-
+			QQNorlogeRef nRef = QQNorlogeRef(post->bouchot()->name(),
+											 norlogeString, norlogeString, 1);
+			highlightActivated = highlightNorloge(blockData, nRef);
 		}
-		qDebug() << "QQTextBrowser::mouseMoveEvent, str = " << nRef.getOrigNRef() << " position : " << nRef.getPosInMessage();
-		if(nRef.getOrigNRef().length() > 0)
+		else
 		{
-			if(m_highlightedBlockUserData != blockData || m_highlightedNRef != nRef)
+			// Il faut unhilighter puisqu'on ne survole pas de zone de norloge ni de zone de message
+			if(m_highlightedBlockUserData != NULL)
 			{
-				m_highlightedBlockUserData = blockData;
-				m_highlightedNRef = nRef;
-				qDebug() << "QQTextBrowser::mouseMoveEvent norlogeRefHovered";
+				m_highlightedBlockUserData = NULL;
+				m_highlightedNRef = QQNorlogeRef();
 				emit unHighlight();
-				emit norlogeRefHovered(nRef);
 			}
-			highlightActivated = true;
 		}
 	}
 
 	qDebug() << "highlightActivated = " << highlightActivated;
-	if(m_highlightedBlockUserData != NULL && highlightActivated == false)
+}
+
+bool QQTextBrowser::highlightNorloge(QQMessageBlockUserData * blockData, QQNorlogeRef nRef)
+{
+	qDebug() << "nRef.getOrigNRef() = " << nRef.getOrigNRef();
+	if( nRef.isValid() == 0 )
+		return false;
+
+	if(m_highlightedBlockUserData != blockData || m_highlightedNRef != nRef)
 	{
-		m_highlightedBlockUserData = NULL;
-		m_highlightedNRef = QQNorlogeRef();
+		m_highlightedBlockUserData = blockData;
+		m_highlightedNRef = nRef;
+		qDebug() << "QQTextBrowser::mouseMoveEvent norlogeRefHovered";
 		emit unHighlight();
+		emit norlogeRefHovered(nRef);
 	}
+	return true;
 }
 
 void QQTextBrowser::mousePressEvent ( QMouseEvent * event )

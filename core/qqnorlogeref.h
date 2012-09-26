@@ -49,6 +49,8 @@ public:
 
 	QString nRefId() const;
 
+	bool isValid() { return m_valid; }
+
 
 	bool operator == ( const QQNorlogeRef & other ) const
 	{
@@ -74,6 +76,8 @@ private:
 
 	QString m_origNRef;
 	int m_posInMessage;
+
+	bool m_valid;
 };
 
 #endif // QQNORLOGEREF_H
