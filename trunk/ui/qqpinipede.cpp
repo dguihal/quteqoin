@@ -107,7 +107,7 @@ void QQPinipede::purgePinitab(const QString &groupName, const QString &bouchotNa
 	if (textBrowser == NULL)
 		return;
 
-	int count = 0;
+	unsigned int count = 0;
 
 	QTextFrame* root = textBrowser->document()->rootFrame();
 	QTextTable* mainTable = dynamic_cast<QTextTable *>(root->childFrames().at(0));
