@@ -6,6 +6,7 @@
 
 #include <QHash>
 #include <QMutex>
+#include <QPointer>
 #include <QRegExp>
 #include <QString>
 #include <QTabWidget>
@@ -60,7 +61,7 @@ private:
 
 	QHash<QString, QList<QQPost *> *> m_listPostsTabMap;
 
-	QQTextBrowser* m_tBrowserHighlighted;
+	QPointer<QQTextBrowser> m_tBrowserHighlighted;
 
 	QTextDocument * document(const QString &);
 	int getNextDuck(QString &);
