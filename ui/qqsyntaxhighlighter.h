@@ -21,9 +21,9 @@ public:
 	void rehighlightMessageBlockAtCursor (QTextCursor cursor , QQMessageBlockUserData *userData);
 
 	void setNorlogeRefToHighlight(const QQNorlogeRef & norlogeRef);
-	void resetNorlogeRefToHighlight();
 
 signals:
+	void totozRequired(const QString & totozId);
 
 public slots:
 

@@ -52,13 +52,14 @@ void QQSettings::setDefaultUA(const QString& defaultUA)
 	}
 }
 
-void QQSettings::setTotozServerUrl(const QUrl& totozServerUrl)
+void QQSettings::setTotozServerUrl(const QString & totozServerUrl)
 {
 	qDebug() << "setTotozServerUrl = " << totozServerUrl;
-	if(this->m_totozServerUrl.toString() != totozServerUrl.toString())
+	if(this->m_totozServerUrl != totozServerUrl)
 	{
 		m_totozServerUrl = totozServerUrl;
 		m_dirty = true;
+		emit totozServerUrlChanged(m_totozServerUrl);
 	}
 }
 
@@ -172,12 +173,12 @@ void QQSettings::setPalmiMinimized(bool palmiMini)
 
 bool QQSettings::readSettings()
 {
-	QSettings settings(QSettings::NativeFormat, QSettings::UserScope, "Moules Corp", "quteqoin");
+	QSettings settings(QSettings::IniFormat, QSettings::UserScope, "Moules Corp", "quteqoin");
 
 	setMaxHistoryLength(settings.value("max_hist_len", QVariant(DEFAULT_MAX_HIST_LEN)).toInt());
 	setDefaultUA(settings.value("default_ua", QVariant(DEFAULT_DEFAULT_UA)).toString());
 	setPalmiMinimized(settings.value("palmi_minimized", QVariant(DEFAULT_PALMI_MINI)).toBool());
-	QUrl totozUrl(settings.value("totoz_server_url", QVariant(DEFAULT_TOTOZ_SERVER_URL)).toString());
+	QString totozUrl = settings.value("totoz_server_url", QVariant(DEFAULT_TOTOZ_SERVER_URL)).toString();
 	setTotozServerUrl(totozUrl);
 	setTotozMode((QQSettings::TotozMode)settings.value("totoz_mode", QVariant(DEFAULT_TOTOZ_MODE)).toInt());
 
@@ -238,7 +239,7 @@ bool QQSettings::saveSettings()
 	if(! m_dirty)
 		return true;
 
-	QSettings settings(QSettings::NativeFormat, QSettings::UserScope, "Moules Corp", "quteqoin");
+	QSettings settings(QSettings::IniFormat, QSettings::UserScope, "Moules Corp", "quteqoin");
 
 	settings.setValue(QString::fromAscii("max_hist_len"),
 					  QVariant(m_maxHistoryLength));
@@ -247,7 +248,7 @@ bool QQSettings::saveSettings()
 	settings.setValue(QString::fromAscii("palmi_minimized"),
 					  QVariant(m_palmiMini));
 	settings.setValue(QString::fromAscii("totoz_server_url"),
-					  QVariant(m_totozServerUrl.toString()));
+					  QVariant(m_totozServerUrl));
 	settings.setValue(QString::fromAscii("totoz_mode"),
 					  QVariant(m_totozMode));
 

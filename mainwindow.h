@@ -20,7 +20,7 @@ public:
 	explicit MainWindow(QWidget *parent = 0);
 	~MainWindow();
 
-	QQPalmipede * getPalmi() {return palmi;}
+	QQPalmipede * getPalmi() {return m_palmi;}
 
 public slots:
 	void displayOptions();
@@ -34,10 +34,10 @@ protected:
 private:
 	void initBouchot(QQBouchot * bouchot);
 
-	Ui::MainWindow *ui;
-	QQPalmipede *palmi;
-	QQPinipede *pini;
-	QQSettings *settings;
+	Ui::MainWindow *m_ui;
+	QQPalmipede *m_palmi;
+	QQPinipede *m_pini;
+	QQSettings *m_settings;
 };
 
 #endif // MAINWINDOW_H

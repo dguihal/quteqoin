@@ -2,6 +2,7 @@
 
 #include "mainwindow.h"
 #include "core/qqbouchot.h"
+#include "core/qqtotozmanager.h"
 #include "ui/qqpalmipede.h"
 #include "ui/qqsyntaxhighlighter.h"
 #include "ui/qqtextbrowser.h"
@@ -33,10 +34,14 @@ QQPinipede::QQPinipede(QQSettings *settings, QWidget *parent) :
 	this->tabBar()->hide();
 
 	m_settings = settings;
+	m_totozManager = new QQTotozManager(m_settings->totozServerUrl(), this);
+
+	connect(m_settings, SIGNAL(totozServerUrlChanged(QString)), m_totozManager.data(), SLOT(serverURLchanged(QString)));
 }
 
 QQPinipede::~QQPinipede()
 {
+	delete m_totozManager;
 }
 
 void QQPinipede::addPiniTab(const QString& groupName)
@@ -62,8 +67,10 @@ void QQPinipede::addPiniTab(const QString& groupName)
 	m_textBrowserHash.insert(groupName, textBrowser);
 	//textBrowser->document() devient le proprietaire du highlighter
 	QQSyntaxHighlighter * highlighter = new QQSyntaxHighlighter(textBrowser->document());
+	connect(highlighter, SIGNAL(totozRequired(const QString &)),
+			m_totozManager.data(), SLOT(fetchTotoz(const QString &)));
 	// Pour éviter le warning
-	(void) highlighter;
+	//(void) highlighter;
 
 	qDebug() << "QQPinipede::addPiniTab this->m_textBrowserHash.size()=" << this->m_textBrowserHash.size();
 
@@ -261,9 +268,9 @@ void QQPinipede::printPostAtCursor( QTextCursor & cursor, QQPost * post )
 	//message
 	cell = cursor.currentTable()->cellAt(cursor);
 
-	qDebug() << QDateTime::currentDateTime().currentMSecsSinceEpoch() << " : "
-			 << "Cell 4 : row=" << cell.row() << ", column=" << cell.column()
-			 << ", Message=" << post->message();
+	//qDebug() << QDateTime::currentDateTime().currentMSecsSinceEpoch() << " : "
+	//		 << "Cell 4 : row=" << cell.row() << ", column=" << cell.column()
+	//		 << ", Message=" << post->message();
 
 	cell.setFormat(cellMarkColorFormat);
 
@@ -279,8 +286,8 @@ void QQPinipede::printPostAtCursor( QTextCursor & cursor, QQPost * post )
 
 void QQPinipede::newPostsAvailable(QQBouchot *sender)
 {
-	qDebug() << QDateTime::currentDateTime().currentMSecsSinceEpoch() << " : "
-			 << "QQPinipede::newPostsAvailable";
+	//qDebug() << QDateTime::currentDateTime().currentMSecsSinceEpoch() << " : "
+	//		 << "QQPinipede::newPostsAvailable";
 
 	if(sender == NULL)
 		return;
@@ -301,8 +308,8 @@ void QQPinipede::newPostsAvailable(QQBouchot *sender)
 
 	if(root->childFrames().size() == 0)
 	{
-		qDebug() << QDateTime::currentDateTime().currentMSecsSinceEpoch() << " : "
-				 << "QQPinipede, inserting " << newPosts.size() << " posts";
+		// qDebug() << QDateTime::currentDateTime().currentMSecsSinceEpoch() << " : "
+		//		 << "QQPinipede, inserting " << newPosts.size() << " posts";
 		destlistPosts = new QList<QQPost *>(newPosts);
 		m_listPostsTabMap.insert(sender->settings().group(), destlistPosts);
 
@@ -325,8 +332,8 @@ void QQPinipede::newPostsAvailable(QQBouchot *sender)
 				newPosts.at(i)->setNorlogeIndex(newPosts.at(i - 1)->norlogeIndex() + 1);
 			}
 
-			qDebug() << QDateTime::currentDateTime().currentMSecsSinceEpoch() << " : "
-					 << "QQPinipede, appending post " << i << "/" << newPosts.length();
+			// qDebug() << QDateTime::currentDateTime().currentMSecsSinceEpoch() << " : "
+			//		 << "QQPinipede, appending post " << i << "/" << newPosts.length();
 			printPostAtCursor(cursor, newPosts.at(i++));
 			cursor.movePosition(QTextCursor::NextRow);
 		}
@@ -480,15 +487,14 @@ void QQPinipede::norlogeRefHovered(QQNorlogeRef norlogeRef)
 	QString dstBouchot = norlogeRef.dstBouchot();
 	QString dstNorloge = norlogeRef.dstNorloge();
 
-	qDebug() << QDateTime::currentDateTime().currentMSecsSinceEpoch() << " : "
-			 << "norlogeRefHovered, datetimepart=" << dstNorloge << ", destbouchot=" << dstBouchot;
+	qDebug() << "QQPinipede::norlogeRefHovered, datetimepart=" << dstNorloge << ", destbouchot=" << dstBouchot;
 
 	QQBouchot * bouchot = m_settings->bouchot(dstBouchot);
 	QQTextBrowser* textBrowser = m_textBrowserHash.value(bouchot->settings().group());
 
 	bool highlightSuccess = false;
 
-	if( m_tBrowserHighlighted != NULL )
+	if(! m_tBrowserHighlighted.isNull())
 		unHighlight();
 
 	if(textBrowser->isVisible())
@@ -572,16 +578,17 @@ void QQPinipede::norlogeRefHovered(QQNorlogeRef norlogeRef)
 
 void QQPinipede::unHighlight()
 {
-	qDebug() << QDateTime::currentDateTime().currentMSecsSinceEpoch() << " : "
-			 << "QQPinipede::unHighlight";
+	//qDebug() << "QQPinipede::unHighlight";
 
-	if(m_tBrowserHighlighted == NULL)
+	if(m_tBrowserHighlighted.isNull())
 		return;
+
+	qDebug() << "QQPinipede::unHighlight, m_tBrowserHighlighted not NULL";
 
 	QToolTip::hideText();
 
-	QTextFrame* root = m_tBrowserHighlighted->document()->rootFrame();
-	QTextTable* mainTable = dynamic_cast<QTextTable *>(root->childFrames().at(0));
+	QTextFrame * root = m_tBrowserHighlighted->document()->rootFrame();
+	QTextTable * mainTable = dynamic_cast<QTextTable *>(root->childFrames().at(0));
 	QTextCursor cursor = mainTable->cellAt(0, 1).firstCursorPosition();
 
 	cursor.beginEditBlock();

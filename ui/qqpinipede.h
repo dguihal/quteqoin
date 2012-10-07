@@ -18,8 +18,8 @@ class QQSettings;
 class QQTextBrowser;
 class QTextCursor;
 class QTextTable;
-//class QTextFrame;
 class QQPost;
+class QQTotozManager;
 
 class QTextBrowser;
 class QTextDocument;
@@ -58,6 +58,7 @@ private:
 	void createQTextTable( QQTextBrowser* textBrowser, int numRow );
 
 	QQSettings * m_settings;
+	QPointer<QQTotozManager> m_totozManager;
 
 	QHash<QString, QList<QQPost *> *> m_listPostsTabMap;
 

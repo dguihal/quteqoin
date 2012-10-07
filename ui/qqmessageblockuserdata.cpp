@@ -12,7 +12,7 @@ QQMessageBlockUserData::QQMessageBlockUserData()
 QQMessageBlockUserData::~QQMessageBlockUserData()
 {
 	m_listNRef.clear();
-	m_mapTotoz.clear();
+	m_listTotoz.clear();
 	m_mapDuck.clear();
 	m_mapTableV.clear();
 }
@@ -28,6 +28,19 @@ QQNorlogeRef QQMessageBlockUserData::norlogeRefForIndex(int index)
 		i++;
 	}
 	return QQNorlogeRef();
+}
+
+QQTotoz QQMessageBlockUserData::totozForIndex(int index)
+{
+	int i = 0;
+	while(i < m_listTotoz.size())
+	{
+		QQTotoz totoz = m_listTotoz.at(i);
+		if(isIndexInString(index, totoz.getPosInMessage(), totoz.getOrigString()))
+			return totoz;
+		i++;
+	}
+	return QQTotoz();
 }
 
 QPair<int, QString> QQMessageBlockUserData::stringForIndex(int index, const QMap<int, QString> & map)

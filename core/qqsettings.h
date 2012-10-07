@@ -5,7 +5,6 @@
 #include <QMutex>
 #include <QNetworkProxy>
 #include <QString>
-#include <QUrl>
 
 class QQBouchot;
 class QQPinipede;
@@ -30,8 +29,8 @@ public:
 	void setDefaultUA(const QString&);
 	QString defaultUA() { return m_defaultUA; }
 
-	void setTotozServerUrl(const QUrl&);
-	QUrl totozServerUrl() { return m_totozServerUrl; }
+	void setTotozServerUrl(const QString & totozServerUrl);
+	QString totozServerUrl() { return m_totozServerUrl; }
 
 	void setTotozMode(TotozMode);
 	TotozMode totozMode() { return m_totozMode; }
@@ -64,6 +63,9 @@ public:
 
 	void setDirty() { m_dirty = true; }
 
+signals:
+	void totozServerUrlChanged(const QString & newTotozUrl);
+
 public slots:
 	bool readSettings();
 	bool saveSettings();
@@ -74,7 +76,7 @@ private:
 	uint m_maxHistoryLength;
 	QString m_defaultUA;
 	QString m_defaultLogin;
-	QUrl m_totozServerUrl;
+	QString m_totozServerUrl;
 	TotozMode m_totozMode;
 	bool m_palmiMini;
 

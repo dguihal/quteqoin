@@ -14,65 +14,65 @@
 
 MainWindow::MainWindow(QWidget *parent) :
 	QMainWindow(parent),
-	ui(new Ui::MainWindow)
+	m_ui(new Ui::MainWindow)
 {
 
-	ui->setupUi(this);
+	m_ui->setupUi(this);
 
-	settings = new QQSettings(this);
-	palmi = new QQPalmipede(this);
-	pini = new QQPinipede(settings, this);
+	m_settings = new QQSettings(this);
+	m_palmi = new QQPalmipede(this);
+	m_pini = new QQPinipede(m_settings, this);
 
 	QLayout *layout = new QVBoxLayout();
-	layout->addWidget(pini);
-	layout->addWidget(palmi);
-	ui->centralWidget->setLayout(layout);
+	layout->addWidget(m_pini);
+	layout->addWidget(m_palmi);
+	m_ui->centralWidget->setLayout(layout);
 
-	QList<QQBouchot *> bouchots = settings->listBouchots();
+	QList<QQBouchot *> bouchots = m_settings->listBouchots();
 	for(int i = 0; i < bouchots.size(); i++)
 		initBouchot(bouchots.at(i));
 
-	connect(pini, SIGNAL(insertTextPalmi(QString)), palmi, SLOT(insertReplaceText(QString)));
+	connect(m_pini, SIGNAL(insertTextPalmi(QString)), m_palmi, SLOT(insertReplaceText(QString)));
 
-	connect(palmi, SIGNAL(postMessage(QString,QString)), this, SLOT(doPostMessage(QString,QString)));
-	connect(ui->actionOptions, SIGNAL(triggered()), this, SLOT(displayOptions()));
-	connect(ui->actionEnregistrer_parametres, SIGNAL(triggered()), settings, SLOT(saveSettings()));
-	connect(ui->actionQuit, SIGNAL(triggered()), this, SLOT(close()));
-	connect(this->ui->actionEtendu, SIGNAL(triggered()), this, SLOT(doTriggerMaxiPalmi()));
-	connect(this->ui->actionMinimal, SIGNAL(triggered()), this, SLOT(doTriggerMiniPalmi()));
-	connect(this->ui->actionEtendu, SIGNAL(triggered()), this->palmi, SLOT(maximizePalmi()));
-	connect(this->ui->actionMinimal, SIGNAL(triggered()), this->palmi, SLOT(minimizePalmi()));
+	connect(m_palmi, SIGNAL(postMessage(QString,QString)), this, SLOT(doPostMessage(QString,QString)));
+	connect(m_ui->actionOptions, SIGNAL(triggered()), this, SLOT(displayOptions()));
+	connect(m_ui->actionEnregistrer_parametres, SIGNAL(triggered()), m_settings, SLOT(saveSettings()));
+	connect(m_ui->actionQuit, SIGNAL(triggered()), this, SLOT(close()));
+	connect(this->m_ui->actionEtendu, SIGNAL(triggered()), this, SLOT(doTriggerMaxiPalmi()));
+	connect(this->m_ui->actionMinimal, SIGNAL(triggered()), this, SLOT(doTriggerMiniPalmi()));
+	connect(this->m_ui->actionEtendu, SIGNAL(triggered()), this->m_palmi, SLOT(maximizePalmi()));
+	connect(this->m_ui->actionMinimal, SIGNAL(triggered()), this->m_palmi, SLOT(minimizePalmi()));
 
-	if(settings->palmiMinimized())
-		this->ui->actionMinimal->trigger();
+	if(m_settings->palmiMinimized())
+		this->m_ui->actionMinimal->trigger();
 	else
-		this->ui->actionEtendu->trigger();
+		this->m_ui->actionEtendu->trigger();
 
-	settings->startBouchots();
+	m_settings->startBouchots();
 }
 
 MainWindow::~MainWindow()
 {
-	delete ui;
-	delete pini;
-	delete palmi;
-	delete settings;
+	delete m_ui;
+	delete m_pini;
+	delete m_palmi;
+	delete m_settings;
 }
 
 void MainWindow::displayOptions()
 {
 	//On arrete le refresh avant de continuer
-	settings->stopBouchots();
+	m_settings->stopBouchots();
 
 	QQSettingsDialog settingsDialog(this);
-	settingsDialog.setDefaultUA(settings->defaultUA());
-	settingsDialog.setDefaultLogin(settings->defaultLogin());
-	settingsDialog.setTotozServerUrl(settings->totozServerUrl());
-	settingsDialog.setTotozMode(settings->totozMode());
-	settingsDialog.setMaxHistoryLength(settings->maxHistoryLength());
+	settingsDialog.setDefaultUA(m_settings->defaultUA());
+	settingsDialog.setDefaultLogin(m_settings->defaultLogin());
+	settingsDialog.setTotozServerUrl(m_settings->totozServerUrl());
+	settingsDialog.setTotozMode(m_settings->totozMode());
+	settingsDialog.setMaxHistoryLength(m_settings->maxHistoryLength());
 
 	QMap<QString, QQBouchot::QQBouchotSettings> mapBouchotSettings;
-	QList<QQBouchot *> listBouchots = settings->listBouchots();
+	QList<QQBouchot *> listBouchots = m_settings->listBouchots();
 	QQBouchot *bouchot = NULL;
 	for(int i = 0; i < listBouchots.size(); i++ )
 	{
@@ -83,11 +83,11 @@ void MainWindow::displayOptions()
 
 	if(settingsDialog.exec() == QDialog::Accepted)
 	{
-		settings->setDefaultUA(settingsDialog.defaultUA());
-		settings->setDefaultLogin(settingsDialog.defaultLogin());
-		settings->setTotozServerUrl(settingsDialog.totozServerUrl());
-		settings->setTotozMode((QQSettings::TotozMode) settingsDialog.totozMode());
-		settings->setMaxHistoryLength(settingsDialog.maxHistoryLength());
+		m_settings->setDefaultUA(settingsDialog.defaultUA());
+		m_settings->setDefaultLogin(settingsDialog.defaultLogin());
+		m_settings->setTotozServerUrl(settingsDialog.totozServerUrl());
+		m_settings->setTotozMode((QQSettings::TotozMode) settingsDialog.totozMode());
+		m_settings->setMaxHistoryLength(settingsDialog.maxHistoryLength());
 
 		//Les bouchots supprimes
 		QMap<QString, QQBouchot::QQBouchotSettings> settingsDeletedbouchots = settingsDialog.oldBouchots();
@@ -95,7 +95,7 @@ void MainWindow::displayOptions()
 		while(iDel.hasNext())
 		{
 			iDel.next();
-			settings->removeBouchot(iDel.key());
+			m_settings->removeBouchot(iDel.key());
 		}
 
 		//Les bouchots modifies
@@ -104,7 +104,7 @@ void MainWindow::displayOptions()
 		while(iModif.hasNext())
 		{
 			iModif.next();
-			QQBouchot * modifBouchot = settings->bouchot(iModif.key());
+			QQBouchot * modifBouchot = m_settings->bouchot(iModif.key());
 			//Sauvegarde de l'ancien groupe au cas ou il aurait été modifié pour pouvoir
 			// effectuer une maj du pini au cas ou ...
 			QString oldGroup = modifBouchot->settings().group();
@@ -116,11 +116,11 @@ void MainWindow::displayOptions()
 			if(modifBouchot->settings().group().compare(oldGroup) != 0)
 			{
 				modifBouchot->setNewPostsFromHistory();
-				pini->newPostsAvailable(modifBouchot);
-				pini->purgePiniTab(oldGroup, modifBouchot->name());
+				m_pini->newPostsAvailable(modifBouchot);
+				m_pini->purgePiniTab(oldGroup, modifBouchot->name());
 			}
 
-			settings->setDirty();
+			m_settings->setDirty();
 		}
 
 		//Les bouchots ajoutes
@@ -129,19 +129,19 @@ void MainWindow::displayOptions()
 		while(iNew.hasNext())
 		{
 			iNew.next();
-			QQBouchot * newBouchot = new QQBouchot(iNew.key(), settings);
+			QQBouchot * newBouchot = new QQBouchot(iNew.key(), m_settings);
 			newBouchot->setSettings(iNew.value());
 
 			initBouchot(newBouchot);
-			settings->addBouchot(newBouchot);
+			m_settings->addBouchot(newBouchot);
 		}
 	}
-	settings->startBouchots();
+	m_settings->startBouchots();
 }
 
 void MainWindow::doPostMessage(const QString & bouchot, const QString & message)
 {
-	QQBouchot * bouchotDest = settings->bouchot(bouchot);
+	QQBouchot * bouchotDest = m_settings->bouchot(bouchot);
 
 	if( bouchotDest != NULL)
 		bouchotDest->postMessage(message);
@@ -151,32 +151,32 @@ void MainWindow::doPostMessage(const QString & bouchot, const QString & message)
 
 void MainWindow::doTriggerMiniPalmi()
 {
-	this->ui->actionEtendu->setChecked(false);
-	this->ui->actionMinimal->setChecked(true);
+	this->m_ui->actionEtendu->setChecked(false);
+	this->m_ui->actionMinimal->setChecked(true);
 
-	settings->setPalmiMinimized(true);
+	m_settings->setPalmiMinimized(true);
 }
 
 void MainWindow::doTriggerMaxiPalmi()
 {
-	this->ui->actionEtendu->setChecked(true);
-	this->ui->actionMinimal->setChecked(false);
+	this->m_ui->actionEtendu->setChecked(true);
+	this->m_ui->actionMinimal->setChecked(false);
 
-	settings->setPalmiMinimized(false);
+	m_settings->setPalmiMinimized(false);
 }
 
 void MainWindow::initBouchot(QQBouchot * bouchot)
 {
-	connect(bouchot, SIGNAL(newPostsInserted(QQBouchot *)), pini, SLOT(newPostsAvailable(QQBouchot *)));
+	connect(bouchot, SIGNAL(newPostsInserted(QQBouchot *)), m_pini, SLOT(newPostsAvailable(QQBouchot *)));
 
-	pini->addPiniTab(bouchot->settings().group());
-	palmi->addBouchot(bouchot->name(), bouchot->settings().colorLight());
+	m_pini->addPiniTab(bouchot->settings().group());
+	m_palmi->addBouchot(bouchot->name(), bouchot->settings().colorLight());
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)
  {
 	qDebug()<<"MainWindow::closeEvent";
-	if(settings->maybeSave())
+	if(m_settings->maybeSave())
 		event->accept();
 	else
 		event->ignore();

@@ -3,6 +3,7 @@
 #include "core/qqnorlogeref.h"
 #include "core/qqpost.h"
 #include "core/qqbouchot.h"
+#include "core/qqtotozmanager.h"
 #include "ui/qqmessageblockuserdata.h"
 
 #include <QDateTime>
@@ -16,21 +17,16 @@ QQSyntaxHighlighter::QQSyntaxHighlighter(QTextDocument * parent) :
 {
 }
 
+QQSyntaxHighlighter::~QQSyntaxHighlighter()
+{
+}
+
 void QQSyntaxHighlighter::setNorlogeRefToHighlight(const QQNorlogeRef &norlogeRef)
 {
-	resetNorlogeRefToHighlight();
 	this->m_nRef = norlogeRef;
 }
 
-void QQSyntaxHighlighter::resetNorlogeRefToHighlight()
-{
-}
-
-QQSyntaxHighlighter::~QQSyntaxHighlighter()
-{
-	resetNorlogeRefToHighlight();
-}
-
+//void QQSyntaxHighlighter::set
 
 bool QQSyntaxHighlighter::highlightLine(QTextCursor & lineSelection, QQMessageBlockUserData * userData)
 {
@@ -217,9 +213,14 @@ void QQSyntaxHighlighter::highlightTotoz(const QString & text, QQMessageBlockUse
 								 QRegExp::RegExp);
 
 	int index = text.indexOf(m_totozReg);
-	while (index >= 0) {
+	while (index >= 0)
+	{
 		int length = m_totozReg.matchedLength();
-		userData->addTotozZone(index, text.mid(index, length));
+
+		QQTotoz totoz = QQTotoz(text.mid(index, length), index);
+		emit totozRequired(totoz.getId());
+
+		userData->addTotozZone(totoz);
 		setFormat(index, length, totozMessageFormat);
 
 		index = text.indexOf(m_totozReg, index + length);

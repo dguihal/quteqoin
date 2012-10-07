@@ -148,9 +148,12 @@ void QQBouchot::replyFinished(QNetworkReply *reply)
 	qDebug() << QDateTime::currentDateTime().currentMSecsSinceEpoch() << " : "
 			 << "QQBouchot::replyFinished isFinished=" << reply->isFinished();
 
+	// Recuperation du Statut HTTP
+	//QVariant statusCodeV = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute);
+
 	if(reply->error() != QNetworkReply::NoError)
 	{
-		 qWarning() << "QQBouchot::replyFinished, error=" << reply->errorString();
+		 qWarning() << "QQBouchot::replyFinished, error : " << reply->errorString();
 		 return;
 	}
 
