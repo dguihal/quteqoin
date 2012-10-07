@@ -25,7 +25,9 @@ SOURCES += main.cpp\
     ui/qqsyntaxhighlighter.cpp \
     ui/qqmessageblockuserdata.cpp \
     core/qqnorlogeref.cpp \
-    ui/qqproxyauthdialog.cpp
+    ui/qqproxyauthdialog.cpp \
+    core/qqtotoz.cpp \
+    core/qqtotozmanager.cpp
 
 HEADERS  += mainwindow.h \
 		core/qqsettings.h \
@@ -41,7 +43,9 @@ HEADERS  += mainwindow.h \
     ui/qqsyntaxhighlighter.h \
     ui/qqmessageblockuserdata.h \
     core/qqnorlogeref.h \
-    ui/qqproxyauthdialog.h
+    ui/qqproxyauthdialog.h \
+    core/qqtotoz.h \
+    core/qqtotozmanager.h
 
 FORMS    += mainwindow.ui \
 		ui/qqpalmipede.ui \

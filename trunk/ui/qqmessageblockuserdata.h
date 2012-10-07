@@ -3,6 +3,7 @@
 
 #include <core/qqnorlogeref.h>
 #include <core/qqpost.h>
+#include <core/qqtotoz.h>
 
 #include <QList>
 #include <QPair>
@@ -36,8 +37,8 @@ public:
 	QQNorlogeRef norlogeRefForIndex(int index);
 	QList<QQNorlogeRef> norlogeRefs() { return m_listNRef; }
 
-	void addTotozZone(int index, const QString & totoz) { m_mapTotoz.insert(index, totoz); }
-	QPair<int, QString> totozForIndex(int index) { return stringForIndex(index, m_mapTotoz); }
+	void addTotozZone(const QQTotoz & totoz) { m_listTotoz.append(totoz); }
+	QQTotoz totozForIndex(int index);
 
 	void addDuckZone(int index, const QString & duck) { m_mapDuck.insert(index, duck); }
 	QPair<int, QString> duckForIndex(int index) { return stringForIndex(index, m_mapDuck); }
@@ -58,7 +59,7 @@ private:
 	bool isIndexInString(int index, int stringIndex, const QString & string);
 
 	QList<QQNorlogeRef> m_listNRef;
-	QMap<int, QString> m_mapTotoz;
+	QList<QQTotoz> m_listTotoz;
 	QMap<int, QString> m_mapDuck;
 	QMap<int, QString> m_mapTableV;
 
