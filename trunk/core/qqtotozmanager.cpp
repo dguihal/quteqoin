@@ -1,5 +1,7 @@
 #include "qqtotozmanager.h"
 
+#include "core/qqtotoz.h"
+
 #include <QBuffer>
 #include <QDebug>
 #include <QEventLoop>
@@ -16,21 +18,11 @@ QQTotozManager::QQTotozManager(const QString & totozServerURL, QObject *parent) 
 	m_qnam = createQNAM();
 }
 
-
-QQTotoz::TypeTotoz QQTotozManager::getTypeTotoz(const QString & totozId)
-{
-	if(m_totozHashCache.contains(totozId))
-		return QQTotoz::QQTOTOZ_STATIC;
-	else if(m_totozDynHashCache.contains(totozId))
-		return QQTotoz::QQTOTOZ_ANIMATED;
-
-	return QQTotoz::QQTOTOZ_NOTFOUND;
-}
-
 void QQTotozManager::fetchTotoz(const QString & totozId)
 {
-	if(! m_totozHashCache.contains(totozId) &&
-			! m_totozDynHashCache.contains(totozId))
+	// si l'id est valide et que l'on ne l'a pas déjà téléchargé dans le cache
+	// TODO : Une expiration du cache, voire un if-modified-since !!!!
+	if(totozId.length() > 0 && ! QFile::exists(QQTotoz::getPath(totozId)))
 	{
 		QString queryUrl = m_totozServerUrl;
 		queryUrl.append("/").append(totozId).append(".gif");
@@ -43,22 +35,6 @@ void QQTotozManager::fetchTotoz(const QString & totozId)
 		QNetworkReply * reply = m_qnam->get(request);
 		m_totozIdReplyHash.insert(reply, totozId);
 	}
-}
-
-QSharedPointer<QImage> QQTotozManager::getStaticTotoz(const QString & totozId)
-{
-	if(m_totozHashCache.contains(totozId))
-		return m_totozHashCache.value(totozId);
-
-	return QSharedPointer<QImage>();
-}
-
-QSharedPointer<QMovie> QQTotozManager::getDynTotoz(const QString & totozId)
-{
-	if(m_totozDynHashCache.contains(totozId))
-		return m_totozDynHashCache.value(totozId);
-
-	return QSharedPointer<QMovie>();
 }
 
 void QQTotozManager::serverURLchanged(const QString &newUrl)
@@ -96,24 +72,14 @@ void QQTotozManager::finishedSlot(QNetworkReply * reply)
 	} // Tout est OK on poursuit
 	else
 	{
-		QByteArray all = reply->readAll();
-		QBuffer buff(&all);
-		buff.open(QIODevice::ReadOnly);
+		QFile file(QQTotoz::getPath(totozId));
+		file.open(QIODevice::WriteOnly);
+		file.write(reply->readAll());
 
-		//on teste avec un QMovie
-		QMovie * movie = new QMovie(&buff);
-		if(movie->isValid())
-			m_totozDynHashCache.insert(totozId, QSharedPointer<QMovie>(movie));
-		else
+		if(reply->hasRawHeader(QString::fromAscii("Etag").toAscii()))
 		{
-			delete movie;
-			buff.seek(0);
-			QImageReader imageReader(&buff);
-			QImage * img = new QImage(imageReader.read());
-			if(! img->isNull())
-				m_totozHashCache.insert(totozId, QSharedPointer<QImage>(img));
-			else
-				delete img;
+			QString etag(reply->rawHeader(QString::fromAscii("Etag").toAscii()));
+			qDebug() << "QQTotozManager::finishedSlot, etag = " << etag;
 		}
 	}
 

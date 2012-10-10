@@ -3,6 +3,7 @@
 
 #include "core/qqnorloge.h"
 #include "core/qqnorlogeref.h"
+#include "core/qqtotoz.h"
 
 #include <QHash>
 #include <QMutex>
@@ -45,6 +46,8 @@ public slots:
 	void norlogeClicked(QQNorloge norloge);
 	void norlogeRefHovered(QQNorlogeRef norlogeRef);
 	void unHighlight();
+	void showTotozSlot(QQTotoz & totoz);
+	void hideTotozSlot();
 	void loginClicked(QString);
 	void newPostsAvailable( QQBouchot * );
 

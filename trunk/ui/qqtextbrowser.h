@@ -3,6 +3,7 @@
 
 #include "core/qqnorloge.h"
 #include "core/qqnorlogeref.h"
+#include "core/qqtotoz.h"
 #include "ui/qqpinipede.h"
 
 #include <QTextEdit>
@@ -21,6 +22,8 @@ signals:
 	void norlogeClicked(QQNorloge norloge);
 	void norlogeRefHovered(QQNorlogeRef norloge);
 	void unHighlight();
+	void showTotozSig(QQTotoz & totoz);
+	void hideTotozSig();
 	void loginClicked(QString groupName);
 
 protected:
@@ -32,15 +35,16 @@ protected:
 private:
 	void highlightNorloge(QQNorlogeRef nRef);
 	void unHighlightNorloge();
+	void showTotoz(QQTotoz & totoz);
+	void hideTotoz();
 
 	bool mousePressed;
 
 	bool m_highlightAsked;
 	QQNorlogeRef m_highlightedNRef;
+	QString m_displayedTotozId;
 
 	QString m_groupName;
-
-	QQPinipede *m_parent;
 };
 
 #endif // QQTEXTBROWSER_H
