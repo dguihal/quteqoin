@@ -2,7 +2,6 @@
 
 #include "core/qqbouchot.h"
 #include "core/qqpost.h"
-#include "core/qqtotoz.h"
 #include "ui/qqmessageblockuserdata.h"
 
 #include <QDebug>
@@ -17,7 +16,6 @@ QQTextBrowser::QQTextBrowser(QString groupName, QQPinipede *parent) :
 	setFrameStyle(QFrame::NoFrame);
 	setReadOnly(true);
 	m_groupName = groupName;
-	m_parent = parent;
 	m_highlightAsked = false;
 	this->setMouseTracking(true);
 }
@@ -65,10 +63,13 @@ void QQTextBrowser::mouseMoveEvent(QMouseEvent *event)
 			if( totoz.isValid() )
 			{
 				qDebug() << "QQTextBrowser::mouseMoveEvent, Totoz detecte, str = " << totoz.getId() << " position : " << totoz.getPosInMessage();
+				emit showTotozSig(totoz);
+
 			}
 			else
 			{
 				//il faut cacher l'affichage du Totoz puisqu'on n'en survole pas
+				emit hideTotozSig();
 			}
 
 		}
@@ -92,8 +93,6 @@ void QQTextBrowser::mouseMoveEvent(QMouseEvent *event)
 void QQTextBrowser::highlightNorloge(QQNorlogeRef nRef)
 {
 	qDebug() << "nRef.getOrigNRef() = " << nRef.getOrigNRef();
-	if( nRef.isValid() == 0 )
-		return ;
 
 	if(nRef.isValid() && m_highlightedNRef != nRef)
 	{
@@ -112,6 +111,27 @@ void QQTextBrowser::unHighlightNorloge()
 		emit unHighlight();
 	}
 }
+
+void QQTextBrowser::showTotoz(QQTotoz & totoz)
+{
+	if(totoz.isValid() && totoz.getId() != m_displayedTotozId)
+	{
+		hideTotoz();
+		m_displayedTotozId = totoz.getId();
+		emit showTotozSig(totoz);
+	}
+}
+
+void QQTextBrowser::hideTotoz()
+{
+	if(m_displayedTotozId.length() > 0)
+	{
+		m_displayedTotozId.clear();
+		emit hideTotozSig();
+	}
+}
+
+
 
 void QQTextBrowser::mousePressEvent ( QMouseEvent * event )
 {

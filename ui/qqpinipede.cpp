@@ -9,10 +9,11 @@
 #include "ui/qqmessageblockuserdata.h"
 
 #include <QBrush>
+#include <QCursor>
+#include <QFile>
 #include <QDebug>
 #include <QScrollBar>
 #include <QTabBar>
-#include <QCursor>
 #include <QTextBrowser>
 #include <QTextCharFormat>
 #include <QTextDocument>
@@ -77,6 +78,8 @@ void QQPinipede::addPiniTab(const QString& groupName)
 	connect(textBrowser, SIGNAL(norlogeClicked(QQNorloge)), this, SLOT(norlogeClicked(QQNorloge)));
 	connect(textBrowser, SIGNAL(norlogeRefHovered(QQNorlogeRef)), this, SLOT(norlogeRefHovered(QQNorlogeRef)));
 	connect(textBrowser, SIGNAL(unHighlight()), this, SLOT(unHighlight()));
+	connect(textBrowser, SIGNAL(showTotozSig(QQTotoz&)), this, SLOT(showTotozSlot(QQTotoz&)));
+	connect(textBrowser, SIGNAL(hideTotozSig()), this, SLOT(hideTotozSlot()));
 
 	if (this->count() > 1)
 		this->tabBar()->show();
@@ -627,6 +630,22 @@ void QQPinipede::unHighlight()
 	cursor.endEditBlock();
 
 	m_tBrowserHighlighted = NULL;
+}
+
+void QQPinipede::showTotozSlot(QQTotoz & totoz)
+{
+	QString path = totoz.getPath();
+	if(QFile::exists(path))
+	{
+		QString html = QString::fromAscii("<html><img src='").append(path).append(QString::fromAscii("'/></html>"));
+		QToolTip::showText(QCursor::pos(), html, this);
+	}
+
+}
+
+void QQPinipede::hideTotozSlot()
+{
+	QToolTip::hideText();
 }
 
 void QQPinipede::loginClicked(QString tabGroupName)

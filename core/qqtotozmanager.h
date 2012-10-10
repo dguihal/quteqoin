@@ -4,8 +4,6 @@
 #include "core/qqtotoz.h"
 
 #include <QHash>
-#include <QImage>
-#include <QMovie>
 #include <QObject>
 #include <QPointer>
 #include <QSharedPointer>
@@ -22,11 +20,6 @@ class QQTotozManager : public QObject
 public:
 	explicit QQTotozManager(const QString & totozServerURL, QObject *parent = 0);
 
-	QQTotoz::TypeTotoz getTypeTotoz(const QString & totozId);
-
-	QSharedPointer<QImage> getStaticTotoz(const QString & totozId);
-	QSharedPointer<QMovie> getDynTotoz(const QString & totozId);
-
 signals:
 
 public slots:
@@ -41,8 +34,6 @@ private:
 	QNetworkAccessManager* createQNAM();
 
 	QString m_totozServerUrl;
-	QHash<QString, QSharedPointer<QImage> > m_totozHashCache;
-	QHash<QString, QSharedPointer<QMovie> > m_totozDynHashCache;
 
 	QHash<QNetworkReply *, QString> m_totozIdReplyHash;
 };
