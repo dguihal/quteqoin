@@ -68,7 +68,7 @@ QQNorlogeRef::QQNorlogeRef(const QString &bouchot, const QString &dateh, const Q
 
 		m_dstBouchot = capturedTexts[4];
 		//supression du @ initial
-		m_refDateDayPart.remove(QChar::fromAscii('@'));
+		m_dstBouchot.remove(QChar::fromAscii('@'));
 	}
 }
 
