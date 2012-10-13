@@ -64,7 +64,6 @@ void QQTextBrowser::mouseMoveEvent(QMouseEvent *event)
 			{
 				qDebug() << "QQTextBrowser::mouseMoveEvent, Totoz detecte, str = " << totoz.getId() << " position : " << totoz.getPosInMessage();
 				emit showTotozSig(totoz);
-
 			}
 			else
 			{

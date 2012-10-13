@@ -18,3 +18,13 @@ QQTotoz::QQTotoz(const QQTotoz & totoz)
 QQTotoz::~QQTotoz()
 {
 }
+
+QString QQTotoz::getPath(QString id)
+{
+	QDir dirCache(QDesktopServices::storageLocation(QDesktopServices::CacheLocation).append("QuteQoin"));
+
+	if(! dirCache.exists())
+		dirCache.mkpath(dirCache.path());
+
+	return dirCache.filePath(id);
+}

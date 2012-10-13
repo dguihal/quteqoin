@@ -5,6 +5,7 @@
 #include "core/qqnorlogeref.h"
 #include "core/qqtotoz.h"
 
+#include <QBuffer>
 #include <QHash>
 #include <QMutex>
 #include <QPointer>
@@ -22,6 +23,8 @@ class QTextTable;
 class QQPost;
 class QQTotozManager;
 
+class QLabel;
+class QMovie;
 class QTextBrowser;
 class QTextDocument;
 
@@ -61,17 +64,15 @@ private:
 	void createQTextTable( QQTextBrowser* textBrowser, int numRow );
 
 	QQSettings * m_settings;
-	QPointer<QQTotozManager> m_totozManager;
+	QQTotozManager * m_totozManager;
+	QQTextBrowser * m_tBrowserHighlighted;
+	QLabel * m_hiddenPostViewerLabel;
+	QLabel * m_totozLabel;
+	QMovie * m_totozMovie;
+	QBuffer m_totozData;
+	QString m_hiddenPostViewerLabelSSheet;
 
 	QHash<QString, QList<QQPost *> *> m_listPostsTabMap;
-
-	QPointer<QQTextBrowser> m_tBrowserHighlighted;
-
-	QTextDocument * document(const QString &);
-	int getNextDuck(QString &);
-	int getNextNorloge(QString &);
-	int getNextTotoz(QString &);
-
 	QHash<QString, QQTextBrowser *> m_textBrowserHash;
 
 	QMutex newPostsAvailableMutex;
@@ -79,6 +80,7 @@ private:
 	int norlogeMatchLength;
 	int duckMatchLength;
 	int totozMatchLength;
+
 };
 
 #endif // QQPINIPEDE_H

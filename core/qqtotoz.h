@@ -2,6 +2,7 @@
 #define QQTOTOZ_H
 
 #include <QDesktopServices>
+#include <QDir>
 #include <QFile>
 #include <QObject>
 #include <QSharedPointer>
@@ -24,10 +25,7 @@ public:
 
 	QString getPath() { return QQTotoz::getPath(m_id); }
 
-	static QString getPath(QString id) { return QDesktopServices::storageLocation(QDesktopServices::CacheLocation)
-				.append(id)
-				.append(QString::fromAscii(".gif"));
-					  }
+	static QString getPath(QString id);
 
 signals:
 
