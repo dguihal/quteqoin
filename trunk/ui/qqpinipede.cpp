@@ -3,31 +3,22 @@
 #include "mainwindow.h"
 #include "core/qqbouchot.h"
 #include "core/qqtotozmanager.h"
+#include "ui/qqmessageblockuserdata.h"
 #include "ui/qqpalmipede.h"
 #include "ui/qqsyntaxhighlighter.h"
 #include "ui/qqtextbrowser.h"
-#include "ui/qqmessageblockuserdata.h"
 
-#include <QBrush>
-#include <QCursor>
-#include <QFile>
-#include <QDebug>
+#include <QImage>
+#include <QLabel>
+#include <QMovie>
 #include <QScrollBar>
-#include <QTabBar>
-#include <QTextBrowser>
-#include <QTextCharFormat>
 #include <QTextDocument>
 #include <QTextDocumentFragment>
-#include <QTextFormat>
 #include <QTextFrame>
-#include <QTextFrameFormat>
-#include <QTextCursor>
 #include <QTextTable>
-#include <QTextTableFormat>
 #include <QTime>
-#include <QToolTip>
+#include <QTabBar>
 #include <QVBoxLayout>
-#include <QWidget>
 
 QQPinipede::QQPinipede(QQSettings *settings, QWidget *parent) :
 	QTabWidget(parent)
@@ -36,13 +27,31 @@ QQPinipede::QQPinipede(QQSettings *settings, QWidget *parent) :
 
 	m_settings = settings;
 	m_totozManager = new QQTotozManager(m_settings->totozServerUrl(), this);
+	m_tBrowserHighlighted = NULL;
 
-	connect(m_settings, SIGNAL(totozServerUrlChanged(QString)), m_totozManager.data(), SLOT(serverURLchanged(QString)));
+	m_hiddenPostViewerLabelSSheet = QString::fromAscii("border: 2px solid black; border-radius: 4px;");
+	m_hiddenPostViewerLabel = new QLabel(this);
+	m_hiddenPostViewerLabel->setStyleSheet(m_hiddenPostViewerLabelSSheet);
+	m_hiddenPostViewerLabel->setAttribute(Qt::WA_TransparentForMouseEvents);
+	m_hiddenPostViewerLabel->setTextFormat(Qt::RichText);
+	m_hiddenPostViewerLabel->setWordWrap(true);
+	m_hiddenPostViewerLabel->setScaledContents(true);
+	m_hiddenPostViewerLabel->hide();
+
+	m_totozLabel = new QLabel(this);
+	m_totozLabel->setAttribute(Qt::WA_TransparentForMouseEvents);
+	m_totozLabel->setScaledContents(true);
+	m_totozLabel->hide();
+	m_totozMovie = NULL;
+	connect(m_settings, SIGNAL(totozServerUrlChanged(QString)), m_totozManager, SLOT(serverURLchanged(QString)));
 }
 
 QQPinipede::~QQPinipede()
 {
 	delete m_totozManager;
+	delete m_totozLabel;
+	if( m_totozMovie != NULL )
+		delete m_totozMovie;
 }
 
 void QQPinipede::addPiniTab(const QString& groupName)
@@ -69,7 +78,7 @@ void QQPinipede::addPiniTab(const QString& groupName)
 	//textBrowser->document() devient le proprietaire du highlighter
 	QQSyntaxHighlighter * highlighter = new QQSyntaxHighlighter(textBrowser->document());
 	connect(highlighter, SIGNAL(totozRequired(const QString &)),
-			m_totozManager.data(), SLOT(fetchTotoz(const QString &)));
+			m_totozManager, SLOT(fetchTotoz(const QString &)));
 	// Pour éviter le warning
 	//(void) highlighter;
 
@@ -78,7 +87,7 @@ void QQPinipede::addPiniTab(const QString& groupName)
 	connect(textBrowser, SIGNAL(norlogeClicked(QQNorloge)), this, SLOT(norlogeClicked(QQNorloge)));
 	connect(textBrowser, SIGNAL(norlogeRefHovered(QQNorlogeRef)), this, SLOT(norlogeRefHovered(QQNorlogeRef)));
 	connect(textBrowser, SIGNAL(unHighlight()), this, SLOT(unHighlight()));
-	connect(textBrowser, SIGNAL(showTotozSig(QQTotoz&)), this, SLOT(showTotozSlot(QQTotoz&)));
+	connect(textBrowser, SIGNAL(showTotozSig(QQTotoz &)), this, SLOT(showTotozSlot(QQTotoz &)));
 	connect(textBrowser, SIGNAL(hideTotozSig()), this, SLOT(hideTotozSlot()));
 
 	if (this->count() > 1)
@@ -493,11 +502,18 @@ void QQPinipede::norlogeRefHovered(QQNorlogeRef norlogeRef)
 	qDebug() << "QQPinipede::norlogeRefHovered, datetimepart=" << dstNorloge << ", destbouchot=" << dstBouchot;
 
 	QQBouchot * bouchot = m_settings->bouchot(dstBouchot);
+
+	if(bouchot == NULL)
+	{
+		qCritical() << "QQPinipede::norlogeRefHovered m_settings->bouchot(dstBouchot) a retourne NULL";
+		return;
+	}
+
 	QQTextBrowser* textBrowser = m_textBrowserHash.value(bouchot->settings().group());
 
 	bool highlightSuccess = false;
 
-	if(! m_tBrowserHighlighted.isNull())
+	if(m_tBrowserHighlighted != NULL)
 		unHighlight();
 
 	if(textBrowser->isVisible())
@@ -573,9 +589,17 @@ void QQPinipede::norlogeRefHovered(QQNorlogeRef norlogeRef)
 
 		destCursor.endEditBlock();
 
-		QPoint cursorPos = QCursor::pos();
 		if( destDocument.toPlainText().length() > 0)
-			QToolTip::showText(cursorPos, destDocument.toHtml(), this);
+		{
+			m_hiddenPostViewerLabel->setFixedWidth(this->currentWidget()->width());
+			QString styleSheet = m_hiddenPostViewerLabelSSheet;
+			styleSheet.append("background-color: ")
+					.append(bouchot->settings().colorLight().name())
+					.append(";");
+			m_hiddenPostViewerLabel->setStyleSheet(styleSheet);
+			m_hiddenPostViewerLabel->setText(destDocument.toHtml());
+			m_hiddenPostViewerLabel->show();
+		}
 	}
 }
 
@@ -583,12 +607,12 @@ void QQPinipede::unHighlight()
 {
 	//qDebug() << "QQPinipede::unHighlight";
 
-	if(m_tBrowserHighlighted.isNull())
+	if(m_tBrowserHighlighted == NULL)
 		return;
 
 	qDebug() << "QQPinipede::unHighlight, m_tBrowserHighlighted not NULL";
 
-	QToolTip::hideText();
+	m_hiddenPostViewerLabel->hide();
 
 	QTextFrame * root = m_tBrowserHighlighted->document()->rootFrame();
 	QTextTable * mainTable = dynamic_cast<QTextTable *>(root->childFrames().at(0));
@@ -634,18 +658,43 @@ void QQPinipede::unHighlight()
 
 void QQPinipede::showTotozSlot(QQTotoz & totoz)
 {
-	QString path = totoz.getPath();
-	if(QFile::exists(path))
+	m_totozMovie = new QMovie(totoz.getPath());
+	if( m_totozMovie->isValid() )
 	{
-		QString html = QString::fromAscii("<html><img src='").append(path).append(QString::fromAscii("'/></html>"));
-		QToolTip::showText(QCursor::pos(), html, this);
+		m_totozMovie->setCacheMode(QMovie::CacheAll);
+		m_totozMovie->start();
+		QRect movieSize = m_totozMovie->frameRect();
+		m_totozLabel->setMovie(m_totozMovie);
+		m_totozLabel->setMinimumSize(movieSize.width(), movieSize.height());
+		m_totozLabel->adjustSize();
+		m_totozLabel->move(mapFromGlobal(QCursor::pos()));
+		m_totozLabel->show();
 	}
-
+	else
+	{
+		delete m_totozMovie;
+		m_totozMovie = NULL;
+		QImage image;
+		if(image.load(totoz.getPath()))
+		{
+			QPixmap pixmap = QPixmap::fromImage(image);
+			m_totozLabel->setPixmap(pixmap);
+			m_totozLabel->setMinimumSize(pixmap.width(), pixmap.height());
+			m_totozLabel->adjustSize();
+			m_totozLabel->move(mapFromGlobal(QCursor::pos()));
+			m_totozLabel->show();
+		}
+	}
 }
 
 void QQPinipede::hideTotozSlot()
 {
-	QToolTip::hideText();
+	if(m_totozMovie != NULL)
+	{
+		m_totozLabel->hide();
+		delete m_totozMovie;
+		m_totozMovie = NULL;
+	}
 }
 
 void QQPinipede::loginClicked(QString tabGroupName)

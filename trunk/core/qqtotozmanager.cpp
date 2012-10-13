@@ -25,7 +25,7 @@ void QQTotozManager::fetchTotoz(const QString & totozId)
 	if(totozId.length() > 0 && ! QFile::exists(QQTotoz::getPath(totozId)))
 	{
 		QString queryUrl = m_totozServerUrl;
-		queryUrl.append("/").append(totozId).append(".gif");
+		queryUrl.append("/").append(totozId);
 		QUrl url(queryUrl);
 
 		QNetworkRequest request(url);
