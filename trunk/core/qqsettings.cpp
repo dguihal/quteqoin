@@ -24,6 +24,8 @@ QQSettings::QQSettings(QObject *parent) :
 {
 	m_dirty = false;
 	m_palmiMini = false;
+	m_maxHistoryLength = 0;
+	m_totozMode = QQSettings::Bald_Mode;
 	readSettings();
 }
 
@@ -86,7 +88,8 @@ void QQSettings::setDefaultLogin(const QString& defaultLogin)
 QQBouchot * QQSettings::bouchot(QString bouchotName)
 {
 	for(int i = 0; i < m_listBouchots.size(); i++)
-		if(m_listBouchots.at(i)->name().compare(bouchotName) == 0)
+		if(m_listBouchots.at(i)->name() == bouchotName ||
+				m_listBouchots.at(i)->settings().containsAlias(bouchotName))
 			return m_listBouchots.at(i);
 	return NULL;
 }

@@ -29,6 +29,7 @@ public:
 		void setAliases(const QStringList &newAliases) { m_aliases = newAliases; }
 		QString aliasesToString() { return this->m_aliases.join(QChar::fromAscii(Separator)); }
 		void setAliasesFromString(const QString &newAliasesString) { m_aliases = newAliasesString.split(QChar::fromAscii(Separator)); }
+		bool containsAlias(const QString & alias) { return m_aliases.contains(alias); }
 
 		QString backendUrl() { return m_backendUrl; }
 		void setBackendUrl(const QString &newBackendUrl) { m_backendUrl = newBackendUrl; }
@@ -80,7 +81,7 @@ public:
 	};
 
 	QQBouchot(const QString & name, QQSettings * parent = 0);
-	~QQBouchot();
+	~QQBouchot() {}
 
 	QString name() { return m_name; }
 	//void setName(const QString &newName) { m_name = newName; }
@@ -98,7 +99,7 @@ public:
 	QList<QQPost *> getPostsHistory() {	return m_history; }
 	void setNewPostsFromHistory();
 
-	static const char Separator = ';';
+	static const char Separator = ',';
 	static QQBouchotSettings getBouchotDef(const QString &);
 	static QStringList getBouchotDefNameList();
 

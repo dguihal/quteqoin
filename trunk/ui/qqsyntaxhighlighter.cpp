@@ -35,9 +35,9 @@ bool QQSyntaxHighlighter::highlightLine(QTextCursor & lineSelection, QQMessageBl
 	QString dstBouchot = m_nRef.dstBouchot();
 
 	QString currNorloge = userData->post()->norloge();
-	QString currBouchot = userData->post()->bouchot()->name();
+	QQBouchot * currBouchot = userData->post()->bouchot();
 
-	if( currBouchot.compare(dstBouchot, Qt::CaseInsensitive) == 0 &&
+	if( ( dstBouchot == currBouchot->name() || currBouchot->settings().containsAlias(dstBouchot) ) &&
 			currNorloge.startsWith(dstNorloge) )
 	{
 		QTextCharFormat format;
