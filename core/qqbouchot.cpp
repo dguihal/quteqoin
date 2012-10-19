@@ -54,10 +54,6 @@ QQBouchot::QQBouchot(const QString & name, QQSettings * parent) :
 			parent, SLOT(proxyAuthenticationRequired(QNetworkProxy,QAuthenticator*)));
 }
 
-QQBouchot::~QQBouchot()
-{
-}
-
 void QQBouchot::postMessage(const QString &message)
 {
 	QString url = m_settings.postUrl();

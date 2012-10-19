@@ -310,7 +310,6 @@ void QQPinipede::newPostsAvailable(QQBouchot *sender)
 		qWarning() << "newPostsAvailable " << sender->name() << "tryLock timeout";
 
 	QList<QQPost *> newPosts = sender->getNewPosts();
-	QList<QQPost *> *destlistPosts = m_listPostsTabMap[sender->settings().group()];
 
 	QTime time = QTime::currentTime();
 	time.start();
@@ -322,7 +321,7 @@ void QQPinipede::newPostsAvailable(QQBouchot *sender)
 	{
 		// qDebug() << QDateTime::currentDateTime().currentMSecsSinceEpoch() << " : "
 		//		 << "QQPinipede, inserting " << newPosts.size() << " posts";
-		destlistPosts = new QList<QQPost *>(newPosts);
+		QList<QQPost *> *destlistPosts = new QList<QQPost *>(newPosts);
 		m_listPostsTabMap.insert(sender->settings().group(), destlistPosts);
 
 		createQTextTable(textBrowser, newPosts.size());
@@ -355,6 +354,11 @@ void QQPinipede::newPostsAvailable(QQBouchot *sender)
 	}
 	else
 	{
+		if(! m_listPostsTabMap.contains(sender->settings().group()))
+			qFatal("QQPinipede::newPostsAvailable : root->childFrames().size() != 0 et ! m_listPostsTabMap.contains(sender->settings().group())");
+
+		QList<QQPost *> *destlistPosts = m_listPostsTabMap[sender->settings().group()];
+
 		qDebug() << QDateTime::currentDateTime().currentMSecsSinceEpoch() << " : "
 				 << "QQPinipede inserting posts : newPosts.size=" << newPosts.size()
 				 << ", destlistPosts->size=" << destlistPosts->size();
@@ -386,6 +390,7 @@ void QQPinipede::newPostsAvailable(QQBouchot *sender)
 
 		int baseInsertIndex = 0, insertIndex = 0;
 
+		// Tant qu'il reste des posts a afficher
 		while(newPostsIndex < newPosts.size())
 		{
 			QQPost * newPost = newPosts.at(newPostsIndex);
@@ -418,11 +423,12 @@ void QQPinipede::newPostsAvailable(QQBouchot *sender)
 			baseInsertIndex = insertIndex;
 		}
 
+		//Insertion a la fin
 		if(newPostsIndex < newPosts.size())
 		{
 			mainTable->appendRows(newPosts.size() - newPostsIndex);
 			cursor.movePosition(QTextCursor::NextRow, QTextCursor::MoveAnchor, insertIndex - baseInsertIndex );
-			//Le premier item a déjà  été inséré dans la liste destlistPosts dans la boucle while au dessus
+			//Le premier item a deja ete insere dans la liste destlistPosts dans la boucle while au dessus
 			//on a juste a l'afficher
 			printPostAtCursor(cursor, newPosts.at(newPostsIndex++));
 			cursor.movePosition(QTextCursor::NextRow);
@@ -572,9 +578,9 @@ void QQPinipede::norlogeRefHovered(QQNorlogeRef norlogeRef)
 			QQMessageBlockUserData * userData = dynamic_cast<QQMessageBlockUserData *>(cursor.block().userData());
 
 			QString currNorloge = userData->post()->norloge();
-			QString currBouchot = userData->post()->bouchot()->name();
+			QQBouchot * currBouchot = userData->post()->bouchot();
 
-			if( currBouchot.compare(dstBouchot, Qt::CaseInsensitive) == 0 &&
+			if( ( dstBouchot == currBouchot->name() || currBouchot->settings().containsAlias(dstBouchot) ) &&
 					currNorloge.startsWith(dstNorloge) )
 			{
 				moveSuccess &= cursor.movePosition(QTextCursor::PreviousCell, QTextCursor::MoveAnchor, 1);
