@@ -294,6 +294,7 @@ void QQPinipede::printPostAtCursor( QTextCursor & cursor, QQPost * post )
 	cursor.insertHtml(post->message());
 	cursor.insertText(QString::fromUtf8(" "), defaultFormat);
 
+	cursor.movePosition(QTextCursor::PreviousCell, QTextCursor::MoveAnchor, 3);
 }
 
 void QQPinipede::newPostsAvailable(QQBouchot *sender)
@@ -368,27 +369,11 @@ void QQPinipede::newPostsAvailable(QQBouchot *sender)
 			wasAtEnd = true;
 
 		QTextTable* mainTable = dynamic_cast<QTextTable *>(root->childFrames().at(0));
-		QTextCursor cursor = mainTable->cellAt(0, 0).firstCursorPosition();
+		QTextCursor cursor(mainTable);
 
 		cursor.beginEditBlock();
 
-		int newPostsIndex = 0;
-
-		if(newPosts.at(newPostsIndex)->norloge().toLongLong() < destlistPosts->at(0)->norloge().toLongLong())
-		{
-			QQPost * newPost = newPosts.at(newPostsIndex);
-
-			mainTable->insertRows(0, 1);
-			//ligne précedente + 3 colonnes
-			cursor.movePosition(QTextCursor::PreviousCell, QTextCursor::MoveAnchor, 4);
-
-			printPostAtCursor(cursor, newPost);
-			destlistPosts->insert(0, newPost);
-
-			newPostsIndex++;
-		}
-
-		int baseInsertIndex = 0, insertIndex = 0;
+		int newPostsIndex = 0, baseInsertIndex = 0, insertIndex = 0;
 
 		// Tant qu'il reste des posts a afficher
 		while(newPostsIndex < newPosts.size())
@@ -404,20 +389,44 @@ void QQPinipede::newPostsAvailable(QQBouchot *sender)
 				break;
 
 			//Deplacement vers l'element suivant la ligne qu'on va inserer
-			cursor.movePosition(QTextCursor::NextRow, QTextCursor::MoveAnchor, insertIndex - baseInsertIndex );
+			//cursor.movePosition(QTextCursor::NextRow, QTextCursor::MoveAnchor, insertIndex - baseInsertIndex );
 			QTextTableCell cell = cursor.currentTable()->cellAt(cursor);
-			qDebug() << QDateTime::currentDateTime().currentMSecsSinceEpoch() << " : "
-					 << "Cell X1 : row=" << cell.row() << ", column=" << cell.column();
+//			qDebug() << QDateTime::currentDateTime().currentMSecsSinceEpoch() << " -1- : Blocknumber=" << cursor.block().blockNumber()
+//					 << ", Cell X1 : row=" << cell.row() << ", column=" << cell.column();
 
 			//Creation de la ligne
 			mainTable->insertRows(insertIndex, 1);
 			cell = cursor.currentTable()->cellAt(cursor);
-			qDebug() << QDateTime::currentDateTime().currentMSecsSinceEpoch() << " : "
-					 << "Cell X2 : row=" << cell.row() << ", column=" << cell.column();
+//			qDebug() << QDateTime::currentDateTime().currentMSecsSinceEpoch() << " -2- : Blocknumber=" << cursor.block().blockNumber()
+//					 << "Cell X2 : row=" << cell.row() << ", column=" << cell.column();
 
-			//Deplacement vers le début de la nouvelle ligne
-			cursor.movePosition(QTextCursor::PreviousCell, QTextCursor::MoveAnchor, 4);
-			printPostAtCursor(cursor,newPost);
+			//Deplacement vers la nouvelle ligne
+			if(insertIndex == 0)
+			{
+				cursor.movePosition(QTextCursor::PreviousBlock, QTextCursor::MoveAnchor, 4);
+
+//				cell = cursor.currentTable()->cellAt(cursor);
+//				qDebug() << QDateTime::currentDateTime().currentMSecsSinceEpoch() << " -3- : Blocknumber=" << cursor.block().blockNumber()
+//						 << "Cell X2 : row=" << cell.row() << ", column=" << cell.column();
+
+				printPostAtCursor(cursor, newPost);
+			}
+			else
+			{
+				cursor.movePosition(QTextCursor::NextRow, QTextCursor::MoveAnchor, insertIndex - baseInsertIndex );
+
+//				cell = cursor.currentTable()->cellAt(cursor);
+//				qDebug() << QDateTime::currentDateTime().currentMSecsSinceEpoch() << " -3- : Blocknumber=" << cursor.block().blockNumber()
+//						 << "Cell X2 : row=" << cell.row() << ", column=" << cell.column();
+
+				printPostAtCursor(cursor, newPost);
+			}
+
+//			cell = cursor.currentTable()->cellAt(cursor);
+//			qDebug() << QDateTime::currentDateTime().currentMSecsSinceEpoch() << " -4- : Blocknumber=" << cursor.block().blockNumber()
+//					 << "Cell X2 : row=" << cell.row() << ", column=" << cell.column();
+
+			//printPostAtCursor(mainTable->rowStart(cursor), newPost);
 
 			newPostsIndex++;
 			baseInsertIndex = insertIndex;
