@@ -35,7 +35,7 @@ bouchotDefStruct bouchotsDef[] =
 	  "#ffccaa", "llg", "", QQBouchot::SlipTagsRaw },
 	{ "euromussels", "http://euromussels.eu/?q=tribune.xml&last_id=%i", "http://euromussels.eu/?q=tribune/post", "message=%m",
 	  "#d0d0ff", "euro,euroxers", "", QQBouchot::SlipTagsEncoded },
-	{ "finss", "http://finss.free.fr/drupal/?q=tribune.xml", "http://finss.free.fr/drupal/?q=tribune/post", "message=%m",
+	{ "finss", "http://finss.fr/drupal/node/95/xml", "http://finss.fr/drupal/node/95/post", "message=%m",
 	  "#d0ffd0", "finss", "", QQBouchot::SlipTagsEncoded }
 };
 
