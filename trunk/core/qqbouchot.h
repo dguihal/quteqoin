@@ -21,6 +21,7 @@ class QQBouchot : public QObject
 
 public:
 	enum TypeSlip { SlipTagsEncoded = 0, SlipTagsRaw = 1 };
+	enum TypeRequest { BackendRequest = 0, PostRequest = 1 };
 
 	class QQBouchotSettings {
 

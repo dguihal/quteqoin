@@ -66,6 +66,7 @@ void QQBouchot::postMessage(const QString &message)
 		postData=QUrl::toPercentEncoding(message);
 
 	QNetworkRequest request(QUrl::fromUserInput(url));
+	request.setAttribute(QNetworkRequest::User, QQBouchot::PostRequest);
 	request.setHeader(QNetworkRequest::ContentTypeHeader,"application/x-www-form-urlencoded");
 
 	if(m_settings.ua().isEmpty() == false)
@@ -126,6 +127,7 @@ void QQBouchot::fetchBackend()
 			 << "QQBouchot::fetchBackend url=" << url;
 
 	QNetworkRequest request(QUrl::fromUserInput(url));
+	request.setAttribute(QNetworkRequest::User, QQBouchot::BackendRequest);
 
 	if(m_settings.ua().isEmpty() == false)
 		request.setRawHeader(QString::fromAscii("User-Agent").toAscii(), m_settings.ua().toAscii());
@@ -153,30 +155,45 @@ void QQBouchot::replyFinished(QNetworkReply *reply)
 		 return;
 	}
 
-	m_newPostHistory.clear();
-
-	QXmlSimpleReader xmlReader;
-	QXmlInputSource xmlSource;
-	QQXmlParser xmlParser;
-	xmlParser.setLastId(m_lastId);
-	xmlParser.setTypeSlip(this->m_settings.slipType());
-
-	connect(&xmlParser, SIGNAL(newPostReady(QQPost&)), this, SLOT(insertNewPost(QQPost&)));
-	xmlSource.setData(reply->readAll());
-	xmlReader.setContentHandler(&xmlParser);
-	xmlReader.setErrorHandler(&xmlParser);
-	xmlReader.parse(&xmlSource);
-
-	reply->deleteLater();
-
-	if( m_newPostHistory.size() > 0 )
+	if(reply->request().attribute(QNetworkRequest::User).toInt(0) == QQBouchot::PostRequest)
 	{
-		qDebug() << QDateTime::currentDateTime().currentMSecsSinceEpoch() << " : "
-				 << "QQBouchot::replyFinished, newPostsInserted emis";
-		m_history.append(m_newPostHistory);
-		m_lastId = m_history.last()->id().toInt();
-		emit newPostsInserted(this);
+		qDebug() << "QQBouchot::replyFinished post Request detected, refresh du backend ";
+		fetchBackend();
 	}
+	else if(reply->request().attribute(QNetworkRequest::User).toInt(0) == QQBouchot::BackendRequest)
+	{
+		qDebug() << "QQBouchot::replyFinished fetch backend detected";
+
+		m_newPostHistory.clear();
+
+		QXmlSimpleReader xmlReader;
+		QXmlInputSource xmlSource;
+		QQXmlParser xmlParser;
+		xmlParser.setLastId(m_lastId);
+		xmlParser.setTypeSlip(this->m_settings.slipType());
+
+		connect(&xmlParser, SIGNAL(newPostReady(QQPost&)), this, SLOT(insertNewPost(QQPost&)));
+		xmlSource.setData(reply->readAll());
+		xmlReader.setContentHandler(&xmlParser);
+		xmlReader.setErrorHandler(&xmlParser);
+		xmlReader.parse(&xmlSource);
+
+
+		if( m_newPostHistory.size() > 0 )
+		{
+			qDebug() << QDateTime::currentDateTime().currentMSecsSinceEpoch() << " : "
+					 << "QQBouchot::replyFinished, newPostsInserted emis";
+			m_history.append(m_newPostHistory);
+			m_lastId = m_history.last()->id().toInt();
+			emit newPostsInserted(this);
+		}
+	}
+	else
+	{
+		qWarning()  << "QQBouchot::replyFinished, reply->request().attribute(QNetworkRequest::User).toInt() unknown";
+	}
+	reply->deleteLater();
+	return;
 }
 
 void QQBouchot::insertNewPost(QQPost &newPost)
