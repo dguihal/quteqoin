@@ -155,10 +155,6 @@ void QQBouchot::replyFinished(QNetworkReply *reply)
 		 return;
 	}
 
-	QXmlSimpleReader xmlReader;
-	QXmlInputSource xmlSource;
-	QQXmlParser xmlParser;
-
 	switch(reply->request().attribute(QNetworkRequest::User, QQBouchot::UnknownRequest).toInt(0))
 	{
 	case QQBouchot::PostRequest:
@@ -168,27 +164,7 @@ void QQBouchot::replyFinished(QNetworkReply *reply)
 
 	case QQBouchot::BackendRequest:
 		qDebug() << "QQBouchot::replyFinished fetch backend detected";
-
-		m_newPostHistory.clear();
-
-		xmlParser.setLastId(m_lastId);
-		xmlParser.setTypeSlip(this->m_settings.slipType());
-
-		connect(&xmlParser, SIGNAL(newPostReady(QQPost&)), this, SLOT(insertNewPost(QQPost&)));
-		xmlSource.setData(reply->readAll());
-		xmlReader.setContentHandler(&xmlParser);
-		xmlReader.setErrorHandler(&xmlParser);
-		xmlReader.parse(&xmlSource);
-
-
-		if( m_newPostHistory.size() > 0 )
-		{
-			qDebug() << QDateTime::currentDateTime().currentMSecsSinceEpoch() << " : "
-					 << "QQBouchot::replyFinished, newPostsInserted emis";
-			m_history.append(m_newPostHistory);
-			m_lastId = m_history.last()->id().toInt();
-			emit newPostsInserted(this);
-		}
+		parseBackend(reply->readAll());
 		break;
 
 	default:
@@ -196,6 +172,34 @@ void QQBouchot::replyFinished(QNetworkReply *reply)
 	}
 	reply->deleteLater();
 	return;
+}
+
+void QQBouchot::parseBackend(const QByteArray & data)
+{
+	m_newPostHistory.clear();
+
+	QXmlSimpleReader xmlReader;
+	QXmlInputSource xmlSource;
+	QQXmlParser xmlParser;
+	xmlParser.setLastId(m_lastId);
+	xmlParser.setTypeSlip(this->m_settings.slipType());
+
+	connect(&xmlParser, SIGNAL(newPostReady(QQPost&)), this, SLOT(insertNewPost(QQPost&)));
+	xmlSource.setData(data);
+	xmlReader.setContentHandler(&xmlParser);
+	xmlReader.setErrorHandler(&xmlParser);
+	xmlReader.parse(&xmlSource);
+
+
+	if( m_newPostHistory.size() > 0 )
+	{
+		qDebug() << QDateTime::currentDateTime().currentMSecsSinceEpoch() << " : "
+				 << "QQBouchot::replyFinished, newPostsInserted emis";
+		m_history.append(m_newPostHistory);
+		m_lastId = m_history.last()->id().toInt();
+		emit newPostsInserted(this);
+	}
+
 }
 
 void QQBouchot::insertNewPost(QQPost &newPost)
