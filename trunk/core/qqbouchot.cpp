@@ -155,20 +155,22 @@ void QQBouchot::replyFinished(QNetworkReply *reply)
 		 return;
 	}
 
-	if(reply->request().attribute(QNetworkRequest::User).toInt(0) == QQBouchot::PostRequest)
+	QXmlSimpleReader xmlReader;
+	QXmlInputSource xmlSource;
+	QQXmlParser xmlParser;
+
+	switch(reply->request().attribute(QNetworkRequest::User, QQBouchot::UnknownRequest).toInt(0))
 	{
+	case QQBouchot::PostRequest:
 		qDebug() << "QQBouchot::replyFinished post Request detected, refresh du backend ";
 		fetchBackend();
-	}
-	else if(reply->request().attribute(QNetworkRequest::User).toInt(0) == QQBouchot::BackendRequest)
-	{
+		break;
+
+	case QQBouchot::BackendRequest:
 		qDebug() << "QQBouchot::replyFinished fetch backend detected";
 
 		m_newPostHistory.clear();
 
-		QXmlSimpleReader xmlReader;
-		QXmlInputSource xmlSource;
-		QQXmlParser xmlParser;
 		xmlParser.setLastId(m_lastId);
 		xmlParser.setTypeSlip(this->m_settings.slipType());
 
@@ -187,9 +189,9 @@ void QQBouchot::replyFinished(QNetworkReply *reply)
 			m_lastId = m_history.last()->id().toInt();
 			emit newPostsInserted(this);
 		}
-	}
-	else
-	{
+		break;
+
+	default:
 		qWarning()  << "QQBouchot::replyFinished, reply->request().attribute(QNetworkRequest::User).toInt() unknown";
 	}
 	reply->deleteLater();
