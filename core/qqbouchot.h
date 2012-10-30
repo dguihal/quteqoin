@@ -87,6 +87,7 @@ public:
 	QString name() { return m_name; }
 	//void setName(const QString &newName) { m_name = newName; }
 
+	void parseBackend(const QByteArray & data);
 	void postMessage(const QString & message);
 
 	QQBouchotSettings settings() { return m_settings; }
