@@ -95,7 +95,9 @@ void MainWindow::displayOptions()
 		while(iDel.hasNext())
 		{
 			iDel.next();
-			m_settings->removeBouchot(iDel.key());
+			QQBouchot * delBouchot = m_settings->bouchot(iDel.key());
+			m_pini->purgePiniTab(delBouchot->settings().group(), delBouchot->name());
+			m_settings->removeBouchot(delBouchot);
 		}
 
 		//Les bouchots modifies
@@ -113,7 +115,7 @@ void MainWindow::displayOptions()
 
 			// Si c'est le groupe qui est modifié il faut impérativement faire un rafraichissement du Pini
 			// afin d'effectuer la migration
-			if(modifBouchot->settings().group().compare(oldGroup) != 0)
+			if(modifBouchot->settings().group() != oldGroup)
 			{
 				modifBouchot->setNewPostsFromHistory();
 				m_pini->newPostsAvailable(modifBouchot);

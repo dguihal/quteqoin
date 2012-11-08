@@ -50,6 +50,7 @@ public:
 	QQBouchot * bouchot(QString bouchotName);
 	void addBouchot(QQBouchot *);
 	void addBouchots(const QList<QQBouchot *>&);
+	void removeBouchot(QQBouchot * bouchot);
 	void removeBouchot(const QString bouchotName);
 	void startBouchots();
 	void startBouchot(QString &);
