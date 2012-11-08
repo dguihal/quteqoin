@@ -45,6 +45,8 @@ public:
 
 	QQPost * getPostForGroup(QString &groupName, int numPost);
 
+	void purgePinitabHistory(const QString & groupName);
+
 public slots:
 	void norlogeClicked(QQNorloge norloge);
 	void norlogeRefHovered(QQNorlogeRef norlogeRef);
@@ -58,9 +60,8 @@ signals:
 	void insertTextPalmi(QString text);
 
 private:
-	void createQTextTableRows( QQTextBrowser*, int, int );
-	void printPostAtCursor( QTextCursor &, QQPost * );
-	unsigned int insertPostToList(QList<QQPost *> *, QQPost *, unsigned int);
+	void printPostAtCursor( QTextCursor & cursor, QQPost * post );
+	unsigned int insertPostToList(QList<QQPost *> *listPosts, QQPost *post, unsigned int indexStart);
 	void createQTextTable( QQTextBrowser* textBrowser, int numRow );
 
 	QQSettings * m_settings;
