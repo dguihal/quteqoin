@@ -40,7 +40,7 @@ QQPinipede::QQPinipede(QQSettings *settings, QWidget *parent) :
 
 	m_totozLabel = new QLabel(this);
 	m_totozLabel->setAttribute(Qt::WA_TransparentForMouseEvents);
-	m_totozLabel->setScaledContents(true);
+	m_totozLabel->setScaledContents(false);
 	m_totozLabel->hide();
 	m_totozMovie = NULL;
 	connect(m_settings, SIGNAL(totozServerUrlChanged(QString)), m_totozManager, SLOT(serverURLchanged(QString)));
@@ -676,13 +676,12 @@ void QQPinipede::showTotozSlot(QQTotoz & totoz)
 	m_totozMovie = new QMovie(totoz.getPath());
 	if( m_totozMovie->isValid() )
 	{
-		m_totozMovie->setCacheMode(QMovie::CacheAll);
-		m_totozMovie->start();
-		QRect movieSize = m_totozMovie->frameRect();
+		m_totozMovie->setCacheMode(QMovie::CacheNone);
+		m_totozMovie->jumpToFrame(0);
 		m_totozLabel->setMovie(m_totozMovie);
-		m_totozLabel->setMinimumSize(movieSize.width(), movieSize.height());
-		m_totozLabel->adjustSize();
+		m_totozLabel->resize(m_totozMovie->frameRect().size());
 		m_totozLabel->move(mapFromGlobal(QCursor::pos()));
+		m_totozMovie->start();
 		m_totozLabel->show();
 	}
 	else

@@ -120,6 +120,9 @@ void QQSyntaxHighlighter::highlightBlock(const QString &text)
 
 void QQSyntaxHighlighter::highlightNorloge(const QString & text, QQMessageBlockUserData * userData)
 {
+	if(userData->post() == NULL)
+		return;
+
 	QColor color = QColor("#0000DD");
 
 	QRegExp m_norlogeReg = QQNorlogeRef::norlogeRegexp();
@@ -128,7 +131,7 @@ void QQSyntaxHighlighter::highlightNorloge(const QString & text, QQMessageBlockU
 	while (index >= 0)
 	{
 		int length = m_norlogeReg.matchedLength();
-		Q_ASSERT(userData->post() != NULL);
+		//Q_ASSERT(userData->post() != NULL);
 		QQNorlogeRef nRef = QQNorlogeRef(userData->post()->bouchot()->name(),
 										 userData->post()->norloge(),
 										 text.mid(index, length),
