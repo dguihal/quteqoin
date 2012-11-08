@@ -106,16 +106,19 @@ void QQSettings::addBouchots(const QList<QQBouchot *>& newBouchots)
 	m_dirty=true;
 }
 
-void QQSettings::removeBouchot(const QString bouchotName)
+void QQSettings::removeBouchot(QQBouchot * bouchot)
 {
-	QQBouchot * bouchot = this->bouchot(bouchotName);
-
 	if( bouchot != NULL)
 	{
 		m_listBouchots.removeOne(bouchot);
 		delete bouchot;
 		m_dirty=true;
 	}
+}
+
+void QQSettings::removeBouchot(const QString bouchotName)
+{
+	removeBouchot(this->bouchot(bouchotName));
 }
 
 void QQSettings::startBouchots()
