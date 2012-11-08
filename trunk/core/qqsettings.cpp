@@ -33,7 +33,7 @@ QQSettings::~QQSettings()
 {
 }
 
-void QQSettings::setMaxHistoryLength(uint maxHistoryLength)
+void QQSettings::setMaxHistoryLength(unsigned int maxHistoryLength)
 {
 	qDebug() << "setMaxHistoryLength = " << maxHistoryLength;
 	if(this->m_maxHistoryLength != maxHistoryLength)

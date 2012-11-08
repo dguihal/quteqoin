@@ -23,8 +23,8 @@ public:
 	explicit QQSettings(QObject *parent = 0);
 	~QQSettings();
 
-	void setMaxHistoryLength(uint);
-	uint maxHistoryLength() { return m_maxHistoryLength; }
+	void setMaxHistoryLength(unsigned int maxHistoryLength);
+	unsigned int maxHistoryLength() { return m_maxHistoryLength; }
 
 	void setDefaultUA(const QString&);
 	QString defaultUA() { return m_defaultUA; }

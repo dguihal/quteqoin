@@ -87,7 +87,15 @@ void MainWindow::displayOptions()
 		m_settings->setDefaultLogin(settingsDialog.defaultLogin());
 		m_settings->setTotozServerUrl(settingsDialog.totozServerUrl());
 		m_settings->setTotozMode((QQSettings::TotozMode) settingsDialog.totozMode());
+
+		unsigned int oldMaxHLength = m_settings->maxHistoryLength();
 		m_settings->setMaxHistoryLength(settingsDialog.maxHistoryLength());
+		if(m_settings->maxHistoryLength() < oldMaxHLength)
+		{
+			QList<QString> listTabs = m_settings->listTabs();
+			for(int i = 0; i < listTabs.size(); i++)
+				m_pini->purgePinitabHistory(listTabs.at(i));
+		}
 
 		//Les bouchots supprimes
 		QMap<QString, QQBouchot::QQBouchotSettings> settingsDeletedbouchots = settingsDialog.oldBouchots();

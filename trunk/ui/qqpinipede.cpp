@@ -158,7 +158,30 @@ void QQPinipede::purgePinitab(const QString &groupName, const QString &bouchotNa
 	cursor.endEditBlock();
 }
 
-void QQPinipede::createQTextTable( QQTextBrowser* textBrowser, int numRow )
+void QQPinipede::purgePinitabHistory(const QString & groupName)
+{
+	QQTextBrowser *textBrowser = m_textBrowserHash.value(groupName);
+	QList<QQPost *> *destlistPosts = m_listPostsTabMap[groupName];
+
+	if (textBrowser == NULL || destlistPosts == NULL)
+		return;
+
+	unsigned int maxHistorySize = m_settings->maxHistoryLength();
+
+	// L'historique est plus petit que le max, pas besoin d'aller plus loin
+	if(destlistPosts->size() <= (int) maxHistorySize)
+		return;
+
+	// Purge de la table d'affichage
+	QTextFrame* root = textBrowser->document()->rootFrame();
+	QTextTable* mainTable = dynamic_cast<QTextTable *>(root->childFrames().at(0));
+	mainTable->removeRows(0, destlistPosts->size() - maxHistorySize);
+	// Purge de l'historique interne
+	while(destlistPosts->size() > (int) maxHistorySize)
+		destlistPosts->takeFirst();
+}
+
+void QQPinipede::createQTextTable( QQTextBrowser * textBrowser, int numRow )
 {
 	QTextFrame* root = textBrowser->document()->rootFrame();
 
@@ -467,6 +490,7 @@ void QQPinipede::newPostsAvailable(QQBouchot *sender)
 	}
 
 	//TODO : insérer ici la purge des anciens messages
+	purgePinitabHistory(sender->settings().group());
 	//Fin TODO
 
 	newPostsAvailableMutex.unlock();
