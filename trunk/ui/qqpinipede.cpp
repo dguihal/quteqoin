@@ -178,7 +178,7 @@ void QQPinipede::purgePinitabHistory(const QString & groupName)
 	mainTable->removeRows(0, destlistPosts->size() - maxHistorySize);
 	// Purge de l'historique interne
 	while(destlistPosts->size() > (int) maxHistorySize)
-		destlistPosts->takeFirst();
+		delete destlistPosts->takeFirst();
 }
 
 void QQPinipede::createQTextTable( QQTextBrowser * textBrowser, int numRow )
