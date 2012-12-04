@@ -331,7 +331,6 @@ void QQSettings::proxyAuthenticationRequired(const QNetworkProxy & proxy, QAuthe
 	// Pour éviter le warning
 	(void) proxy;
 
-	m_proxyPopupMutex.lock();
 	qDebug() << "QQSettings::proxyAuthenticationRequired";
 	//Premier echec
 	if(m_proxyUser.size() != 0 &&
@@ -342,17 +341,20 @@ void QQSettings::proxyAuthenticationRequired(const QNetworkProxy & proxy, QAuthe
 	}
 	else // Echec ulterieur, ou pas de conf proxy, on redemande
 	{
-		QQProxyAuthDialog * proxyDialog = new QQProxyAuthDialog();
-		proxyDialog->setLogin(m_proxyUser);
-		proxyDialog->setPasswd(m_proxyPasswd);
-		if(proxyDialog->exec() == QDialog::Accepted)
+		if(m_proxyPopupMutex.tryLock())
 		{
-			m_proxyUser = proxyDialog->login();
-			m_proxyPasswd = proxyDialog->passwd();
+			QQProxyAuthDialog * proxyDialog = new QQProxyAuthDialog();
+			proxyDialog->setLogin(m_proxyUser);
+			proxyDialog->setPasswd(m_proxyPasswd);
+			if(proxyDialog->exec() == QDialog::Accepted)
+			{
+				m_proxyUser = proxyDialog->login();
+				m_proxyPasswd = proxyDialog->passwd();
 
-			authenticator->setUser(m_proxyUser);
-			authenticator->setPassword(m_proxyPasswd);
+				authenticator->setUser(m_proxyUser);
+				authenticator->setPassword(m_proxyPasswd);
+			}
+			m_proxyPopupMutex.unlock();
 		}
 	}
-	m_proxyPopupMutex.unlock();
 }

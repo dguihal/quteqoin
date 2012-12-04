@@ -11,6 +11,9 @@ QQProxyAuthDialog::QQProxyAuthDialog(QWidget *parent) :
 	ui->iconLabel->setText(QString());
 	ui->iconLabel->setPixmap(QApplication::style()->standardIcon(QStyle::SP_MessageBoxQuestion, 0, parent).pixmap(32, 32));
 	setModal(true);
+	connect(ui->buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
+	connect(ui->buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
+	connect(ui->passwordLineEdit, SIGNAL(returnPressed()), this, SLOT(accept()));
 }
 
 QQProxyAuthDialog::~QQProxyAuthDialog()
