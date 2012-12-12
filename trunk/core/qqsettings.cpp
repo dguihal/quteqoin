@@ -15,7 +15,7 @@
 
 #define BOUCHOTS_SPLIT_CHAR ';'
 #define DEFAULT_MAX_HIST_LEN "500"
-#define DEFAULT_DEFAULT_UA "quteqoin 0.01 alpha"
+#define DEFAULT_UA "quteqoin 0.01 alpha"
 #define DEFAULT_TOTOZ_SERVER_URL "http://totoz.eu/"
 #define DEFAULT_TOTOZ_MODE "1"
 #define DEFAULT_PALMI_MINI "0"
@@ -23,7 +23,7 @@
 QQSettings::QQSettings(QObject *parent) :
 	QObject(parent)
 {
-	m_dirty = false;
+	setClean();
 	m_palmiMini = false;
 	m_maxHistoryLength = 0;
 	m_totozMode = QQSettings::Bald_Mode;
@@ -36,22 +36,27 @@ QQSettings::~QQSettings()
 
 void QQSettings::setMaxHistoryLength(unsigned int maxHistoryLength)
 {
-	qDebug() << "setMaxHistoryLength = " << maxHistoryLength;
 	if(this->m_maxHistoryLength != maxHistoryLength)
 	{
 		this->m_maxHistoryLength = maxHistoryLength;
-		m_dirty = true;
+		setDirty();
 	}
 
 }
 
-void QQSettings::setDefaultUA(const QString& defaultUA)
+QString QQSettings::defaultUA()
 {
-	qDebug() << "setDefaultUA = " << defaultUA;
+	return m_defaultUA.size() == 0 ?
+				QString::fromUtf8(DEFAULT_UA) :
+				m_defaultUA;
+}
+
+void QQSettings::setDefaultUA(const QString & defaultUA)
+{
 	if(this->m_defaultUA != defaultUA)
 	{
 		m_defaultUA = defaultUA;
-		m_dirty = true;
+		setDirty();
 	}
 }
 
@@ -61,7 +66,7 @@ void QQSettings::setTotozServerUrl(const QString & totozServerUrl)
 	if(this->m_totozServerUrl != totozServerUrl)
 	{
 		m_totozServerUrl = totozServerUrl;
-		m_dirty = true;
+		setDirty();
 		emit totozServerUrlChanged(m_totozServerUrl);
 	}
 }
@@ -72,7 +77,7 @@ void QQSettings::setTotozMode(QQSettings::TotozMode totozMode)
 	if(this->m_totozMode != totozMode)
 	{
 		m_totozMode = totozMode;
-		m_dirty = true;
+		setDirty();
 	}
 }
 
@@ -82,7 +87,7 @@ void QQSettings::setDefaultLogin(const QString& defaultLogin)
 	if(this->m_defaultLogin != defaultLogin)
 	{
 		m_defaultLogin = defaultLogin;
-		m_dirty = true;
+		setDirty();
 	}
 }
 
@@ -90,7 +95,7 @@ QQBouchot * QQSettings::bouchot(QString bouchotName)
 {
 	for(int i = 0; i < m_listBouchots.size(); i++)
 		if(m_listBouchots.at(i)->name() == bouchotName ||
-				m_listBouchots.at(i)->settings().containsAlias(bouchotName))
+		   m_listBouchots.at(i)->settings().containsAlias(bouchotName))
 			return m_listBouchots.at(i);
 	return NULL;
 }
@@ -98,13 +103,13 @@ QQBouchot * QQSettings::bouchot(QString bouchotName)
 void QQSettings::addBouchot(QQBouchot *bouchot)
 {
 	m_listBouchots.append(bouchot);
-	m_dirty=true;
+	setDirty();
 }
 
 void QQSettings::addBouchots(const QList<QQBouchot *>& newBouchots)
 {
 	m_listBouchots << newBouchots;
-	m_dirty=true;
+	setDirty();
 }
 
 void QQSettings::removeBouchot(QQBouchot * bouchot)
@@ -113,7 +118,7 @@ void QQSettings::removeBouchot(QQBouchot * bouchot)
 	{
 		m_listBouchots.removeOne(bouchot);
 		delete bouchot;
-		m_dirty=true;
+		setDirty();
 	}
 }
 
@@ -183,7 +188,7 @@ bool QQSettings::readSettings()
 	QSettings settings(QSettings::IniFormat, QSettings::UserScope, "Moules Corp", "quteqoin");
 
 	setMaxHistoryLength(settings.value("max_hist_len", QVariant(DEFAULT_MAX_HIST_LEN)).toInt());
-	setDefaultUA(settings.value("default_ua", QVariant(DEFAULT_DEFAULT_UA)).toString());
+	setDefaultUA(settings.value("default_ua").toString());
 	setPalmiMinimized(settings.value("palmi_minimized", QVariant(DEFAULT_PALMI_MINI)).toBool());
 	QString totozUrl = settings.value("totoz_server_url", QVariant(DEFAULT_TOTOZ_SERVER_URL)).toString();
 	setTotozServerUrl(totozUrl);
@@ -235,15 +240,14 @@ bool QQSettings::readSettings()
 	settings.endGroup();
 
 	if(! QFile::exists(settings.fileName()))
-		m_dirty = true;
-	else
-		m_dirty = false;
+		setDirty();
+
 	return true;
 }
 
 bool QQSettings::saveSettings()
 {
-	if(! m_dirty)
+	if(! isDirty())
 		return true;
 
 	QSettings settings(QSettings::IniFormat, QSettings::UserScope, "Moules Corp", "quteqoin");
@@ -302,13 +306,13 @@ bool QQSettings::saveSettings()
 	settings.setValue("bouchots", QVariant(bouchotNameList.join(QChar::fromAscii(BOUCHOTS_SPLIT_CHAR))));
 	//qDebug() << settings.fileName();
 
-	m_dirty = false;
+	setClean();
 	return true;
 }
 
 bool QQSettings::maybeSave()
 {
-	if(m_dirty)
+	if(isDirty())
 	{
 		QMessageBox msgBox;
 		msgBox.setText(tr("Settings have changed."));
@@ -336,7 +340,7 @@ void QQSettings::proxyAuthenticationRequired(const QNetworkProxy & proxy, QAuthe
 	qDebug() << "QQSettings::proxyAuthenticationRequired";
 	//Premier echec
 	if(m_proxyUser.size() != 0 &&
-			authenticator->user() != m_proxyUser)
+	   authenticator->user() != m_proxyUser)
 	{
 		authenticator->setUser(m_proxyUser);
 		authenticator->setPassword(m_proxyPasswd);
