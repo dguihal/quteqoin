@@ -30,7 +30,7 @@ int bouchotsDefSize = 4;
 bouchotDefStruct bouchotsDef[] =
 {
 	{ "dlfp", "http://linuxfr.org/board/index.xml", "http://linuxfr.org/board", "board[message]=%m",
-	  "#dac0de", "linuxfr,beyrouth,passite,dapassite", "_linuxfr.org_session=", QQBouchot::SlipTagsEncoded },
+	  "#dac0de", "linuxfr,beyrouth,passite,dapassite", "linuxfr.org_session=", QQBouchot::SlipTagsEncoded },
 	{ "batavie", "http://batavie.leguyader.eu/remote.xml", "http://batavie.leguyader.eu/index.php/add", "message=%m",
 	  "#ffccaa", "llg", "", QQBouchot::SlipTagsRaw },
 	{ "euromussels", "http://euromussels.eu/?q=tribune.xml&last_id=%i", "http://euromussels.eu/?q=tribune/post", "message=%m",
