@@ -74,9 +74,9 @@ QString QQPost::norlogeFormatee()
 {
 	QString tmp("");
 	tmp.append("[")
-				.append(norloge().mid(8,2)).append(":")
-				.append(norloge().mid(10,2)).append(":")
-				.append(norloge().mid(12,2)).append("]");
+			.append(norloge().mid(8,2)).append(":")
+			.append(norloge().mid(10,2)).append(":")
+			.append(norloge().mid(12,2)).append("]");
 	return tmp;
 }
 //

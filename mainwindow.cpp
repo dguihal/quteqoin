@@ -24,6 +24,10 @@ MainWindow::MainWindow(QWidget *parent) :
 	m_pini = new QQPinipede(m_settings, this);
 
 	QLayout *layout = new QVBoxLayout();
+	int leftM, topM, rightM, bottomM;
+	layout->getContentsMargins(& leftM, & topM,
+							   & rightM, &bottomM);
+	layout->setContentsMargins(0, topM, 0, bottomM);
 	layout->addWidget(m_pini);
 	layout->addWidget(m_palmi);
 	m_ui->centralWidget->setLayout(layout);

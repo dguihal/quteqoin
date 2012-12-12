@@ -39,19 +39,14 @@ bouchotDefStruct bouchotsDef[] =
 	  "#d0ffd0", "finss", "", QQBouchot::SlipTagsEncoded }
 };
 
-QQBouchot::QQBouchot(const QString & name, QQSettings * parent) :
-	QObject(parent)
+QQBouchot::QQBouchot(const QString & name, QQSettings * settings) :
+	QQNetworkAccessor(settings)
 {
 	m_name = name;
 	m_settings.setRefresh(0);
-	m_netManager.proxyFactory()->setUseSystemConfiguration(true);
 	m_history.clear();
 	m_newPostHistory.clear();
 	m_lastId=0;
-	connect(& m_netManager, SIGNAL(finished(QNetworkReply*)),
-			this, SLOT(replyFinished(QNetworkReply*)));
-	connect(& m_netManager, SIGNAL(proxyAuthenticationRequired(QNetworkProxy,QAuthenticator*)),
-			parent, SLOT(proxyAuthenticationRequired(QNetworkProxy,QAuthenticator*)));
 }
 
 void QQBouchot::postMessage(const QString &message)
@@ -77,7 +72,7 @@ void QQBouchot::postMessage(const QString &message)
 	if(m_settings.cookie().isEmpty() == false)
 		request.setRawHeader(QString::fromAscii("Cookie").toAscii(), m_settings.cookie().toAscii());
 
-	m_netManager.post(request, postData);
+	httpPost(request, postData);
 }
 
 
@@ -135,43 +130,46 @@ void QQBouchot::fetchBackend()
 	if(m_settings.cookie().isEmpty() == false)
 		request.setRawHeader(QString::fromAscii("Cookie").toAscii(), m_settings.cookie().toAscii());
 
-	m_netManager.get(request);
+	httpGet(request);
 
 	timer.setInterval(m_settings.refresh() * 1000);
 	timer.start();
 }
 
-void QQBouchot::replyFinished(QNetworkReply *reply)
+void QQBouchot::requestFinishedSlot(QNetworkReply *reply)
 {
 	qDebug() << QDateTime::currentDateTime().currentMSecsSinceEpoch() << " : "
-			 << "QQBouchot::replyFinished isFinished=" << reply->isFinished();
+			 << "QQBouchot::requestFinishedSlot isFinished=" << reply->isFinished();
 
 	// Recuperation du Statut HTTP
 	//QVariant statusCodeV = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute);
 
 	if(reply->error() != QNetworkReply::NoError)
 	{
-		 qWarning() << "QQBouchot::replyFinished, error : " << reply->errorString();
-		 return;
+		qWarning() << QDateTime::currentDateTime().currentMSecsSinceEpoch()
+				   << " : QQBouchot::requestFinishedSlot, error : " << reply->error()
+				   << ", msg : " << reply->errorString();
+		stopRefresh();
 	}
-
-	switch(reply->request().attribute(QNetworkRequest::User, QQBouchot::UnknownRequest).toInt(0))
+	else
 	{
-	case QQBouchot::PostRequest:
-		qDebug() << "QQBouchot::replyFinished post Request detected, refresh du backend ";
-		fetchBackend();
-		break;
+		switch(reply->request().attribute(QNetworkRequest::User, QQBouchot::UnknownRequest).toInt(0))
+		{
+		case QQBouchot::PostRequest:
+			qDebug() << "QQBouchot::requestFinishedSlot post Request detected, refresh du backend ";
+			fetchBackend();
+			break;
 
-	case QQBouchot::BackendRequest:
-		qDebug() << "QQBouchot::replyFinished fetch backend detected";
-		parseBackend(reply->readAll());
-		break;
+		case QQBouchot::BackendRequest:
+			qDebug() << "QQBouchot::requestFinishedSlot fetch backend detected";
+			parseBackend(reply->readAll());
+			break;
 
-	default:
-		qWarning()  << "QQBouchot::replyFinished, reply->request().attribute(QNetworkRequest::User).toInt() unknown";
+		default:
+			qWarning()  << "QQBouchot::requestFinishedSlot, reply->request().attribute(QNetworkRequest::User).toInt() unknown";
+		}
 	}
 	reply->deleteLater();
-	return;
 }
 
 void QQBouchot::parseBackend(const QByteArray & data)
