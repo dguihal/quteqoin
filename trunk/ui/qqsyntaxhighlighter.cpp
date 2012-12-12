@@ -26,63 +26,6 @@ void QQSyntaxHighlighter::setNorlogeRefToHighlight(const QQNorlogeRef &norlogeRe
 	this->m_nRef = norlogeRef;
 }
 
-//void QQSyntaxHighlighter::set
-
-bool QQSyntaxHighlighter::highlightLine(QTextCursor & lineSelection, QQMessageBlockUserData * userData)
-{
-
-	QString dstNorloge = m_nRef.dstNorloge();
-	QString dstBouchot = m_nRef.dstBouchot();
-
-	QString currNorloge = userData->post()->norloge();
-	QQBouchot * currBouchot = userData->post()->bouchot();
-
-	if( ( dstBouchot == currBouchot->name() || currBouchot->settings().containsAlias(dstBouchot) ) &&
-			currNorloge.startsWith(dstNorloge) )
-	{
-		QTextCharFormat format;
-		QColor highlightColor;
-		highlightColor.setNamedColor("#FFE940");
-		format.setBackground(highlightColor);
-		//format.setBackground(QColor::fromRgb(255, 210, 02));
-		//format.setBackground(Qt::yellow);
-
-		lineSelection.mergeBlockCharFormat(format);
-		userData->setHighlighted();
-		return true;
-	}
-	return false;
-}
-
-void QQSyntaxHighlighter::rehighlightMessageBlockAtCursor (QTextCursor cursor, QQMessageBlockUserData * userData)
-{
-	if(userData->blockZone() == QQMessageBlockUserData::MESSAGE_ZONE)
-	{
-		QTextCharFormat format;
-		QColor highlightColor;
-		highlightColor.setNamedColor("#FFE940");
-		format.setBackground(highlightColor);
-
-		QList<QQNorlogeRef> norlogeRefs = userData->norlogeRefs();
-
-		for (int i = 0; i < norlogeRefs.size(); ++i)
-		{
-			QQNorlogeRef norlogeRef = norlogeRefs.at(i);
-			if(m_nRef == norlogeRef)
-			{
-				cursor.movePosition(QTextCursor::StartOfBlock, QTextCursor::MoveAnchor);
-				//int pos1 = cursor.positionInBlock();
-				cursor.movePosition(QTextCursor::NextCharacter, QTextCursor::MoveAnchor, norlogeRef.getPosInMessage());
-				//int pos2 = cursor.positionInBlock();
-				cursor.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor, norlogeRef.getOrigNRef().length());
-				//qDebug() << "pos1=" << pos1 << ", pos2=" << pos2 << ", pos3=" << cursor.positionInBlock();
-				cursor.mergeCharFormat(format);
-				userData->setHighlighted();
-			}
-		}
-	}
-}
-
 void QQSyntaxHighlighter::highlightBlock(const QString &text)
 {
 	//qDebug() << QDateTime::currentDateTime().currentMSecsSinceEpoch() << " : "
@@ -90,44 +33,65 @@ void QQSyntaxHighlighter::highlightBlock(const QString &text)
 
 	QQMessageBlockUserData * userData = dynamic_cast<QQMessageBlockUserData *>(currentBlockUserData());
 
+	setCurrentBlockState(QQSyntaxHighlighter::NOT_HIGHLIGHTED);
 	if(text.length() > 1 &&
-			(userData == NULL || userData->wasParsed() == false))
+			userData != NULL)
 	{
-		if(userData == NULL)
-		{
-			userData = new QQMessageBlockUserData();
-			setCurrentBlockUserData(userData);
-		}
-
 		//qDebug() << QDateTime::currentDateTime().currentMSecsSinceEpoch() << " : "
 		//		 << "QQSyntaxHighlighter::highlightBlock text=" << text;
+		setCurrentBlockState(QQSyntaxHighlighter::NORMAL);
 
-		if(userData->blockZone() == QQMessageBlockUserData::MESSAGE_ZONE)
-		{
-			highlightNorloge(text, userData);
-			highlightDuck(text, userData);
-			highlightTableVolante(text, userData);
-			highlightTotoz(text, userData);
-		}
-		else
-		{
-			//qDebug() << QDateTime::currentDateTime().currentMSecsSinceEpoch() << " : "
-			//		 << "QQSyntaxHighlighter::highlightBlock, userData is NULL";
-		}
-
+		highlightBlockForNRef(userData);
+		highlightNorloge(text, userData);
+		highlightDuck(text, userData);
+		highlightTableVolante(text, userData);
+		highlightTotoz(text, userData);
 	}
+}
+
+void QQSyntaxHighlighter::highlightBlockForNRef(QQMessageBlockUserData * userData)
+{
+	QTextBlockFormat fmt;
+	fmt.setBackground(userData->post()->bouchot()->settings().colorLight());
+
+	if(m_nRef.isValid())
+	{
+		QString dstNorloge = m_nRef.dstNorloge();
+		QString dstBouchot = m_nRef.dstBouchot();
+
+		QString currNorloge = userData->post()->norloge();
+		QQBouchot * currBouchot = userData->post()->bouchot();
+
+		if( ( dstBouchot == currBouchot->name() || currBouchot->settings().containsAlias(dstBouchot) ) &&
+				currNorloge.startsWith(dstNorloge) )
+		{
+			fmt.setBackground(QColor("#FFE940"));
+			setCurrentBlockState(QQSyntaxHighlighter::FULL_HIGHLIGHTED);
+		}
+	}
+
+	QTextCursor curs(currentBlock());
+	curs.beginEditBlock();
+	curs.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
+	curs.mergeBlockFormat(fmt);
+	curs.endEditBlock();
 }
 
 void QQSyntaxHighlighter::highlightNorloge(const QString & text, QQMessageBlockUserData * userData)
 {
-	if(userData->post() == NULL)
-		return;
+	QQMessageBlockUserData::ZoneRange messageRange = userData->zRangeForID(QQMessageBlockUserData::MESSAGE);
 
-	QColor color = QColor("#0000DD");
+	QColor highlightColor("#FFE940");
+
+	QTextCharFormat fmt = format(0);
+	fmt.setForeground(QColor("#0000DD"));
+	QTextCharFormat fmtH = fmt;
+	fmtH.setBackground(highlightColor);
+
 
 	QRegExp m_norlogeReg = QQNorlogeRef::norlogeRegexp();
 
-	int index = text.indexOf(m_norlogeReg);
+	int index = text.indexOf(m_norlogeReg, messageRange.begin );
 	while (index >= 0)
 	{
 		int length = m_norlogeReg.matchedLength();
@@ -137,7 +101,15 @@ void QQSyntaxHighlighter::highlightNorloge(const QString & text, QQMessageBlockU
 										 text.mid(index, length),
 										 index);
 		userData->addNorlogeRefZone(nRef);
-		setFormat(index, length, color);
+		if(m_nRef == nRef)
+		{
+			setCurrentBlockState(QQSyntaxHighlighter::NORLOGE_HIGHLIGHTED);
+			setFormat(index, length, fmtH);
+		}
+		else
+		{
+			setFormat(index, length, fmt);
+		}
 
 		index = text.indexOf(m_norlogeReg, index + length);
 	}
@@ -145,6 +117,8 @@ void QQSyntaxHighlighter::highlightNorloge(const QString & text, QQMessageBlockU
 
 void QQSyntaxHighlighter::highlightDuck(const QString & text, QQMessageBlockUserData * userData)
 {
+	QQMessageBlockUserData::ZoneRange messageRange = userData->zRangeForID(QQMessageBlockUserData::MESSAGE);
+
 	QColor color = QColor("#9933CC");
 
 	QString tete = QString::fromAscii("(?:[o0ô°øòó@]|(?:&ocirc;)|(?:&deg;)|(?:&oslash;)|(?:&ograve;)|(?:&oacute;))");
@@ -154,7 +128,7 @@ void QQSyntaxHighlighter::highlightDuck(const QString & text, QQMessageBlockUser
 								Qt::CaseSensitive,
 								QRegExp::RegExp);
 
-	int index = text.indexOf(m_duckReg);
+	int index = text.indexOf(m_duckReg, messageRange.begin );
 	while (index >= 0) {
 		int length = m_duckReg.matchedLength();
 		userData->addDuckZone(index, text.mid(index, length));
@@ -167,7 +141,7 @@ void QQSyntaxHighlighter::highlightDuck(const QString & text, QQMessageBlockUser
 	m_duckReg = QRegExp(QString::fromAscii(">").append(tete).append(QString::fromAscii("_\\/")),
 						Qt::CaseSensitive,
 						QRegExp::RegExp);
-	index = text.indexOf(m_duckReg);
+	index = text.indexOf(m_duckReg, messageRange.begin );
 	while (index >= 0) {
 		int length = m_duckReg.matchedLength();
 		userData->addDuckZone(index, text.mid(index, length));
@@ -178,7 +152,9 @@ void QQSyntaxHighlighter::highlightDuck(const QString & text, QQMessageBlockUser
 
 	m_duckReg = QRegExp(QString::fromAscii("coin ?! ?coin ?!"),
 						Qt::CaseSensitive,
-						QRegExp::RegExp); index = text.indexOf(m_duckReg);
+						QRegExp::RegExp);
+
+	index = text.indexOf(m_duckReg, messageRange.begin );
 	while (index >= 0) {
 		int length = m_duckReg.matchedLength();
 		userData->addDuckZone(index, text.mid(index, length));
@@ -190,12 +166,14 @@ void QQSyntaxHighlighter::highlightDuck(const QString & text, QQMessageBlockUser
 
 void QQSyntaxHighlighter::highlightTableVolante(const QString & text, QQMessageBlockUserData * userData)
 {
+	QQMessageBlockUserData::ZoneRange messageRange = userData->zRangeForID(QQMessageBlockUserData::MESSAGE);
+
 	QColor color = QColor("#9933CC");
 
 	QRegExp m_tvReg = QRegExp(QString::fromAscii("(?:flap ?flap)|(?:table[ _]volante)"),
 							  Qt::CaseSensitive,
 							  QRegExp::RegExp);
-	int index = text.indexOf(m_tvReg);
+	int index = text.indexOf(m_tvReg, messageRange.begin );
 	while (index >= 0) {
 		int length = m_tvReg.matchedLength();
 		userData->addTableVZone(index, text.mid(index, length));

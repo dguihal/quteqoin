@@ -6,16 +6,15 @@
 #include <QDebug>
 #include <QEventLoop>
 #include <QNetworkAccessManager>
+#include <QNetworkProxyFactory>
 #include <QNetworkRequest>
 #include <QNetworkReply>
 #include <QUrl>
 
-QQTotozManager::QQTotozManager(const QString & totozServerURL, QObject *parent) :
-	QObject(parent)
+QQTotozManager::QQTotozManager(QQSettings * settings) :
+	QQNetworkAccessor(settings)
 {
-	m_totozServerUrl = totozServerURL;
-
-	m_qnam = createQNAM();
+	m_totozServerUrl = settings->totozServerUrl();
 }
 
 void QQTotozManager::fetchTotoz(const QString & totozId)
@@ -32,7 +31,7 @@ void QQTotozManager::fetchTotoz(const QString & totozId)
 		request.setAttribute(QNetworkRequest::CacheLoadControlAttribute,
 							 QNetworkRequest::PreferCache);
 
-		QNetworkReply * reply = m_qnam->get(request);
+		QNetworkReply * reply = httpGet(request);
 		m_totozIdReplyHash.insert(reply, totozId);
 	}
 }
@@ -42,7 +41,7 @@ void QQTotozManager::serverURLchanged(const QString &newUrl)
 	m_totozServerUrl = newUrl;
 }
 
-void QQTotozManager::finishedSlot(QNetworkReply * reply)
+void QQTotozManager::requestFinishedSlot(QNetworkReply * reply)
 {
 	// ou de l'url de destination si on a affaire a une redirection:
 	QUrl redirectedURL = reply->attribute(QNetworkRequest::RedirectionTargetAttribute).toUrl();
@@ -54,12 +53,12 @@ void QQTotozManager::finishedSlot(QNetworkReply * reply)
 	if(!redirectedURL.isEmpty() &&
 			redirectedURL != reply->url())
 	{
-		qDebug() << "QQTotozManager::replyFinished: Redirected to " << redirectedURL.toString();
+		qDebug() << "QQTotozManager::requestFinishedSlot: Redirected to " << redirectedURL.toString();
 		QNetworkRequest request(redirectedURL);
 		request.setAttribute(QNetworkRequest::CacheLoadControlAttribute,
 							 QNetworkRequest::PreferCache);
 
-		QNetworkReply * reply = m_qnam->get(request);
+		QNetworkReply * reply = httpGet(request);
 		m_totozIdReplyHash.insert(reply, totozId);
 	} // Une erreur HTTP est survenue
 	else if (reply->error() != QNetworkReply::NoError)
@@ -67,7 +66,7 @@ void QQTotozManager::finishedSlot(QNetworkReply * reply)
 		// Recuperation du Statut HTTP
 		QVariant statusCodeV = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute);
 
-		qWarning() << "QQTotozManager::replyFinished, error : " << reply->errorString()
+		qWarning() << "QQTotozManager::requestFinishedSlot, error : " << reply->errorString()
 				   << "HTTP statusCode : " << statusCodeV.toString();
 	} // Tout est OK on poursuit
 	else
@@ -79,18 +78,9 @@ void QQTotozManager::finishedSlot(QNetworkReply * reply)
 		if(reply->hasRawHeader(QString::fromAscii("Etag").toAscii()))
 		{
 			QString etag(reply->rawHeader(QString::fromAscii("Etag").toAscii()));
-			qDebug() << "QQTotozManager::finishedSlot, etag = " << etag;
+			qDebug() << "QQTotozManager::requestFinishedSlot, etag = " << etag;
 		}
 	}
 
 	reply->deleteLater();
-}
-
-QNetworkAccessManager* QQTotozManager::createQNAM()
-{
-	QNetworkAccessManager* qnam = new QNetworkAccessManager(this);
-
-	connect(qnam, SIGNAL(finished(QNetworkReply*)),
-			this, SLOT(finishedSlot(QNetworkReply*)));
-	return qnam;
 }

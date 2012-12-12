@@ -15,10 +15,11 @@
 #include <QTextDocument>
 #include <QTextDocumentFragment>
 #include <QTextFrame>
-#include <QTextTable>
 #include <QTime>
 #include <QTabBar>
 #include <QVBoxLayout>
+
+#define TAB_POS_IN_PX 70
 
 QQPinipede::QQPinipede(QQSettings *settings, QWidget *parent) :
 	QTabWidget(parent)
@@ -26,7 +27,7 @@ QQPinipede::QQPinipede(QQSettings *settings, QWidget *parent) :
 	this->tabBar()->hide();
 
 	m_settings = settings;
-	m_totozManager = new QQTotozManager(m_settings->totozServerUrl(), this);
+	m_totozManager = new QQTotozManager(m_settings);
 	m_tBrowserHighlighted = NULL;
 
 	m_hiddenPostViewerLabelSSheet = QString::fromAscii("border: 2px solid black; border-radius: 4px;");
@@ -58,16 +59,26 @@ void QQPinipede::addPiniTab(const QString& groupName)
 {
 	qDebug() << "QQPinipede::addPiniTab" ;
 
-	if (this->m_textBrowserHash.value(groupName) != NULL)
+	if( this->m_textBrowserHash.value(groupName) != NULL )
 		return;
 
-	QWidget *widget = new QWidget;
-	QVBoxLayout *layout = new QVBoxLayout(widget);
+	QWidget * widget = new QWidget;
+	QVBoxLayout * layout = new QVBoxLayout(widget);
+	layout->setContentsMargins(0, 0, 0, 0);
 
-	QQTextBrowser *textBrowser = new QQTextBrowser(groupName, this);
+	QQTextBrowser * textBrowser = new QQTextBrowser(groupName, this);
 	textBrowser->document()->setUndoRedoEnabled(false);
 	textBrowser->document()->setDocumentMargin(0);
-	QScrollBar *vScrollBar = textBrowser->verticalScrollBar();
+
+	QTextOption opt = textBrowser->document()->defaultTextOption();
+	QList<QTextOption::Tab> tabs;
+	tabs << QTextOption::Tab(TAB_POS_IN_PX, QTextOption::CenterTab);
+	opt.setTabs(tabs);
+	opt.setWrapMode(QTextOption::WordWrap);
+	opt.setAlignment(Qt::AlignLeft);
+	textBrowser->document()->setDefaultTextOption(opt);
+
+	QScrollBar * vScrollBar = textBrowser->verticalScrollBar();
 	vScrollBar->setSliderPosition( vScrollBar->maximum() );
 
 	layout->addWidget(textBrowser);
@@ -128,34 +139,29 @@ void QQPinipede::purgePinitab(const QString &groupName, const QString &bouchotNa
 
 	unsigned int count = 0;
 
-	QTextFrame* root = textBrowser->document()->rootFrame();
-	QTextTable* mainTable = dynamic_cast<QTextTable *>(root->childFrames().at(0));
-	QTextCursor cursor = textBrowser->textCursor();
-	QTextTableCell rowStart, rowEnd;
-	cursor.beginEditBlock();
-
-	for(int row = 0; row < mainTable->rows(); )
+	QTextDocument * doc = textBrowser->document();
+	QTextBlock block = doc->firstBlock();
+	QTextCursor cursor(block);
+	while(block.isValid())
 	{
-		qDebug() << "QQPinipede::purgePiniTab row=" << row << ", mainTable->rows()=" << mainTable->rows();
-		rowStart = mainTable->cellAt(row, 0);
-		rowEnd = mainTable->cellAt(row, mainTable->columns() - 1);
+		qDebug() << "QQPinipede::purgePiniTab block num=" << block.blockNumber()
+				 << ", doc->blockCount()=" << doc->blockCount();
 
-		cursor.setPosition(rowStart.firstCursorPosition().position());
-		cursor.setPosition(rowEnd.lastCursorPosition().position(), QTextCursor::KeepAnchor);
-		QQMessageBlockUserData * userData = dynamic_cast<QQMessageBlockUserData *>(cursor.block().userData());
-		qDebug() << "QQPinipede::purgePiniTab userData->post()->bouchot()->name()=" << userData->post()->bouchot()->name() << ", bouchotName=" << bouchotName;
+		QQMessageBlockUserData * userData = dynamic_cast<QQMessageBlockUserData *>(block.userData());
+		qDebug() << "QQPinipede::purgePiniTab userData->post()->bouchot()->name()=" << userData->post()->bouchot()->name()
+				 << ", bouchotName=" << bouchotName;
 		if ( userData->post()->bouchot()->name().compare(bouchotName) == 0 )
 		{
+			cursor.setPosition(QTextCursor(block).position());
+			cursor.select(QTextCursor::BlockUnderCursor);
+			block = block.next();
 			cursor.removeSelectedText();
-			mainTable->removeRows(row, 1);
 			if (count >= max)
 				break;
 		}
 		else
-			row++;
+			block = block.next();
 	}
-
-	cursor.endEditBlock();
 }
 
 void QQPinipede::purgePinitabHistory(const QString & groupName)
@@ -173,160 +179,113 @@ void QQPinipede::purgePinitabHistory(const QString & groupName)
 		return;
 
 	// Purge de la table d'affichage
-	QTextFrame* root = textBrowser->document()->rootFrame();
-	QTextTable* mainTable = dynamic_cast<QTextTable *>(root->childFrames().at(0));
-	mainTable->removeRows(0, destlistPosts->size() - maxHistorySize);
+	QTextCursor cursor = textBrowser->document()->rootFrame()->firstCursorPosition();
+	cursor.beginEditBlock();
+	cursor.movePosition(QTextCursor::NextBlock, QTextCursor::KeepAnchor, destlistPosts->size() - maxHistorySize);
+	cursor.removeSelectedText();
+	cursor.endEditBlock();
 	// Purge de l'historique interne
 	while(destlistPosts->size() > (int) maxHistorySize)
 		delete destlistPosts->takeFirst();
 }
 
-void QQPinipede::createQTextTable( QQTextBrowser * textBrowser, int numRow )
-{
-	QTextFrame* root = textBrowser->document()->rootFrame();
-
-	QTextCursor cursor = root->firstCursorPosition();
-	QTextTableFormat tableFormat;
-	tableFormat.setBorder(0);
-	tableFormat.setMargin(0);
-	tableFormat.setCellSpacing(0);
-	tableFormat.setCellPadding(0);
-	tableFormat.setLeftMargin(0);
-	tableFormat.setRightMargin(0);
-	tableFormat.setTopMargin(0);
-	tableFormat.setBottomMargin(0);
-	tableFormat.setPosition(QTextFrameFormat::InFlow);
-	QVector<QTextLength> columnWidthConstraints = tableFormat.columnWidthConstraints();
-	columnWidthConstraints.clear();
-	columnWidthConstraints << QTextLength(QTextLength::FixedLength, 20.0)
-						   << QTextLength(QTextLength::FixedLength, 70.0)
-						   << QTextLength(QTextLength::FixedLength, 70.0)
-						   << QTextLength(QTextLength::VariableLength, 0.0);
-	tableFormat.setColumnWidthConstraints(columnWidthConstraints);
-	cursor.insertTable( numRow, 4, tableFormat)->columns();
-
-	textBrowser->verticalScrollBar()->triggerAction( QAbstractSlider::SliderToMaximum );
-}
-
 void QQPinipede::printPostAtCursor( QTextCursor & cursor, QQPost * post )
 {
-	QTextCharFormat cellMarkColorFormat;
-	cellMarkColorFormat.setBackground(post->bouchot()->settings().color());
+	QTextBlock block = cursor.block();
 
 	QTextCharFormat defaultFormat;
+	QQMessageBlockUserData * data = new QQMessageBlockUserData();
+	data->setPost(post);
 
-	//Post / Reply
-	QTextTableCell cell = cursor.currentTable()->cellAt(cursor);
-
-	//qDebug() << QDateTime::currentDateTime().currentMSecsSinceEpoch() << " : "
-	//		 << "Cell 1 : row=" << cell.row() << ", column=" << cell.column();
-
-	cell.setFormat(cellMarkColorFormat);
-
-	//qDebug() << QDateTime::currentDateTime().currentMSecsSinceEpoch() << " : "
-	//		 << "post->login() = " << post->login()
-	//		 << ", post->UA() = " << post->UA();
+	/*
+	QTextCharFormat cellMarkColorFormat;
 
 	if( post->isSelfPost())
 	{
-		QFont defautFont = cellMarkColorFormat.font();
-		QFontMetrics fontMetrics = QFontMetrics(defautFont);
-		cursor.insertImage(QImage(QString::fromAscii(":/img/Fleche_verte.svg")).scaledToHeight(fontMetrics.height() - 2));
+		cursor.insertImage(
+					QImage(QString::fromAscii(":/img/Fleche_verte.svg"))
+					.scaledToHeight(blockFormat.property(QTextFormat::LineHeight).toInt() - 2)
+					);
 	}
 	else
 	{
 		cursor.insertText(QString::fromUtf8(" "));
 	}
 
-	cursor.movePosition(QTextCursor::NextCell);
-
 	QColor baseBgColor = post->bouchot()->settings().colorLight();
 	cellMarkColorFormat.setBackground(baseBgColor);
+	*/
 
 	//norloge
-	cell = cursor.currentTable()->cellAt(cursor);
-
-	//qDebug() << QDateTime::currentDateTime().currentMSecsSinceEpoch() << " : "
-	//		 << "Cell 2 : row=" << cell.row() << ", column=" << cell.column();
-
-	cell.setFormat(cellMarkColorFormat);
 
 	QTextCharFormat norlogeFormat;
 	norlogeFormat.setFontWeight(QFont::Bold);
 
-	QTextBlock block = cursor.block();
-	QQMessageBlockUserData * data = new QQMessageBlockUserData();
-	data->setPost(post);
-	data->setBlockZone(QQMessageBlockUserData::NORLOGE_ZONE);
-	block.setUserData(data);
-
+	QQMessageBlockUserData::ZoneRange rangeNorloge;
+	rangeNorloge.begin = cursor.positionInBlock();
 	cursor.insertText(post->norlogeFormatee(), norlogeFormat);
+	rangeNorloge.end = cursor.positionInBlock();
+	data->setZRange(QQMessageBlockUserData::NORLOGE, rangeNorloge);
 	cursor.insertText(QString::fromUtf8(" "), defaultFormat);
 
-	cursor.movePosition(QTextCursor::NextCell);
-
 	//login ou ua
-	cell = cursor.currentTable()->cellAt(cursor);
-
-	//qDebug() << QDateTime::currentDateTime().currentMSecsSinceEpoch() << " : "
-	//		 << "Cell 3 : row=" << cell.row() << ", column=" << cell.column();
-
-	cell.setFormat(cellMarkColorFormat);
 
 	QTextCharFormat loginUaFormat;
 	QString txt;
+	QQMessageBlockUserData::ZoneRange rangeLoginUA;
+	rangeLoginUA.begin = cursor.positionInBlock();
 	if( post->login().size() != 0 )
 	{
 		loginUaFormat.setForeground(QColor("#553333"));
 
-		txt = post->login();
+		txt = post->login().left(12);
 	}
-	else
+	else if( post->UA().size() != 0 )
 	{
 		loginUaFormat.setFontItalic(true);
 		loginUaFormat.setForeground(QColor("#883333"));
 
 		txt = post->UA().left(12);
 	}
-	block = cursor.block();
-	data = new QQMessageBlockUserData();
-	data->setPost(post);
-	data->setBlockZone(QQMessageBlockUserData::LOGIN_UA_ZONE);
-	block.setUserData(data);
+	else
+	{
+		loginUaFormat.setFontFamily("Monospace");
+		loginUaFormat.setForeground(QColor("#BB3333"));
+
+		txt = QString::fromAscii("$NO UA$");
+	}
 
 	cursor.insertText(txt, loginUaFormat);
+	rangeLoginUA.end = cursor.positionInBlock();
 
-	cursor.insertText(QString::fromUtf8(" "), defaultFormat);
+	//[:magic]
+	if(txt.length() < 4)
+		cursor.insertHtml("&nbsp;&nbsp;&nbsp;");
 
-	cursor.movePosition(QTextCursor::NextCell);
+	data->setZRange(QQMessageBlockUserData::LOGINUA, rangeLoginUA);
+
+	// marque la tabulation pour affichage
+	cursor.insertText(QString::fromUtf8("\t"), defaultFormat);
 
 	//message
-	cell = cursor.currentTable()->cellAt(cursor);
-
-	//qDebug() << QDateTime::currentDateTime().currentMSecsSinceEpoch() << " : "
-	//		 << "Cell 4 : row=" << cell.row() << ", column=" << cell.column()
-	//		 << ", Message=" << post->message();
-
-	cell.setFormat(cellMarkColorFormat);
-
-	block = cursor.block();
-	data = new QQMessageBlockUserData();
-	data->setPost(post);
-	data->setBlockZone(QQMessageBlockUserData::MESSAGE_ZONE);
-	block.setUserData(data);
+	QQMessageBlockUserData::ZoneRange rangeMsg;
+	rangeMsg.begin = cursor.positionInBlock();
 	cursor.insertHtml(post->message());
-	cursor.insertText(QString::fromUtf8(" "), defaultFormat);
+	rangeMsg.end = cursor.positionInBlock();
+	data->setZRange(QQMessageBlockUserData::MESSAGE, rangeMsg);
+	block.setUserData(data);
 
-	cursor.movePosition(QTextCursor::PreviousCell, QTextCursor::MoveAnchor, 3);
+	if(block.userData() == NULL)
+		qCritical() << "uxam";
 }
 
 void QQPinipede::newPostsAvailable(QQBouchot *sender)
 {
-	//qDebug() << QDateTime::currentDateTime().currentMSecsSinceEpoch() << " : "
-	//		 << "QQPinipede::newPostsAvailable";
-
 	if(sender == NULL)
 		return;
+
+	qDebug() << QDateTime::currentDateTime().currentMSecsSinceEpoch() << " : "
+			 << "QQPinipede::newPostsAvailable from : " << sender->name();
 
 	//On est obligé de locker pour éviter la pagaille dans le pini.
 	// un locking plus fin pourrait être obtenu en implémentant un lock par groupe
@@ -338,21 +297,20 @@ void QQPinipede::newPostsAvailable(QQBouchot *sender)
 	QTime time = QTime::currentTime();
 	time.start();
 
-	QQTextBrowser* textBrowser = m_textBrowserHash.value(sender->settings().group());
-	QTextFrame* root = textBrowser->document()->rootFrame();
+	QQTextBrowser * textBrowser = m_textBrowserHash.value(sender->settings().group());
+	QTextDocument * doc = textBrowser->document();
 
-	if(root->childFrames().size() == 0)
+	if(! m_listPostsTabMap.contains(sender->settings().group()))
 	{
 		// qDebug() << QDateTime::currentDateTime().currentMSecsSinceEpoch() << " : "
 		//		 << "QQPinipede, inserting " << newPosts.size() << " posts";
 		QList<QQPost *> *destlistPosts = new QList<QQPost *>(newPosts);
 		m_listPostsTabMap.insert(sender->settings().group(), destlistPosts);
 
-		createQTextTable(textBrowser, newPosts.size());
+		QTextCursor cursor(textBrowser->document());
 
-		QTextTable* mainTable = dynamic_cast<QTextTable *>(root->childFrames().at(0));
-		QTextCursor cursor = mainTable->cellAt(0, 0).firstCursorPosition();
-
+		//On rend le 1° block invisible
+		// mais on le garde car il est difficile d'insérer avant
 		cursor.beginEditBlock();
 
 		int i = 0;
@@ -366,12 +324,11 @@ void QQPinipede::newPostsAvailable(QQBouchot *sender)
 				newPosts.at(i - 1)->setNorlogeMultiple(true);
 				newPosts.at(i)->setNorlogeIndex(newPosts.at(i - 1)->norlogeIndex() + 1);
 			}
-
-			// qDebug() << QDateTime::currentDateTime().currentMSecsSinceEpoch() << " : "
-			//		 << "QQPinipede, appending post " << i << "/" << newPosts.length();
+			if(i > 0)
+				cursor.insertBlock();
 			printPostAtCursor(cursor, newPosts.at(i++));
-			cursor.movePosition(QTextCursor::NextRow);
 		}
+
 		cursor.endEditBlock();
 
 		textBrowser->verticalScrollBar()->triggerAction( QAbstractSlider::SliderToMaximum );
@@ -391,8 +348,7 @@ void QQPinipede::newPostsAvailable(QQBouchot *sender)
 		if( textBrowser->verticalScrollBar()->sliderPosition() == textBrowser->verticalScrollBar()->maximum() )
 			wasAtEnd = true;
 
-		QTextTable* mainTable = dynamic_cast<QTextTable *>(root->childFrames().at(0));
-		QTextCursor cursor(mainTable);
+		QTextCursor cursor(doc);
 
 		cursor.beginEditBlock();
 
@@ -404,52 +360,25 @@ void QQPinipede::newPostsAvailable(QQBouchot *sender)
 			QQPost * newPost = newPosts.at(newPostsIndex);
 
 			insertIndex = insertPostToList( destlistPosts, newPost, baseInsertIndex );
-			qDebug() << QDateTime::currentDateTime().currentMSecsSinceEpoch() << " : "
-					 << "QQPinipede::newPostsAvailable insertIndex=" << insertIndex
-					 << ", destlistPosts->size()=" << destlistPosts->size();
 
 			if(newPost == destlistPosts->last()) //insertion a la fin
 				break;
 
-			//Deplacement vers l'element suivant la ligne qu'on va inserer
-			//cursor.movePosition(QTextCursor::NextRow, QTextCursor::MoveAnchor, insertIndex - baseInsertIndex );
-			QTextTableCell cell = cursor.currentTable()->cellAt(cursor);
-//			qDebug() << QDateTime::currentDateTime().currentMSecsSinceEpoch() << " -1- : Blocknumber=" << cursor.block().blockNumber()
-//					 << ", Cell X1 : row=" << cell.row() << ", column=" << cell.column();
-
-			//Creation de la ligne
-			mainTable->insertRows(insertIndex, 1);
-			cell = cursor.currentTable()->cellAt(cursor);
-//			qDebug() << QDateTime::currentDateTime().currentMSecsSinceEpoch() << " -2- : Blocknumber=" << cursor.block().blockNumber()
-//					 << "Cell X2 : row=" << cell.row() << ", column=" << cell.column();
-
 			//Deplacement vers la nouvelle ligne
 			if(insertIndex == 0)
 			{
-				cursor.movePosition(QTextCursor::PreviousBlock, QTextCursor::MoveAnchor, 4);
-
-//				cell = cursor.currentTable()->cellAt(cursor);
-//				qDebug() << QDateTime::currentDateTime().currentMSecsSinceEpoch() << " -3- : Blocknumber=" << cursor.block().blockNumber()
-//						 << "Cell X2 : row=" << cell.row() << ", column=" << cell.column();
-
+				cursor.insertBlock();
+				cursor.movePosition(QTextCursor::PreviousBlock);
 				printPostAtCursor(cursor, newPost);
 			}
 			else
 			{
-				cursor.movePosition(QTextCursor::NextRow, QTextCursor::MoveAnchor, insertIndex - baseInsertIndex );
-
-//				cell = cursor.currentTable()->cellAt(cursor);
-//				qDebug() << QDateTime::currentDateTime().currentMSecsSinceEpoch() << " -3- : Blocknumber=" << cursor.block().blockNumber()
-//						 << "Cell X2 : row=" << cell.row() << ", column=" << cell.column();
-
+				cursor.movePosition(QTextCursor::NextBlock, QTextCursor::MoveAnchor, ( insertIndex - baseInsertIndex ) - 1);
+				cursor.movePosition(QTextCursor::EndOfBlock);
+				cursor.insertBlock();
+				//cursor.movePosition(QTextCursor::NextBlock);
 				printPostAtCursor(cursor, newPost);
 			}
-
-//			cell = cursor.currentTable()->cellAt(cursor);
-//			qDebug() << QDateTime::currentDateTime().currentMSecsSinceEpoch() << " -4- : Blocknumber=" << cursor.block().blockNumber()
-//					 << "Cell X2 : row=" << cell.row() << ", column=" << cell.column();
-
-			//printPostAtCursor(mainTable->rowStart(cursor), newPost);
 
 			newPostsIndex++;
 			baseInsertIndex = insertIndex;
@@ -458,12 +387,12 @@ void QQPinipede::newPostsAvailable(QQBouchot *sender)
 		//Insertion a la fin
 		if(newPostsIndex < newPosts.size())
 		{
-			mainTable->appendRows(newPosts.size() - newPostsIndex);
-			cursor.movePosition(QTextCursor::NextRow, QTextCursor::MoveAnchor, insertIndex - baseInsertIndex );
+			cursor.movePosition(QTextCursor::End);
+			cursor.insertBlock();
+
 			//Le premier item a deja ete insere dans la liste destlistPosts dans la boucle while au dessus
 			//on a juste a l'afficher
 			printPostAtCursor(cursor, newPosts.at(newPostsIndex++));
-			cursor.movePosition(QTextCursor::NextRow);
 
 			while(newPostsIndex < newPosts.size())
 			{
@@ -479,8 +408,8 @@ void QQPinipede::newPostsAvailable(QQBouchot *sender)
 						 << "QQPinipede, appending post " << newPostsIndex << "/" << newPosts.length();
 
 				destlistPosts->append(newPosts.at(newPostsIndex));
+				cursor.insertBlock();
 				printPostAtCursor(cursor, newPosts.at(newPostsIndex++));
-				cursor.movePosition(QTextCursor::NextRow);
 			}
 		}
 		cursor.endEditBlock();
@@ -492,6 +421,8 @@ void QQPinipede::newPostsAvailable(QQBouchot *sender)
 	//TODO : insérer ici la purge des anciens messages
 	purgePinitabHistory(sender->settings().group());
 	//Fin TODO
+
+	textBrowser->update();
 
 	newPostsAvailableMutex.unlock();
 	qDebug() << QDateTime::currentDateTime().currentMSecsSinceEpoch() << " : "
@@ -567,47 +498,33 @@ void QQPinipede::norlogeRefHovered(QQNorlogeRef norlogeRef)
 		//				<< " to " << endPosition.blockNumber();
 
 		cursor.beginEditBlock();
-
-		bool moveSuccess = cursor.movePosition(QTextCursor::NextCell, QTextCursor::MoveAnchor, 1);
 		do
 		{
-			QQMessageBlockUserData * userData = dynamic_cast<QQMessageBlockUserData *>(cursor.block().userData());
-			moveSuccess &= cursor.movePosition(QTextCursor::NextCell, QTextCursor::KeepAnchor, 2);
-
-			if( ! highlighter->highlightLine(cursor, userData) )
-			{
-				cursor.clearSelection();
-				highlighter->rehighlightMessageBlockAtCursor(cursor, dynamic_cast<QQMessageBlockUserData *>(cursor.block().userData()));
-			}
-			else
-			{
+			highlighter->rehighlightBlock(cursor.block());
+			if(cursor.block().userState() == QQSyntaxHighlighter::FULL_HIGHLIGHTED)
 				highlightSuccess = true;
-			}
-			moveSuccess &= cursor.movePosition(QTextCursor::NextCell, QTextCursor::MoveAnchor, 2);
-		} while ( moveSuccess && cursor.blockNumber() <= endPosition.blockNumber() );
+		} while ( cursor.movePosition(QTextCursor::NextBlock, QTextCursor::MoveAnchor, 1) &&
+				  cursor.blockNumber() <= endPosition.blockNumber() );
 
 		cursor.endEditBlock();
 	}
 
 	if( ! highlightSuccess )
 	{
-
-		QTextFrame* root = textBrowser->document()->rootFrame();
-		QTextTable* mainTable = dynamic_cast<QTextTable *>(root->childFrames().at(0));
-		QTextCursor cursor = mainTable->cellAt(0, 0).firstCursorPosition();
+		QTextCursor cursor(textBrowser->document());
 
 		QTextDocument destDocument;
 		QTextCursor destCursor(& destDocument);
 		destCursor.atStart();
 
 		destCursor.beginEditBlock();
-
-		bool moveSuccess = cursor.movePosition(QTextCursor::NextCell, QTextCursor::MoveAnchor, 1);
 		do
 		{
 			// qDebug() << "QQPinipede::norlogeRefHovered cursor.blockNumber()=" << cursor.blockNumber()
 			//		 << ", mainTable->rows()=" << mainTable->rows()
 			//		 << ", mainTable->columns()=" << mainTable->columns();
+			if(cursor.block().userState() == QQSyntaxHighlighter::NOT_HIGHLIGHTED)
+				continue;
 			QQMessageBlockUserData * userData = dynamic_cast<QQMessageBlockUserData *>(cursor.block().userData());
 
 			QString currNorloge = userData->post()->norloge();
@@ -616,15 +533,13 @@ void QQPinipede::norlogeRefHovered(QQNorlogeRef norlogeRef)
 			if( ( dstBouchot == currBouchot->name() || currBouchot->settings().containsAlias(dstBouchot) ) &&
 					currNorloge.startsWith(dstNorloge) )
 			{
-				moveSuccess &= cursor.movePosition(QTextCursor::PreviousCell, QTextCursor::MoveAnchor, 1);
-				moveSuccess &= cursor.movePosition(QTextCursor::NextCell, QTextCursor::KeepAnchor, 3);
 				qDebug() << "QQPinipede::norlogeRefHovered cursor.blockNumber()=" << cursor.blockNumber();
+				cursor.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
 				QTextDocumentFragment fragment = cursor.selection();
 				destCursor.insertFragment(fragment);
 			}
-			moveSuccess &= cursor.movePosition(QTextCursor::NextCell, QTextCursor::MoveAnchor, 4);
 
-		} while ( moveSuccess && cursor.blockNumber() <= mainTable->rows() *mainTable->columns() );
+		} while ( cursor.movePosition(QTextCursor::NextBlock) );
 
 		destCursor.endEditBlock();
 
@@ -653,42 +568,18 @@ void QQPinipede::unHighlight()
 
 	m_hiddenPostViewerLabel->hide();
 
-	QTextFrame * root = m_tBrowserHighlighted->document()->rootFrame();
-	QTextTable * mainTable = dynamic_cast<QTextTable *>(root->childFrames().at(0));
-	QTextCursor cursor = mainTable->cellAt(0, 1).firstCursorPosition();
+	QTextCursor cursor( m_tBrowserHighlighted->document() );
+	QQSyntaxHighlighter * highlighter = m_tBrowserHighlighted->document()->findChildren<QQSyntaxHighlighter *>().at(0);
+	highlighter->setNorlogeRefToHighlight(QQNorlogeRef());
 
 	cursor.beginEditBlock();
-
-	bool moveSuccess = true;
-	while(moveSuccess == true)
+	do
 	{
-		QQMessageBlockUserData * userData = dynamic_cast<QQMessageBlockUserData *>(cursor.block().userData());
-		moveSuccess &= cursor.movePosition(QTextCursor::NextCell, QTextCursor::KeepAnchor, 2);
-		if( userData->isHighlighted() )
-		{
-			QTextCharFormat format;
-			Q_ASSERT(userData->post() != NULL);
-			format.setBackground(userData->post()->bouchot()->settings().colorLight());
-			cursor.mergeBlockCharFormat(format);
-			userData->resetHighlighted();
-		}
-		else
-		{
-			cursor.clearSelection();
-			userData = dynamic_cast<QQMessageBlockUserData *>(cursor.block().userData());
+		if(cursor.block().userState() == QQSyntaxHighlighter::NORLOGE_HIGHLIGHTED ||
+				cursor.block().userState() == QQSyntaxHighlighter::FULL_HIGHLIGHTED)
+			highlighter->rehighlightBlock(cursor.block());
 
-			if( userData->isHighlighted() )
-			{
-				QTextCharFormat format;
-				format.setBackground(QBrush(Qt::NoBrush));
-				cursor.movePosition(QTextCursor::StartOfBlock, QTextCursor::MoveAnchor);
-				cursor.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
-				cursor.mergeCharFormat(format);
-			}
-		}
-
-		moveSuccess &= cursor.movePosition(QTextCursor::NextCell, QTextCursor::MoveAnchor, 2);
-	}
+	} while ( cursor.movePosition( QTextCursor::NextBlock ) );
 
 	cursor.endEditBlock();
 

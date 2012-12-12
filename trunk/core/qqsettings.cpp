@@ -11,6 +11,7 @@
 #include <QSettings>
 #include <QString>
 #include <QStringList>
+#include <QApplication>
 
 #define BOUCHOTS_SPLIT_CHAR ';'
 #define DEFAULT_MAX_HIST_LEN "500"
@@ -326,6 +327,7 @@ bool QQSettings::maybeSave()
 	return true;
 }
 
+
 void QQSettings::proxyAuthenticationRequired(const QNetworkProxy & proxy, QAuthenticator * authenticator)
 {
 	// Pour éviter le warning
@@ -355,6 +357,11 @@ void QQSettings::proxyAuthenticationRequired(const QNetworkProxy & proxy, QAuthe
 				authenticator->setPassword(m_proxyPasswd);
 			}
 			m_proxyPopupMutex.unlock();
+			startBouchots();
+		}
+		else
+		{
+			QApplication::processEvents();
 		}
 	}
 }

@@ -59,7 +59,7 @@ QQNorlogeRef::QQNorlogeRef(const QString &bouchot, const QString &dateh, const Q
 				else
 				{
 					sec.remove(0, 1);
-					m_refDateIndexPart = timeSplit.takeFirst().toInt();
+					m_refDateIndexPart = sec.toInt();
 				}
 			}
 		}

@@ -1,13 +1,13 @@
 #ifndef QQBOUCHOT_H
 #define QQBOUCHOT_H
 
-#include "qqpost.h"
+#include "core/qqnetworkaccessor.h"
+#include "core/qqpost.h"
 #include "core/qqsettings.h"
 
 #include <QColor>
 #include <QObject>
 #include <QList>
-#include <QNetworkAccessManager>
 #include <QString>
 #include <QStringList>
 #include <QTimer>
@@ -15,7 +15,7 @@
 
 class QNetworkReply;
 
-class QQBouchot : public QObject
+class QQBouchot : public QQNetworkAccessor
 {
 	Q_OBJECT
 
@@ -81,7 +81,7 @@ public:
 		QString m_group;
 	};
 
-	QQBouchot(const QString & name, QQSettings * parent = 0);
+	QQBouchot(const QString & name, QQSettings * settings = 0);
 	~QQBouchot() {}
 
 	QString name() { return m_name; }
@@ -110,7 +110,7 @@ signals:
 
 protected slots:
 	void fetchBackend();
-	void replyFinished(QNetworkReply *);
+	void requestFinishedSlot(QNetworkReply *);
 	void insertNewPost(QQPost &);
 
 private:
@@ -121,8 +121,6 @@ private:
 	QList<QQPost *> m_newPostHistory;
 	QQBouchotSettings m_settings;
 	QTimer timer;
-
-	QNetworkAccessManager m_netManager;
 };
 
 /*

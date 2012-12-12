@@ -6,7 +6,6 @@ QQMessageBlockUserData::QQMessageBlockUserData()
 {
 	m_wasParsed = false;
 	m_isHighlighted = false;
-	m_blkZone = UNDEF_ZONE;
 }
 
 QQMessageBlockUserData::~QQMessageBlockUserData()
@@ -15,6 +14,12 @@ QQMessageBlockUserData::~QQMessageBlockUserData()
 	m_listTotoz.clear();
 	m_mapDuck.clear();
 	m_mapTableV.clear();
+}
+
+bool QQMessageBlockUserData::isIndexInZRange( const int index, const zoneRangeID zrId )
+{
+	ZoneRange range = zRangeForID(zrId);
+	return range.isInRange(index);
 }
 
 QQNorlogeRef QQMessageBlockUserData::norlogeRefForIndex(int index)

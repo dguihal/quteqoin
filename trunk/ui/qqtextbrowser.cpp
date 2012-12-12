@@ -41,7 +41,8 @@ void QQTextBrowser::mouseMoveEvent(QMouseEvent *event)
 	if(blockData != NULL)
 	{
 		//Zone message
-		if(blockData->blockZone() == QQMessageBlockUserData::MESSAGE_ZONE)
+		if(blockData->isIndexInZRange(cursor.positionInBlock(),
+									  QQMessageBlockUserData::MESSAGE))
 		{
 			//Est-on au dessus d'une norloge
 			QQNorlogeRef nRef = blockData->norlogeRefForIndex(cursor.positionInBlock());
@@ -72,7 +73,8 @@ void QQTextBrowser::mouseMoveEvent(QMouseEvent *event)
 			}
 
 		}
-		else if(blockData->blockZone() == QQMessageBlockUserData::NORLOGE_ZONE)
+		else if(blockData->isIndexInZRange(cursor.positionInBlock(),
+										   QQMessageBlockUserData::NORLOGE))
 		{
 			QPointer<QQPost> post = blockData->post();
 			Q_ASSERT(!post.isNull());
@@ -130,8 +132,6 @@ void QQTextBrowser::hideTotoz()
 	}
 }
 
-
-
 void QQTextBrowser::mousePressEvent ( QMouseEvent * event )
 {
 	QTextEdit::mousePressEvent(event);
@@ -154,7 +154,8 @@ void QQTextBrowser::mouseReleaseEvent(QMouseEvent * event)
 
 	if(blockData != NULL)
 	{
-		if(blockData->blockZone() == QQMessageBlockUserData::NORLOGE_ZONE)
+		if(blockData->isIndexInZRange(cursor.positionInBlock(),
+									  QQMessageBlockUserData::NORLOGE))
 		{
 			Q_ASSERT(blockData->post() != NULL);
 
@@ -162,7 +163,8 @@ void QQTextBrowser::mouseReleaseEvent(QMouseEvent * event)
 							  blockData->post()->norloge());
 			emit norlogeClicked(norloge);
 		}
-		else if(blockData->blockZone() == QQMessageBlockUserData::LOGIN_UA_ZONE)
+		else if(blockData->isIndexInZRange(cursor.positionInBlock(),
+										   QQMessageBlockUserData::LOGINUA))
 			emit loginClicked(m_groupName);
 	}
 }

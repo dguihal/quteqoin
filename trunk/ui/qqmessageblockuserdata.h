@@ -15,20 +15,22 @@
 class QQMessageBlockUserData : public QTextBlockUserData
 {
 public:
+	class ZoneRange {
+	public:
+		bool isInRange( const int val ) { return val >= begin && val <= end; }
+		int begin;
+		int end;
+	};
+
+	enum zoneRangeID { NORLOGE, LOGINUA, MESSAGE };
+
 	QQMessageBlockUserData();
 
 	~QQMessageBlockUserData();
 
-	typedef enum
-	{
-		UNDEF_ZONE,
-		LOGIN_UA_ZONE,
-		NORLOGE_ZONE,
-		MESSAGE_ZONE
-	} MsgBlckZone;
-
-	MsgBlckZone blockZone() { return m_blkZone; }
-	void setBlockZone(MsgBlckZone newZone) { m_blkZone = newZone; }
+	ZoneRange zRangeForID( const zoneRangeID zrId ) { return ranges[zrId]; }
+	void setZRange( const zoneRangeID zrId, const ZoneRange range ) { ranges.insert(zrId, range); }
+	bool isIndexInZRange( const int index, const zoneRangeID zrId );
 
 	QQPost * post() { return m_post; }
 	void setPost(QQPost * newPost) { m_post = QPointer<QQPost>(newPost); }
@@ -66,7 +68,7 @@ private:
 	bool m_wasParsed;
 	bool m_isHighlighted;
 
-	MsgBlckZone m_blkZone;
+	QHash<int, ZoneRange> ranges;
 
 	QPointer<QQPost> m_post;
 

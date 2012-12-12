@@ -19,7 +19,6 @@ class QQSyntaxHighlighter;
 class QQSettings;
 class QQTextBrowser;
 class QTextCursor;
-class QTextTable;
 class QQPost;
 class QQTotozManager;
 
@@ -62,7 +61,6 @@ signals:
 private:
 	void printPostAtCursor( QTextCursor & cursor, QQPost * post );
 	unsigned int insertPostToList(QList<QQPost *> *listPosts, QQPost *post, unsigned int indexStart);
-	void createQTextTable( QQTextBrowser* textBrowser, int numRow );
 
 	QQSettings * m_settings;
 	QQTotozManager * m_totozManager;
