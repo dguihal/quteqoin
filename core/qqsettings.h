@@ -26,8 +26,8 @@ public:
 	void setMaxHistoryLength(unsigned int maxHistoryLength);
 	unsigned int maxHistoryLength() { return m_maxHistoryLength; }
 
-	void setDefaultUA(const QString&);
-	QString defaultUA() { return m_defaultUA; }
+	void setDefaultUA(const QString &);
+	QString defaultUA();
 
 	void setTotozServerUrl(const QString & totozServerUrl);
 	QString totozServerUrl() { return m_totozServerUrl; }
@@ -63,6 +63,8 @@ public:
 	bool palmiMinimized() { return m_palmiMini; }
 
 	void setDirty() { m_dirty = true; }
+	void setClean() { m_dirty = false; }
+	bool isDirty() { return m_dirty; }
 
 signals:
 	void totozServerUrlChanged(const QString & newTotozUrl);
