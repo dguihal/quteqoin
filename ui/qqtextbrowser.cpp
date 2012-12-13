@@ -30,7 +30,7 @@ QQTextBrowser::QQTextBrowser(QString groupName, QQPinipede *parent) :
 	QList<QTextOption::Tab> tabs;
 	tabs << QTextOption::Tab(TAB_POS_IN_PX, QTextOption::CenterTab);
 	opt.setTabs(tabs);
-	opt.setWrapMode(QTextOption::WordWrap);
+	opt.setWrapMode(QTextOption::WrapAtWordBoundaryOrAnywhere);
 	opt.setAlignment(Qt::AlignLeft);
 	doc->setDefaultTextOption(opt);
 
