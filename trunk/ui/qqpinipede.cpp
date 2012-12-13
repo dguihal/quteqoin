@@ -8,6 +8,7 @@
 #include "ui/qqsyntaxhighlighter.h"
 #include "ui/qqtextbrowser.h"
 
+#include <QCursor>
 #include <QImage>
 #include <QLabel>
 #include <QMovie>
@@ -18,8 +19,6 @@
 #include <QTime>
 #include <QTabBar>
 #include <QVBoxLayout>
-
-#define TAB_POS_IN_PX 70
 
 QQPinipede::QQPinipede(QQSettings *settings, QWidget *parent) :
 	QTabWidget(parent)
@@ -67,22 +66,7 @@ void QQPinipede::addPiniTab(const QString& groupName)
 	layout->setContentsMargins(0, 0, 0, 0);
 
 	QQTextBrowser * textBrowser = new QQTextBrowser(groupName, this);
-	textBrowser->document()->setUndoRedoEnabled(false);
-	textBrowser->document()->setDocumentMargin(0);
-
-	QTextOption opt = textBrowser->document()->defaultTextOption();
-	QList<QTextOption::Tab> tabs;
-	tabs << QTextOption::Tab(TAB_POS_IN_PX, QTextOption::CenterTab);
-	opt.setTabs(tabs);
-	opt.setWrapMode(QTextOption::WordWrap);
-	opt.setAlignment(Qt::AlignLeft);
-	textBrowser->document()->setDefaultTextOption(opt);
-
-	QScrollBar * vScrollBar = textBrowser->verticalScrollBar();
-	vScrollBar->setSliderPosition( vScrollBar->maximum() );
-
 	layout->addWidget(textBrowser);
-
 	this->addTab(widget, groupName);
 
 	m_textBrowserHash.insert(groupName, textBrowser);
@@ -298,6 +282,8 @@ void QQPinipede::newPostsAvailable(QQBouchot *sender)
 	time.start();
 
 	QQTextBrowser * textBrowser = m_textBrowserHash.value(sender->settings().group());
+	//On signale via la forme de la souris qu'un traitement est en cours
+	textBrowser->viewport()->setCursor(Qt::BusyCursor);
 	QTextDocument * doc = textBrowser->document();
 
 	if(! m_listPostsTabMap.contains(sender->settings().group()))
@@ -423,6 +409,9 @@ void QQPinipede::newPostsAvailable(QQBouchot *sender)
 	//Fin TODO
 
 	textBrowser->update();
+
+	//Remise en place de l'ancienne forme du pointeur
+	textBrowser->viewport()->setCursor(Qt::ArrowCursor);
 
 	newPostsAvailableMutex.unlock();
 	qDebug() << QDateTime::currentDateTime().currentMSecsSinceEpoch() << " : "

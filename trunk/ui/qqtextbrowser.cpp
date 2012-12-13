@@ -4,11 +4,15 @@
 #include "core/qqpost.h"
 #include "ui/qqmessageblockuserdata.h"
 
+#include <QCursor>
 #include <QDebug>
 #include <QMouseEvent>
+#include <QScrollBar>
 #include <QTextBlock>
 #include <QTextTable>
 #include <QTextTableCell>
+
+#define TAB_POS_IN_PX 70
 
 QQTextBrowser::QQTextBrowser(QString groupName, QQPinipede *parent) :
 	QTextEdit(parent)
@@ -17,7 +21,23 @@ QQTextBrowser::QQTextBrowser(QString groupName, QQPinipede *parent) :
 	setReadOnly(true);
 	m_groupName = groupName;
 	m_highlightAsked = false;
+
+	QTextDocument * doc = document();
+	doc->setUndoRedoEnabled(false);
+	doc->setDocumentMargin(0);
+
+	QTextOption opt = doc->defaultTextOption();
+	QList<QTextOption::Tab> tabs;
+	tabs << QTextOption::Tab(TAB_POS_IN_PX, QTextOption::CenterTab);
+	opt.setTabs(tabs);
+	opt.setWrapMode(QTextOption::WordWrap);
+	opt.setAlignment(Qt::AlignLeft);
+	doc->setDefaultTextOption(opt);
+
 	this->setMouseTracking(true);
+	viewport()->setCursor(Qt::ArrowCursor);
+
+	verticalScrollBar()->setSliderPosition( verticalScrollBar()->maximum() );
 }
 
 QQTextBrowser::~QQTextBrowser()
@@ -137,16 +157,32 @@ void QQTextBrowser::mousePressEvent ( QMouseEvent * event )
 	QTextEdit::mousePressEvent(event);
 
 	mousePressed = true;
+
+	if(event->button() == Qt::LeftButton)
+	{
+		if( anchorAt(event->pos()).length() > 0 )
+			viewport()->setCursor(Qt::PointingHandCursor);
+		else
+			viewport()->setCursor(Qt::IBeamCursor);
+	}
 }
 
 void QQTextBrowser::mouseReleaseEvent(QMouseEvent * event)
 {
 	QTextEdit::mouseReleaseEvent(event);
 
+	viewport()->setCursor(Qt::ArrowCursor);
 	//pour ne pas confondre clic et selection
 	if(mousePressed == false)
 		return;
 	mousePressed = false;
+
+	QString httpAnchor = anchorAt(event->pos());
+	if( httpAnchor.length() > 0 )
+	{
+		QDesktopServices::openUrl(httpAnchor);
+		return;
+	}
 
 	QTextCursor cursor = cursorForPosition(event->pos());
 	QTextBlock block = cursor.block();
