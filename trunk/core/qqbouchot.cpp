@@ -62,16 +62,19 @@ void QQBouchot::postMessage(const QString &message)
 
 	QNetworkRequest request(QUrl::fromUserInput(url));
 	request.setAttribute(QNetworkRequest::User, QQBouchot::PostRequest);
-	request.setHeader(QNetworkRequest::ContentTypeHeader,"application/x-www-form-urlencoded");
+	request.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded; charset=UTF-8");
 
 	if(m_settings.ua().isEmpty() == false)
-		request.setRawHeader(QString::fromAscii("User-Agent").toAscii(), m_settings.ua().toAscii());
+		request.setRawHeader("User-Agent", m_settings.ua().toAscii());
 	else
-		request.setRawHeader(QString::fromAscii("User-Agent").toAscii(), ((QQSettings *)this->parent())->defaultUA().toAscii());
+		request.setRawHeader("User-Agent", ((QQSettings *)this->parent())->defaultUA().toAscii());
 
 	if(m_settings.cookie().isEmpty() == false)
-		request.setRawHeader(QString::fromAscii("Cookie").toAscii(), m_settings.cookie().toAscii());
+		request.setRawHeader("Cookie", m_settings.cookie().toAscii());
 
+	request.setRawHeader("Accept", "*/*");
+	request.setRawHeader("Accept-Encoding","gzip, defalte");
+	request.setRawHeader("Referer", request.url().toString().toAscii());
 	httpPost(request, postData);
 }
 
