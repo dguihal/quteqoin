@@ -62,7 +62,6 @@ void QQSettings::setDefaultUA(const QString & defaultUA)
 
 void QQSettings::setTotozServerUrl(const QString & totozServerUrl)
 {
-	qDebug() << "setTotozServerUrl = " << totozServerUrl;
 	if(this->m_totozServerUrl != totozServerUrl)
 	{
 		m_totozServerUrl = totozServerUrl;
@@ -95,7 +94,7 @@ QQBouchot * QQSettings::bouchot(QString bouchotName)
 {
 	for(int i = 0; i < m_listBouchots.size(); i++)
 		if(m_listBouchots.at(i)->name() == bouchotName ||
-		   m_listBouchots.at(i)->settings().containsAlias(bouchotName))
+				m_listBouchots.at(i)->settings().containsAlias(bouchotName))
 			return m_listBouchots.at(i);
 	return NULL;
 }
@@ -163,6 +162,15 @@ void QQSettings::stopBouchot(QString &nomBouchot)
 	}
 }
 
+void QQSettings::setWinGeometry(const QRect & wGeometry)
+{
+	if(m_wGeometry != wGeometry)
+	{
+		m_wGeometry = wGeometry;
+		setDirty();
+	}
+}
+
 QList<QString> QQSettings::listTabs()
 {
 	QList<QString> rep;
@@ -187,15 +195,36 @@ bool QQSettings::readSettings()
 {
 	QSettings settings(QSettings::IniFormat, QSettings::UserScope, "Moules Corp", "quteqoin");
 
-	setMaxHistoryLength(settings.value("max_hist_len", QVariant(DEFAULT_MAX_HIST_LEN)).toInt());
-	setDefaultUA(settings.value("default_ua").toString());
-	setPalmiMinimized(settings.value("palmi_minimized", QVariant(DEFAULT_PALMI_MINI)).toBool());
-	QString totozUrl = settings.value("totoz_server_url", QVariant(DEFAULT_TOTOZ_SERVER_URL)).toString();
+	setMaxHistoryLength(settings
+						.value("max_hist_len",
+							   QVariant(DEFAULT_MAX_HIST_LEN))
+						.toInt());
+	setDefaultUA(settings
+				 .value("default_ua")
+				 .toString());
+	setPalmiMinimized(settings
+					  .value("palmi_minimized",
+							 QVariant(DEFAULT_PALMI_MINI))
+					  .toBool());
+	QString totozUrl = settings
+					   .value("totoz_server_url",
+							  QVariant(DEFAULT_TOTOZ_SERVER_URL))
+					   .toString();
 	setTotozServerUrl(totozUrl);
-	setTotozMode((QQSettings::TotozMode)settings.value("totoz_mode", QVariant(DEFAULT_TOTOZ_MODE)).toInt());
+	setTotozMode((QQSettings::TotozMode)settings
+				 .value("totoz_mode",
+						QVariant(DEFAULT_TOTOZ_MODE))
+				 .toInt());
 
 	QString bouchots = settings.value("bouchots", "").toString();
-	QStringList bouchotsSplit = bouchots.split(QChar::fromAscii(BOUCHOTS_SPLIT_CHAR), QString::SkipEmptyParts);
+	QStringList bouchotsSplit = bouchots.split(
+									QChar::fromAscii(BOUCHOTS_SPLIT_CHAR),
+									QString::SkipEmptyParts);
+
+	setWinGeometry(settings
+				   .value(QString::fromAscii("win_geometry"),
+						  QVariant(QRect()))
+				   .toRect());
 
 	settings.beginGroup(QString::fromAscii("bouchot"));
 	for(int i = 0; i < bouchotsSplit.size(); i++)
@@ -262,6 +291,8 @@ bool QQSettings::saveSettings()
 					  QVariant(m_totozServerUrl));
 	settings.setValue(QString::fromAscii("totoz_mode"),
 					  QVariant(m_totozMode));
+	settings.setValue(QString::fromAscii("win_geometry"),
+					  QVariant(m_wGeometry));
 
 	QStringList bouchotNameList;
 
@@ -340,7 +371,7 @@ void QQSettings::proxyAuthenticationRequired(const QNetworkProxy & proxy, QAuthe
 	qDebug() << "QQSettings::proxyAuthenticationRequired";
 	//Premier echec
 	if(m_proxyUser.size() != 0 &&
-	   authenticator->user() != m_proxyUser)
+			authenticator->user() != m_proxyUser)
 	{
 		authenticator->setUser(m_proxyUser);
 		authenticator->setPassword(m_proxyPasswd);

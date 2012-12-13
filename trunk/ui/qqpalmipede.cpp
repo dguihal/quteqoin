@@ -22,16 +22,26 @@ QQPalmipede::QQPalmipede(QWidget *parent) :
 	pafShortcut = new QShortcut(keySeqPaf, this);
 	QObject::connect(pafShortcut, SIGNAL(activated()), this, SLOT(insertPaf()));
 
-	connect(ui->boldButton, SIGNAL( clicked() ), this, SLOT( boldClicked() ) );
-	connect(ui->italicButton, SIGNAL( clicked() ), this, SLOT( italicClicked() ) );
-	connect(ui->underlineButton, SIGNAL( clicked() ), this, SLOT( underlineClicked() ) );
-	connect(ui->strikeButton, SIGNAL( clicked() ), this, SLOT( strikeClicked() ) );
-	connect(ui->momentButton, SIGNAL( clicked() ), this, SLOT( momentClicked() ) );
-	connect(ui->blamPafComboBox, SIGNAL(activated(QString)), this, SLOT(blamPafActivated(QString)));
-	connect(ui->boardSelectorComboBox, SIGNAL(activated(int)), this, SLOT(bouchotSelectorActivated(int)));
-	connect(ui->boardSelectorComboBoxMin, SIGNAL(activated(int)), this, SLOT(bouchotSelectorActivated(int)));
-	connect(ui->postPushButton, SIGNAL(clicked()), this, SLOT(postPushButtonClicked()));
-	connect(ui->postLineEdit, SIGNAL(returnPressed()), ui->postPushButton, SLOT(animateClick()));
+	connect(ui->boldButton, SIGNAL(clicked()),
+			this, SLOT(boldClicked()));
+	connect(ui->italicButton, SIGNAL(clicked()),
+			this, SLOT(italicClicked()));
+	connect(ui->underlineButton, SIGNAL(clicked()),
+			this, SLOT(underlineClicked()));
+	connect(ui->strikeButton, SIGNAL(clicked()),
+			this, SLOT(strikeClicked()));
+	connect(ui->momentButton, SIGNAL(clicked()),
+			this, SLOT(momentClicked()));
+	connect(ui->blamPafComboBox, SIGNAL(activated(QString)),
+			this, SLOT(blamPafActivated(QString)));
+	connect(ui->boardSelectorComboBox, SIGNAL(activated(int)),
+			this, SLOT(bouchotSelectorActivated(int)));
+	connect(ui->boardSelectorComboBoxMin, SIGNAL(activated(int)),
+			this, SLOT(bouchotSelectorActivated(int)));
+	connect(ui->postPushButton, SIGNAL(clicked()),
+			this, SLOT(postPushButtonClicked()));
+	connect(ui->postLineEdit, SIGNAL(returnPressed()),
+			ui->postPushButton, SLOT(animateClick()));
 
 	this->ui->boardSelectorComboBoxMin->setVisible(this->m_minimal);
 }
@@ -46,75 +56,20 @@ void QQPalmipede::insertText(const QString &text)
 	ui->postLineEdit->insert(text);
 }
 
-void QQPalmipede::changePalmiColor(const QColor& newColor)
-{
-	QPalette p = ui->postLineEdit->palette();
-	p.setColor( QPalette::Base, newColor );
-	ui->postLineEdit->setPalette(p);
-	qDebug()<<"QQPalmipede::changePalmiColor";
-}
-
-void QQPalmipede::insertSurroundText(const QString & bTag, const QString & eTag)
-{
-	if(ui->postLineEdit->hasSelectedText())
-	{
-		qDebug()<<"QQPalmipede::insertTagsLineEdit : hasSelectedText";
-		QString text=ui->postLineEdit->text();
-		int selectionStart=ui->postLineEdit->selectionStart();
-		int selectedTextLength=ui->postLineEdit->selectedText().length();
-		text.insert(selectionStart, bTag);
-		text.insert(selectionStart + bTag.length() + selectedTextLength, eTag);
-		ui->postLineEdit->setText(text);
-		ui->postLineEdit->setCursorPosition(selectionStart + bTag.length() + selectedTextLength);
-	}
-	else
-	{
-		ui->postLineEdit->insert(bTag);
-		ui->postLineEdit->insert(eTag);
-		ui->postLineEdit->setFocus(Qt::OtherFocusReason);
-		ui->postLineEdit->setCursorPosition(ui->postLineEdit->cursorPosition() - eTag.length());
-	}
-}
-
-void QQPalmipede::insertReplaceText(const QString & tag)
-{
-	QString text = tag;
-	//Suppression des @bouchot excedentaires lorsque l'on a deja  selectionne le dit bouchot
-	QRegExp regexp = QQNorlogeRef::norlogeRegexp(ui->boardSelectorComboBox->currentText());
-	text.replace(regexp, QString::fromAscii("\\1"));
-
-	if(ui->postLineEdit->hasSelectedText())
-	{
-		qDebug()<<"QQPalmipede::insertTagsLineEdit : hasSelectedText";
-		QString text=ui->postLineEdit->text();
-		int selectionStart=ui->postLineEdit->selectionStart();
-		int selectedTextLength=ui->postLineEdit->selectedText().length();
-		text.replace(selectionStart, selectedTextLength, text);
-		ui->postLineEdit->setText(text);
-		ui->postLineEdit->setCursorPosition(selectionStart + text.length());
-	}
-	else
-	{
-		ui->postLineEdit->insert(text);
-		ui->postLineEdit->setFocus(Qt::OtherFocusReason);
-		ui->postLineEdit->setCursorPosition(ui->postLineEdit->cursorPosition());
-	}
-}
-
 void QQPalmipede::addBouchot(const QString &newBouchot, const QColor& newBouchotColor)
 {
 	ui->boardSelectorComboBox->addItem(newBouchot, newBouchotColor);
 	ui->boardSelectorComboBoxMin->addItem(newBouchot, newBouchotColor);
 	int index = ui->boardSelectorComboBox->currentIndex();
 	QColor bouchotColor = ui->boardSelectorComboBox->itemData(index).value<QColor>();
-	changePalmiColor(bouchotColor);
+	ui->postLineEdit->changeColor(bouchotColor);
 
 }
 
 void QQPalmipede::removeBouchot(const QString &oldBouchot)
 {
 	int index = ui->boardSelectorComboBox->findText(oldBouchot, Qt::MatchExactly | Qt::MatchCaseSensitive);
-	if(index > 0 )
+	if(index > 0)
 	{
 		ui->boardSelectorComboBox->removeItem(index);
 		ui->boardSelectorComboBoxMin->removeItem(index);
@@ -129,6 +84,15 @@ void QQPalmipede::minimizePalmi()
 void QQPalmipede::maximizePalmi()
 {
 	setMinimal(false);
+}
+void QQPalmipede::insertReplaceText(const QString & tag)
+{
+	QString t_tag = tag;
+	//Suppression des @bouchot excedentaires lorsque l'on a deja  selectionne le dit bouchot
+	QRegExp regexp = QQNorlogeRef::norlogeRegexp(ui->boardSelectorComboBox->currentText());
+	t_tag.replace(regexp, QString::fromAscii("\\1"));
+
+	ui->postLineEdit->insertReplaceText(t_tag);
 }
 
 void QQPalmipede::changeNorloges(const QString & bouchot)
@@ -182,45 +146,42 @@ void QQPalmipede::setMinimal(bool minimal)
 
 void QQPalmipede::boldClicked()
 {
-	insertSurroundText(QString::fromAscii("<b>"), QString::fromAscii("</b>"));
-	qDebug()<<"QQPalmipede::boldClicked";
+	ui->postLineEdit->
+			insertSurroundText(QString::fromAscii("<b>"), QString::fromAscii("</b>"));
 }
 
 void QQPalmipede::italicClicked()
 {
-	insertSurroundText(QString::fromAscii("<i>"), QString::fromAscii("</i>"));
-	qDebug()<<"QQPalmipede::italicClicked";
+	ui->postLineEdit->
+			insertSurroundText(QString::fromAscii("<i>"), QString::fromAscii("</i>"));
 }
 
 void QQPalmipede::underlineClicked()
 {
-	insertSurroundText(QString::fromAscii("<u>"), QString::fromAscii("</u>"));
-	qDebug()<<"QQPalmipede::underlineClicked";
+	ui->postLineEdit->
+			insertSurroundText(QString::fromAscii("<u>"), QString::fromAscii("</u>"));
 }
 
 void QQPalmipede::strikeClicked()
 {
-	insertSurroundText(QString::fromAscii("<s>"), QString::fromAscii("</s>"));
-	qDebug()<<"QQPalmipede::strikeClicked";
+	ui->postLineEdit->
+			insertSurroundText(QString::fromAscii("<s>"), QString::fromAscii("</s>"));
 }
 
 void QQPalmipede::momentClicked()
 {
-	insertSurroundText(QString::fromAscii("====> <b>Moment "), QString::fromAscii("</b> <===="));
-	qDebug()<<"QQPalmipede::momentClicked";
+	ui->postLineEdit->
+			insertSurroundText(QString::fromAscii("====> <b>Moment "), QString::fromAscii("</b> <===="));
 }
 
 void QQPalmipede::blamPafActivated(const QString & text)
 {
-	qDebug()<<"QQPalmipede::blamPafActivated itemText=" << text;
 	if(text.contains(QString::fromAscii("paf"), Qt::CaseInsensitive))
 		insertPaf();
 	else if(text.contains(QString::fromAscii("BLAM"), Qt::CaseInsensitive))
 		insertBlam();
 	else
 		qDebug()<<"QQPalmipede::momentClicked : index non reconnu : " << text;
-
-	qDebug()<<"QQPalmipede::blamPafActivated end";
 }
 
 void QQPalmipede::bouchotSelectorActivated(int index)
@@ -238,7 +199,7 @@ void QQPalmipede::bouchotSelectorActivated(int index)
 	}
 	changeNorloges(bouchot);
 	QColor bouchotColor = ui->boardSelectorComboBox->itemData(index).value<QColor>();
-	changePalmiColor(bouchotColor);
+	ui->postLineEdit->changeColor(bouchotColor);
 	m_oldBouchot = bouchot;
 }
 
@@ -254,12 +215,12 @@ void QQPalmipede::postPushButtonClicked()
 
 void QQPalmipede::insertBlam()
 {
-	insertReplaceText(QString::fromAscii("_o/* <b>BLAM</b>! "));
+	ui->postLineEdit->insertReplaceText(QString::fromAscii("_o/* <b>BLAM</b>! "));
 	qDebug()<<"QQPalmipede::insertBlam";
 }
 
 void QQPalmipede::insertPaf()
 {
-	insertReplaceText(QString::fromAscii("_o/* <b>paf!</b> "));
+	ui->postLineEdit->insertReplaceText(QString::fromAscii("_o/* <b>paf!</b> "));
 	qDebug()<<"QQPalmipede::insertPaf";
 }

@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>387</width>
-    <height>422</height>
+    <height>442</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -126,7 +126,7 @@
       <item row="9" column="1">
        <widget class="QLineEdit" name="urlBackendLineEdit">
         <property name="readOnly">
-         <bool>true</bool>
+         <bool>false</bool>
         </property>
        </widget>
       </item>
@@ -140,7 +140,7 @@
       <item row="10" column="1">
        <widget class="QLineEdit" name="urlPostLineEdit">
         <property name="readOnly">
-         <bool>true</bool>
+         <bool>false</bool>
         </property>
        </widget>
       </item>
@@ -154,7 +154,7 @@
       <item row="11" column="1">
        <widget class="QLineEdit" name="postDataLineEdit">
         <property name="readOnly">
-         <bool>true</bool>
+         <bool>false</bool>
         </property>
        </widget>
       </item>

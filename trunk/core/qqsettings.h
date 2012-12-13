@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QMutex>
 #include <QNetworkProxy>
+#include <QRect>
 #include <QString>
 
 class QQBouchot;
@@ -57,6 +58,14 @@ public:
 	void stopBouchots();
 	void stopBouchot(QString &);
 
+	void setWinGeometry(const QRect & wGeometry);
+	QRect winGeometry() { return m_wGeometry; }
+	bool hasWGeometry() { return
+				! m_wGeometry.isNull() &&
+				! m_wGeometry.isEmpty() &&
+				m_wGeometry.isValid();
+						}
+
 	QList<QString> listTabs();
 
 	void setPalmiMinimized(bool palmiMini);
@@ -85,6 +94,8 @@ private:
 
 	QString m_proxyUser;
 	QString m_proxyPasswd;
+
+	QRect m_wGeometry;
 
 	QList<QQBouchot *> m_listBouchots;
 	bool m_dirty;

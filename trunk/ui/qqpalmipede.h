@@ -29,9 +29,7 @@ signals:
 	void postMessage(const QString & bouchot, const QString & message);
 
 public slots:
-	void changePalmiColor(const QColor &);
-	void insertSurroundText(const QString &, const QString &);
-	void insertReplaceText(const QString &);
+	void insertReplaceText(const QString & tag);
 
 private:
 	void changeNorloges(const QString & bouchot);
@@ -43,6 +41,9 @@ private:
 	QString m_oldBouchot;
 
 	bool m_minimal;
+
+	int palmiTextSelectionStart;
+	QString palmiSelectedText;
 
 private slots:
 	void boldClicked();
