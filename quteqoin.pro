@@ -28,7 +28,8 @@ SOURCES += main.cpp\
     ui/qqproxyauthdialog.cpp \
     core/qqtotoz.cpp \
     core/qqtotozmanager.cpp \
-    core/qqnetworkaccessor.cpp
+    core/qqnetworkaccessor.cpp \
+    ui/qqpalmilineedit.cpp
 
 HEADERS  += mainwindow.h \
 		core/qqsettings.h \
@@ -47,7 +48,8 @@ HEADERS  += mainwindow.h \
     ui/qqproxyauthdialog.h \
     core/qqtotoz.h \
     core/qqtotozmanager.h \
-    core/qqnetworkaccessor.h
+    core/qqnetworkaccessor.h \
+    ui/qqpalmilineedit.h
 
 FORMS    += mainwindow.ui \
 		ui/qqpalmipede.ui \

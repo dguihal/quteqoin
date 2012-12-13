@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>418</width>
-    <height>116</height>
+    <width>421</width>
+    <height>120</height>
    </rect>
   </property>
   <property name="title">
@@ -17,7 +17,7 @@
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout_3">
      <item>
-      <widget class="QLineEdit" name="postLineEdit"/>
+      <widget class="QQPalmiLineEdit" name="postLineEdit"/>
      </item>
      <item>
       <widget class="QComboBox" name="boardSelectorComboBoxMin">
@@ -69,9 +69,6 @@
           <property name="text">
            <string>Bold</string>
           </property>
-          <property name="shortcut">
-           <string>Alt+B</string>
-          </property>
          </widget>
         </item>
         <item>
@@ -89,9 +86,6 @@
           </property>
           <property name="text">
            <string>Italic</string>
-          </property>
-          <property name="shortcut">
-           <string>Alt+I</string>
           </property>
          </widget>
         </item>
@@ -111,9 +105,6 @@
           <property name="text">
            <string>Underline</string>
           </property>
-          <property name="shortcut">
-           <string>Alt+U</string>
-          </property>
          </widget>
         </item>
         <item>
@@ -131,9 +122,6 @@
           </property>
           <property name="text">
            <string>Strike</string>
-          </property>
-          <property name="shortcut">
-           <string>Alt+S</string>
           </property>
          </widget>
         </item>
@@ -179,9 +167,6 @@
           </property>
           <property name="text">
            <string>====&gt; Moment &lt; ====</string>
-          </property>
-          <property name="shortcut">
-           <string>Alt+M</string>
           </property>
          </widget>
         </item>
@@ -234,6 +219,13 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>QQPalmiLineEdit</class>
+   <extends>QLineEdit</extends>
+   <header>ui/qqpalmilineedit.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

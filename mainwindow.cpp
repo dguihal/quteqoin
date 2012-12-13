@@ -20,6 +20,8 @@ MainWindow::MainWindow(QWidget *parent) :
 	m_ui->setupUi(this);
 
 	m_settings = new QQSettings(this);
+	if(m_settings->hasWGeometry())
+		setGeometry(m_settings->winGeometry());
 	m_palmi = new QQPalmipede(this);
 	m_pini = new QQPinipede(m_settings, this);
 
@@ -187,11 +189,17 @@ void MainWindow::initBouchot(QQBouchot * bouchot)
 	m_palmi->addBouchot(bouchot->name(), bouchot->settings().colorLight());
 }
 
-void MainWindow::closeEvent(QCloseEvent *event)
+void MainWindow::closeEvent(QCloseEvent * event)
  {
 	qDebug()<<"MainWindow::closeEvent";
 	if(m_settings->maybeSave())
 		event->accept();
 	else
 		event->ignore();
+}
+
+void MainWindow::resizeEvent(QResizeEvent * event)
+{
+	QMainWindow::resizeEvent(event);
+	m_settings->setWinGeometry(geometry());
 }

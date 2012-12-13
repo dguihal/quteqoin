@@ -29,7 +29,9 @@ public slots:
 	void doTriggerMaxiPalmi();
 
 protected:
-	void closeEvent(QCloseEvent *event);
+	virtual void closeEvent(QCloseEvent * event);
+	virtual void resizeEvent(QResizeEvent * event);
+
 
 private:
 	void initBouchot(QQBouchot * bouchot);
