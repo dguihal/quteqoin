@@ -21,6 +21,7 @@ QQTextBrowser::QQTextBrowser(QString groupName, QQPinipede *parent) :
 	setReadOnly(true);
 	m_groupName = groupName;
 	m_highlightAsked = false;
+	mousePressed = false;
 
 	QTextDocument * doc = document();
 	doc->setUndoRedoEnabled(false);
@@ -51,7 +52,10 @@ void QQTextBrowser::mouseMoveEvent(QMouseEvent *event)
 	//qDebug() << "####################################";
 	QTextEdit::mouseMoveEvent(event);
 
-	mousePressed = false;
+	if( anchorAt(event->pos()).length() > 0 )
+		viewport()->setCursor(Qt::PointingHandCursor);
+	else if (! mousePressed)
+		viewport()->setCursor(Qt::ArrowCursor);
 
 	QTextCursor cursor = cursorForPosition(event->pos());
 
@@ -159,12 +163,7 @@ void QQTextBrowser::mousePressEvent ( QMouseEvent * event )
 	mousePressed = true;
 
 	if(event->button() == Qt::LeftButton)
-	{
-		if( anchorAt(event->pos()).length() > 0 )
-			viewport()->setCursor(Qt::PointingHandCursor);
-		else
-			viewport()->setCursor(Qt::IBeamCursor);
-	}
+		viewport()->setCursor(Qt::IBeamCursor);
 }
 
 void QQTextBrowser::mouseReleaseEvent(QMouseEvent * event)
