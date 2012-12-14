@@ -131,6 +131,7 @@ void MainWindow::displayOptions()
 			// afin d'effectuer la migration
 			if(modifBouchot->settings().group() != oldGroup)
 			{
+				m_pini->addPiniTab(modifBouchot->settings().group());
 				modifBouchot->setNewPostsFromHistory();
 				m_pini->newPostsAvailable(modifBouchot);
 				m_pini->purgePiniTab(oldGroup, modifBouchot->name());
