@@ -123,29 +123,39 @@ void QQPinipede::purgePinitab(const QString &groupName, const QString &bouchotNa
 
 	unsigned int count = 0;
 
-	QTextDocument * doc = textBrowser->document();
-	QTextBlock block = doc->firstBlock();
-	QTextCursor cursor(block);
-	while(block.isValid())
+	bool moveOK = true;
+	QTextCursor cursor(textBrowser->document());
+	cursor.beginEditBlock();
+	do
 	{
-		qDebug() << "QQPinipede::purgePiniTab block num=" << block.blockNumber()
-				 << ", doc->blockCount()=" << doc->blockCount();
+		qDebug() << "QQPinipede::purgePiniTab block num=" << cursor.block().blockNumber()
+				 << ", doc->blockCount()=" << textBrowser->document()->blockCount();
 
-		QQMessageBlockUserData * userData = dynamic_cast<QQMessageBlockUserData *>(block.userData());
+		QQMessageBlockUserData * userData = dynamic_cast<QQMessageBlockUserData *>(cursor.block().userData());
 		qDebug() << "QQPinipede::purgePiniTab userData->post()->bouchot()->name()=" << userData->post()->bouchot()->name()
 				 << ", bouchotName=" << bouchotName;
-		if ( userData->post()->bouchot()->name().compare(bouchotName) == 0 )
+		if ( userData->post()->bouchot()->name() == bouchotName )
 		{
-			cursor.setPosition(QTextCursor(block).position());
-			cursor.select(QTextCursor::BlockUnderCursor);
-			block = block.next();
+			moveOK = cursor.movePosition(QTextCursor::NextBlock, QTextCursor::KeepAnchor);
+			//Ce cas represente le dernier block
+			if(!moveOK)
+			{
+				//on se positionne a la fin du block precedent
+				moveOK = cursor.movePosition(QTextCursor::PreviousBlock, QTextCursor::MoveAnchor);
+				moveOK = cursor.movePosition(QTextCursor::EndOfBlock, QTextCursor::MoveAnchor);
+				//et on selectionne le block
+				moveOK = cursor.movePosition(QTextCursor::NextBlock, QTextCursor::KeepAnchor);
+				moveOK = cursor.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
+			}
 			cursor.removeSelectedText();
 			if (count >= max)
 				break;
 		}
 		else
-			block = block.next();
-	}
+			moveOK = cursor.movePosition(QTextCursor::NextBlock);
+	} while(moveOK);
+
+	cursor.endEditBlock();
 }
 
 void QQPinipede::purgePinitabHistory(const QString & groupName)
@@ -182,23 +192,23 @@ void QQPinipede::printPostAtCursor( QTextCursor & cursor, QQPost * post )
 	data->setPost(post);
 
 	/*
-	QTextCharFormat cellMarkColorFormat;
+			QTextCharFormat cellMarkColorFormat;
 
-	if( post->isSelfPost())
-	{
-		cursor.insertImage(
-					QImage(QString::fromAscii(":/img/Fleche_verte.svg"))
-					.scaledToHeight(blockFormat.property(QTextFormat::LineHeight).toInt() - 2)
-					);
-	}
-	else
-	{
-		cursor.insertText(QString::fromUtf8(" "));
-	}
+			if( post->isSelfPost())
+			{
+				cursor.insertImage(
+							QImage(QString::fromAscii(":/img/Fleche_verte.svg"))
+							.scaledToHeight(blockFormat.property(QTextFormat::LineHeight).toInt() - 2)
+							);
+			}
+			else
+			{
+				cursor.insertText(QString::fromUtf8(" "));
+			}
 
-	QColor baseBgColor = post->bouchot()->settings().colorLight();
-	cellMarkColorFormat.setBackground(baseBgColor);
-	*/
+			QColor baseBgColor = post->bouchot()->settings().colorLight();
+			cellMarkColorFormat.setBackground(baseBgColor);
+			*/
 
 	//norloge
 

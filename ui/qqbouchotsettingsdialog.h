@@ -18,13 +18,14 @@ class QQBouchotSettingsDialog : public QDialog
 
 public:
     explicit QQBouchotSettingsDialog(QWidget *parent = 0);
-    QQBouchotSettingsDialog(QString, QQBouchot::QQBouchotSettings, QWidget *parent = 0);
+	QQBouchotSettingsDialog(QString, QQBouchot::QQBouchotSettings,
+							QStringList m_listGroups, QWidget *parent = 0);
     ~QQBouchotSettingsDialog();
 
     QQBouchot::QQBouchotSettings bouchotSettings() { return m_bouchotSettings; }
     QString bouchotName() { return m_bouchotName; }
 
-    void setGroups(QStringList listGroups);
+	void setGroups(QStringList listGroups);
 
 public slots:
     void okPressed();
