@@ -104,8 +104,12 @@ void QQBouchot::stopRefresh()
 
 void QQBouchot::setNewPostsFromHistory()
 {
-	QQPost * firstNew = m_newPostHistory.first();
-	int index = m_history.indexOf(firstNew);
+	int index = m_history.length();
+	if(! m_newPostHistory.isEmpty())
+	{
+		QQPost * firstNew = m_newPostHistory.first();
+		index = m_history.indexOf(firstNew);
+	}
 	while (--index >= 0)
 		m_newPostHistory.prepend(m_history.at(index));
 }
@@ -126,6 +130,8 @@ void QQBouchot::fetchBackend()
 
 	QNetworkRequest request(QUrl::fromUserInput(url));
 	request.setAttribute(QNetworkRequest::User, QQBouchot::BackendRequest);
+	request.setAttribute(QNetworkRequest::CacheLoadControlAttribute,
+						 QNetworkRequest::AlwaysNetwork);
 
 	if(m_settings.ua().isEmpty() == false)
 		request.setRawHeader(QString::fromAscii("User-Agent").toAscii(), m_settings.ua().toAscii());
