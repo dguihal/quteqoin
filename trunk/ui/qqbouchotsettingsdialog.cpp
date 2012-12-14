@@ -16,7 +16,8 @@ QQBouchotSettingsDialog::QQBouchotSettingsDialog(QWidget *parent) :
 
 }
 
-QQBouchotSettingsDialog::QQBouchotSettingsDialog(QString bouchotName, QQBouchot::QQBouchotSettings bouchotSettings, QWidget *parent) :
+QQBouchotSettingsDialog::QQBouchotSettingsDialog(QString bouchotName, QQBouchot::QQBouchotSettings bouchotSettings,
+												 QStringList m_listGroups, QWidget * parent):
 	QDialog(parent),
 	ui(new Ui::QQBouchotSettingsDialog)
 {
@@ -29,6 +30,7 @@ QQBouchotSettingsDialog::QQBouchotSettingsDialog(QString bouchotName, QQBouchot:
 
 	m_bouchotSettings = bouchotSettings;
 	m_bouchotName = bouchotName;
+	setGroups(m_listGroups);
 	setBouchot();
 }
 
