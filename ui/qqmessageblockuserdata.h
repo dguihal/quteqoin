@@ -28,8 +28,8 @@ public:
 
 	~QQMessageBlockUserData();
 
-	ZoneRange zRangeForID( const zoneRangeID zrId ) { return ranges[zrId]; }
-	void setZRange( const zoneRangeID zrId, const ZoneRange range ) { ranges.insert(zrId, range); }
+	ZoneRange zRangeForID( const zoneRangeID zrId ) { return m_ranges[zrId]; }
+	void setZRange( const zoneRangeID zrId, const ZoneRange range ) { m_ranges.insert(zrId, range); }
 	bool isIndexInZRange( const int index, const zoneRangeID zrId );
 
 	QQPost * post() { return m_post; }
@@ -55,6 +55,8 @@ public:
 	void resetHighlighted() { m_isHighlighted = false; }
 	bool isHighlighted() { return m_isHighlighted; }
 
+	bool isValid() { return m_ranges.size() > 0; }
+
 
 private:
 	QPair<int, QString> stringForIndex(int index, const QMap<int, QString> & map);
@@ -68,7 +70,7 @@ private:
 	bool m_wasParsed;
 	bool m_isHighlighted;
 
-	QHash<int, ZoneRange> ranges;
+	QHash<int, ZoneRange> m_ranges;
 
 	QPointer<QQPost> m_post;
 
