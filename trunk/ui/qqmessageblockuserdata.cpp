@@ -6,6 +6,7 @@ QQMessageBlockUserData::QQMessageBlockUserData()
 {
 	m_wasParsed = false;
 	m_isHighlighted = false;
+	m_post = NULL;
 }
 
 QQMessageBlockUserData::~QQMessageBlockUserData()
@@ -14,6 +15,8 @@ QQMessageBlockUserData::~QQMessageBlockUserData()
 	m_listTotoz.clear();
 	m_mapDuck.clear();
 	m_mapTableV.clear();
+	m_ranges.clear();
+	m_post = NULL;
 }
 
 bool QQMessageBlockUserData::isIndexInZRange( const int index, const zoneRangeID zrId )
