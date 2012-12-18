@@ -31,7 +31,7 @@ void QQSyntaxHighlighter::highlightBlock(const QString &text)
 	//qDebug() << QDateTime::currentDateTime().currentMSecsSinceEpoch() << " : "
 	//		 << "QQSyntaxHighlighter::highlightBlock";
 
-	QQMessageBlockUserData * userData = dynamic_cast<QQMessageBlockUserData *>(currentBlockUserData());
+	QQMessageBlockUserData * userData = (QQMessageBlockUserData *)(currentBlockUserData());
 
 	setCurrentBlockState(QQSyntaxHighlighter::NOT_HIGHLIGHTED);
 	if(text.length() > 1 &&
@@ -41,16 +41,20 @@ void QQSyntaxHighlighter::highlightBlock(const QString &text)
 		//		 << "QQSyntaxHighlighter::highlightBlock text=" << text;
 		setCurrentBlockState(QQSyntaxHighlighter::NORMAL);
 
-		highlightBlockForNRef(userData);
-		highlightNorloge(text, userData);
-		highlightDuck(text, userData);
-		highlightTableVolante(text, userData);
-		highlightTotoz(text, userData);
+		highlightBlockForNRef();
+		highlightNorloge(text);
+		highlightDuck(text);
+		highlightTableVolante(text);
+		highlightTotoz(text);
 	}
 }
 
-void QQSyntaxHighlighter::highlightBlockForNRef(QQMessageBlockUserData * userData)
+void QQSyntaxHighlighter::highlightBlockForNRef()
 {
+	QQMessageBlockUserData * userData = (QQMessageBlockUserData *) currentBlockUserData();
+	if(userData == NULL || ! userData->isValid())
+		return;
+
 	QTextBlockFormat fmt;
 	fmt.setBackground(userData->post()->bouchot()->settings().colorLight());
 
@@ -77,8 +81,12 @@ void QQSyntaxHighlighter::highlightBlockForNRef(QQMessageBlockUserData * userDat
 	curs.endEditBlock();
 }
 
-void QQSyntaxHighlighter::highlightNorloge(const QString & text, QQMessageBlockUserData * userData)
+void QQSyntaxHighlighter::highlightNorloge(const QString & text)
 {
+	QQMessageBlockUserData * userData = (QQMessageBlockUserData *) currentBlockUserData();
+	if(userData == NULL || ! userData->isValid())
+		return;
+
 	QQMessageBlockUserData::ZoneRange messageRange = userData->zRangeForID(QQMessageBlockUserData::MESSAGE);
 
 	QColor highlightColor("#FFE940");
@@ -115,8 +123,12 @@ void QQSyntaxHighlighter::highlightNorloge(const QString & text, QQMessageBlockU
 	}
 }
 
-void QQSyntaxHighlighter::highlightDuck(const QString & text, QQMessageBlockUserData * userData)
+void QQSyntaxHighlighter::highlightDuck(const QString & text)
 {
+	QQMessageBlockUserData * userData = (QQMessageBlockUserData *) currentBlockUserData();
+	if(userData == NULL || ! userData->isValid())
+		return;
+
 	QQMessageBlockUserData::ZoneRange messageRange = userData->zRangeForID(QQMessageBlockUserData::MESSAGE);
 
 	QColor color = QColor("#9933CC");
@@ -164,8 +176,12 @@ void QQSyntaxHighlighter::highlightDuck(const QString & text, QQMessageBlockUser
 	}
 }
 
-void QQSyntaxHighlighter::highlightTableVolante(const QString & text, QQMessageBlockUserData * userData)
+void QQSyntaxHighlighter::highlightTableVolante(const QString & text)
 {
+	QQMessageBlockUserData * userData = (QQMessageBlockUserData *) currentBlockUserData();
+	if(userData == NULL || ! userData->isValid())
+		return;
+
 	QQMessageBlockUserData::ZoneRange messageRange = userData->zRangeForID(QQMessageBlockUserData::MESSAGE);
 
 	QColor color = QColor("#9933CC");
@@ -183,8 +199,12 @@ void QQSyntaxHighlighter::highlightTableVolante(const QString & text, QQMessageB
 	}
 }
 
-void QQSyntaxHighlighter::highlightTotoz(const QString & text, QQMessageBlockUserData * userData)
+void QQSyntaxHighlighter::highlightTotoz(const QString & text)
 {
+	QQMessageBlockUserData * userData = (QQMessageBlockUserData *) currentBlockUserData();
+	if(userData == NULL || ! userData->isValid())
+		return;
+
 	QTextCharFormat totozMessageFormat;
 	totozMessageFormat.setForeground(QColor("#00AA11"));
 	totozMessageFormat.setFontWeight(QFont::Bold);

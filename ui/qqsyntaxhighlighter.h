@@ -33,11 +33,11 @@ protected:
 	virtual void highlightBlock(const QString &text);
 
 private:
-	void highlightBlockForNRef(QQMessageBlockUserData * userData);
-	void highlightDuck(const QString & text, QQMessageBlockUserData * userData);
-	void highlightNorloge(const QString & text, QQMessageBlockUserData * userData);
-	void highlightTableVolante(const QString & text, QQMessageBlockUserData * userData);
-	void highlightTotoz(const QString & text, QQMessageBlockUserData * userData);
+	void highlightBlockForNRef();
+	void highlightDuck(const QString & text);
+	void highlightNorloge(const QString & text);
+	void highlightTableVolante(const QString & text);
+	void highlightTotoz(const QString & text);
 
 	QQNorlogeRef m_nRef;
 };
