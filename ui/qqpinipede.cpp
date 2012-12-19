@@ -74,8 +74,6 @@ void QQPinipede::addPiniTab(const QString& groupName)
 	QQSyntaxHighlighter * highlighter = new QQSyntaxHighlighter(textBrowser->document());
 	connect(highlighter, SIGNAL(totozRequired(const QString &)),
 			m_totozManager, SLOT(fetchTotoz(const QString &)));
-	// Pour éviter le warning
-	//(void) highlighter;
 
 	qDebug() << "QQPinipede::addPiniTab this->m_textBrowserHash.size()=" << this->m_textBrowserHash.size();
 
@@ -180,7 +178,8 @@ void QQPinipede::purgePinitabHistory(const QString & groupName)
 	cursor.endEditBlock();
 	// Purge de l'historique interne
 	while(destlistPosts->size() > (int) maxHistorySize)
-		delete destlistPosts->takeFirst();
+		//On ne supprime pas, ils sont aussi stockés au niveau du bouchot
+		destlistPosts->takeFirst();
 }
 
 void QQPinipede::printPostAtCursor( QTextCursor & cursor, QQPost * post )
@@ -287,6 +286,9 @@ void QQPinipede::newPostsAvailable(QQBouchot *sender)
 		qWarning() << "newPostsAvailable " << sender->name() << "tryLock timeout";
 
 	QList<QQPost *> newPosts = sender->getNewPosts();
+	//Il ne sert a rien d'insérer plus que de posts que le max de l'historique
+	while(newPosts.size() > (int) m_settings->maxHistoryLength())
+		newPosts.takeFirst();
 
 	QTime time = QTime::currentTime();
 	time.start();
