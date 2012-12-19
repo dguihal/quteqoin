@@ -29,10 +29,10 @@ QQPinipede::QQPinipede(QQSettings *settings, QWidget *parent) :
 	m_totozManager = new QQTotozManager(m_settings);
 	m_tBrowserHighlighted = NULL;
 
+	m_hiddenPostViewerLabelSSheet = QString::fromAscii("border: 2px solid black; border-radius: 4px;");
 	m_hiddenPostViewerLabel = new QLabel(this);
-	m_hiddenPostViewerLabel->setStyleSheet(
-				QString::fromAscii("border: 2px solid black; border-radius: 4px;")
-				);
+	m_hiddenPostViewerLabel->setStyleSheet(m_hiddenPostViewerLabelSSheet);
+
 	m_hiddenPostViewerLabel->setAttribute(Qt::WA_TransparentForMouseEvents);
 	m_hiddenPostViewerLabel->setTextFormat(Qt::RichText);
 	m_hiddenPostViewerLabel->setWordWrap(true);
