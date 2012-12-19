@@ -17,7 +17,7 @@
 #define BOUCHOTS_SPLIT_CHAR ';'
 #define DEFAULT_MAX_HIST_LEN "500"
 #define DEFAULT_UA "quteqoin crash edition"
-#define DEFAULT_TOTOZ_SERVER_URL "http://totoz.eu/"
+#define DEFAULT_TOTOZ_SERVER_URL "http://totoz.eu/gif/"
 #define DEFAULT_TOTOZ_MODE "1"
 #define DEFAULT_PALMI_MINI "0"
 
