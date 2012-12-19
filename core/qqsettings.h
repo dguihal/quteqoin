@@ -47,6 +47,7 @@ public:
 
 	void setListBouchots(const QList<QQBouchot *>&);
 	QList<QQBouchot *> listBouchots() { return m_listBouchots; }
+	QList<QQBouchot *> listBouchots(QString group);
 	bool hasBouchot(QString bouchotName) { return bouchot(bouchotName) != NULL; }
 	QQBouchot * bouchot(QString bouchotName);
 	void addBouchot(QQBouchot *);

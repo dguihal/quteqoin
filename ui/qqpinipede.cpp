@@ -8,6 +8,7 @@
 #include "ui/qqsyntaxhighlighter.h"
 #include "ui/qqtextbrowser.h"
 
+#include <QtAlgorithms>
 #include <QCursor>
 #include <QImage>
 #include <QLabel>
@@ -273,20 +274,24 @@ void QQPinipede::printPostAtCursor( QTextCursor & cursor, QQPost * post )
 		qCritical() << "uxam";
 }
 
-void QQPinipede::newPostsAvailable(QQBouchot *sender)
+void QQPinipede::newPostsAvailable(QString groupName)
 {
-	if(sender == NULL)
-		return;
-
 	qDebug() << QDateTime::currentDateTime().currentMSecsSinceEpoch() << " : "
-			 << "QQPinipede::newPostsAvailable from : " << sender->name();
+			 << "QQPinipede::newPostsAvailable from : " << groupName;
 
 	//On est obligé de locker pour éviter la pagaille dans le pini.
 	// un locking plus fin pourrait être obtenu en implémentant un lock par groupe
 	while(! newPostsAvailableMutex.tryLock(1000))
-		qWarning() << "newPostsAvailable " << sender->name() << "tryLock timeout";
+		qWarning() << "newPostsAvailable " << groupName << "tryLock timeout";
 
-	QList<QQPost *> newPosts = sender->getNewPosts();
+	QList<QQPost *> newPosts;
+
+	QListIterator<QQBouchot *> i(m_settings->listBouchots(groupName));
+	while(i.hasNext())
+		newPosts.append(i.next()->takeNewPosts());
+
+	qSort(newPosts.begin(), newPosts.end(), postComp);
+
 	//Il ne sert a rien d'insérer plus que de posts que le max de l'historique
 	while(newPosts.size() > (int) m_settings->maxHistoryLength())
 		newPosts.takeFirst();
@@ -294,17 +299,17 @@ void QQPinipede::newPostsAvailable(QQBouchot *sender)
 	QTime time = QTime::currentTime();
 	time.start();
 
-	QQTextBrowser * textBrowser = m_textBrowserHash.value(sender->settings().group());
+	QQTextBrowser * textBrowser = m_textBrowserHash.value(groupName);
 	//On signale via la forme de la souris qu'un traitement est en cours
 	textBrowser->viewport()->setCursor(Qt::BusyCursor);
 	QTextDocument * doc = textBrowser->document();
 
-	if(! m_listPostsTabMap.contains(sender->settings().group()))
+	if(! m_listPostsTabMap.contains(groupName))
 	{
 		// qDebug() << QDateTime::currentDateTime().currentMSecsSinceEpoch() << " : "
 		//		 << "QQPinipede, inserting " << newPosts.size() << " posts";
 		QList<QQPost *> *destlistPosts = new QList<QQPost *>(newPosts);
-		m_listPostsTabMap.insert(sender->settings().group(), destlistPosts);
+		m_listPostsTabMap.insert(groupName, destlistPosts);
 
 		QTextCursor cursor(textBrowser->document());
 
@@ -334,10 +339,10 @@ void QQPinipede::newPostsAvailable(QQBouchot *sender)
 	}
 	else
 	{
-		if(! m_listPostsTabMap.contains(sender->settings().group()))
+		if(! m_listPostsTabMap.contains(groupName))
 			qFatal("QQPinipede::newPostsAvailable : root->childFrames().size() != 0 et ! m_listPostsTabMap.contains(sender->settings().group())");
 
-		QList<QQPost *> *destlistPosts = m_listPostsTabMap[sender->settings().group()];
+		QList<QQPost *> *destlistPosts = m_listPostsTabMap[groupName];
 
 		qDebug() << QDateTime::currentDateTime().currentMSecsSinceEpoch() << " : "
 				 << "QQPinipede inserting posts : newPosts.size=" << newPosts.size()
@@ -418,7 +423,7 @@ void QQPinipede::newPostsAvailable(QQBouchot *sender)
 	}
 
 	//TODO : insérer ici la purge des anciens messages
-	purgePinitabHistory(sender->settings().group());
+	purgePinitabHistory(groupName);
 	//Fin TODO
 
 	textBrowser->update();

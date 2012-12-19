@@ -15,6 +15,7 @@
 
 class QNetworkReply;
 
+
 class QQBouchot : public QQNetworkAccessor
 {
 	Q_OBJECT
@@ -65,7 +66,7 @@ public:
 		void setUa(const QString &newUA) { m_ua = newUA; }
 
 		QString group() { return m_group; }
-		void setGroup(const QString& newGroup) { m_group = newGroup; }
+		void setGroup(const QString & newGroup) { m_group = newGroup; }
 
 	private:
 		QStringList m_aliases;
@@ -97,16 +98,16 @@ public:
 	void startRefresh();
 	void stopRefresh();
 
-	QList<QQPost *> getNewPosts() {	return m_newPostHistory; }
+	QList<QQPost *> takeNewPosts();
 	QList<QQPost *> getPostsHistory() {	return m_history; }
 	void setNewPostsFromHistory();
 
 	static const char Separator = ',';
-	static QQBouchotSettings getBouchotDef(const QString &);
+	static QQBouchotSettings getBouchotDef(const QString & nameBouchot);
 	static QStringList getBouchotDefNameList();
 
 signals:
-	void newPostsInserted(QQBouchot *);
+	void newPostsAvailable(QString groupName);
 
 protected slots:
 	void fetchBackend();

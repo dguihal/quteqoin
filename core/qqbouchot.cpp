@@ -101,6 +101,12 @@ void QQBouchot::stopRefresh()
 	timer.stop();
 }
 
+QList<QQPost *> QQBouchot::takeNewPosts()
+{
+	QList <QQPost *> list(m_newPostHistory);
+	m_newPostHistory.clear();
+	return list;
+}
 
 void QQBouchot::setNewPostsFromHistory()
 {
@@ -183,8 +189,6 @@ void QQBouchot::requestFinishedSlot(QNetworkReply *reply)
 
 void QQBouchot::parseBackend(const QByteArray & data)
 {
-	m_newPostHistory.clear();
-
 	QXmlSimpleReader xmlReader;
 	QXmlInputSource xmlSource;
 	QQXmlParser xmlParser;
@@ -204,7 +208,7 @@ void QQBouchot::parseBackend(const QByteArray & data)
 				 << "QQBouchot::replyFinished, newPostsInserted emis";
 		m_history.append(m_newPostHistory);
 		m_lastId = m_history.last()->id().toInt();
-		emit newPostsInserted(this);
+		emit newPostsAvailable(m_settings.group());
 	}
 
 }
@@ -222,7 +226,7 @@ void QQBouchot::insertNewPost(QQPost &newPost)
 // Static
 /////////////////////////
 
-QQBouchot::QQBouchotSettings QQBouchot::getBouchotDef(const QString &nameBouchot)
+QQBouchot::QQBouchotSettings QQBouchot::getBouchotDef(const QString & nameBouchot)
 {
 
 	QQBouchot::QQBouchotSettings settings;
@@ -256,3 +260,4 @@ QStringList QQBouchot::getBouchotDefNameList()
 
 	return res;
 }
+

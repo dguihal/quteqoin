@@ -79,6 +79,7 @@ QString QQPost::norlogeFormatee()
 			.append(norloge().mid(12,2)).append("]");
 	return tmp;
 }
+
 //
 bool QQPost::equal(QQPost &b)
 {
@@ -87,10 +88,17 @@ bool QQPost::equal(QQPost &b)
 		return true;
 	return false;
 }
+
 //
 bool QQPost::operator== (QQPost &b)
 {
 	return this->equal(b);
+}
+
+//
+bool QQPost::operator< (QQPost &b)
+{
+	return this->m_norloge < b.m_norloge;
 }
 
 void QQPost::reset()
@@ -100,6 +108,11 @@ void QQPost::reset()
 	m_ua.clear();
 	m_message.clear();
 	m_id.clear();
+}
+
+bool postComp(QQPost *left, QQPost *right)
+{
+	return (* left) < (* right);
 }
 
 //////////////////////////////////////////////////////////////////////////

@@ -75,6 +75,7 @@ public:
 
 	bool equal( QQPost &b );
 	bool operator==( QQPost& );
+	bool operator<( QQPost& );
 
 	void reset();
 
@@ -87,4 +88,7 @@ private:
 	QString m_message;
 	QString m_id;
 };
+
+bool postComp(QQPost * left, QQPost * right);
+
 #endif
