@@ -29,9 +29,10 @@ QQPinipede::QQPinipede(QQSettings *settings, QWidget *parent) :
 	m_totozManager = new QQTotozManager(m_settings);
 	m_tBrowserHighlighted = NULL;
 
-	m_hiddenPostViewerLabelSSheet = QString::fromAscii("border: 2px solid black; border-radius: 4px;");
 	m_hiddenPostViewerLabel = new QLabel(this);
-	m_hiddenPostViewerLabel->setStyleSheet(m_hiddenPostViewerLabelSSheet);
+	m_hiddenPostViewerLabel->setStyleSheet(
+				QString::fromAscii("border: 2px solid black; border-radius: 4px;")
+				);
 	m_hiddenPostViewerLabel->setAttribute(Qt::WA_TransparentForMouseEvents);
 	m_hiddenPostViewerLabel->setTextFormat(Qt::RichText);
 	m_hiddenPostViewerLabel->setWordWrap(true);
@@ -43,7 +44,8 @@ QQPinipede::QQPinipede(QQSettings *settings, QWidget *parent) :
 	m_totozLabel->setScaledContents(false);
 	m_totozLabel->hide();
 	m_totozMovie = NULL;
-	connect(m_settings, SIGNAL(totozServerUrlChanged(QString)), m_totozManager, SLOT(serverURLchanged(QString)));
+	connect(m_settings, SIGNAL(totozServerUrlChanged(QString)),
+			m_totozManager, SLOT(serverURLchanged(QString)));
 }
 
 QQPinipede::~QQPinipede()
@@ -74,8 +76,6 @@ void QQPinipede::addPiniTab(const QString& groupName)
 	QQSyntaxHighlighter * highlighter = new QQSyntaxHighlighter(textBrowser->document());
 	connect(highlighter, SIGNAL(totozRequired(const QString &)),
 			m_totozManager, SLOT(fetchTotoz(const QString &)));
-
-	qDebug() << "QQPinipede::addPiniTab this->m_textBrowserHash.size()=" << this->m_textBrowserHash.size();
 
 	connect(textBrowser, SIGNAL(norlogeClicked(QQNorloge)), this, SLOT(norlogeClicked(QQNorloge)));
 	connect(textBrowser, SIGNAL(norlogeRefHovered(QQNorlogeRef)), this, SLOT(norlogeRefHovered(QQNorlogeRef)));
@@ -224,6 +224,7 @@ void QQPinipede::printPostAtCursor( QTextCursor & cursor, QQPost * post )
 	//login ou ua
 
 	QTextCharFormat loginUaFormat;
+	loginUaFormat.setToolTip(post->UA());
 	QString txt;
 	QQMessageBlockUserData::ZoneRange rangeLoginUA;
 	rangeLoginUA.begin = cursor.positionInBlock();
@@ -248,12 +249,12 @@ void QQPinipede::printPostAtCursor( QTextCursor & cursor, QQPost * post )
 		txt = QString::fromAscii("$NO UA$");
 	}
 
-	cursor.insertText(txt, loginUaFormat);
-	rangeLoginUA.end = cursor.positionInBlock();
-
 	//[:magic]
 	if(txt.length() < 4)
-		cursor.insertHtml("&nbsp;&nbsp;&nbsp;");
+		txt.append(QString::fromUtf8("\t"));
+
+	cursor.insertText(txt, loginUaFormat);
+	rangeLoginUA.end = cursor.positionInBlock();
 
 	data->setZRange(QQMessageBlockUserData::LOGINUA, rangeLoginUA);
 
