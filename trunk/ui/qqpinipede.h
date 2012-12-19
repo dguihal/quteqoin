@@ -53,7 +53,7 @@ public slots:
 	void showTotozSlot(QQTotoz & totoz);
 	void hideTotozSlot();
 	void loginClicked(QString);
-	void newPostsAvailable( QQBouchot * );
+	void newPostsAvailable(QString groupName);
 
 signals:
 	void insertTextPalmi(QString text);

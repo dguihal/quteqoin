@@ -7,6 +7,7 @@
 #include <QAuthenticator>
 #include <QDebug>
 #include <QFile>
+#include <QList>
 #include <QMessageBox>
 #include <QSettings>
 #include <QString>
@@ -94,9 +95,23 @@ QQBouchot * QQSettings::bouchot(QString bouchotName)
 {
 	for(int i = 0; i < m_listBouchots.size(); i++)
 		if(m_listBouchots.at(i)->name() == bouchotName ||
-				m_listBouchots.at(i)->settings().containsAlias(bouchotName))
+		   m_listBouchots.at(i)->settings().containsAlias(bouchotName))
 			return m_listBouchots.at(i);
 	return NULL;
+}
+
+QList<QQBouchot *> QQSettings::listBouchots(QString group)
+{
+	QList<QQBouchot *> rep;
+
+	QListIterator<QQBouchot *> i(m_listBouchots);
+	while (i.hasNext())
+	{
+		QQBouchot * b = i.next();
+		if(b->settings().group() == group)
+			rep.append(b);
+	}
+	return rep;
 }
 
 void QQSettings::addBouchot(QQBouchot *bouchot)
@@ -371,7 +386,7 @@ void QQSettings::proxyAuthenticationRequired(const QNetworkProxy & proxy, QAuthe
 	qDebug() << "QQSettings::proxyAuthenticationRequired";
 	//Premier echec
 	if(m_proxyUser.size() != 0 &&
-			authenticator->user() != m_proxyUser)
+	   authenticator->user() != m_proxyUser)
 	{
 		authenticator->setUser(m_proxyUser);
 		authenticator->setPassword(m_proxyPasswd);

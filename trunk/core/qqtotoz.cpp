@@ -1,6 +1,7 @@
 #include "qqtotoz.h"
 
 #include <QCryptographicHash>
+#include <QDebug>
 
 QQTotoz::QQTotoz() {}
 
@@ -23,14 +24,15 @@ QQTotoz::~QQTotoz()
 QString QQTotoz::getPath(QString id)
 {
 	QDir dirCache(QDesktopServices::storageLocation(QDesktopServices::CacheLocation));
+
 	if(! dirCache.cd("QuteQoin"))
 	{
 		dirCache.mkpath(dirCache.path());
+		dirCache.mkdir("QuteQoin");
 		dirCache.cd("QuteQoin");
 	}
 
 	QString totozIdMd5 = QString(QCryptographicHash::hash((id.toAscii()),
 														  QCryptographicHash::Md5).toHex());
-
 	return dirCache.filePath(totozIdMd5);
 }

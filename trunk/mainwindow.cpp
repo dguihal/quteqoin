@@ -133,7 +133,7 @@ void MainWindow::displayOptions()
 			{
 				m_pini->addPiniTab(modifBouchot->settings().group());
 				modifBouchot->setNewPostsFromHistory();
-				m_pini->newPostsAvailable(modifBouchot);
+				m_pini->newPostsAvailable(modifBouchot->settings().group());
 				m_pini->purgePiniTab(oldGroup, modifBouchot->name());
 			}
 
@@ -184,7 +184,7 @@ void MainWindow::doTriggerMaxiPalmi()
 
 void MainWindow::initBouchot(QQBouchot * bouchot)
 {
-	connect(bouchot, SIGNAL(newPostsInserted(QQBouchot *)), m_pini, SLOT(newPostsAvailable(QQBouchot *)));
+	connect(bouchot, SIGNAL(newPostsAvailable(QString)), m_pini, SLOT(newPostsAvailable(QString)));
 
 	m_pini->addPiniTab(bouchot->settings().group());
 	m_palmi->addBouchot(bouchot->name(), bouchot->settings().colorLight());
