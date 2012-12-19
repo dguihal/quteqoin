@@ -205,6 +205,8 @@ void QQSyntaxHighlighter::highlightTotoz(const QString & text)
 	if(userData == NULL || ! userData->isValid())
 		return;
 
+	QQMessageBlockUserData::ZoneRange messageRange = userData->zRangeForID(QQMessageBlockUserData::MESSAGE);
+
 	QTextCharFormat totozMessageFormat;
 	totozMessageFormat.setForeground(QColor("#00AA11"));
 	totozMessageFormat.setFontWeight(QFont::Bold);
@@ -213,7 +215,7 @@ void QQSyntaxHighlighter::highlightTotoz(const QString & text)
 								 Qt::CaseSensitive,
 								 QRegExp::RegExp);
 
-	int index = text.indexOf(m_totozReg);
+	int index = text.indexOf(m_totozReg, messageRange.begin );
 	while (index >= 0)
 	{
 		int length = m_totozReg.matchedLength();
