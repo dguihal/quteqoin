@@ -290,6 +290,18 @@ void QQPinipede::newPostsAvailable(QString groupName)
 	while(i.hasNext())
 		newPosts.append(i.next()->takeNewPosts());
 
+	// Au cas ou on serait deja passe avant (cas du signal multiple)
+	if(newPosts.size() == 0)
+		return;
+
+	// Recuperation de l'historique des posts (ou creation si absent)
+	QList<QQPost *> * destlistPosts = NULL;
+	if(! m_listPostsTabMap.contains(groupName))
+		destlistPosts = new QList<QQPost *>(newPosts);
+	else
+		destlistPosts = m_listPostsTabMap[groupName];
+
+
 	qSort(newPosts.begin(), newPosts.end(), postComp);
 
 	//Il ne sert a rien d'insérer plus que de posts que le max de l'historique
@@ -304,57 +316,35 @@ void QQPinipede::newPostsAvailable(QString groupName)
 	textBrowser->viewport()->setCursor(Qt::BusyCursor);
 	QTextDocument * doc = textBrowser->document();
 
+	QTextCursor cursor(doc);
+	cursor.beginEditBlock();
+
 	if(! m_listPostsTabMap.contains(groupName))
 	{
-		// qDebug() << QDateTime::currentDateTime().currentMSecsSinceEpoch() << " : "
-		//		 << "QQPinipede, inserting " << newPosts.size() << " posts";
-		QList<QQPost *> *destlistPosts = new QList<QQPost *>(newPosts);
 		m_listPostsTabMap.insert(groupName, destlistPosts);
-
-		QTextCursor cursor(textBrowser->document());
-
-		//On rend le 1° block invisible
-		// mais on le garde car il est difficile d'insérer avant
-		cursor.beginEditBlock();
 
 		int i = 0;
 		while(i < newPosts.size())
 		{
-			// Gestion de l'index de norloge multiple
-			if(i > 0 &&
-					newPosts.at(i)->norloge().toLongLong() == newPosts.at(i - 1)->norloge().toLongLong() &&
-					newPosts.at(i)->bouchot()->name().compare(newPosts.at(i - 1)->bouchot()->name()) == 0)
-			{
-				newPosts.at(i - 1)->setNorlogeMultiple(true);
-				newPosts.at(i)->setNorlogeIndex(newPosts.at(i - 1)->norlogeIndex() + 1);
-			}
 			if(i > 0)
+			{
 				cursor.insertBlock();
+				// Gestion de l'index de norloge multiple
+				if(newPosts.at(i)->norloge().toLongLong() == newPosts.at(i - 1)->norloge().toLongLong() &&
+				   newPosts.at(i)->bouchot()->name().compare(newPosts.at(i - 1)->bouchot()->name()) == 0)
+				{
+					newPosts.at(i - 1)->setNorlogeMultiple(true);
+					newPosts.at(i)->setNorlogeIndex(newPosts.at(i - 1)->norlogeIndex() + 1);
+				}
+			}
 			printPostAtCursor(cursor, newPosts.at(i++));
 		}
-
-		cursor.endEditBlock();
 
 		textBrowser->verticalScrollBar()->triggerAction( QAbstractSlider::SliderToMaximum );
 	}
 	else
 	{
-		if(! m_listPostsTabMap.contains(groupName))
-			qFatal("QQPinipede::newPostsAvailable : root->childFrames().size() != 0 et ! m_listPostsTabMap.contains(sender->settings().group())");
-
-		QList<QQPost *> *destlistPosts = m_listPostsTabMap[groupName];
-
-		qDebug() << QDateTime::currentDateTime().currentMSecsSinceEpoch() << " : "
-				 << "QQPinipede inserting posts : newPosts.size=" << newPosts.size()
-				 << ", destlistPosts->size=" << destlistPosts->size();
-
-		bool wasAtEnd = false;
-		if( textBrowser->verticalScrollBar()->sliderPosition() == textBrowser->verticalScrollBar()->maximum() )
-			wasAtEnd = true;
-
-		QTextCursor cursor(doc);
-
-		cursor.beginEditBlock();
+		bool wasAtEnd = ( textBrowser->verticalScrollBar()->sliderPosition() == textBrowser->verticalScrollBar()->maximum() );
 
 		int newPostsIndex = 0, baseInsertIndex = 0, insertIndex = 0;
 
@@ -380,7 +370,6 @@ void QQPinipede::newPostsAvailable(QString groupName)
 				cursor.movePosition(QTextCursor::NextBlock, QTextCursor::MoveAnchor, ( insertIndex - baseInsertIndex ) - 1);
 				cursor.movePosition(QTextCursor::EndOfBlock);
 				cursor.insertBlock();
-				//cursor.movePosition(QTextCursor::NextBlock);
 				printPostAtCursor(cursor, newPost);
 			}
 
@@ -391,11 +380,10 @@ void QQPinipede::newPostsAvailable(QString groupName)
 		//Insertion a la fin
 		if(newPostsIndex < newPosts.size())
 		{
-			cursor.movePosition(QTextCursor::End);
-			cursor.insertBlock();
-
 			//Le premier item a deja ete insere dans la liste destlistPosts dans la boucle while au dessus
 			//on a juste a l'afficher
+			cursor.movePosition(QTextCursor::End);
+			cursor.insertBlock();
 			printPostAtCursor(cursor, newPosts.at(newPostsIndex++));
 
 			while(newPostsIndex < newPosts.size())
@@ -408,30 +396,26 @@ void QQPinipede::newPostsAvailable(QString groupName)
 					newPosts.at(newPostsIndex)->setNorlogeIndex(destlistPosts->last()->norlogeIndex() + 1);
 				}
 
-				qDebug() << QDateTime::currentDateTime().currentMSecsSinceEpoch() << " : "
-						 << "QQPinipede, appending post " << newPostsIndex << "/" << newPosts.length();
-
 				destlistPosts->append(newPosts.at(newPostsIndex));
 				cursor.insertBlock();
 				printPostAtCursor(cursor, newPosts.at(newPostsIndex++));
 			}
 		}
-		cursor.endEditBlock();
 
 		if(wasAtEnd)
 			textBrowser->verticalScrollBar()->triggerAction( QAbstractSlider::SliderToMaximum );
 	}
 
-	//TODO : insérer ici la purge des anciens messages
-	purgePinitabHistory(groupName);
-	//Fin TODO
+	cursor.endEditBlock();
 
-	textBrowser->update();
+	// Purge des anciens messages
+	purgePinitabHistory(groupName);
 
 	//Remise en place de l'ancienne forme du pointeur
 	textBrowser->viewport()->setCursor(Qt::ArrowCursor);
 
 	newPostsAvailableMutex.unlock();
+
 	qDebug() << QDateTime::currentDateTime().currentMSecsSinceEpoch() << " : "
 			 << "Time taken is: " << time.elapsed() << " ms";
 }
