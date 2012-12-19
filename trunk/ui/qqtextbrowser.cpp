@@ -11,6 +11,7 @@
 #include <QTextBlock>
 #include <QTextTable>
 #include <QTextTableCell>
+#include <QToolTip>
 
 #define TAB_POS_IN_PX 70
 
@@ -68,6 +69,7 @@ void QQTextBrowser::mouseMoveEvent(QMouseEvent *event)
 		if(blockData->isIndexInZRange(cursor.positionInBlock(),
 									  QQMessageBlockUserData::MESSAGE))
 		{
+			QToolTip::hideText();
 			//Est-on au dessus d'une norloge
 			QQNorlogeRef nRef = blockData->norlogeRefForIndex(cursor.positionInBlock());
 			if( nRef.isValid() )
@@ -100,6 +102,7 @@ void QQTextBrowser::mouseMoveEvent(QMouseEvent *event)
 		else if(blockData->isIndexInZRange(cursor.positionInBlock(),
 										   QQMessageBlockUserData::NORLOGE))
 		{
+			QToolTip::hideText();
 			QPointer<QQPost> post = blockData->post();
 			Q_ASSERT(!post.isNull());
 			QString norlogeString = post->norloge();
