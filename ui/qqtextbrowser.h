@@ -27,6 +27,7 @@ signals:
 	void loginClicked(QString groupName);
 
 protected:
+	void leaveEvent(QEvent * event);
 	void mouseMoveEvent(QMouseEvent * event);
 	void mousePressEvent(QMouseEvent * event);
 	void mouseReleaseEvent(QMouseEvent * event);
