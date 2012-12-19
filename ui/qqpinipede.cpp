@@ -252,7 +252,7 @@ void QQPinipede::printPostAtCursor( QTextCursor & cursor, QQPost * post )
 
 	//[:magic]
 	if(txt.length() < 4)
-		txt.append(QString::fromUtf8("\t"));
+		txt.append(QString::fromUtf8("   "));
 
 	cursor.insertText(txt, loginUaFormat);
 	rangeLoginUA.end = cursor.positionInBlock();
