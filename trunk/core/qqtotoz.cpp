@@ -29,9 +29,8 @@ QString QQTotoz::getPath(QString id)
 		dirCache.cd("QuteQoin");
 	}
 
-
 	QString totozIdMd5 = QString(QCryptographicHash::hash((id.toAscii()),
 														  QCryptographicHash::Md5).toHex());
 
-	return dirCache.filePath(id);
+	return dirCache.filePath(totozIdMd5);
 }
