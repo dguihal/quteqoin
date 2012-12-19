@@ -74,7 +74,8 @@ void QQTextBrowser::mouseMoveEvent(QMouseEvent *event)
 			QQNorlogeRef nRef = blockData->norlogeRefForIndex(cursor.positionInBlock());
 			if( nRef.isValid() )
 			{
-				qDebug() << "QQTextBrowser::mouseMoveEvent, Norloge detectee, str = " << nRef.getOrigNRef() << " position : " << nRef.getPosInMessage();
+				qDebug() << "QQTextBrowser::mouseMoveEvent, Norloge detectee, str = "
+						 << nRef.getOrigNRef() << " position : " << nRef.getPosInMessage();
 				highlightNorloge(nRef);
 			}
 			else
@@ -89,7 +90,8 @@ void QQTextBrowser::mouseMoveEvent(QMouseEvent *event)
 			QQTotoz totoz = blockData->totozForIndex(cursor.positionInBlock());
 			if( totoz.isValid() )
 			{
-				qDebug() << "QQTextBrowser::mouseMoveEvent, Totoz detecte, str = " << totoz.getId() << " position : " << totoz.getPosInMessage();
+				qDebug() << "QQTextBrowser::mouseMoveEvent, Totoz detecte, str = " << totoz.getId()
+						 << " position : " << totoz.getPosInMessage();
 				showTotoz(totoz);
 			}
 			else
