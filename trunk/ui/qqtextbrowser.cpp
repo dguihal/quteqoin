@@ -90,12 +90,12 @@ void QQTextBrowser::mouseMoveEvent(QMouseEvent *event)
 			if( totoz.isValid() )
 			{
 				qDebug() << "QQTextBrowser::mouseMoveEvent, Totoz detecte, str = " << totoz.getId() << " position : " << totoz.getPosInMessage();
-				emit showTotozSig(totoz);
+				showTotoz(totoz);
 			}
 			else
 			{
 				//il faut cacher l'affichage du Totoz puisqu'on n'en survole pas
-				emit hideTotozSig();
+				hideTotoz();
 			}
 
 		}
@@ -157,6 +157,20 @@ void QQTextBrowser::hideTotoz()
 		m_displayedTotozId.clear();
 		emit hideTotozSig();
 	}
+}
+
+/*
+ * Recuperation de d'un evenement lorsque la souris quitte la
+ *surface de l'afficheur.
+ */
+void QQTextBrowser::leaveEvent(QEvent * event)
+{
+	QTextEdit::leaveEvent(event);
+
+	// On masque les élements d'affichage dynamiques
+	unHighlightNorloge();
+	QToolTip::hideText();
+	hideTotoz();
 }
 
 void QQTextBrowser::mousePressEvent ( QMouseEvent * event )
