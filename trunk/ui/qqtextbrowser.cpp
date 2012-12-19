@@ -39,7 +39,7 @@ QQTextBrowser::QQTextBrowser(QString groupName, QQPinipede *parent) :
 	this->setMouseTracking(true);
 	viewport()->setCursor(Qt::ArrowCursor);
 
-	verticalScrollBar()->setSliderPosition( verticalScrollBar()->maximum() );
+	verticalScrollBar()->triggerAction( QAbstractSlider::SliderToMaximum );
 }
 
 QQTextBrowser::~QQTextBrowser()
@@ -225,4 +225,13 @@ void QQTextBrowser::paintEvent( QPaintEvent * event )
 {
 	QTextEdit::paintEvent(event);
 
+}
+
+void QQTextBrowser::resizeEvent(QResizeEvent * event)
+{
+	QScrollBar * vScrollBar = verticalScrollBar();
+	bool isMax = (vScrollBar->sliderPosition() == vScrollBar->maximum());
+	QTextEdit::resizeEvent(event);
+	if(isMax)
+		vScrollBar->triggerAction( QAbstractSlider::SliderToMaximum );
 }
