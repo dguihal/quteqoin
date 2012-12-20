@@ -9,6 +9,8 @@ QT       += core gui network xml
 TARGET = quteqoin
 TEMPLATE = app
 
+#Pour activer stdout sur la console windows
+#CONFIG += console
 
 SOURCES += main.cpp\
 		mainwindow.cpp \
@@ -29,7 +31,8 @@ SOURCES += main.cpp\
     core/qqtotoz.cpp \
     core/qqtotozmanager.cpp \
     core/qqnetworkaccessor.cpp \
-    ui/qqpalmilineedit.cpp
+    ui/qqpalmilineedit.cpp \
+    core/qqpurgebouchothistoevent.cpp
 
 HEADERS  += mainwindow.h \
 		core/qqsettings.h \
@@ -49,7 +52,8 @@ HEADERS  += mainwindow.h \
     core/qqtotoz.h \
     core/qqtotozmanager.h \
     core/qqnetworkaccessor.h \
-    ui/qqpalmilineedit.h
+    ui/qqpalmilineedit.h \
+    core/qqpurgebouchothistoevent.h
 
 FORMS    += mainwindow.ui \
 		ui/qqpalmipede.ui \
