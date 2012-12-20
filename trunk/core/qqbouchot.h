@@ -102,6 +102,8 @@ public:
 	QList<QQPost *> getPostsHistory() {	return m_history; }
 	void setNewPostsFromHistory();
 
+	virtual bool event(QEvent * e);
+
 	static const char Separator = ',';
 	static QQBouchotSettings getBouchotDef(const QString & nameBouchot);
 	static QStringList getBouchotDefNameList();
