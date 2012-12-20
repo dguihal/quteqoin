@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>600</width>
+    <height>720</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <widget class="QWidget" name="centralWidget"/>
+  <widget class="QMenuBar" name="menuBar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>600</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuFile">
+    <property name="title">
+     <string>&amp;File</string>
+    </property>
+    <addaction name="actionEnregistrer_parametres"/>
+    <addaction name="separator"/>
+    <addaction name="actionQuit"/>
+   </widget>
+   <widget class="QMenu" name="menuConfig">
+    <property name="title">
+     <string>&amp;Edit</string>
+    </property>
+   </widget>
+   <widget class="QMenu" name="menuAffichage">
+    <property name="title">
+     <string>&amp;Affichage</string>
+    </property>
+    <widget class="QMenu" name="menuPalmipede">
+     <property name="title">
+      <string>Palmipède</string>
+     </property>
+     <addaction name="actionEtendu"/>
+     <addaction name="actionMinimal"/>
+    </widget>
+    <widget class="QMenu" name="menuPinip_de">
+     <property name="title">
+      <string>Pinipède</string>
+     </property>
+     <addaction name="actionTabul"/>
+     <addaction name="actionEn_ligne"/>
+    </widget>
+    <addaction name="menuPalmipede"/>
+    <addaction name="menuPinip_de"/>
+   </widget>
+   <widget class="QMenu" name="menuOutils">
+    <property name="title">
+     <string>&amp;Outils</string>
+    </property>
+    <addaction name="separator"/>
+    <addaction name="actionOptions"/>
+   </widget>
+   <addaction name="menuFile"/>
+   <addaction name="menuConfig"/>
+   <addaction name="menuAffichage"/>
+   <addaction name="menuOutils"/>
+  </widget>
+  <action name="actionTabbed">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Tabbed</string>
+   </property>
+  </action>
+  <action name="actionMixed">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Mixed</string>
+   </property>
+  </action>
+  <action name="actionMono">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Mono</string>
+   </property>
+  </action>
+  <action name="actionQuit">
+   <property name="text">
+    <string>Quit</string>
+   </property>
+  </action>
+  <action name="actionOptions">
+   <property name="text">
+    <string>Options</string>
+   </property>
+  </action>
+  <action name="actionEnregistrer_parametres">
+   <property name="text">
+    <string>Enregistrer parametres</string>
+   </property>
+  </action>
+  <action name="actionEtendu">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Etendu</string>
+   </property>
+  </action>
+  <action name="actionMinimal">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Minimal</string>
+   </property>
+  </action>
+  <action name="actionTabul">
+   <property name="text">
+    <string>Tabulé</string>
+   </property>
+  </action>
+  <action name="actionEn_ligne">
+   <property name="text">
+    <string>En ligne</string>
+   </property>
+  </action>
+ </widget>
+ <layoutdefault spacing="6" margin="11"/>
+ <resources/>
+ <connections/>
+</ui>

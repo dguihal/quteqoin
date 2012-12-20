@@ -1,0 +1,107 @@
+#ifndef QQSETTINGS_H
+#define QQSETTINGS_H
+
+#include <QObject>
+#include <QMutex>
+#include <QNetworkProxy>
+#include <QRect>
+#include <QString>
+
+class QQBouchot;
+class QQPinipede;
+
+class QAuthenticator;
+class QSettings;
+class QString;
+
+class QQSettings : public QObject
+{
+	Q_OBJECT
+
+public:
+	enum TotozMode { Inline_Mode = 0, Popup_Mode = 1, Bald_Mode = 2 };
+
+	explicit QQSettings(QObject *parent = 0);
+	~QQSettings();
+
+	void setMaxHistoryLength(unsigned int maxHistoryLength);
+	unsigned int maxHistoryLength() { return m_maxHistoryLength; }
+
+	void setDefaultUA(const QString &);
+	QString defaultUA();
+
+	void setTotozServerUrl(const QString & totozServerUrl);
+	QString totozServerUrl() { return m_totozServerUrl; }
+
+	void setTotozMode(TotozMode);
+	TotozMode totozMode() { return m_totozMode; }
+
+	void setDefaultLogin(const QString&);
+	QString defaultLogin() { return m_defaultLogin; }
+
+	void setProxyUser(const QString & proxyUser) { m_proxyUser = proxyUser; }
+	QString ProxyUser() { return m_proxyUser; }
+
+	void setProxyPasswd(const QString & proxyPasswd) { m_proxyUser = proxyPasswd; }
+	QString ProxyPasswd() { return m_proxyPasswd; }
+
+	void setListBouchots(const QList<QQBouchot *>&);
+	QList<QQBouchot *> listBouchots() { return m_listBouchots; }
+	QList<QQBouchot *> listBouchots(QString group);
+	bool hasBouchot(QString bouchotName) { return bouchot(bouchotName) != NULL; }
+	QQBouchot * bouchot(QString bouchotName);
+	void addBouchot(QQBouchot *);
+	void addBouchots(const QList<QQBouchot *>&);
+	void removeBouchot(QQBouchot * bouchot);
+	void removeBouchot(const QString bouchotName);
+	void startBouchots();
+	void startBouchot(QString &);
+	void stopBouchots();
+	void stopBouchot(QString &);
+
+	void setWinGeometry(const QRect & wGeometry);
+	QRect winGeometry() { return m_wGeometry; }
+	bool hasWGeometry() { return
+				! m_wGeometry.isNull() &&
+				! m_wGeometry.isEmpty() &&
+				m_wGeometry.isValid();
+						}
+
+	QList<QString> listTabs();
+
+	void setPalmiMinimized(bool palmiMini);
+	bool palmiMinimized() { return m_palmiMini; }
+
+	void setDirty() { m_dirty = true; }
+	void setClean() { m_dirty = false; }
+	bool isDirty() { return m_dirty; }
+
+signals:
+	void totozServerUrlChanged(const QString & newTotozUrl);
+
+public slots:
+	bool readSettings();
+	bool saveSettings();
+	bool maybeSave();
+	void proxyAuthenticationRequired(const QNetworkProxy & proxy, QAuthenticator * authenticator);
+
+private:
+	uint m_maxHistoryLength;
+	QString m_defaultUA;
+	QString m_defaultLogin;
+	QString m_totozServerUrl;
+	TotozMode m_totozMode;
+	bool m_palmiMini;
+
+	QString m_proxyUser;
+	QString m_proxyPasswd;
+
+	QRect m_wGeometry;
+
+	QList<QQBouchot *> m_listBouchots;
+	bool m_dirty;
+
+	QMutex m_proxyPopupMutex;
+};
+
+#endif // QQSETTINGS_H
