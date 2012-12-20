@@ -48,6 +48,10 @@ public:
 	void addTableVZone(int index, const QString & tableV) { m_mapTableV.insert(index, tableV); }
 	QPair<int, QString> tableVForIndex(int index) { return stringForIndex(index, m_mapTableV); }
 
+	void addBigornoZone(int index, const QString & bigorno) { m_mapBigorno.insert(index, bigorno); }
+	QList<int> bigornoZonesStarts() { return m_mapBigorno.keys(); }
+	QPair<int, QString> bigornoForIndex(int index) { return stringForIndex(index, m_mapBigorno); }
+
 	void setWasParsed(bool wasParsed) { m_wasParsed = wasParsed; }
 	bool wasParsed() { return m_wasParsed; }
 
@@ -66,6 +70,7 @@ private:
 	QList<QQTotoz> m_listTotoz;
 	QMap<int, QString> m_mapDuck;
 	QMap<int, QString> m_mapTableV;
+	QMap<int, QString> m_mapBigorno;
 
 	bool m_wasParsed;
 	bool m_isHighlighted;

@@ -38,6 +38,7 @@ private:
 	void highlightNorloge(const QString & text);
 	void highlightTableVolante(const QString & text);
 	void highlightTotoz(const QString & text);
+	void highlightBigorno(const QString & text);
 
 	QQNorlogeRef m_nRef;
 };

@@ -46,6 +46,7 @@ void QQSyntaxHighlighter::highlightBlock(const QString &text)
 		highlightDuck(text);
 		highlightTableVolante(text);
 		highlightTotoz(text);
+		highlightBigorno(text);
 	}
 }
 
@@ -227,5 +228,33 @@ void QQSyntaxHighlighter::highlightTotoz(const QString & text)
 		setFormat(index, length, totozMessageFormat);
 
 		index = text.indexOf(m_totozReg, index + length);
+	}
+}
+
+void QQSyntaxHighlighter::highlightBigorno(const QString & text)
+{
+	QQMessageBlockUserData * userData = (QQMessageBlockUserData *) currentBlockUserData();
+	if(userData == NULL || ! userData->isValid())
+		return;
+
+	QQMessageBlockUserData::ZoneRange messageRange = userData->zRangeForID(QQMessageBlockUserData::MESSAGE);
+
+	QString login = userData->post()->bouchot()->settings().login();
+	QString bigorno = QString::fromAscii("\\b(?:");
+	if(login.length() > 0)
+		bigorno.append(login).append("|");
+	bigorno.append("moules)<");
+
+	QRegExp m_bigornoReg = QRegExp(bigorno,
+								 Qt::CaseSensitive,
+								 QRegExp::RegExp);
+
+	int index = text.indexOf(m_bigornoReg, messageRange.begin );
+	while (index >= 0)
+	{
+		int length = m_bigornoReg.matchedLength();
+		userData->addBigornoZone(index, text.mid(index, length));
+
+		index = text.indexOf(m_bigornoReg, index + length);
 	}
 }

@@ -7,6 +7,7 @@
 #include <QCursor>
 #include <QDebug>
 #include <QMouseEvent>
+#include <QPainter>
 #include <QScrollBar>
 #include <QTextBlock>
 #include <QTextTable>
@@ -223,9 +224,46 @@ void QQTextBrowser::mouseReleaseEvent(QMouseEvent * event)
 	}
 }
 
-void QQTextBrowser::paintEvent( QPaintEvent * event )
+void QQTextBrowser::paintEvent(QPaintEvent * event)
 {
 	QTextEdit::paintEvent(event);
+
+	QPainter pd(viewport());
+	pd.setBrush(QBrush(QColor(255, 0, 0, 64)));
+	pd.setPen(QPen(Qt::darkRed));
+
+	QTextDocument * doc = document();
+	QTextBlock bloc = doc->firstBlock();
+	while(bloc.isValid())
+	{
+		QQMessageBlockUserData * uData = (QQMessageBlockUserData * ) bloc.userData();
+		if(uData != NULL)
+		{
+
+			QList<int> bigZonesIdxs = uData->bigornoZonesStarts();
+			if(! bigZonesIdxs.isEmpty())
+			{
+				QTextCursor cursor(bloc);
+				for(int i = 0; i < bigZonesIdxs.size(); i++)
+				{
+					int bigIdx = bigZonesIdxs.at(i);
+					cursor.movePosition(
+								QTextCursor::NextCharacter,
+								QTextCursor::MoveAnchor,
+								bigIdx - cursor.positionInBlock()
+								);
+					QRect rect = cursorRect(cursor);
+					rect.setWidth(
+								pd.fontMetrics().boundingRect(
+									uData->bigornoForIndex(bigIdx).second).width()
+								);
+					qDebug() << uData->bigornoForIndex(bigIdx).second << " : " << rect;
+					pd.drawRoundedRect(rect.adjusted(-2, 0, +2, 0), 5.0, 1.0);
+				}
+			}
+		}
+		bloc = bloc.next();
+	}
 
 }
 
