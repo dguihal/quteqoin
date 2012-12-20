@@ -1,6 +1,7 @@
 #include "qqbouchot.h"
 
 #include "core/qqsettings.h"
+#include "core/qqpurgebouchothistoevent.h"
 #include "xml/qqxmlparser.h"
 
 #include <QDateTime>
@@ -118,6 +119,28 @@ void QQBouchot::setNewPostsFromHistory()
 	}
 	while (--index >= 0)
 		m_newPostHistory.prepend(m_history.at(index));
+}
+
+bool QQBouchot::event(QEvent * e)
+{
+	if(e->type() == QQPurgeBouchotHistoEvent::PURGE_BOUCHOT_HISTO)
+	{
+		QString maxId = ((QQPurgeBouchotHistoEvent *) e)->maxId();
+
+		// Il faut au moins garder le dernier post dans l'histo
+		bool notFound = true;
+		while(notFound && m_history.size() > 1)
+		{
+			if(m_history.at(0)->id() == maxId)
+				notFound = false;
+
+			delete m_history.takeAt(0);
+		}
+	}
+	else
+		QObject::event(e);
+
+	return true;
 }
 
 void QQBouchot::fetchBackend()

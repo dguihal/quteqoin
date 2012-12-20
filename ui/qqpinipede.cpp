@@ -2,6 +2,7 @@
 
 #include "mainwindow.h"
 #include "core/qqbouchot.h"
+#include "core/qqpurgebouchothistoevent.h"
 #include "core/qqtotozmanager.h"
 #include "ui/qqmessageblockuserdata.h"
 #include "ui/qqpalmipede.h"
@@ -9,6 +10,7 @@
 #include "ui/qqtextbrowser.h"
 
 #include <QtAlgorithms>
+#include <QApplication>
 #include <QCursor>
 #include <QImage>
 #include <QLabel>
@@ -177,10 +179,31 @@ void QQPinipede::purgePinitabHistory(const QString & groupName)
 	cursor.movePosition(QTextCursor::NextBlock, QTextCursor::KeepAnchor, destlistPosts->size() - maxHistorySize);
 	cursor.removeSelectedText();
 	cursor.endEditBlock();
+
 	// Purge de l'historique interne
+	QHash<QString, QString> maxIdRemoved;
 	while(destlistPosts->size() > (int) maxHistorySize)
+	{
 		//On ne supprime pas, ils sont aussi stockés au niveau du bouchot
-		destlistPosts->takeFirst();
+		QQPost * post = destlistPosts->takeFirst();
+		maxIdRemoved.insert(post->bouchot()->name(), post->id());
+	}
+
+	// Purge de l'historique interne des bouchots
+	QHashIterator<QString, QString> i(maxIdRemoved);
+	while (i.hasNext())
+	{
+		i.next();
+		QQBouchot * bouchot = m_settings->bouchot(i.key());
+		QApplication::postEvent(
+					bouchot,
+					new QQPurgeBouchotHistoEvent(
+						QQPurgeBouchotHistoEvent::PURGE_BOUCHOT_HISTO,
+						i.value()
+						)
+					);
+	}
+
 }
 
 void QQPinipede::printPostAtCursor( QTextCursor & cursor, QQPost * post )
