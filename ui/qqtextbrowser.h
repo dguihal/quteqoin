@@ -7,6 +7,7 @@
 #include "ui/qqpinipede.h"
 
 #include <QTextEdit>
+#include <QPoint>
 
 class QQMessageBlockUserData;
 
@@ -40,7 +41,8 @@ private:
 	void showTotoz(QQTotoz & totoz);
 	void hideTotoz();
 
-	bool mousePressed;
+	bool m_mouseClick;
+	QPoint m_lastPoint;
 
 	bool m_highlightAsked;
 	QQNorlogeRef m_highlightedNRef;

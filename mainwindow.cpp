@@ -6,6 +6,7 @@
 #include "ui/qqpinipede.h"
 #include "ui/qqsettingsdialog.h"
 
+#include <QIcon>
 #include <QCloseEvent>
 #include <QDebug>
 #include <QLayout>
@@ -16,8 +17,10 @@ MainWindow::MainWindow(QWidget *parent) :
 	QMainWindow(parent),
 	m_ui(new Ui::MainWindow)
 {
-
 	m_ui->setupUi(this);
+
+	QIcon icon = QIcon(QString::fromAscii(":/img/rubber_duck_yellow.svg"));
+	setWindowIcon(icon);
 
 	m_settings = new QQSettings(this);
 	if(m_settings->hasWGeometry())

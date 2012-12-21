@@ -22,7 +22,8 @@ public:
 
 	bool highlightSelection(QTextCursor &selection, QQMessageBlockUserData *userData);
 
-	void setNorlogeRefToHighlight(const QQNorlogeRef & norlogeRef);
+	void setNorlogeRefToHighlight(const QQNorlogeRef & norlogeRef) { m_nRef = norlogeRef; }
+	void setNotificationWindow(QWidget * window) { m_notifWindow = window; }
 
 signals:
 	void totozRequired(const QString & totozId);
@@ -41,6 +42,7 @@ private:
 	void highlightBigorno(const QString & text);
 
 	QQNorlogeRef m_nRef;
+	QWidget * m_notifWindow;
 };
 
 #endif // QQSYNTAXHIGHLIGHTER_H
