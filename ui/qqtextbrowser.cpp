@@ -269,17 +269,15 @@ void QQTextBrowser::paintEvent(QPaintEvent * event)
 					QRect rect = cursorRect(cursor);
 					rect.setWidth(pd.fontMetrics().boundingRect(bigItem.word()).width());
 					rect.adjust(-2, 0, +2, 0);
-					if(event->region().boundingRect().contains(rect))
-					{
-						qDebug() << bigItem.word() << " : " << rect;
 
-						QLinearGradient linearGrad(0, 0, 0, rect.height());
-						linearGrad.setColorAt(0.0, colorVeryLight);
-						linearGrad.setColorAt(1.0, colorLight);
-						QBrush br(linearGrad);
-						pd.setBrush(br);
-						pd.drawRoundedRect(rect, 4.0, 2.0);
-					}
+					qDebug() << bigItem.word() << " : " << rect;
+
+					QLinearGradient linearGrad(0, 0, 0, rect.height());
+					linearGrad.setColorAt(0.0, colorVeryLight);
+					linearGrad.setColorAt(1.0, colorLight);
+					QBrush br(linearGrad);
+					pd.setBrush(br);
+					pd.drawRoundedRect(rect, 4.0, 2.0);
 				}
 			}
 		}
