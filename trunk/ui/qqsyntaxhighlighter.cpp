@@ -1,29 +1,28 @@
 #include "qqsyntaxhighlighter.h"
 
+#include "core/qqbigornoitem.h"
+#include "core/qqbouchot.h"
 #include "core/qqnorlogeref.h"
 #include "core/qqpost.h"
-#include "core/qqbouchot.h"
 #include "core/qqtotozmanager.h"
 #include "ui/qqmessageblockuserdata.h"
 
 #include <QDateTime>
 #include <QDebug>
+#include <QIcon>
 #include <QRegExp>
 #include <QTextCharFormat>
 #include <QTextCursor>
+#include <QWidget>
 
 QQSyntaxHighlighter::QQSyntaxHighlighter(QTextDocument * parent) :
 	QSyntaxHighlighter(parent)
 {
+	m_notifWindow = NULL;
 }
 
 QQSyntaxHighlighter::~QQSyntaxHighlighter()
 {
-}
-
-void QQSyntaxHighlighter::setNorlogeRefToHighlight(const QQNorlogeRef &norlogeRef)
-{
-	this->m_nRef = norlogeRef;
 }
 
 void QQSyntaxHighlighter::highlightBlock(const QString &text)
@@ -246,14 +245,22 @@ void QQSyntaxHighlighter::highlightBigorno(const QString & text)
 	bigorno.append("moules)<");
 
 	QRegExp m_bigornoReg = QRegExp(bigorno,
-								 Qt::CaseSensitive,
-								 QRegExp::RegExp);
+								   Qt::CaseSensitive,
+								   QRegExp::RegExp);
 
 	int index = text.indexOf(m_bigornoReg, messageRange.begin );
 	while (index >= 0)
 	{
 		int length = m_bigornoReg.matchedLength();
-		userData->addBigornoZone(index, text.mid(index, length));
+		QQBigornoItem bigItem(index, text.mid(index, length));
+
+		if(m_notifWindow != NULL)
+		{
+			QIcon icon = QIcon(QString::fromAscii(":/img/Point_exclamation_rouge.svg"));
+			m_notifWindow->setWindowIcon(icon);
+			bigItem.setNotified();
+		}
+		userData->addBigornoZone(bigItem);
 
 		index = text.indexOf(m_bigornoReg, index + length);
 	}

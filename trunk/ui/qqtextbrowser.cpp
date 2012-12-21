@@ -23,7 +23,7 @@ QQTextBrowser::QQTextBrowser(QString groupName, QQPinipede *parent) :
 	setReadOnly(true);
 	m_groupName = groupName;
 	m_highlightAsked = false;
-	mousePressed = false;
+	m_mouseClick = false;
 
 	QTextDocument * doc = document();
 	doc->setUndoRedoEnabled(false);
@@ -56,7 +56,7 @@ void QQTextBrowser::mouseMoveEvent(QMouseEvent *event)
 
 	if( anchorAt(event->pos()).length() > 0 )
 		viewport()->setCursor(Qt::PointingHandCursor);
-	else if (! mousePressed)
+	else if (! m_mouseClick)
 		viewport()->setCursor(Qt::ArrowCursor);
 
 	QTextCursor cursor = cursorForPosition(event->pos());
@@ -176,11 +176,14 @@ void QQTextBrowser::leaveEvent(QEvent * event)
 	hideTotoz();
 }
 
-void QQTextBrowser::mousePressEvent ( QMouseEvent * event )
+void QQTextBrowser::mousePressEvent(QMouseEvent * event)
 {
 	QTextEdit::mousePressEvent(event);
 
-	mousePressed = true;
+	// Stockage de la postion
+	m_lastPoint = event->pos();
+	// positionnement du flag de detection de debut du clic
+	m_mouseClick = true;
 
 	if(event->button() == Qt::LeftButton)
 		viewport()->setCursor(Qt::IBeamCursor);
@@ -191,10 +194,15 @@ void QQTextBrowser::mouseReleaseEvent(QMouseEvent * event)
 	QTextEdit::mouseReleaseEvent(event);
 
 	viewport()->setCursor(Qt::ArrowCursor);
-	//pour ne pas confondre clic et selection
-	if(mousePressed == false)
+	// Verification que l'on est pas en pleine selection
+	if((m_mouseClick == false) || (event->pos() != m_lastPoint))
 		return;
-	mousePressed = false;
+
+	m_mouseClick = false;
+
+	// Reset de l'icone de l'application
+	QIcon icon = QIcon(QString::fromAscii(":/img/rubber_duck_yellow.svg"));
+	window()->setWindowIcon(icon);
 
 	QString httpAnchor = anchorAt(event->pos());
 	if( httpAnchor.length() > 0 )
@@ -229,36 +237,49 @@ void QQTextBrowser::paintEvent(QPaintEvent * event)
 	QTextEdit::paintEvent(event);
 
 	QPainter pd(viewport());
-	pd.setBrush(QBrush(QColor(255, 0, 0, 64)));
-	pd.setPen(QPen(Qt::darkRed));
+	QColor colorVeryLight(80, 0, 0, 80);
+	QColor colorLight(90, 0, 0, 90);
+	QColor colorDark(150, 0, 0);
+	pd.setPen(QPen(colorDark));
 
-	QTextDocument * doc = document();
-	QTextBlock bloc = doc->firstBlock();
-	while(bloc.isValid())
+	// Recuperation du premier bloc affiche
+	QTextBlock bloc = cursorForPosition(
+						  event->rect().topLeft()
+						  ).block();
+
+	// Recuperation du dernier bloc affiche
+	QTextBlock blocFin = cursorForPosition(
+							 event->rect().bottomRight()
+							 ).block();
+	while(bloc.isValid() && bloc.blockNumber() <= blocFin.blockNumber())
 	{
 		QQMessageBlockUserData * uData = (QQMessageBlockUserData * ) bloc.userData();
 		if(uData != NULL)
 		{
 
-			QList<int> bigZonesIdxs = uData->bigornoZonesStarts();
-			if(! bigZonesIdxs.isEmpty())
+			QList<QQBigornoItem> bigItems = uData->bigornoItems();
+			if(! bigItems.isEmpty())
 			{
-				QTextCursor cursor(bloc);
-				for(int i = 0; i < bigZonesIdxs.size(); i++)
+				QListIterator<QQBigornoItem> i(bigItems);
+				while(i.hasNext())
 				{
-					int bigIdx = bigZonesIdxs.at(i);
-					cursor.movePosition(
-								QTextCursor::NextCharacter,
-								QTextCursor::MoveAnchor,
-								bigIdx - cursor.positionInBlock()
-								);
+					QQBigornoItem bigItem = i.next();
+					QTextCursor cursor = QTextCursor(bloc);
+					cursor.movePosition(QTextCursor::Right, QTextCursor::MoveAnchor, bigItem.position());
 					QRect rect = cursorRect(cursor);
-					rect.setWidth(
-								pd.fontMetrics().boundingRect(
-									uData->bigornoForIndex(bigIdx).second).width()
-								);
-					qDebug() << uData->bigornoForIndex(bigIdx).second << " : " << rect;
-					pd.drawRoundedRect(rect.adjusted(-2, 0, +2, 0), 5.0, 1.0);
+					rect.setWidth(pd.fontMetrics().boundingRect(bigItem.word()).width());
+					rect.adjust(-2, 0, +2, 0);
+					if(event->region().boundingRect().contains(rect))
+					{
+						qDebug() << bigItem.word() << " : " << rect;
+
+						QLinearGradient linearGrad(0, 0, 0, rect.height());
+						linearGrad.setColorAt(0.0, colorVeryLight);
+						linearGrad.setColorAt(1.0, colorLight);
+						QBrush br(linearGrad);
+						pd.setBrush(br);
+						pd.drawRoundedRect(rect, 4.0, 2.0);
+					}
 				}
 			}
 		}

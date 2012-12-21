@@ -77,6 +77,7 @@ void QQPinipede::addPiniTab(const QString& groupName)
 	m_textBrowserHash.insert(groupName, textBrowser);
 	//textBrowser->document() devient le proprietaire du highlighter
 	QQSyntaxHighlighter * highlighter = new QQSyntaxHighlighter(textBrowser->document());
+	highlighter->setNotificationWindow(window());
 	connect(highlighter, SIGNAL(totozRequired(const QString &)),
 			m_totozManager, SLOT(fetchTotoz(const QString &)));
 
@@ -418,6 +419,7 @@ void QQPinipede::newPostsAvailable(QString groupName)
 	textBrowser->viewport()->setCursor(Qt::ArrowCursor);
 
 	newPostsAvailableMutex.unlock();
+
 }
 
 
