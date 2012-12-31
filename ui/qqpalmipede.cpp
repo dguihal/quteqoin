@@ -102,7 +102,7 @@ void QQPalmipede::insertReplaceText(const QString & tag)
 		if(bouchot.length() > 0)
 		{
 			int index = ui->boardSelectorComboBox->findText(bouchot);
-			if(index > 0)
+			if(index >= 0)
 			{
 				ui->boardSelectorComboBox->setCurrentIndex(index);
 				ui->boardSelectorComboBoxMin->setCurrentIndex(index);
