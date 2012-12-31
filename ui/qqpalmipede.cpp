@@ -7,6 +7,8 @@
 #include <QRegExp>
 #include <QShortcut>
 
+#define PALMI_TITLE "Palmipède Command Board"
+
 QQPalmipede::QQPalmipede(QWidget *parent) :
 	QGroupBox(parent),
 	ui(new Ui::QQPalmipede)
@@ -44,6 +46,8 @@ QQPalmipede::QQPalmipede(QWidget *parent) :
 			ui->postPushButton, SLOT(animateClick()));
 
 	this->ui->boardSelectorComboBoxMin->setVisible(this->m_minimal);
+
+	setTitle(trUtf8(PALMI_TITLE));
 }
 
 QQPalmipede::~QQPalmipede()
@@ -141,6 +145,7 @@ void QQPalmipede::setMinimal(bool minimal)
 	this->ui->cmdGrpWidget->setVisible(! m_minimal);
 	this->ui->postPushButton->setVisible(! m_minimal);
 	this->ui->boardSelectorComboBoxMin->setVisible(m_minimal);
+	m_minimal ? this->setTitle("") : setTitle(trUtf8(PALMI_TITLE));
 }
 
 
