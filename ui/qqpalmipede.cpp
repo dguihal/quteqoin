@@ -92,9 +92,31 @@ void QQPalmipede::maximizePalmi()
 void QQPalmipede::insertReplaceText(const QString & tag)
 {
 	QString t_tag = tag;
-	//Suppression des @bouchot excedentaires lorsque l'on a deja  selectionne le dit bouchot
-	QRegExp regexp = QQNorlogeRef::norlogeRegexp(ui->boardSelectorComboBox->currentText());
-	t_tag.replace(regexp, QString::fromAscii("\\1"));
+
+	// Si le palmi est vide, il est preferable de changer le tribune selectionnee
+	if(ui->postLineEdit->text().isEmpty())
+	{
+		QRegExp regexp = QQNorlogeRef::norlogeRegexp();
+		t_tag.indexOf(regexp);
+		QString bouchot = regexp.cap(4).remove(0, 1); // pour supprimer le '@' initial
+		if(bouchot.length() > 0)
+		{
+			int index = ui->boardSelectorComboBox->findText(bouchot);
+			if(index > 0)
+			{
+				ui->boardSelectorComboBox->setCurrentIndex(index);
+				ui->boardSelectorComboBoxMin->setCurrentIndex(index);
+				bouchotSelectorActivated(index);
+				t_tag.replace(regexp, QString::fromAscii("\\1"));
+			}
+		}
+	}
+	else
+	{
+		QRegExp regexp = QQNorlogeRef::norlogeRegexp(ui->boardSelectorComboBox->currentText());
+		//Suppression des @bouchot excedentaires lorsque l'on a deja  selectionne le dit bouchot
+		t_tag.replace(regexp, QString::fromAscii("\\1"));
+	}
 
 	ui->postLineEdit->insertReplaceText(t_tag);
 }
