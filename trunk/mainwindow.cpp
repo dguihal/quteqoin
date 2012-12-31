@@ -6,9 +6,10 @@
 #include "ui/qqpinipede.h"
 #include "ui/qqsettingsdialog.h"
 
-#include <QIcon>
 #include <QCloseEvent>
 #include <QDebug>
+#include <QIcon>
+#include <QKeyEvent>
 #include <QLayout>
 #include <QSizePolicy>
 #include <QSpacerItem>
@@ -194,7 +195,7 @@ void MainWindow::initBouchot(QQBouchot * bouchot)
 }
 
 void MainWindow::closeEvent(QCloseEvent * event)
- {
+{
 	qDebug()<<"MainWindow::closeEvent";
 	if(m_settings->maybeSave())
 		event->accept();
@@ -206,4 +207,18 @@ void MainWindow::resizeEvent(QResizeEvent * event)
 {
 	QMainWindow::resizeEvent(event);
 	m_settings->setWinGeometry(geometry());
+}
+
+
+void MainWindow::keyPressEvent(QKeyEvent * event)
+{
+	int key = event->key();
+	switch(key)
+	{
+	case Qt::Key_F5:
+			m_settings->stopBouchots();
+			m_settings->startBouchots();
+			break;
+	}
+
 }
