@@ -52,7 +52,7 @@ public:
 	void addBigornoZone(QQBigornoItem item) { m_listBigorno.append(item); }
 	QList<QQBigornoItem> bigornoItems() { return m_listBigorno; }
 
-	void setWasParsed(bool wasParsed) { m_wasParsed = wasParsed; }
+	void setParsed() { m_wasParsed = true; }
 	bool wasParsed() { return m_wasParsed; }
 
 	void setHighlighted() { m_isHighlighted = true; }
