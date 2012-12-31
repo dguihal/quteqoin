@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="title">
-   <string>Palmipède Command Board</string>
+   <string/>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
