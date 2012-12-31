@@ -485,21 +485,18 @@ void QQPinipede::norlogeRefHovered(QQNorlogeRef norlogeRef)
 		QQSyntaxHighlighter * highlighter = textBrowser->document()->findChildren<QQSyntaxHighlighter *>().at(0);
 		highlighter->setNorlogeRefToHighlight(norlogeRef);
 
-		QTextCursor cursor = textBrowser->cursorForPosition(QPoint(0, 0)); //get the cursor position near the top left corner of the current viewport.
-		QTextCursor endPosition = textBrowser->cursorForPosition(QPoint(textBrowser->viewport()->width(), textBrowser->viewport()->height())); //get the cursor position near the bottom left corner of the current viewport.
-		// qDebug() << "QQPinipede::norlogeRefHovered from position: " << cursor.blockNumber()
-		//				<< " to " << endPosition.blockNumber();
+		// Get the cursor position near the top left corner of the current viewport.
+		QTextCursor cursor = textBrowser->cursorForPosition(QPoint(0, 0));
+		// Get the cursor position near the bottom left corner of the current viewport.
+		int endBlockPos = (textBrowser->cursorForPosition(QPoint(textBrowser->viewport()->width(), textBrowser->viewport()->height()))).blockNumber();
 
-		cursor.beginEditBlock();
 		do
 		{
 			highlighter->rehighlightBlock(cursor.block());
 			if(cursor.block().userState() == QQSyntaxHighlighter::FULL_HIGHLIGHTED)
 				highlightSuccess = true;
-		} while ( cursor.movePosition(QTextCursor::NextBlock, QTextCursor::MoveAnchor, 1) &&
-				  cursor.blockNumber() <= endPosition.blockNumber() );
-
-		cursor.endEditBlock();
+		} while ( cursor.movePosition(QTextCursor::NextBlock) &&
+				  cursor.blockNumber() <= endBlockPos );
 	}
 
 	if( ! highlightSuccess )
@@ -565,7 +562,6 @@ void QQPinipede::unHighlight()
 	QQSyntaxHighlighter * highlighter = m_tBrowserHighlighted->document()->findChildren<QQSyntaxHighlighter *>().at(0);
 	highlighter->setNorlogeRefToHighlight(QQNorlogeRef());
 
-	cursor.beginEditBlock();
 	do
 	{
 		if(cursor.block().userState() == QQSyntaxHighlighter::NORLOGE_HIGHLIGHTED ||
@@ -573,8 +569,6 @@ void QQPinipede::unHighlight()
 			highlighter->rehighlightBlock(cursor.block());
 
 	} while ( cursor.movePosition( QTextCursor::NextBlock ) );
-
-	cursor.endEditBlock();
 
 	m_tBrowserHighlighted = NULL;
 }
