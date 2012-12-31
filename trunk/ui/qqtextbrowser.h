@@ -36,10 +36,10 @@ protected:
 	void resizeEvent(QResizeEvent * event);
 
 private:
-	void highlightNorloge(QQNorlogeRef nRef);
-	void unHighlightNorloge();
-	void showTotoz(QQTotoz & totoz);
 	void hideTotoz();
+	void highlightNorloge(QQNorlogeRef nRef);
+	void showTotoz(QQTotoz & totoz);
+	void unHighlightNorloge();
 
 	bool m_mouseClick;
 	QPoint m_lastPoint;

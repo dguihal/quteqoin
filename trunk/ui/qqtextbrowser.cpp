@@ -15,6 +15,7 @@
 #include <QToolTip>
 
 #define TAB_POS_IN_PX 70
+#define NOTIF_AREA_WIDTH 20
 
 QQTextBrowser::QQTextBrowser(QString groupName, QQPinipede *parent) :
 	QTextEdit(parent)
@@ -39,7 +40,9 @@ QQTextBrowser::QQTextBrowser(QString groupName, QQPinipede *parent) :
 
 	this->setMouseTracking(true);
 	viewport()->setCursor(Qt::ArrowCursor);
+	setViewportMargins(NOTIF_AREA_WIDTH, 0, 0, 0);
 
+	verticalScrollBar()->setInvertedControls(true);
 	verticalScrollBar()->triggerAction( QAbstractSlider::SliderToMaximum );
 }
 
@@ -75,8 +78,8 @@ void QQTextBrowser::mouseMoveEvent(QMouseEvent *event)
 			QQNorlogeRef nRef = blockData->norlogeRefForIndex(cursor.positionInBlock());
 			if( nRef.isValid() )
 			{
-				qDebug() << "QQTextBrowser::mouseMoveEvent, Norloge detectee, str = "
-						 << nRef.getOrigNRef() << " position : " << nRef.getPosInMessage();
+				//qDebug() << "QQTextBrowser::mouseMoveEvent, Norloge detectee, str = "
+				//		 << nRef.getOrigNRef() << " position : " << nRef.getPosInMessage();
 				highlightNorloge(nRef);
 			}
 			else
@@ -123,11 +126,9 @@ void QQTextBrowser::mouseMoveEvent(QMouseEvent *event)
 
 void QQTextBrowser::highlightNorloge(QQNorlogeRef nRef)
 {
-	qDebug() << "nRef.getOrigNRef() = " << nRef.getOrigNRef();
-
 	if(nRef.isValid() && m_highlightedNRef != nRef)
 	{
-		qDebug() << "QQTextBrowser::mouseMoveEvent norlogeRefHovered";
+		qDebug() << "QQTextBrowser::mouseMoveEvent norlogeRefHovered : nRef.getOrigNRef() = " << nRef.getOrigNRef();
 		unHighlightNorloge();
 		m_highlightedNRef = nRef;
 		emit norlogeRefHovered(nRef);
@@ -242,25 +243,25 @@ void QQTextBrowser::paintEvent(QPaintEvent * event)
 	QColor colorDark(150, 0, 0);
 	pd.setPen(QPen(colorDark));
 
-	// Recuperation du premier bloc affiche
+	// Recuperation du premier bloc a dessiner
 	QTextBlock bloc = cursorForPosition(
 						  event->rect().topLeft()
 						  ).block();
 
-	// Recuperation du dernier bloc affiche
+	// Recuperation du dernier bloc a dessiner
 	QTextBlock blocFin = cursorForPosition(
 							 event->rect().bottomRight()
 							 ).block();
 	while(bloc.isValid() && bloc.blockNumber() <= blocFin.blockNumber())
 	{
-		QQMessageBlockUserData * uData = (QQMessageBlockUserData * ) bloc.userData();
+		QQMessageBlockUserData * uData = (QQMessageBlockUserData *) bloc.userData();
 		if(uData != NULL)
 		{
-
 			QList<QQBigornoItem> bigItems = uData->bigornoItems();
 			if(! bigItems.isEmpty())
 			{
 				QListIterator<QQBigornoItem> i(bigItems);
+				//qDebug() << "QQTextBrowser::paintEvent, highlighting bloc num : " << bloc.blockNumber() << ", nb items : " << bigItems.size();
 				while(i.hasNext())
 				{
 					QQBigornoItem bigItem = i.next();
@@ -270,7 +271,7 @@ void QQTextBrowser::paintEvent(QPaintEvent * event)
 					rect.setWidth(pd.fontMetrics().boundingRect(bigItem.word()).width());
 					rect.adjust(-2, 0, +2, 0);
 
-					qDebug() << bigItem.word() << " : " << rect;
+					//qDebug() << "QQTextBrowser::paintEvent, highlighting : " << bigItem.word() << ", rect = : " << rect;
 
 					QLinearGradient linearGrad(0, 0, 0, rect.height());
 					linearGrad.setColorAt(0.0, colorVeryLight);

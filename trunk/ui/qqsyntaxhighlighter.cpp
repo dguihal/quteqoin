@@ -46,6 +46,8 @@ void QQSyntaxHighlighter::highlightBlock(const QString &text)
 		highlightTableVolante(text);
 		highlightTotoz(text);
 		highlightBigorno(text);
+
+		userData->setParsed();
 	}
 }
 
@@ -143,7 +145,8 @@ void QQSyntaxHighlighter::highlightDuck(const QString & text)
 	int index = text.indexOf(m_duckReg, messageRange.begin );
 	while (index >= 0) {
 		int length = m_duckReg.matchedLength();
-		userData->addDuckZone(index, text.mid(index, length));
+		if(! userData->wasParsed())
+			userData->addDuckZone(index, text.mid(index, length));
 		setFormat(index, length, color);
 
 		index = text.indexOf(m_duckReg, index + length);
@@ -156,7 +159,8 @@ void QQSyntaxHighlighter::highlightDuck(const QString & text)
 	index = text.indexOf(m_duckReg, messageRange.begin );
 	while (index >= 0) {
 		int length = m_duckReg.matchedLength();
-		userData->addDuckZone(index, text.mid(index, length));
+		if(! userData->wasParsed())
+			userData->addDuckZone(index, text.mid(index, length));
 		setFormat(index, length, color);
 
 		index = text.indexOf(m_duckReg, index + length);
@@ -169,7 +173,8 @@ void QQSyntaxHighlighter::highlightDuck(const QString & text)
 	index = text.indexOf(m_duckReg, messageRange.begin );
 	while (index >= 0) {
 		int length = m_duckReg.matchedLength();
-		userData->addDuckZone(index, text.mid(index, length));
+		if(! userData->wasParsed())
+			userData->addDuckZone(index, text.mid(index, length));
 		setFormat(index, length, color);
 
 		index = text.indexOf(m_duckReg, index + length);
@@ -192,7 +197,8 @@ void QQSyntaxHighlighter::highlightTableVolante(const QString & text)
 	int index = text.indexOf(m_tvReg, messageRange.begin );
 	while (index >= 0) {
 		int length = m_tvReg.matchedLength();
-		userData->addTableVZone(index, text.mid(index, length));
+		if(! userData->wasParsed())
+			userData->addTableVZone(index, text.mid(index, length));
 		setFormat(index, length, color);
 
 		index = text.indexOf(m_tvReg, index + length);
@@ -223,7 +229,8 @@ void QQSyntaxHighlighter::highlightTotoz(const QString & text)
 		QQTotoz totoz = QQTotoz(text.mid(index, length), index);
 		emit totozRequired(totoz.getId());
 
-		userData->addTotozZone(totoz);
+		if(! userData->wasParsed())
+			userData->addTotozZone(totoz);
 		setFormat(index, length, totozMessageFormat);
 
 		index = text.indexOf(m_totozReg, index + length);
@@ -234,6 +241,9 @@ void QQSyntaxHighlighter::highlightBigorno(const QString & text)
 {
 	QQMessageBlockUserData * userData = (QQMessageBlockUserData *) currentBlockUserData();
 	if(userData == NULL || ! userData->isValid())
+		return;
+
+	if(userData->wasParsed())
 		return;
 
 	QQMessageBlockUserData::ZoneRange messageRange = userData->zRangeForID(QQMessageBlockUserData::MESSAGE);
