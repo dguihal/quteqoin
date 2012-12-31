@@ -238,10 +238,11 @@ void QQTextBrowser::paintEvent(QPaintEvent * event)
 	QTextEdit::paintEvent(event);
 
 	QPainter pd(viewport());
-	QColor colorVeryLight(80, 0, 0, 80);
-	QColor colorLight(90, 0, 0, 90);
+	pd.setRenderHint(QPainter::Antialiasing, true);
+	QColor colorVeryLight(60, 0, 0, 100);
+	pd.setBrush(QBrush(colorVeryLight));
 	QColor colorDark(150, 0, 0);
-	pd.setPen(QPen(colorDark));
+	pd.setPen(QPen(QBrush(colorDark), 0.6));
 
 	// Recuperation du premier bloc a dessiner
 	QTextBlock bloc = cursorForPosition(
@@ -273,12 +274,7 @@ void QQTextBrowser::paintEvent(QPaintEvent * event)
 
 					//qDebug() << "QQTextBrowser::paintEvent, highlighting : " << bigItem.word() << ", rect = : " << rect;
 
-					QLinearGradient linearGrad(0, 0, 0, rect.height());
-					linearGrad.setColorAt(0.0, colorVeryLight);
-					linearGrad.setColorAt(1.0, colorLight);
-					QBrush br(linearGrad);
-					pd.setBrush(br);
-					pd.drawRoundedRect(rect, 4.0, 2.0);
+					pd.drawRoundedRect(rect, 3.0, 3.0);
 				}
 			}
 		}
@@ -293,5 +289,5 @@ void QQTextBrowser::resizeEvent(QResizeEvent * event)
 	bool isMax = (vScrollBar->sliderPosition() == vScrollBar->maximum());
 	QTextEdit::resizeEvent(event);
 	if(isMax)
-		vScrollBar->triggerAction( QAbstractSlider::SliderToMaximum );
+		vScrollBar->triggerAction(QAbstractSlider::SliderToMaximum);
 }
