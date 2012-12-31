@@ -98,7 +98,10 @@ bool QQPost::operator== (QQPost &b)
 //
 bool QQPost::operator< (QQPost &b)
 {
-	return this->m_norloge < b.m_norloge;
+	if(this->bouchot()->name() == b.bouchot()->name())
+		return this->m_id < b.m_id;
+	else
+		return this->m_norloge < b.m_norloge;
 }
 
 void QQPost::reset()
