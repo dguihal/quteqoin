@@ -10,6 +10,7 @@
 #include <QPainter>
 #include <QScrollBar>
 #include <QTextBlock>
+#include <QTextLayout>
 #include <QTextTable>
 #include <QTextTableCell>
 #include <QToolTip>
@@ -40,7 +41,10 @@ QQTextBrowser::QQTextBrowser(QString groupName, QQPinipede *parent) :
 
 	this->setMouseTracking(true);
 	viewport()->setCursor(Qt::ArrowCursor);
-	setViewportMargins(NOTIF_AREA_WIDTH, 0, 0, 0);
+	setViewportMargins(notifAreaWidth(), 0, 0, 0);
+
+	m_notifArea = new QQNotifArea(this);
+	connect(this->verticalScrollBar(), SIGNAL(valueChanged(int)), this, SLOT(updateNotifArea(int)));
 
 	verticalScrollBar()->setInvertedControls(true);
 	verticalScrollBar()->triggerAction( QAbstractSlider::SliderToMaximum );
@@ -48,6 +52,58 @@ QQTextBrowser::QQTextBrowser(QString groupName, QQPinipede *parent) :
 
 QQTextBrowser::~QQTextBrowser()
 {
+}
+
+int QQTextBrowser::notifAreaWidth()
+{
+	return NOTIF_AREA_WIDTH;
+}
+
+void QQTextBrowser::notifAreaPaintEvent(QPaintEvent * event)
+{
+	// Pour les nouveaux posts
+	QPainter newPostsPainter(m_notifArea);
+	newPostsPainter.setRenderHint(QPainter::Antialiasing, true);
+	QColor newPostsBrushColor(0, 255, 0, 100);
+	newPostsPainter.setBrush(newPostsBrushColor);
+	QColor newPostsPenColor(0, 100, 0, 100);
+	newPostsPainter.setPen(QPen(QBrush(newPostsPenColor), 0.6));
+
+	// Recuperation du premier bloc a dessiner
+	QTextBlock block = cursorForPosition(
+						   event->rect().topLeft()
+						   ).block();
+
+	// Recuperation du dernier bloc a dessiner
+	QTextBlock lastBlock = cursorForPosition(
+							   event->rect().bottomRight()
+							   ).block();
+	while(block.isValid() && block.blockNumber() <= lastBlock.blockNumber())
+	{
+		QQMessageBlockUserData * uData = (QQMessageBlockUserData *) block.userData();
+		if(uData != NULL)
+		{
+			///////////////////////////////////////////////////////////////////
+			/////        LES NOUVEAUX POSTS                   /////////////////
+			///////////////////////////////////////////////////////////////////
+			if(uData->isNew())
+			{
+				QTextCursor curs(block);
+				qreal height = block.layout()->boundingRect().height();
+				int posY = cursorRect(curs).y();
+				QRect drawRect(0, posY, notifAreaWidth() / 3, height);
+				newPostsPainter.drawRect(drawRect);
+			}
+
+		}
+		block = block.next();
+	}
+}
+
+
+void QQTextBrowser::updateNotifArea(int)
+{
+	m_notifArea->update();
 }
 
 void QQTextBrowser::mouseMoveEvent(QMouseEvent *event)
@@ -205,6 +261,26 @@ void QQTextBrowser::mouseReleaseEvent(QMouseEvent * event)
 	QIcon icon = QIcon(QString::fromAscii(":/img/rubber_duck_yellow.svg"));
 	window()->setWindowIcon(icon);
 
+	// Marquage des posts comme lus
+	QTextBlock block = document()->firstBlock();
+	QQMessageBlockUserData * blockData = NULL;
+	bool needUpdate = false;
+	while(block.isValid())
+	{
+		blockData = (QQMessageBlockUserData *) block.userData();
+		if(blockData != NULL && blockData->isNew())
+		{
+			needUpdate = true;
+			blockData->setAcknowledged();
+		}
+
+		block = block.next();
+	}
+
+	if(needUpdate)
+		m_notifArea->update();
+
+	// Ouverture l'url si on est au dessus d'un lien
 	QString httpAnchor = anchorAt(event->pos());
 	if( httpAnchor.length() > 0 )
 	{
@@ -212,9 +288,10 @@ void QQTextBrowser::mouseReleaseEvent(QMouseEvent * event)
 		return;
 	}
 
+	// Gestion du clic sur une norloge ou un login
 	QTextCursor cursor = cursorForPosition(event->pos());
-	QTextBlock block = cursor.block();
-	QQMessageBlockUserData * blockData = dynamic_cast<QQMessageBlockUserData *>(block.userData());
+	block = cursor.block();
+	blockData = (QQMessageBlockUserData *) block.userData();
 
 	if(blockData != NULL)
 	{
@@ -237,27 +314,31 @@ void QQTextBrowser::paintEvent(QPaintEvent * event)
 {
 	QTextEdit::paintEvent(event);
 
-	QPainter pd(viewport());
-	pd.setRenderHint(QPainter::Antialiasing, true);
-	QColor colorVeryLight(60, 0, 0, 100);
-	pd.setBrush(QBrush(colorVeryLight));
-	QColor colorDark(150, 0, 0);
-	pd.setPen(QPen(QBrush(colorDark), 0.6));
+	// Pour le bigorno
+	QPainter bigornoPainter(viewport());
+	bigornoPainter.setRenderHint(QPainter::Antialiasing, true);
+	QColor bigornoColorLight(60, 0, 0, 100);
+	bigornoPainter.setBrush(QBrush(bigornoColorLight));
+	QColor  bigornoColorDark(150, 0, 0);
+	bigornoPainter.setPen(QPen(QBrush(bigornoColorDark), 0.6));
 
 	// Recuperation du premier bloc a dessiner
-	QTextBlock bloc = cursorForPosition(
-						  event->rect().topLeft()
-						  ).block();
+	QTextBlock block = cursorForPosition(
+						   event->rect().topLeft()
+						   ).block();
 
 	// Recuperation du dernier bloc a dessiner
-	QTextBlock blocFin = cursorForPosition(
-							 event->rect().bottomRight()
-							 ).block();
-	while(bloc.isValid() && bloc.blockNumber() <= blocFin.blockNumber())
+	QTextBlock lastBlock = cursorForPosition(
+							   event->rect().bottomRight()
+							   ).block();
+	while(block.isValid() && block.blockNumber() <= lastBlock.blockNumber())
 	{
-		QQMessageBlockUserData * uData = (QQMessageBlockUserData *) bloc.userData();
+		QQMessageBlockUserData * uData = (QQMessageBlockUserData *) block.userData();
 		if(uData != NULL)
 		{
+			///////////////////////////////////////////////////////////////////
+			/////        LE BIGORNO                           /////////////////
+			///////////////////////////////////////////////////////////////////
 			QList<QQBigornoItem> bigItems = uData->bigornoItems();
 			if(! bigItems.isEmpty())
 			{
@@ -266,19 +347,19 @@ void QQTextBrowser::paintEvent(QPaintEvent * event)
 				while(i.hasNext())
 				{
 					QQBigornoItem bigItem = i.next();
-					QTextCursor cursor = QTextCursor(bloc);
+					QTextCursor cursor = QTextCursor(block);
 					cursor.movePosition(QTextCursor::Right, QTextCursor::MoveAnchor, bigItem.position());
 					QRect rect = cursorRect(cursor);
-					rect.setWidth(pd.fontMetrics().boundingRect(bigItem.word()).width());
+					rect.setWidth(bigornoPainter.fontMetrics().boundingRect(bigItem.word()).width());
 					rect.adjust(-2, 0, +2, 0);
 
 					//qDebug() << "QQTextBrowser::paintEvent, highlighting : " << bigItem.word() << ", rect = : " << rect;
 
-					pd.drawRoundedRect(rect, 3.0, 3.0);
+					bigornoPainter.drawRoundedRect(rect, 3.0, 3.0);
 				}
 			}
 		}
-		bloc = bloc.next();
+		block = block.next();
 	}
 
 }
@@ -290,4 +371,7 @@ void QQTextBrowser::resizeEvent(QResizeEvent * event)
 	QTextEdit::resizeEvent(event);
 	if(isMax)
 		vScrollBar->triggerAction(QAbstractSlider::SliderToMaximum);
+
+	QRect cr = contentsRect();
+	m_notifArea->setGeometry(QRect(cr.left(), cr.top(), notifAreaWidth(), cr.height()));
 }
