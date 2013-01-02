@@ -215,25 +215,6 @@ void QQPinipede::printPostAtCursor( QTextCursor & cursor, QQPost * post )
 	QQMessageBlockUserData * data = new QQMessageBlockUserData();
 	data->setPost(post);
 
-	/*
-			QTextCharFormat cellMarkColorFormat;
-
-			if( post->isSelfPost())
-			{
-				cursor.insertImage(
-							QImage(QString::fromAscii(":/img/Fleche_verte.svg"))
-							.scaledToHeight(blockFormat.property(QTextFormat::LineHeight).toInt() - 2)
-							);
-			}
-			else
-			{
-				cursor.insertText(QString::fromUtf8(" "));
-			}
-
-			QColor baseBgColor = post->bouchot()->settings().colorLight();
-			cellMarkColorFormat.setBackground(baseBgColor);
-			*/
-
 	//norloge
 
 	QTextCharFormat norlogeFormat;
@@ -366,7 +347,9 @@ void QQPinipede::newPostsAvailable(QString groupName)
 		//Deplacement vers la nouvelle ligne
 		if(insertIndex == 0)
 		{
+			QQMessageBlockUserData * uData = (QQMessageBlockUserData *) cursor.block().userData();
 			cursor.insertBlock();
+			cursor.block().setUserData(uData);
 			cursor.movePosition(QTextCursor::PreviousBlock);
 			printPostAtCursor(cursor, newPost);
 		}
