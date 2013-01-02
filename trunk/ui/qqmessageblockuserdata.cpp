@@ -6,6 +6,7 @@ QQMessageBlockUserData::QQMessageBlockUserData()
 {
 	m_wasParsed = false;
 	m_isHighlighted = false;
+	m_isNew = true;
 	m_post = NULL;
 }
 

@@ -59,6 +59,9 @@ public:
 	void resetHighlighted() { m_isHighlighted = false; }
 	bool isHighlighted() { return m_isHighlighted; }
 
+	bool isNew() { return m_isNew; }
+	void setAcknowledged() { m_isNew = false; }
+
 	bool isValid() { return m_ranges.size() > 0; }
 
 
@@ -74,6 +77,7 @@ private:
 
 	bool m_wasParsed;
 	bool m_isHighlighted;
+	bool m_isNew;
 
 	QHash<int, ZoneRange> m_ranges;
 

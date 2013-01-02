@@ -19,6 +19,12 @@ public:
 	explicit QQTextBrowser(QString groupName, QQPinipede *parent = 0);
 	~QQTextBrowser();
 
+	int notifAreaWidth();
+	void notifAreaPaintEvent(QPaintEvent * event);
+
+public slots:
+	void updateNotifArea(int);
+
 signals:
 	void norlogeClicked(QQNorloge norloge);
 	void norlogeRefHovered(QQNorlogeRef norloge);
@@ -35,11 +41,28 @@ protected:
 	void paintEvent(QPaintEvent * event);
 	void resizeEvent(QResizeEvent * event);
 
+
+
 private:
+
 	void hideTotoz();
 	void highlightNorloge(QQNorlogeRef nRef);
 	void showTotoz(QQTotoz & totoz);
 	void unHighlightNorloge();
+
+	class QQNotifArea : public QWidget
+	{
+	public:
+		QQNotifArea(QQTextBrowser * qqtb) : QWidget(qqtb) { m_qqtb = qqtb; }
+		QSize sizeHint() const { return QSize(m_qqtb->notifAreaWidth(), 0); }
+
+	protected:
+		void paintEvent(QPaintEvent * event) { m_qqtb->notifAreaPaintEvent(event); }
+
+	private:
+		QQTextBrowser * m_qqtb;
+	};
+	QWidget * m_notifArea;
 
 	bool m_mouseClick;
 	QPoint m_lastPoint;
