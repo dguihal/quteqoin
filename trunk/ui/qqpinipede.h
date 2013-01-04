@@ -59,7 +59,7 @@ signals:
 	void insertTextPalmi(QString text);
 
 private:
-	void printPostAtCursor( QTextCursor & cursor, QQPost * post );
+	void printPostAtCursor(QTextCursor & cursor, QQPost * post);
 	unsigned int insertPostToList(QList<QQPost *> *listPosts, QQPost *post, unsigned int indexStart);
 
 	QQSettings * m_settings;

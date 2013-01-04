@@ -91,9 +91,9 @@ public:
 	void parseBackend(const QByteArray & data);
 	void postMessage(const QString & message);
 
-	QQBouchotSettings settings() { return m_settings; }
+	QQBouchotSettings settings() { return m_bSettings; }
 	void setSettings(QQBouchot bouchotRef) { setSettings(bouchotRef.settings()); }
-	void setSettings(QQBouchotSettings newSettings) { m_settings = newSettings; }
+	void setSettings(QQBouchotSettings newSettings) { m_bSettings = newSettings; }
 
 	void startRefresh();
 	void stopRefresh();
@@ -121,8 +121,9 @@ private:
 	QList<QQPost *> m_history;
 	int m_lastId;
 	QString m_name;
+	QQSettings * m_settings;
 	QList<QQPost *> m_newPostHistory;
-	QQBouchotSettings m_settings;
+	QQBouchotSettings m_bSettings;
 	QTimer timer;
 };
 
