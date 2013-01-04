@@ -69,6 +69,11 @@ bool QQPost::isSelfPost()
 	return false;
 }
 
+bool QQPost::isReponse()
+{
+	return false;
+}
+
 //
 QString QQPost::norlogeFormatee()
 {

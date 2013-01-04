@@ -26,7 +26,6 @@ public:
 	enum zoneRangeID { NORLOGE, LOGINUA, MESSAGE };
 
 	QQMessageBlockUserData();
-
 	~QQMessageBlockUserData();
 
 	ZoneRange zRangeForID( const zoneRangeID zrId ) { return m_ranges[zrId]; }
@@ -42,6 +41,7 @@ public:
 
 	void addTotozZone(const QQTotoz & totoz) { m_listTotoz.append(totoz); }
 	QQTotoz totozForIndex(int index);
+	QList<QQTotoz> totozZones() { return m_listTotoz; }
 
 	void addDuckZone(int index, const QString & duck) { m_mapDuck.insert(index, duck); }
 	QPair<int, QString> duckForIndex(int index) { return stringForIndex(index, m_mapDuck); }

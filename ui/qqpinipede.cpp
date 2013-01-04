@@ -207,7 +207,7 @@ void QQPinipede::purgePinitabHistory(const QString & groupName)
 
 }
 
-void QQPinipede::printPostAtCursor( QTextCursor & cursor, QQPost * post )
+void QQPinipede::printPostAtCursor(QTextCursor & cursor, QQPost * post)
 {
 	QTextBlock block = cursor.block();
 
@@ -256,8 +256,8 @@ void QQPinipede::printPostAtCursor( QTextCursor & cursor, QQPost * post )
 	}
 
 	//[:magic]
-	if(txt.length() < 4)
-		txt.append(QString::fromUtf8("   "));
+	while(txt.length() < 6)
+		txt.append(QChar(' '));
 
 	cursor.insertText(txt, loginUaFormat);
 	rangeLoginUA.end = cursor.positionInBlock();
@@ -378,7 +378,7 @@ void QQPinipede::newPostsAvailable(QString groupName)
 		{
 			// Gestion de l'index de norloge multiple
 			if(newPosts.at(newPostsIndex)->norloge().toLongLong() == destlistPosts->last()->norloge().toLongLong() &&
-					newPosts.at(newPostsIndex)->bouchot()->name().compare(destlistPosts->last()->bouchot()->name()) == 0)
+			   newPosts.at(newPostsIndex)->bouchot()->name().compare(destlistPosts->last()->bouchot()->name()) == 0)
 			{
 				destlistPosts->last()->setNorlogeMultiple(true);
 				newPosts.at(newPostsIndex)->setNorlogeIndex(destlistPosts->last()->norlogeIndex() + 1);
@@ -504,7 +504,7 @@ void QQPinipede::norlogeRefHovered(QQNorlogeRef norlogeRef)
 			QQBouchot * currBouchot = userData->post()->bouchot();
 
 			if( ( dstBouchot == currBouchot->name() || currBouchot->settings().containsAlias(dstBouchot) ) &&
-					currNorloge.startsWith(dstNorloge) )
+				currNorloge.startsWith(dstNorloge) )
 			{
 				qDebug() << "QQPinipede::norlogeRefHovered cursor.blockNumber()=" << cursor.blockNumber();
 				cursor.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
@@ -548,7 +548,7 @@ void QQPinipede::unHighlight()
 	do
 	{
 		if(cursor.block().userState() == QQSyntaxHighlighter::NORLOGE_HIGHLIGHTED ||
-				cursor.block().userState() == QQSyntaxHighlighter::FULL_HIGHLIGHTED)
+		   cursor.block().userState() == QQSyntaxHighlighter::FULL_HIGHLIGHTED)
 			highlighter->rehighlightBlock(cursor.block());
 
 	} while ( cursor.movePosition( QTextCursor::NextBlock ) );

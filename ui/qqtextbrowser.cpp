@@ -61,13 +61,24 @@ int QQTextBrowser::notifAreaWidth()
 
 void QQTextBrowser::notifAreaPaintEvent(QPaintEvent * event)
 {
+	QPainter painter(m_notifArea);
+	painter.setRenderHint(QPainter::Antialiasing, true);
+
 	// Pour les nouveaux posts
-	QPainter newPostsPainter(m_notifArea);
-	newPostsPainter.setRenderHint(QPainter::Antialiasing, true);
 	QColor newPostsBrushColor(0, 255, 0, 100);
-	newPostsPainter.setBrush(newPostsBrushColor);
 	QColor newPostsPenColor(0, 100, 0, 100);
-	newPostsPainter.setPen(QPen(QBrush(newPostsPenColor), 0.6));
+
+	// Pour les propres posts
+	QColor selfPostsBrushColor(0, 0, 255, 100);
+	QColor selfPostsPenColor(0, 0, 100, 100);
+
+	// Pour les reponses
+	QColor repPostsBrushColor(127, 0, 127, 100);
+	QColor repPostsPenColor(50, 0, 50, 100);
+
+	// Pour le bigorno
+	QColor bigornoBrushColor(255, 0, 0, 100);
+	QColor  bigornoPenColor(100, 0, 0);
 
 	// Recuperation du premier bloc a dessiner
 	QTextBlock block = cursorForPosition(
@@ -81,20 +92,56 @@ void QQTextBrowser::notifAreaPaintEvent(QPaintEvent * event)
 	while(block.isValid() && block.blockNumber() <= lastBlock.blockNumber())
 	{
 		QQMessageBlockUserData * uData = (QQMessageBlockUserData *) block.userData();
+		int offset = 0;
+		int width = notifAreaWidth() / 3;
 		if(uData != NULL)
 		{
+			QTextCursor curs(block);
+			qreal height = block.layout()->boundingRect().height();
+			int posY = cursorRect(curs).y();
 			///////////////////////////////////////////////////////////////////
 			/////        LES NOUVEAUX POSTS                   /////////////////
 			///////////////////////////////////////////////////////////////////
 			if(uData->isNew())
 			{
-				QTextCursor curs(block);
-				qreal height = block.layout()->boundingRect().height();
-				int posY = cursorRect(curs).y();
-				QRect drawRect(0, posY, notifAreaWidth() / 3, height);
-				newPostsPainter.drawRect(drawRect);
+				painter.setBrush(newPostsBrushColor);
+				painter.setPen(QPen(QBrush(newPostsPenColor), 0.6));
+				QRect drawRect(offset, posY, width, height);
+				painter.drawRect(drawRect);
 			}
+			offset += width;
 
+			///////////////////////////////////////////////////////////////////
+			/////        LE TRACKING DES POSTS                /////////////////
+			///////////////////////////////////////////////////////////////////
+			QQPost * post = uData->post();
+			if(post->isSelfPost())
+			{
+				painter.setBrush(selfPostsBrushColor);
+				painter.setPen(QPen(QBrush(selfPostsPenColor), 0.6));
+				QRect drawRect(offset, posY, width, height);
+				painter.drawRect(drawRect);
+			}
+			else if(post->isReponse())
+			{
+				painter.setBrush(repPostsBrushColor);
+				painter.setPen(QPen(QBrush(repPostsPenColor), 0.6));
+				QRect drawRect(offset, posY, width, height);
+				painter.drawRect(drawRect);
+			}
+			offset += width;
+
+			///////////////////////////////////////////////////////////////////
+			/////        LE BIGONO (ENCORE)                  /////////////////
+			///////////////////////////////////////////////////////////////////
+			QList<QQBigornoItem> bigItems = uData->bigornoItems();
+			if(! bigItems.isEmpty())
+			{
+				painter.setBrush(QBrush(bigornoBrushColor));
+				painter.setPen(QPen(QBrush(bigornoPenColor), 0.6));
+				QRect drawRect(offset, posY, width, height);
+				painter.drawRect(drawRect);
+			}
 		}
 		block = block.next();
 	}
@@ -317,10 +364,10 @@ void QQTextBrowser::paintEvent(QPaintEvent * event)
 	// Pour le bigorno
 	QPainter bigornoPainter(viewport());
 	bigornoPainter.setRenderHint(QPainter::Antialiasing, true);
-	QColor bigornoColorLight(60, 0, 0, 100);
-	bigornoPainter.setBrush(QBrush(bigornoColorLight));
-	QColor  bigornoColorDark(150, 0, 0);
-	bigornoPainter.setPen(QPen(QBrush(bigornoColorDark), 0.6));
+	QColor bigornoBrushColor(60, 0, 0, 100);
+	bigornoPainter.setBrush(QBrush(bigornoBrushColor));
+	QColor  bigornoPenColor(150, 0, 0);
+	bigornoPainter.setPen(QPen(QBrush(bigornoPenColor), 0.6));
 
 	// Recuperation du premier bloc a dessiner
 	QTextBlock block = cursorForPosition(

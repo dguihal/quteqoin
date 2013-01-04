@@ -72,6 +72,7 @@ public:
 	QString toText();
 
 	bool isSelfPost();
+	bool isReponse();
 
 	bool equal( QQPost &b );
 	bool operator==( QQPost& );

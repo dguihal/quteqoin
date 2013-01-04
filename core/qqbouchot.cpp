@@ -44,16 +44,17 @@ QQBouchot::QQBouchot(const QString & name, QQSettings * settings) :
 	QQNetworkAccessor(settings)
 {
 	m_name = name;
-	m_settings.setRefresh(0);
+	m_bSettings.setRefresh(0);
 	m_history.clear();
 	m_newPostHistory.clear();
 	m_lastId=0;
+	m_settings = settings;
 }
 
 void QQBouchot::postMessage(const QString &message)
 {
-	QString url = m_settings.postUrl();
-	QByteArray postData = m_settings.postData().toAscii();
+	QString url = m_bSettings.postUrl();
+	QByteArray postData = m_bSettings.postData().toAscii();
 	QByteArray mark("%m");
 
 	if(postData.contains(mark))
@@ -65,13 +66,13 @@ void QQBouchot::postMessage(const QString &message)
 	request.setAttribute(QNetworkRequest::User, QQBouchot::PostRequest);
 	request.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded; charset=UTF-8");
 
-	if(m_settings.ua().isEmpty() == false)
-		request.setRawHeader("User-Agent", m_settings.ua().toAscii());
+	if(m_bSettings.ua().isEmpty() == false)
+		request.setRawHeader("User-Agent", m_bSettings.ua().toAscii());
 	else
-		request.setRawHeader("User-Agent", ((QQSettings *)this->parent())->defaultUA().toAscii());
+		request.setRawHeader("User-Agent", m_settings->defaultUA().toAscii());
 
-	if(m_settings.cookie().isEmpty() == false)
-		request.setRawHeader("Cookie", m_settings.cookie().toAscii());
+	if(m_bSettings.cookie().isEmpty() == false)
+		request.setRawHeader("Cookie", m_bSettings.cookie().toAscii());
 
 	request.setRawHeader("Accept", "*/*");
 	request.setRawHeader("Accept-Encoding","gzip, defalte");
@@ -84,7 +85,7 @@ void QQBouchot::startRefresh()
 {
 	qDebug() << QDateTime::currentDateTime().currentMSecsSinceEpoch() << " : "
 			 << "QQBouchot::startRefresh";
-	if(m_settings.refresh() <= 0)
+	if(m_bSettings.refresh() <= 0)
 		return;
 
 	//Connection du signal
@@ -145,7 +146,7 @@ bool QQBouchot::event(QEvent * e)
 
 void QQBouchot::fetchBackend()
 {
-	QString url = m_settings.backendUrl();
+	QString url = m_bSettings.backendUrl();
 	QString lastId;
 
 	//on bloque le timer
@@ -162,15 +163,15 @@ void QQBouchot::fetchBackend()
 	request.setAttribute(QNetworkRequest::CacheLoadControlAttribute,
 						 QNetworkRequest::AlwaysNetwork);
 
-	if(m_settings.ua().isEmpty() == false)
-		request.setRawHeader(QString::fromAscii("User-Agent").toAscii(), m_settings.ua().toAscii());
+	if(m_bSettings.ua().isEmpty() == false)
+		request.setRawHeader(QString::fromAscii("User-Agent").toAscii(), m_bSettings.ua().toAscii());
 
-	if(m_settings.cookie().isEmpty() == false)
-		request.setRawHeader(QString::fromAscii("Cookie").toAscii(), m_settings.cookie().toAscii());
+	if(m_bSettings.cookie().isEmpty() == false)
+		request.setRawHeader(QString::fromAscii("Cookie").toAscii(), m_bSettings.cookie().toAscii());
 
 	httpGet(request);
 
-	timer.setInterval(m_settings.refresh() * 1000);
+	timer.setInterval(m_bSettings.refresh() * 1000);
 	timer.start();
 }
 
@@ -216,7 +217,7 @@ void QQBouchot::parseBackend(const QByteArray & data)
 	QXmlInputSource xmlSource;
 	QQXmlParser xmlParser;
 	xmlParser.setLastId(m_lastId);
-	xmlParser.setTypeSlip(this->m_settings.slipType());
+	xmlParser.setTypeSlip(this->m_bSettings.slipType());
 
 	connect(&xmlParser, SIGNAL(newPostReady(QQPost&)), this, SLOT(insertNewPost(QQPost&)));
 	xmlSource.setData(data);
@@ -231,7 +232,7 @@ void QQBouchot::parseBackend(const QByteArray & data)
 				 << "QQBouchot::replyFinished, newPostsInserted emis";
 		m_history.append(m_newPostHistory);
 		m_lastId = m_history.last()->id().toInt();
-		emit newPostsAvailable(m_settings.group());
+		emit newPostsAvailable(m_bSettings.group());
 	}
 
 }
