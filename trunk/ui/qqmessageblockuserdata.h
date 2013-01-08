@@ -26,6 +26,7 @@ public:
 	enum zoneRangeID { NORLOGE, LOGINUA, MESSAGE };
 
 	QQMessageBlockUserData();
+	QQMessageBlockUserData(const QQMessageBlockUserData & userData);
 	~QQMessageBlockUserData();
 
 	ZoneRange zRangeForID( const zoneRangeID zrId ) { return m_ranges[zrId]; }
