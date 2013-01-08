@@ -347,7 +347,8 @@ void QQPinipede::newPostsAvailable(QString groupName)
 		//Deplacement vers la nouvelle ligne
 		if(insertIndex == 0)
 		{
-			QQMessageBlockUserData * uData = (QQMessageBlockUserData *) cursor.block().userData();
+			//Necessite de le copier car il sera supprime par le nouveau userData de la premiere ligne
+			QQMessageBlockUserData * uData = new QQMessageBlockUserData( * ((QQMessageBlockUserData *) cursor.block().userData()));
 			cursor.insertBlock();
 			cursor.block().setUserData(uData);
 			cursor.movePosition(QTextCursor::PreviousBlock);

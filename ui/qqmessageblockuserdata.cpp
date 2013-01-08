@@ -10,6 +10,20 @@ QQMessageBlockUserData::QQMessageBlockUserData()
 	m_post = NULL;
 }
 
+QQMessageBlockUserData::QQMessageBlockUserData(const QQMessageBlockUserData & userData)
+{
+	m_wasParsed = userData.m_wasParsed;
+	m_isHighlighted = userData.m_isHighlighted;
+	m_isNew = userData.m_isNew;
+	m_post = userData.m_post;
+	m_listNRef = userData.m_listNRef;
+	m_listTotoz = userData.m_listTotoz;
+	m_mapDuck = userData.m_mapDuck;
+	m_mapTableV = userData.m_mapTableV;
+	m_listBigorno = userData.m_listBigorno;
+	m_ranges = userData.m_ranges;
+}
+
 QQMessageBlockUserData::~QQMessageBlockUserData()
 {
 	m_listNRef.clear();
@@ -17,6 +31,7 @@ QQMessageBlockUserData::~QQMessageBlockUserData()
 	m_mapDuck.clear();
 	m_mapTableV.clear();
 	m_ranges.clear();
+	m_listBigorno.clear();
 	m_post = NULL;
 }
 
