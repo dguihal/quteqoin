@@ -110,7 +110,9 @@ void QQSyntaxHighlighter::highlightNorloge(const QString & text)
 										 userData->post()->norloge(),
 										 text.mid(index, length),
 										 index);
-		userData->addNorlogeRefZone(nRef);
+		if(! userData->wasParsed())
+			userData->addNorlogeRefZone(nRef);
+
 		if(m_nRef == nRef)
 		{
 			setCurrentBlockState(QQSyntaxHighlighter::NORLOGE_HIGHLIGHTED);
@@ -143,10 +145,13 @@ void QQSyntaxHighlighter::highlightDuck(const QString & text)
 								QRegExp::RegExp);
 
 	int index = text.indexOf(m_duckReg, messageRange.begin );
-	while (index >= 0) {
+	while (index >= 0)
+	{
 		int length = m_duckReg.matchedLength();
+
 		if(! userData->wasParsed())
 			userData->addDuckZone(index, text.mid(index, length));
+
 		setFormat(index, length, color);
 
 		index = text.indexOf(m_duckReg, index + length);
@@ -171,10 +176,13 @@ void QQSyntaxHighlighter::highlightDuck(const QString & text)
 						QRegExp::RegExp);
 
 	index = text.indexOf(m_duckReg, messageRange.begin );
-	while (index >= 0) {
+	while (index >= 0)
+	{
 		int length = m_duckReg.matchedLength();
+
 		if(! userData->wasParsed())
 			userData->addDuckZone(index, text.mid(index, length));
+
 		setFormat(index, length, color);
 
 		index = text.indexOf(m_duckReg, index + length);
@@ -195,10 +203,13 @@ void QQSyntaxHighlighter::highlightTableVolante(const QString & text)
 							  Qt::CaseSensitive,
 							  QRegExp::RegExp);
 	int index = text.indexOf(m_tvReg, messageRange.begin );
-	while (index >= 0) {
+	while (index >= 0)
+	{
 		int length = m_tvReg.matchedLength();
+
 		if(! userData->wasParsed())
 			userData->addTableVZone(index, text.mid(index, length));
+
 		setFormat(index, length, color);
 
 		index = text.indexOf(m_tvReg, index + length);
@@ -227,10 +238,13 @@ void QQSyntaxHighlighter::highlightTotoz(const QString & text)
 		int length = m_totozReg.matchedLength();
 
 		QQTotoz totoz = QQTotoz(text.mid(index, length), index);
-		emit totozRequired(totoz.getId());
 
 		if(! userData->wasParsed())
+		{
+			emit totozRequired(totoz.getId());
 			userData->addTotozZone(totoz);
+		}
+
 		setFormat(index, length, totozMessageFormat);
 
 		index = text.indexOf(m_totozReg, index + length);
