@@ -38,32 +38,34 @@ public:
 
 	void addNorlogeRefZone(const QQNorlogeRef & norlogeRef) { m_listNRef.append(norlogeRef); }
 	QQNorlogeRef norlogeRefForIndex(int index);
-	QList<QQNorlogeRef> norlogeRefs() { return m_listNRef; }
+	QList<QQNorlogeRef> norlogeRefs() const { return m_listNRef; }
 
 	void addTotozZone(const QQTotoz & totoz) { m_listTotoz.append(totoz); }
 	QQTotoz totozForIndex(int index);
-	QList<QQTotoz> totozZones() { return m_listTotoz; }
+	QList<QQTotoz> totozZones() const { return m_listTotoz; }
 
 	void addDuckZone(int index, const QString & duck) { m_mapDuck.insert(index, duck); }
 	QPair<int, QString> duckForIndex(int index) { return stringForIndex(index, m_mapDuck); }
+	QList<int> duckIndexes() const { return m_mapDuck.uniqueKeys(); }
 
 	void addTableVZone(int index, const QString & tableV) { m_mapTableV.insert(index, tableV); }
 	QPair<int, QString> tableVForIndex(int index) { return stringForIndex(index, m_mapTableV); }
+	QList<int> tableVIndexes() const { return m_mapTableV.uniqueKeys(); }
 
 	void addBigornoZone(QQBigornoItem item) { m_listBigorno.append(item); }
-	QList<QQBigornoItem> bigornoItems() { return m_listBigorno; }
+	QList<QQBigornoItem> bigornoItems() const { return m_listBigorno; }
 
 	void setParsed() { m_wasParsed = true; }
-	bool wasParsed() { return m_wasParsed; }
+	bool wasParsed() const { return m_wasParsed; }
 
 	void setHighlighted() { m_isHighlighted = true; }
 	void resetHighlighted() { m_isHighlighted = false; }
-	bool isHighlighted() { return m_isHighlighted; }
+	bool isHighlighted() const { return m_isHighlighted; }
 
-	bool isNew() { return m_isNew; }
+	bool isNew() const { return m_isNew; }
 	void setAcknowledged() { m_isNew = false; }
 
-	bool isValid() { return m_ranges.size() > 0; }
+	bool isValid() const { return m_ranges.size() > 0; }
 
 
 private:

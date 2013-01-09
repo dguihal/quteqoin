@@ -2,6 +2,7 @@
 #define QQSYNTAXHIGHLIGHTER_H
 
 #include <core/qqnorlogeref.h>
+#include <core/qqtotoz.h>
 
 #include <QList>
 #include <QString>
@@ -36,9 +37,13 @@ protected:
 private:
 	void highlightBlockForNRef();
 	void highlightDuck(const QString & text);
+	void formatDuck(int duckIndex, int duckStringLength);
 	void highlightNorloge(const QString & text);
+	void formatNRef(const QQNorlogeRef & nRef);
 	void highlightTableVolante(const QString & text);
+	void formatTableV(int tableVIndex, int tableVStringLength);
 	void highlightTotoz(const QString & text);
+	void formatTotoz(const QQTotoz & totoz);
 	void highlightBigorno(const QString & text);
 
 	QQNorlogeRef m_nRef;
