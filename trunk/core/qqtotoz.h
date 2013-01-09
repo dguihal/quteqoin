@@ -16,9 +16,9 @@ public:
 	QQTotoz(const QQTotoz & totoz);
 	~QQTotoz();
 
-	QString getOrigString() { return (QString::fromAscii("[:")).append(m_id).append(QString::fromAscii("]")); }
+	QString getOrigString() const { return (QString::fromAscii("[:")).append(m_id).append(QString::fromAscii("]")); }
 	QString getId() { return m_id; }
-	int getPosInMessage() { return m_posInMessage; }
+	int getPosInMessage() const { return m_posInMessage; }
 	void setPosInMessage(const int posInMessage) { m_posInMessage = posInMessage; }
 
 	bool isValid() { return m_id.length() > 0 && QFile::exists(this->getPath()); }

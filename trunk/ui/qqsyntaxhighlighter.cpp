@@ -27,17 +27,12 @@ QQSyntaxHighlighter::~QQSyntaxHighlighter()
 
 void QQSyntaxHighlighter::highlightBlock(const QString &text)
 {
-	//qDebug() << QDateTime::currentDateTime().currentMSecsSinceEpoch() << " : "
-	//		 << "QQSyntaxHighlighter::highlightBlock";
-
 	QQMessageBlockUserData * userData = (QQMessageBlockUserData *)(currentBlockUserData());
 
 	setCurrentBlockState(QQSyntaxHighlighter::NOT_HIGHLIGHTED);
 	if(text.length() > 1 &&
 			userData != NULL)
 	{
-		//qDebug() << QDateTime::currentDateTime().currentMSecsSinceEpoch() << " : "
-		//		 << "QQSyntaxHighlighter::highlightBlock text=" << text;
 		setCurrentBlockState(QQSyntaxHighlighter::NORMAL);
 
 		highlightBlockForNRef();
@@ -89,41 +84,54 @@ void QQSyntaxHighlighter::highlightNorloge(const QString & text)
 	if(userData == NULL || ! userData->isValid())
 		return;
 
-	QQMessageBlockUserData::ZoneRange messageRange = userData->zRangeForID(QQMessageBlockUserData::MESSAGE);
+	if(userData->wasParsed())
+	{
+		QList<QQNorlogeRef> nRefs = userData->norlogeRefs();
+		for(int i = 0; i < nRefs.size(); i ++)
+			formatNRef(nRefs.at(i));
+	}
+	else
+	{
+		QQMessageBlockUserData::ZoneRange messageRange = userData->zRangeForID(QQMessageBlockUserData::MESSAGE);
 
+		QRegExp m_norlogeReg = QQNorlogeRef::norlogeRegexp();
+
+		int index = text.indexOf(m_norlogeReg, messageRange.begin );
+		while (index >= 0)
+		{
+			int length = m_norlogeReg.matchedLength();
+
+			QQNorlogeRef nRef = QQNorlogeRef(userData->post()->bouchot()->name(),
+											 userData->post()->norloge(),
+											 text.mid(index, length),
+											 index);
+
+			userData->addNorlogeRefZone(nRef);
+			formatNRef(nRef);
+
+			index = text.indexOf(m_norlogeReg, index + length);
+		}
+	}
+}
+
+void QQSyntaxHighlighter::formatNRef(const QQNorlogeRef & nRef)
+{
 	QColor highlightColor("#FFE940");
+	QColor printColor("#0000DD");
 
 	QTextCharFormat fmt = format(0);
-	fmt.setForeground(QColor("#0000DD"));
+	fmt.setForeground(printColor);
 	QTextCharFormat fmtH = fmt;
 	fmtH.setBackground(highlightColor);
 
-
-	QRegExp m_norlogeReg = QQNorlogeRef::norlogeRegexp();
-
-	int index = text.indexOf(m_norlogeReg, messageRange.begin );
-	while (index >= 0)
+	if(m_nRef == nRef)
 	{
-		int length = m_norlogeReg.matchedLength();
-		//Q_ASSERT(userData->post() != NULL);
-		QQNorlogeRef nRef = QQNorlogeRef(userData->post()->bouchot()->name(),
-										 userData->post()->norloge(),
-										 text.mid(index, length),
-										 index);
-		if(! userData->wasParsed())
-			userData->addNorlogeRefZone(nRef);
-
-		if(m_nRef == nRef)
-		{
-			setCurrentBlockState(QQSyntaxHighlighter::NORLOGE_HIGHLIGHTED);
-			setFormat(index, length, fmtH);
-		}
-		else
-		{
-			setFormat(index, length, fmt);
-		}
-
-		index = text.indexOf(m_norlogeReg, index + length);
+		setCurrentBlockState(QQSyntaxHighlighter::NORLOGE_HIGHLIGHTED);
+		setFormat(nRef.getPosInMessage(), nRef.getOrigNRef().length(), fmtH);
+	}
+	else
+	{
+		setFormat(nRef.getPosInMessage(), nRef.getOrigNRef().length(), fmt);
 	}
 }
 
@@ -133,60 +141,73 @@ void QQSyntaxHighlighter::highlightDuck(const QString & text)
 	if(userData == NULL || ! userData->isValid())
 		return;
 
-	QQMessageBlockUserData::ZoneRange messageRange = userData->zRangeForID(QQMessageBlockUserData::MESSAGE);
+	if(userData->wasParsed())
+	{
+		QList<int> duckIndexes = userData->duckIndexes();
+		for(int i = 0; i < duckIndexes.size(); i ++)
+		{
+			int duckIndex = duckIndexes.at(i);
+			formatDuck(duckIndex, userData->duckForIndex(duckIndex).second.length());
+		}
+	}
+	else
+	{
+		QQMessageBlockUserData::ZoneRange messageRange = userData->zRangeForID(QQMessageBlockUserData::MESSAGE);
 
+		QString tete = QString::fromAscii("(?:[o0ô°øòó@]|(?:&ocirc;)|(?:&deg;)|(?:&oslash;)|(?:&ograve;)|(?:&oacute;))");
+
+		QRegExp m_duckReg = QRegExp(QString::fromAscii("\\\\_").append(tete).append(QString::fromAscii("<")),
+									Qt::CaseSensitive,
+									QRegExp::RegExp);
+
+		int index = text.indexOf(m_duckReg, messageRange.begin );
+		while (index >= 0)
+		{
+			int length = m_duckReg.matchedLength();
+
+			userData->addDuckZone(index, text.mid(index, length));
+			formatDuck(index, length);
+
+			index = text.indexOf(m_duckReg, index + length);
+		}
+
+		m_duckReg = QRegExp(QString::fromAscii(">").append(tete).append(QString::fromAscii("_\\/")),
+							Qt::CaseSensitive,
+							QRegExp::RegExp);
+		index = text.indexOf(m_duckReg, messageRange.begin );
+		while (index >= 0) {
+			int length = m_duckReg.matchedLength();
+
+			userData->addDuckZone(index, text.mid(index, length));
+			formatDuck(index, length);
+
+			index = text.indexOf(m_duckReg, index + length);
+		}
+
+		m_duckReg = QRegExp(QString::fromAscii("coin ?! ?coin ?!"),
+							Qt::CaseSensitive,
+							QRegExp::RegExp);
+
+		index = text.indexOf(m_duckReg, messageRange.begin );
+		while (index >= 0)
+		{
+			int length = m_duckReg.matchedLength();
+
+			if(! userData->wasParsed())
+				userData->addDuckZone(index, text.mid(index, length));
+
+			formatDuck(index, length);
+
+			index = text.indexOf(m_duckReg, index + length);
+		}
+	}
+}
+
+
+void QQSyntaxHighlighter::formatDuck(int duckIndex, int duckStringLength)
+{
 	QColor color = QColor("#9933CC");
-
-	QString tete = QString::fromAscii("(?:[o0ô°øòó@]|(?:&ocirc;)|(?:&deg;)|(?:&oslash;)|(?:&ograve;)|(?:&oacute;))");
-
-	//QRegExp m_duckReg = QRegExp(QString::fromAscii("(\\\\_").append(tete).append(QString::fromAscii("&lt;)")),
-	QRegExp m_duckReg = QRegExp(QString::fromAscii("\\\\_").append(tete).append(QString::fromAscii("<")),
-								Qt::CaseSensitive,
-								QRegExp::RegExp);
-
-	int index = text.indexOf(m_duckReg, messageRange.begin );
-	while (index >= 0)
-	{
-		int length = m_duckReg.matchedLength();
-
-		if(! userData->wasParsed())
-			userData->addDuckZone(index, text.mid(index, length));
-
-		setFormat(index, length, color);
-
-		index = text.indexOf(m_duckReg, index + length);
-	}
-
-	//m_duckReg = QRegExp(QString::fromAscii("(&gt;").append(tete).append(QString::fromAscii("_\\/)")),
-	m_duckReg = QRegExp(QString::fromAscii(">").append(tete).append(QString::fromAscii("_\\/")),
-						Qt::CaseSensitive,
-						QRegExp::RegExp);
-	index = text.indexOf(m_duckReg, messageRange.begin );
-	while (index >= 0) {
-		int length = m_duckReg.matchedLength();
-		if(! userData->wasParsed())
-			userData->addDuckZone(index, text.mid(index, length));
-		setFormat(index, length, color);
-
-		index = text.indexOf(m_duckReg, index + length);
-	}
-
-	m_duckReg = QRegExp(QString::fromAscii("coin ?! ?coin ?!"),
-						Qt::CaseSensitive,
-						QRegExp::RegExp);
-
-	index = text.indexOf(m_duckReg, messageRange.begin );
-	while (index >= 0)
-	{
-		int length = m_duckReg.matchedLength();
-
-		if(! userData->wasParsed())
-			userData->addDuckZone(index, text.mid(index, length));
-
-		setFormat(index, length, color);
-
-		index = text.indexOf(m_duckReg, index + length);
-	}
+	setFormat(duckIndex, duckStringLength, color);
 }
 
 void QQSyntaxHighlighter::highlightTableVolante(const QString & text)
@@ -195,26 +216,41 @@ void QQSyntaxHighlighter::highlightTableVolante(const QString & text)
 	if(userData == NULL || ! userData->isValid())
 		return;
 
-	QQMessageBlockUserData::ZoneRange messageRange = userData->zRangeForID(QQMessageBlockUserData::MESSAGE);
-
-	QColor color = QColor("#9933CC");
-
-	QRegExp m_tvReg = QRegExp(QString::fromAscii("(?:flap ?flap)|(?:table[ _]volante)"),
-							  Qt::CaseSensitive,
-							  QRegExp::RegExp);
-	int index = text.indexOf(m_tvReg, messageRange.begin );
-	while (index >= 0)
+	if(userData->wasParsed())
 	{
-		int length = m_tvReg.matchedLength();
+		QList<int> tableVIndexes = userData->tableVIndexes();
+		for(int i = 0; i < tableVIndexes.size(); i ++)
+		{
+			int tableVIndex = tableVIndexes.at(i);
+			formatTableV(tableVIndex, userData->tableVForIndex(tableVIndex).second.length());
+		}
+	}
+	else
+	{
+		QQMessageBlockUserData::ZoneRange messageRange = userData->zRangeForID(QQMessageBlockUserData::MESSAGE);
 
-		if(! userData->wasParsed())
+		QRegExp m_tvReg = QRegExp(QString::fromAscii("(?:flap ?flap)|(?:table[ _]volante)"),
+								  Qt::CaseSensitive,
+								  QRegExp::RegExp);
+		int index = text.indexOf(m_tvReg, messageRange.begin );
+		while (index >= 0)
+		{
+			int length = m_tvReg.matchedLength();
+
 			userData->addTableVZone(index, text.mid(index, length));
+			formatTableV(index, length);
 
-		setFormat(index, length, color);
-
-		index = text.indexOf(m_tvReg, index + length);
+			index = text.indexOf(m_tvReg, index + length);
+		}
 	}
 }
+
+void QQSyntaxHighlighter::formatTableV(int tableVIndex, int tableVStringLength)
+{
+	QColor color = QColor("#9933CC");
+	setFormat(tableVIndex, tableVStringLength, color);
+}
+
 
 void QQSyntaxHighlighter::highlightTotoz(const QString & text)
 {
@@ -222,33 +258,43 @@ void QQSyntaxHighlighter::highlightTotoz(const QString & text)
 	if(userData == NULL || ! userData->isValid())
 		return;
 
-	QQMessageBlockUserData::ZoneRange messageRange = userData->zRangeForID(QQMessageBlockUserData::MESSAGE);
+	if(userData->wasParsed())
+	{
+		QList<QQTotoz> totozes = userData->totozZones();
+		for(int i = 0; i < totozes.size(); i ++)
+			formatTotoz(totozes.at(i));
+	}
+	else
+	{
 
+		QQMessageBlockUserData::ZoneRange messageRange = userData->zRangeForID(QQMessageBlockUserData::MESSAGE);
+
+		QRegExp m_totozReg = QRegExp(QString::fromAscii("(\\[\\:[^\\t\\)\\]]+\\])"), //[:[^\t\)\]]
+									 Qt::CaseSensitive,
+									 QRegExp::RegExp);
+
+		int index = text.indexOf(m_totozReg, messageRange.begin );
+		while (index >= 0)
+		{
+			int length = m_totozReg.matchedLength();
+
+			QQTotoz totoz = QQTotoz(text.mid(index, length), index);
+			emit totozRequired(totoz.getId());
+			userData->addTotozZone(totoz);
+
+			index = text.indexOf(m_totozReg, index + length);
+		}
+	}
+}
+
+void QQSyntaxHighlighter::formatTotoz(const QQTotoz & totoz)
+{
 	QTextCharFormat totozMessageFormat;
 	totozMessageFormat.setForeground(QColor("#00AA11"));
 	totozMessageFormat.setFontWeight(QFont::Bold);
 
-	QRegExp m_totozReg = QRegExp(QString::fromAscii("(\\[\\:[^\\t\\)\\]]+\\])"), //[:[^\t\)\]]
-								 Qt::CaseSensitive,
-								 QRegExp::RegExp);
+	setFormat(totoz.getPosInMessage(), totoz.getOrigString().length(), totozMessageFormat);
 
-	int index = text.indexOf(m_totozReg, messageRange.begin );
-	while (index >= 0)
-	{
-		int length = m_totozReg.matchedLength();
-
-		QQTotoz totoz = QQTotoz(text.mid(index, length), index);
-
-		if(! userData->wasParsed())
-		{
-			emit totozRequired(totoz.getId());
-			userData->addTotozZone(totoz);
-		}
-
-		setFormat(index, length, totozMessageFormat);
-
-		index = text.indexOf(m_totozReg, index + length);
-	}
 }
 
 void QQSyntaxHighlighter::highlightBigorno(const QString & text)

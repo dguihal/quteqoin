@@ -40,9 +40,9 @@ public:
 					   QRegExp::RegExp);
 	}
 
-	int getNorlogeRefIndex() { return m_refDateIndexPart; }
-	QString getOrigNRef() { return m_origNRef; }
-	int getPosInMessage() { return m_posInMessage; }
+	int getNorlogeRefIndex() const { return m_refDateIndexPart; }
+	QString getOrigNRef() const { return m_origNRef; }
+	int getPosInMessage() const { return m_posInMessage; }
 
 	QString dstBouchot() const;
 	QString dstNorloge() const;
