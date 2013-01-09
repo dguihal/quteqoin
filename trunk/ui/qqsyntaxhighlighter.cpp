@@ -281,6 +281,7 @@ void QQSyntaxHighlighter::highlightTotoz(const QString & text)
 			QQTotoz totoz = QQTotoz(text.mid(index, length), index);
 			emit totozRequired(totoz.getId());
 			userData->addTotozZone(totoz);
+			formatTotoz(totoz);
 
 			index = text.indexOf(m_totozReg, index + length);
 		}
