@@ -15,10 +15,11 @@
 #include <QTextCursor>
 #include <QWidget>
 
-QQSyntaxHighlighter::QQSyntaxHighlighter(QTextDocument * parent) :
+QQSyntaxHighlighter::QQSyntaxHighlighter(QQSettings * settings, QTextDocument * parent) :
 	QSyntaxHighlighter(parent)
 {
 	m_notifWindow = NULL;
+	m_settings = settings;
 }
 
 QQSyntaxHighlighter::~QQSyntaxHighlighter()
@@ -31,7 +32,7 @@ void QQSyntaxHighlighter::highlightBlock(const QString &text)
 
 	setCurrentBlockState(QQSyntaxHighlighter::NOT_HIGHLIGHTED);
 	if(text.length() > 1 &&
-			userData != NULL)
+	   userData != NULL)
 	{
 		setCurrentBlockState(QQSyntaxHighlighter::NORMAL);
 
@@ -64,7 +65,7 @@ void QQSyntaxHighlighter::highlightBlockForNRef()
 		QQBouchot * currBouchot = userData->post()->bouchot();
 
 		if( ( dstBouchot == currBouchot->name() || currBouchot->settings().containsAlias(dstBouchot) ) &&
-				currNorloge.startsWith(dstNorloge) )
+			currNorloge.startsWith(dstNorloge) )
 		{
 			fmt.setBackground(QColor("#FFE940"));
 			setCurrentBlockState(QQSyntaxHighlighter::FULL_HIGHLIGHTED);
@@ -96,7 +97,7 @@ void QQSyntaxHighlighter::highlightNorloge(const QString & text)
 
 		QRegExp m_norlogeReg = QQNorlogeRef::norlogeRegexp();
 
-		int index = text.indexOf(m_norlogeReg, messageRange.begin );
+		int index = text.indexOf(m_norlogeReg, messageRange.begin);
 		while (index >= 0)
 		{
 			int length = m_norlogeReg.matchedLength();
@@ -106,10 +107,40 @@ void QQSyntaxHighlighter::highlightNorloge(const QString & text)
 											 text.mid(index, length),
 											 index);
 
+			linkNorlogeRef(nRef);
 			userData->addNorlogeRefZone(nRef);
 			formatNRef(nRef);
 
 			index = text.indexOf(m_norlogeReg, index + length);
+		}
+	}
+}
+
+void QQSyntaxHighlighter::linkNorlogeRef(QQNorlogeRef & nRef)
+{
+	QQBouchot * bouchot = m_settings->bouchot(nRef.dstBouchot());
+	if(bouchot == NULL)
+		return;
+
+	QList<QQPost *> history = bouchot->getPostsHistory();
+
+	// Parcourir du plus recent au plus ancien devrait etre plus rapide car
+	// les reponse sont souvent proches du poste d'origine;
+	bool targetFound = false;
+	for(int i = history.length() - 1; i >= 0; i--)
+	{
+		QQPost * post = history.at(i);
+
+		if(nRef.dstNorloge() == post->norloge())
+		{
+			nRef.addPostTarget(post);
+			targetFound = true;
+		}
+		else if(targetFound)
+		{
+			// On a deja trouve un cible, inutile d'aller plus loin
+			// On ne quitte pas avant au cas de match multiple
+			break;
 		}
 	}
 }

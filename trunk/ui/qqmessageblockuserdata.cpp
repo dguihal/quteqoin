@@ -54,6 +54,17 @@ QQNorlogeRef QQMessageBlockUserData::norlogeRefForIndex(int index)
 	return QQNorlogeRef();
 }
 
+bool QQMessageBlockUserData::hasNRefToSelfPost() const
+{
+	for(int i = 0; i < m_listNRef.size(); i++)
+	{
+		QQNorlogeRef nRef = m_listNRef.at(i);
+		if(nRef.isReponse())
+			return true;
+	}
+	return false;
+}
+
 QQTotoz QQMessageBlockUserData::totozForIndex(int index)
 {
 	int i = 0;

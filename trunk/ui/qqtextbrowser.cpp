@@ -123,7 +123,7 @@ void QQTextBrowser::notifAreaPaintEvent(QPaintEvent * event)
 				QRect drawRect(offset, posY, width, height);
 				painter.drawRect(drawRect);
 			}
-			else if(post->isReponse())
+			else if(uData->hasNRefToSelfPost())
 			{
 				painter.setBrush(repPostsBrushColor);
 				painter.setPen(QPen(QBrush(repPostsPenColor), 0.6));
@@ -409,7 +409,6 @@ void QQTextBrowser::paintEvent(QPaintEvent * event)
 		}
 		block = block.next();
 	}
-
 	m_notifArea->update();
 }
 

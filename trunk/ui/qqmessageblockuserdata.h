@@ -39,6 +39,7 @@ public:
 	void addNorlogeRefZone(const QQNorlogeRef & norlogeRef) { m_listNRef.append(norlogeRef); }
 	QQNorlogeRef norlogeRefForIndex(int index);
 	QList<QQNorlogeRef> norlogeRefs() const { return m_listNRef; }
+	bool hasNRefToSelfPost() const;
 
 	void addTotozZone(const QQTotoz & totoz) { m_listTotoz.append(totoz); }
 	QQTotoz totozForIndex(int index);
