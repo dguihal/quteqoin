@@ -4,6 +4,7 @@
 #include "core/qqpost.h"
 #include "ui/qqmessageblockuserdata.h"
 
+#include <QApplication>
 #include <QCursor>
 #include <QDebug>
 #include <QMouseEvent>
@@ -409,6 +410,7 @@ void QQTextBrowser::paintEvent(QPaintEvent * event)
 		block = block.next();
 	}
 
+	m_notifArea->update();
 }
 
 void QQTextBrowser::resizeEvent(QResizeEvent * event)
