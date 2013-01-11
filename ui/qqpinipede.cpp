@@ -23,7 +23,7 @@
 #include <QTabBar>
 #include <QVBoxLayout>
 
-QQPinipede::QQPinipede(QQSettings *settings, QWidget *parent) :
+QQPinipede::QQPinipede(QQSettings * settings, QWidget * parent) :
 	QTabWidget(parent)
 {
 	this->tabBar()->hide();
@@ -59,7 +59,7 @@ QQPinipede::~QQPinipede()
 		delete m_totozMovie;
 }
 
-void QQPinipede::addPiniTab(const QString& groupName)
+void QQPinipede::addPiniTab(const QString & groupName)
 {
 	qDebug() << "QQPinipede::addPiniTab" ;
 
@@ -76,7 +76,7 @@ void QQPinipede::addPiniTab(const QString& groupName)
 
 	m_textBrowserHash.insert(groupName, textBrowser);
 	//textBrowser->document() devient le proprietaire du highlighter
-	QQSyntaxHighlighter * highlighter = new QQSyntaxHighlighter(textBrowser->document());
+	QQSyntaxHighlighter * highlighter = new QQSyntaxHighlighter(m_settings, textBrowser->document());
 	highlighter->setNotificationWindow(window());
 	connect(highlighter, SIGNAL(totozRequired(const QString &)),
 			m_totozManager, SLOT(fetchTotoz(const QString &)));

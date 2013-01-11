@@ -10,6 +10,8 @@ QQNorlogeRef::QQNorlogeRef() :
 	m_refDateIndexPart = 0;
 	m_posInMessage = -1;
 	m_valid = false;
+	m_isReponseDefined = false;
+	m_isResponse = false;
 }
 
 QQNorlogeRef::QQNorlogeRef(const QString &bouchot, const QString &dateh, const QString &norlogeRef, int posInMessage) :
@@ -70,6 +72,8 @@ QQNorlogeRef::QQNorlogeRef(const QString &bouchot, const QString &dateh, const Q
 		//supression du @ initial
 		m_dstBouchot.remove(QChar::fromAscii('@'));
 	}
+	m_isReponseDefined = false;
+	m_isResponse = false;
 }
 
 
@@ -84,11 +88,15 @@ QQNorlogeRef::QQNorlogeRef(const QQNorlogeRef & norlogeRef) :
 	m_refDateMinutePart = norlogeRef.m_refDateMinutePart;
 	m_refDateSecondPart = norlogeRef.m_refDateSecondPart;
 	m_refDateIndexPart = norlogeRef.m_refDateIndexPart;
+	m_listPostTarget.append(norlogeRef.m_listPostTarget);
 
 	m_dstBouchot = norlogeRef.m_dstBouchot;
 
 	m_origNRef = norlogeRef.m_origNRef;
 	m_posInMessage = norlogeRef.m_posInMessage;
+
+	m_isReponseDefined = norlogeRef.m_isReponseDefined;
+	m_isResponse = norlogeRef.m_isResponse;
 }
 
 QString QQNorlogeRef::dstBouchot() const
@@ -117,4 +125,51 @@ QString QQNorlogeRef::nRefId() const
 	QString ret = dstBouchot();
 	ret.append(QChar::fromAscii('#')).append(dstNorloge());
 	return ret;
+}
+
+void QQNorlogeRef::addPostTarget(QQPost * post)
+{
+	bool found = false;
+	for(int i = 0; i < m_listPostTarget.size(); i++ )
+	{
+		QPointer<QQPost> ptrPost = m_listPostTarget.at(i);
+		if(ptrPost.isNull())
+			m_listPostTarget.removeOne(ptrPost);
+		else if(ptrPost.data() == post)
+			found = true;
+	}
+
+	if(! found)
+		m_listPostTarget.append(QPointer<QQPost>(post));
+}
+
+bool QQNorlogeRef::isReponse()
+{
+	if(m_isReponseDefined)
+		return m_isResponse;
+
+	// else
+	if (m_listPostTarget.size() == 0)
+		return false;
+
+	//else
+	m_isReponseDefined = true;
+	m_isResponse = false;
+	for(int i = 0; i < m_listPostTarget.size(); i++ )
+	{
+		QPointer<QQPost> ptrPost = m_listPostTarget.at(i);
+
+		if(ptrPost.isNull())
+		{
+			m_listPostTarget.removeOne(ptrPost);
+			continue;
+		}
+
+		if(ptrPost->isSelfPost())
+		{
+			m_isResponse = true;
+			break;
+		}
+	}
+	return m_isResponse;
 }

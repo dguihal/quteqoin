@@ -2,8 +2,11 @@
 #define QQNORLOGEREF_H
 
 #include "core/qqnorloge.h"
+#include "core/qqpost.h"
 
 #include <QDebug>
+#include <QList>
+#include <QPointer>
 #include <QString>
 
 class QQNorlogeRef : public QQNorloge
@@ -49,6 +52,9 @@ public:
 
 	QString nRefId() const;
 
+	void addPostTarget(QQPost * post);
+	bool isReponse();
+
 	bool isValid() { return m_valid; }
 
 
@@ -61,7 +67,6 @@ public:
 	}
 	bool operator != ( const QQNorlogeRef & other ) const
 		{ return !( (* this) == other ); }
-
 
 private:
 	QString m_refDateYearPart;
@@ -77,7 +82,12 @@ private:
 	QString m_origNRef;
 	int m_posInMessage;
 
+	QList< QPointer<QQPost> > m_listPostTarget;
+
 	bool m_valid;
+
+	bool m_isReponseDefined;
+	bool m_isResponse;
 };
 
 #endif // QQNORLOGEREF_H

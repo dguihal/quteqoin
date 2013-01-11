@@ -2,6 +2,7 @@
 #define QQSYNTAXHIGHLIGHTER_H
 
 #include <core/qqnorlogeref.h>
+#include <core/qqsettings.h>
 #include <core/qqtotoz.h>
 
 #include <QList>
@@ -18,7 +19,7 @@ public:
 
 	enum blockState { NOT_HIGHLIGHTED, NORMAL, NORLOGE_HIGHLIGHTED, FULL_HIGHLIGHTED };
 
-	QQSyntaxHighlighter(QTextDocument * parent = 0);
+	QQSyntaxHighlighter(QQSettings * settings, QTextDocument * parent = 0);
 	~QQSyntaxHighlighter();
 
 	bool highlightSelection(QTextCursor &selection, QQMessageBlockUserData *userData);
@@ -40,6 +41,7 @@ private:
 	void formatDuck(int duckIndex, int duckStringLength);
 	void highlightNorloge(const QString & text);
 	void formatNRef(const QQNorlogeRef & nRef);
+	void linkNorlogeRef(QQNorlogeRef & nRef);
 	void highlightTableVolante(const QString & text);
 	void formatTableV(int tableVIndex, int tableVStringLength);
 	void highlightTotoz(const QString & text);
@@ -48,6 +50,7 @@ private:
 
 	QQNorlogeRef m_nRef;
 	QWidget * m_notifWindow;
+	QQSettings * m_settings;
 };
 
 #endif // QQSYNTAXHIGHLIGHTER_H
