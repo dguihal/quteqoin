@@ -89,7 +89,10 @@ void QQSyntaxHighlighter::highlightNorloge(const QString & text)
 	{
 		QList<QQNorlogeRef> nRefs = userData->norlogeRefs();
 		for(int i = 0; i < nRefs.size(); i ++)
-			formatNRef(nRefs.at(i));
+		{
+			QQNorlogeRef nRef = nRefs.at(i);
+			formatNRef(nRef);
+		}
 	}
 	else
 	{
@@ -145,25 +148,31 @@ void QQSyntaxHighlighter::linkNorlogeRef(QQNorlogeRef & nRef)
 	}
 }
 
-void QQSyntaxHighlighter::formatNRef(const QQNorlogeRef & nRef)
+void QQSyntaxHighlighter::formatNRef(QQNorlogeRef & nRef)
 {
 	QColor highlightColor("#FFE940");
 	QColor printColor("#0000DD");
+	QColor repColor("#DD0000");
 
 	QTextCharFormat fmt = format(0);
-	fmt.setForeground(printColor);
-	QTextCharFormat fmtH = fmt;
-	fmtH.setBackground(highlightColor);
 
-	if(m_nRef == nRef)
+	if(! nRef.isReponse())
 	{
-		setCurrentBlockState(QQSyntaxHighlighter::NORLOGE_HIGHLIGHTED);
-		setFormat(nRef.getPosInMessage(), nRef.getOrigNRef().length(), fmtH);
+		fmt.setForeground(printColor);
 	}
 	else
 	{
-		setFormat(nRef.getPosInMessage(), nRef.getOrigNRef().length(), fmt);
+		fmt.setForeground(repColor);
+		fmt.setFontWeight(QFont::DemiBold);
 	}
+
+	if(m_nRef == nRef)
+	{
+		fmt.setBackground(highlightColor);
+		setCurrentBlockState(QQSyntaxHighlighter::NORLOGE_HIGHLIGHTED);
+	}
+
+	setFormat(nRef.getPosInMessage(), nRef.getOrigNRef().length(), fmt);
 }
 
 void QQSyntaxHighlighter::highlightDuck(const QString & text)
