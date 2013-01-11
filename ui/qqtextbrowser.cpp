@@ -154,7 +154,7 @@ void QQTextBrowser::updateNotifArea(int)
 	m_notifArea->update();
 }
 
-void QQTextBrowser::mouseMoveEvent(QMouseEvent *event)
+void QQTextBrowser::mouseMoveEvent(QMouseEvent * event)
 {
 	//qDebug() << "####################################";
 	//qDebug() << "QQTextBrowser::mouseMoveEvent x=" << event->x() << ",y=" << event->y();
@@ -165,6 +165,19 @@ void QQTextBrowser::mouseMoveEvent(QMouseEvent *event)
 		viewport()->setCursor(Qt::PointingHandCursor);
 	else if (! m_mouseClick)
 		viewport()->setCursor(Qt::ArrowCursor);
+
+	//Est-on au dessus d'une url
+	// Ouverture l'url si on est au dessus d'un lien
+	QString httpAnchor = anchorAt(event->pos());
+	if( httpAnchor.length() > 0 )
+	{
+		QString text = httpAnchor.left(64);
+		if(httpAnchor.length() > 64)
+			text.append(QString::fromAscii("..."));
+
+		QToolTip::showText(event->pos(), text, this);
+		return;
+	}
 
 	QTextCursor cursor = cursorForPosition(event->pos());
 
@@ -180,7 +193,7 @@ void QQTextBrowser::mouseMoveEvent(QMouseEvent *event)
 			QToolTip::hideText();
 			//Est-on au dessus d'une norloge
 			QQNorlogeRef nRef = blockData->norlogeRefForIndex(cursor.positionInBlock());
-			if( nRef.isValid() )
+			if(nRef.isValid())
 			{
 				//qDebug() << "QQTextBrowser::mouseMoveEvent, Norloge detectee, str = "
 				//		 << nRef.getOrigNRef() << " position : " << nRef.getPosInMessage();
