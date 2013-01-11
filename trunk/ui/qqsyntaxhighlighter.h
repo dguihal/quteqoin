@@ -40,7 +40,7 @@ private:
 	void highlightDuck(const QString & text);
 	void formatDuck(int duckIndex, int duckStringLength);
 	void highlightNorloge(const QString & text);
-	void formatNRef(const QQNorlogeRef & nRef);
+	void formatNRef(QQNorlogeRef & nRef);
 	void linkNorlogeRef(QQNorlogeRef & nRef);
 	void highlightTableVolante(const QString & text);
 	void formatTableV(int tableVIndex, int tableVStringLength);
