@@ -175,7 +175,7 @@ void QQTextBrowser::mouseMoveEvent(QMouseEvent * event)
 		if(httpAnchor.length() > 64)
 			text.append(QString::fromAscii("..."));
 
-		QToolTip::showText(event->pos(), text, this);
+		QToolTip::showText(event->globalPos(), text, this);
 		return;
 	}
 
