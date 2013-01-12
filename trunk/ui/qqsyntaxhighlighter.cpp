@@ -61,7 +61,7 @@ void QQSyntaxHighlighter::highlightBlockForNRef()
 		QString dstNorloge = m_nRef.dstNorloge();
 		QString dstBouchot = m_nRef.dstBouchot();
 
-		QString currNorloge = userData->post()->norloge();
+		QString currNorloge = userData->post()->norlogeComplete();
 		QQBouchot * currBouchot = userData->post()->bouchot();
 
 		if( ( dstBouchot == currBouchot->name() || currBouchot->settings().containsAlias(dstBouchot) ) &&
