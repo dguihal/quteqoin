@@ -74,6 +74,13 @@ bool QQPost::isReponse()
 	return false;
 }
 
+QString QQPost::norlogeComplete()
+{
+	QString res = m_norloge;
+	res.append(QString::fromAscii("^")).append(QString::number(m_norlogeIndex));
+	return res;
+}
+
 //
 QString QQPost::norlogeFormatee()
 {
@@ -89,7 +96,7 @@ QString QQPost::norlogeFormatee()
 bool QQPost::equal(QQPost &b)
 {
 	if( (b.m_id == this->m_id) &&
-			true ) // comparaison bouchots
+		true ) // comparaison bouchots
 		return true;
 	return false;
 }

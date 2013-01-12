@@ -47,6 +47,7 @@ public:
 	void setLogin( const QString& login ) { this->m_login = login; }
 
 	QString norloge() { return this->m_norloge; }
+	QString norlogeComplete();
 	QString norlogeFormatee();
 	void setNorloge( const QString& norloge ) { this->m_norloge = norloge; }
 
