@@ -29,7 +29,7 @@ SOURCES += main.cpp\
 	core/qqnorlogeref.cpp \
 	ui/qqproxyauthdialog.cpp \
 	core/qqtotoz.cpp \
-	core/qqtotozmanager.cpp \
+	core/qqtotozdownloader.cpp \
 	core/qqnetworkaccessor.cpp \
 	ui/qqpalmilineedit.cpp \
 	core/qqpurgebouchothistoevent.cpp \
@@ -51,7 +51,7 @@ HEADERS  += mainwindow.h \
 	core/qqnorlogeref.h \
 	ui/qqproxyauthdialog.h \
 	core/qqtotoz.h \
-	core/qqtotozmanager.h \
+	core/qqtotozdownloader.h \
 	core/qqnetworkaccessor.h \
 	ui/qqpalmilineedit.h \
 	core/qqpurgebouchothistoevent.h \

@@ -20,7 +20,7 @@ class QQSettings;
 class QQTextBrowser;
 class QTextCursor;
 class QQPost;
-class QQTotozManager;
+class QQTotozDownloader;
 
 class QLabel;
 class QMovie;
@@ -63,7 +63,7 @@ private:
 	unsigned int insertPostToList(QList<QQPost *> *listPosts, QQPost *post, unsigned int indexStart);
 
 	QQSettings * m_settings;
-	QQTotozManager * m_totozManager;
+	QQTotozDownloader * m_totozManager;
 	QQTextBrowser * m_tBrowserHighlighted;
 	QLabel * m_hiddenPostViewerLabel;
 	QLabel * m_totozLabel;

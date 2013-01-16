@@ -1,4 +1,4 @@
-#include "qqtotozmanager.h"
+#include "qqtotozdownloader.h"
 
 #include "core/qqtotoz.h"
 
@@ -11,13 +11,13 @@
 #include <QNetworkReply>
 #include <QUrl>
 
-QQTotozManager::QQTotozManager(QQSettings * settings) :
+QQTotozDownloader::QQTotozDownloader(QQSettings * settings) :
 	QQNetworkAccessor(settings)
 {
 	m_totozServerUrl = settings->totozServerUrl();
 }
 
-void QQTotozManager::fetchTotoz(const QString & totozId)
+void QQTotozDownloader::fetchTotoz(const QString & totozId)
 {
 	// si l'id est valide et que l'on ne l'a pas déjà téléchargé dans le cache
 	// TODO : Une expiration du cache, voire un if-modified-since !!!!
@@ -36,12 +36,12 @@ void QQTotozManager::fetchTotoz(const QString & totozId)
 	}
 }
 
-void QQTotozManager::serverURLchanged(const QString &newUrl)
+void QQTotozDownloader::serverURLchanged(const QString &newUrl)
 {
 	m_totozServerUrl = newUrl;
 }
 
-void QQTotozManager::requestFinishedSlot(QNetworkReply * reply)
+void QQTotozDownloader::requestFinishedSlot(QNetworkReply * reply)
 {
 	// ou de l'url de destination si on a affaire a une redirection:
 	QUrl redirectedURL = reply->attribute(QNetworkRequest::RedirectionTargetAttribute).toUrl();
