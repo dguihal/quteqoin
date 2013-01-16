@@ -12,12 +12,12 @@
 
 class QNetworkReply;
 
-class QQTotozManager : public QQNetworkAccessor
+class QQTotozDownloader : public QQNetworkAccessor
 {
 	Q_OBJECT
 
 public:
-	explicit QQTotozManager(QQSettings * settings);
+	explicit QQTotozDownloader(QQSettings * settings);
 
 signals:
 

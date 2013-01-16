@@ -3,7 +3,7 @@
 #include "mainwindow.h"
 #include "core/qqbouchot.h"
 #include "core/qqpurgebouchothistoevent.h"
-#include "core/qqtotozmanager.h"
+#include "core/qqtotozdownloader.h"
 #include "ui/qqmessageblockuserdata.h"
 #include "ui/qqpalmipede.h"
 #include "ui/qqsyntaxhighlighter.h"
@@ -29,7 +29,7 @@ QQPinipede::QQPinipede(QQSettings * settings, QWidget * parent) :
 	this->tabBar()->hide();
 
 	m_settings = settings;
-	m_totozManager = new QQTotozManager(m_settings);
+	m_totozManager = new QQTotozDownloader(m_settings);
 	m_tBrowserHighlighted = NULL;
 
 	m_hiddenPostViewerLabelSSheet = QString::fromAscii("border: 2px solid black; border-radius: 4px;");

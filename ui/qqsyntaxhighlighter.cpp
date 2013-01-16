@@ -4,7 +4,7 @@
 #include "core/qqbouchot.h"
 #include "core/qqnorlogeref.h"
 #include "core/qqpost.h"
-#include "core/qqtotozmanager.h"
+#include "core/qqtotozdownloader.h"
 #include "ui/qqmessageblockuserdata.h"
 
 #include <QDateTime>
