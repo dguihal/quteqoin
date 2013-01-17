@@ -566,7 +566,15 @@ void QQPinipede::showTotozSlot(QQTotoz & totoz)
 		m_totozMovie->jumpToFrame(0);
 		m_totozLabel->setMovie(m_totozMovie);
 		m_totozLabel->resize(m_totozMovie->frameRect().size());
-		m_totozLabel->move(mapFromGlobal(QCursor::pos()));
+
+		QPoint totozLabelPos = mapFromGlobal(QCursor::pos());
+		QSize piniSize = size();
+		if(totozLabelPos.x() > (piniSize.width() / 2))
+			totozLabelPos.setX(totozLabelPos.x() - m_totozLabel->width());
+		if(totozLabelPos.y() > (piniSize.height() / 2))
+			totozLabelPos.setY(totozLabelPos.y() - m_totozLabel->height());
+		m_totozLabel->move(totozLabelPos);
+
 		m_totozMovie->start();
 		m_totozLabel->show();
 	}
@@ -581,7 +589,15 @@ void QQPinipede::showTotozSlot(QQTotoz & totoz)
 			m_totozLabel->setPixmap(pixmap);
 			m_totozLabel->setMinimumSize(pixmap.width(), pixmap.height());
 			m_totozLabel->adjustSize();
-			m_totozLabel->move(mapFromGlobal(QCursor::pos()));
+
+			QPoint totozLabelPos = mapFromGlobal(QCursor::pos());
+			QSize piniSize = size();
+			if(totozLabelPos.x() > (piniSize.width() / 2))
+				totozLabelPos.setX(totozLabelPos.x() - m_totozLabel->width());
+			if(totozLabelPos.y() > (piniSize.height() / 2))
+				totozLabelPos.setY(totozLabelPos.y() - m_totozLabel->height());
+			m_totozLabel->move(totozLabelPos);
+
 			m_totozLabel->show();
 		}
 	}
