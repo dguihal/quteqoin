@@ -19,7 +19,7 @@
 #include <QTextDocument>
 
 //
-QQXmlParser::QQXmlParser( )
+QQXmlParser::QQXmlParser()
 	: QXmlDefaultHandler()
 {
 	m_currentPost.reset();
@@ -38,19 +38,19 @@ QString QQXmlParser::errorString () const
 
 // Methodes héritées de QXmlErrorHandler
 /*
-bool QQXmlParser::error ( const QXmlParseException & exception )
+bool QQXmlParser::error(const QXmlParseException & exception)
 {
 	qDebug() << "QQXmlParser::error ;; " << exception.message() << endl;
 	return true;
 }
 //
-bool QQXmlParser::fatalError ( const QXmlParseException & exception )
+bool QQXmlParser::fatalError(const QXmlParseException & exception)
 {
 	qDebug() << "QQXmlParser::fatalError ;; " << exception.message() << endl;
 	return true;
 }
 //
-bool QQXmlParser::warning ( const QXmlParseException & exception )
+bool QQXmlParser::warning(const QXmlParseException & exception)
 {
 	qDebug() << "QQXmlParser::warning ;; " << exception.message() << endl;
 	return true;
@@ -60,12 +60,12 @@ bool QQXmlParser::warning ( const QXmlParseException & exception )
 // Methodes héritées de QXmlContentHandler
 
 //
-bool QQXmlParser::characters ( const QString & ch )
+bool QQXmlParser::characters(const QString & ch)
 {
 //	qDebug() << "QQXmlParser::characters ;; " << ch << endl;
-	if ( (m_elementNames.top() == "info") ||
+	if((m_elementNames.top() == "info") ||
 		 (m_elementNames.top() == "message") ||
-		 (m_elementNames.top() == "login") )
+		 (m_elementNames.top() == "login"))
 	{
 		QString tmp = ch;
 		if (m_typeSlip == QQBouchot::SlipTagsRaw)
@@ -76,30 +76,30 @@ bool QQXmlParser::characters ( const QString & ch )
 }
 /*
 //
-bool QQXmlParser::ignorableWhitespace ( const QString & ch )
+bool QQXmlParser::ignorableWhitespace(const QString & ch)
 {
 	qDebug() << "QQXmlParser::ignorableWhitespace ;; " << ch << endl;
 	return true;
 }
 //
-bool QQXmlParser::processingInstruction ( const QString & target, const QString & data )
+bool QQXmlParser::processingInstruction(const QString & target, const QString & data)
 {
 	qDebug() << "QQXmlParser::processingInstruction ;; " << target << " ;; " << data << endl;
 	return true;
 }
 //
-void QQXmlParser::setDocumentLocator ( QXmlLocator * locator )
+void QQXmlParser::setDocumentLocator(QXmlLocator * locator)
 {
 	qDebug() << "QQXmlParser::setDocumentLocator ;; " << locator->lineNumber() << endl;
 }
 */
 //
-bool QQXmlParser::skippedEntity ( const QString & name )
+bool QQXmlParser::skippedEntity(const QString & name)
 {
 //	qDebug() << "QQXmlParser::skippedEntity ;; " << name << endl;
-	if ( (m_elementNames.top() == "info") ||
+	if((m_elementNames.top() == "info") ||
 		 (m_elementNames.top() == "message") ||
-		 (m_elementNames.top() == "login") )
+		 (m_elementNames.top() == "login"))
 	{
 			m_tmpString += "&";
 			m_tmpString += name;
@@ -122,8 +122,8 @@ bool QQXmlParser::endDocument ()
 }
 */
 //
-bool QQXmlParser::startElement ( const QString &namespaceURI, const QString &localName,
-								const QString &qName, const QXmlAttributes &atts )
+bool QQXmlParser::startElement(const QString &namespaceURI, const QString &localName,
+								const QString &qName, const QXmlAttributes &atts)
 {
 	// Pour éviter le warning
 	(void) namespaceURI;
@@ -154,7 +154,7 @@ bool QQXmlParser::startElement ( const QString &namespaceURI, const QString &loc
 			((m_elementNames.top() == "info") ||
 			(m_elementNames.top() == "message") ||
 			(m_elementNames.top() == "login"))
-	   )
+	  )
 	{
 		m_tmpString.append("<").append(localName).append(">");
 	}
@@ -163,8 +163,8 @@ bool QQXmlParser::startElement ( const QString &namespaceURI, const QString &loc
 	return true;
 }
 //
-bool QQXmlParser::endElement ( const QString &namespaceURI, const QString &localName,
-							  const QString &qName )
+bool QQXmlParser::endElement(const QString &namespaceURI, const QString &localName,
+							  const QString &qName)
 {
 	// Pour éviter le warning
 	(void) namespaceURI;
@@ -197,13 +197,13 @@ bool QQXmlParser::endElement ( const QString &namespaceURI, const QString &local
 }
 /*
 //
-bool QQXmlParser::startPrefixMapping ( const QString & prefix, const QString & uri )
+bool QQXmlParser::startPrefixMapping(const QString & prefix, const QString & uri)
 {
 	qDebug() << "QQXmlParser::startPrefixMapping" << prefix << " ;; " << uri << endl;
 	return true;
 }
 //
-bool QQXmlParser::endPrefixMapping ( const QString & prefix )
+bool QQXmlParser::endPrefixMapping(const QString & prefix)
 {
 	qDebug() << "QQXmlParser::endPrefixMapping" << prefix << endl;
 	return true;
