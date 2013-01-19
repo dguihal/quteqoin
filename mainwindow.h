@@ -7,6 +7,7 @@ class QQBouchot;
 class QQPalmipede;
 class QQPinipede;
 class QQSettings;
+class QQTotozManager;
 
 namespace Ui {
 	class MainWindow;
@@ -24,6 +25,7 @@ public:
 
 public slots:
 	void displayOptions();
+	void displayTotozM();
 	void doPostMessage(const QString & bouchot, const QString & message);
 	void doTriggerMiniPalmi();
 	void doTriggerMaxiPalmi();
@@ -37,10 +39,11 @@ protected:
 private:
 	void initBouchot(QQBouchot * bouchot);
 
-	Ui::MainWindow *m_ui;
-	QQPalmipede *m_palmi;
-	QQPinipede *m_pini;
-	QQSettings *m_settings;
+	Ui::MainWindow * m_ui;
+	QQPalmipede * m_palmi;
+	QQPinipede * m_pini;
+	QQSettings * m_settings;
+	QQTotozManager * m_totozManager;
 };
 
 #endif // MAINWINDOW_H

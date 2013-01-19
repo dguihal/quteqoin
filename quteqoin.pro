@@ -33,7 +33,11 @@ SOURCES += main.cpp\
 	core/qqnetworkaccessor.cpp \
 	ui/qqpalmilineedit.cpp \
 	core/qqpurgebouchothistoevent.cpp \
-	core/qqbigornoitem.cpp
+	core/qqbigornoitem.cpp \
+	ui/qqtotozmanager.cpp \
+	ui/totozmanager/qqtmrequester.cpp \
+	ui/totozmanager/qqtmlabel.cpp \
+    xml/totozmanager/qqtmxmlparser.cpp
 
 HEADERS  += mainwindow.h \
 	core/qqsettings.h \
@@ -55,13 +59,18 @@ HEADERS  += mainwindow.h \
 	core/qqnetworkaccessor.h \
 	ui/qqpalmilineedit.h \
 	core/qqpurgebouchothistoevent.h \
-	core/qqbigornoitem.h
+	core/qqbigornoitem.h \
+	ui/qqtotozmanager.h \
+	ui/totozmanager/qqtmrequester.h \
+	ui/totozmanager/qqtmlabel.h \
+    xml/totozmanager/qqtmxmlparser.h
 
 FORMS    += mainwindow.ui \
 	ui/qqpalmipede.ui \
 	ui/qqbouchotsettingsdialog.ui \
 	ui/qqsettingsdialog.ui \
-	ui/qqproxyauthdialog.ui
+	ui/qqproxyauthdialog.ui \
+	ui/qqtotozmanager.ui
 
 OTHER_FILES +=
 

@@ -177,8 +177,8 @@ void QQBouchot::fetchBackend()
 
 void QQBouchot::requestFinishedSlot(QNetworkReply *reply)
 {
-	qDebug() << QDateTime::currentDateTime().currentMSecsSinceEpoch() << " : "
-			 << "QQBouchot::requestFinishedSlot isFinished=" << reply->isFinished();
+	//qDebug() << QDateTime::currentDateTime().currentMSecsSinceEpoch() << " : "
+	//		 << "QQBouchot::requestFinishedSlot isFinished=" << reply->isFinished();
 
 	// Recuperation du Statut HTTP
 	//QVariant statusCodeV = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute);

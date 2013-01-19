@@ -5,6 +5,7 @@
 #include "ui/qqpalmipede.h"
 #include "ui/qqpinipede.h"
 #include "ui/qqsettingsdialog.h"
+#include "ui/qqtotozmanager.h"
 
 #include <QCloseEvent>
 #include <QDebug>
@@ -19,6 +20,8 @@ MainWindow::MainWindow(QWidget *parent) :
 	m_ui(new Ui::MainWindow)
 {
 	m_ui->setupUi(this);
+
+	m_totozManager = NULL;
 
 	QIcon icon = QIcon(QString::fromAscii(":/img/rubber_duck_yellow.svg"));
 	setWindowIcon(icon);
@@ -46,6 +49,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
 	connect(m_palmi, SIGNAL(postMessage(QString,QString)), this, SLOT(doPostMessage(QString,QString)));
 	connect(m_ui->actionOptions, SIGNAL(triggered()), this, SLOT(displayOptions()));
+	connect(m_ui->actionTotoz, SIGNAL(triggered()), this, SLOT(displayTotozM()));
 	connect(m_ui->actionEnregistrer_parametres, SIGNAL(triggered()), m_settings, SLOT(saveSettings()));
 	connect(m_ui->actionQuit, SIGNAL(triggered()), this, SLOT(close()));
 	connect(this->m_ui->actionEtendu, SIGNAL(triggered()), this, SLOT(doTriggerMaxiPalmi()));
@@ -158,6 +162,19 @@ void MainWindow::displayOptions()
 		}
 	}
 	m_settings->startBouchots();
+}
+
+void MainWindow::displayTotozM()
+{
+	if(m_totozManager == NULL)
+	{
+		m_totozManager = new QQTotozManager(m_settings, this);
+		connect(m_totozManager, SIGNAL(totozClicked(QString)), m_palmi, SLOT(insertReplaceText(QString)));
+	}
+
+	m_totozManager->show();
+	m_totozManager->raise();
+	m_totozManager->activateWindow();
 }
 
 void MainWindow::doPostMessage(const QString & bouchot, const QString & message)
