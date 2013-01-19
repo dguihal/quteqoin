@@ -29,7 +29,7 @@ QQPinipede::QQPinipede(QQSettings * settings, QWidget * parent) :
 	this->tabBar()->hide();
 
 	m_settings = settings;
-	m_totozManager = new QQTotozDownloader(m_settings);
+	m_totozDownloader = new QQTotozDownloader(m_settings);
 	m_tBrowserHighlighted = NULL;
 
 	m_hiddenPostViewerLabelSSheet = QString::fromAscii("border: 2px solid black; border-radius: 4px;");
@@ -48,12 +48,12 @@ QQPinipede::QQPinipede(QQSettings * settings, QWidget * parent) :
 	m_totozLabel->hide();
 	m_totozMovie = NULL;
 	connect(m_settings, SIGNAL(totozServerUrlChanged(QString)),
-			m_totozManager, SLOT(serverURLchanged(QString)));
+			m_totozDownloader, SLOT(serverURLchanged(QString)));
 }
 
 QQPinipede::~QQPinipede()
 {
-	delete m_totozManager;
+	delete m_totozDownloader;
 	delete m_totozLabel;
 	if( m_totozMovie != NULL )
 		delete m_totozMovie;
@@ -79,7 +79,7 @@ void QQPinipede::addPiniTab(const QString & groupName)
 	QQSyntaxHighlighter * highlighter = new QQSyntaxHighlighter(m_settings, textBrowser->document());
 	highlighter->setNotificationWindow(window());
 	connect(highlighter, SIGNAL(totozRequired(const QString &)),
-			m_totozManager, SLOT(fetchTotoz(const QString &)));
+			m_totozDownloader, SLOT(fetchTotoz(const QString &)));
 
 	connect(textBrowser, SIGNAL(norlogeClicked(QQNorloge)), this, SLOT(norlogeClicked(QQNorloge)));
 	connect(textBrowser, SIGNAL(norlogeRefHovered(QQNorlogeRef)), this, SLOT(norlogeRefHovered(QQNorlogeRef)));
@@ -218,6 +218,7 @@ void QQPinipede::printPostAtCursor(QTextCursor & cursor, QQPost * post)
 	//norloge
 
 	QTextCharFormat norlogeFormat;
+	norlogeFormat.setToolTip(post->id());
 	norlogeFormat.setFontWeight(QFont::Bold);
 
 	QQMessageBlockUserData::ZoneRange rangeNorloge;
