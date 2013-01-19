@@ -12,7 +12,7 @@ class QQTotoz
 {
 public:
 	explicit QQTotoz();
-	QQTotoz(const QString & totozId, int posInMessage);
+	QQTotoz(const QString & totozId, int posInMessage = -1);
 	QQTotoz(const QQTotoz & totoz);
 	~QQTotoz();
 

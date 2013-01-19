@@ -20,7 +20,7 @@
      <x>0</x>
      <y>0</y>
      <width>600</width>
-     <height>21</height>
+     <height>19</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -63,6 +63,7 @@
     </property>
     <addaction name="separator"/>
     <addaction name="actionOptions"/>
+    <addaction name="actionTotoz"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuConfig"/>
@@ -135,6 +136,11 @@
   <action name="actionEn_ligne">
    <property name="text">
     <string>En ligne</string>
+   </property>
+  </action>
+  <action name="actionTotoz">
+   <property name="text">
+    <string>Gestionnaire &amp;Totoz</string>
    </property>
   </action>
  </widget>
