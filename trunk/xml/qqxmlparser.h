@@ -41,25 +41,25 @@ class QQXmlParser : public QObject, public QXmlDefaultHandler
 		void setTypeSlip(QQBouchot::TypeSlip typeSlip) { this->m_typeSlip = typeSlip; }
 
 		// Methodes héritées de QXmlErrorHandler
-//		bool error ( const QXmlParseException & );
-//		bool fatalError ( const QXmlParseException & );
-//		bool warning ( const QXmlParseException & );
+		// bool warning(const QXmlParseException & exception);
+		// bool error(const QXmlParseException & exception);
+		// bool fatalError(const QXmlParseException & exception);
 
 		// Methodes héritées de QXmlContentHandler
-		bool characters ( const QString & );
-//		bool ignorableWhitespace ( const QString & );
-//		bool processingInstruction ( const QString &, const QString & );
-//		void setDocumentLocator ( QXmlLocator * );
-		bool skippedEntity ( const QString & );
-//		bool startDocument ();
-//		bool endDocument ();
-		bool startElement ( const QString &, const QString &, const QString &, const QXmlAttributes & );
-		bool endElement ( const QString &, const QString &, const QString & );
-//		bool startPrefixMapping ( const QString &, const QString & );
-//		bool endPrefixMapping ( const QString & );
+		// void setDocumentLocator(QXmlLocator * locator);
+		// bool startDocument();
+		// bool endDocument();
+		// bool startPrefixMapping(const QString & prefix, const QString & uri);
+		// bool endPrefixMapping(const QString & prefix);
+		bool startElement(const QString & namespaceURI, const QString & localName, const QString & qName, const QXmlAttributes & atts);
+		bool endElement(const QString & namespaceURI, const QString & localName, const QString & qName);
+		bool characters(const QString & ch);
+		// bool ignorableWhitespace(const QString & ch);
+		// bool processingInstruction(const QString & target, const QString & data);
+		bool skippedEntity(const QString & name);
 
 	signals:
-		void newPostReady ( QQPost &newPost );
+		void newPostReady(QQPost & newPost);
 
 	private:
 		QStack<QString>	m_elementNames;
