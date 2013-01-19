@@ -63,7 +63,7 @@ private:
 	unsigned int insertPostToList(QList<QQPost *> *listPosts, QQPost *post, unsigned int indexStart);
 
 	QQSettings * m_settings;
-	QQTotozDownloader * m_totozManager;
+	QQTotozDownloader * m_totozDownloader;
 	QQTextBrowser * m_tBrowserHighlighted;
 	QLabel * m_hiddenPostViewerLabel;
 	QLabel * m_totozLabel;
