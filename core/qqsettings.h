@@ -24,23 +24,23 @@ public:
 	explicit QQSettings(QObject *parent = 0);
 	~QQSettings();
 
-	void setMaxHistoryLength(unsigned int maxHistoryLength);
+	void setMaxHistoryLength(unsigned int maxHistoryLength) { this->m_maxHistoryLength = maxHistoryLength; }
 	unsigned int maxHistoryLength() { return m_maxHistoryLength; }
 
-	void setDefaultUA(const QString &);
+	void setDefaultUA(const QString & defaultUA) { m_defaultUA = defaultUA; }
 	QString defaultUA();
 
-	void setTotozServerUrl(const QString & totozServerUrl);
+	void setTotozServerUrl(const QString & totozServerUrl) { m_totozServerUrl = totozServerUrl; }
 	QString totozServerUrl() { return m_totozServerUrl; }
 	void setTotozServerAllowSearch(const bool totozServerAllowSearch) { m_totozServerAllowSearch = totozServerAllowSearch; }
 	bool totozServerAllowSearch() { return m_totozServerAllowSearch; }
-	void setTotozQueryPattern(const QString & totozQueryPattern);
+	void setTotozQueryPattern(const QString & totozQueryPattern) { m_totozQueryPattern = totozQueryPattern; }
 	QString totozQueryPattern() { return m_totozQueryPattern; }
 
-	void setTotozMode(TotozMode);
+	void setTotozMode(QQSettings::TotozMode totozMode) { m_totozMode = totozMode; }
 	TotozMode totozMode() { return m_totozMode; }
 
-	void setDefaultLogin(const QString&);
+	void setDefaultLogin(const QString & defaultLogin) { m_defaultLogin = defaultLogin; }
 	QString defaultLogin() { return m_defaultLogin; }
 
 	void setProxyUser(const QString & proxyUser) { m_proxyUser = proxyUser; }
@@ -54,16 +54,17 @@ public:
 	QList<QQBouchot *> listBouchots(QString group);
 	bool hasBouchot(QString bouchotName) { return bouchot(bouchotName) != NULL; }
 	QQBouchot * bouchot(QString bouchotName);
-	void addBouchot(QQBouchot *);
-	void addBouchots(const QList<QQBouchot *>&);
+	void addBouchot(QQBouchot * bouchot) { m_listBouchots.append(bouchot); }
+	void addBouchots(const QList<QQBouchot *>& newBouchots) { m_listBouchots << newBouchots; }
 	void removeBouchot(QQBouchot * bouchot);
 	void removeBouchot(const QString bouchotName);
 	void startBouchots();
+
 	void startBouchot(QString &);
 	void stopBouchots();
 	void stopBouchot(QString &);
 
-	void setWinGeometry(const QRect & wGeometry);
+	void setWinGeometry(const QRect & wGeometry) { m_wGeometry = wGeometry; }
 	QRect winGeometry() { return m_wGeometry; }
 	bool hasWGeometry() { return
 				! m_wGeometry.isNull() &&
@@ -73,12 +74,8 @@ public:
 
 	QList<QString> listTabs();
 
-	void setPalmiMinimized(bool palmiMini);
+	void setPalmiMinimized(bool palmiMini) { m_palmiMini = palmiMini; }
 	bool palmiMinimized() { return m_palmiMini; }
-
-	void setDirty() { m_dirty = true; }
-	void setClean() { m_dirty = false; }
-	bool isDirty() { return m_dirty; }
 
 signals:
 	void totozServerUrlChanged(const QString & newTotozUrl);
@@ -86,7 +83,6 @@ signals:
 public slots:
 	bool readSettings();
 	bool saveSettings();
-	bool maybeSave();
 	void proxyAuthenticationRequired(const QNetworkProxy & proxy, QAuthenticator * authenticator);
 
 private:
@@ -107,7 +103,6 @@ private:
 	QRect m_wGeometry;
 
 	QList<QQBouchot *> m_listBouchots;
-	bool m_dirty;
 
 	QMutex m_proxyPopupMutex;
 };

@@ -26,7 +26,6 @@
 QQSettings::QQSettings(QObject *parent) :
 	QObject(parent)
 {
-	setClean();
 	m_palmiMini = false;
 	m_maxHistoryLength = 0;
 	m_totozMode = QQSettings::Bald_Mode;
@@ -41,60 +40,11 @@ QQSettings::~QQSettings()
 {
 }
 
-void QQSettings::setMaxHistoryLength(unsigned int maxHistoryLength)
-{
-	if(this->m_maxHistoryLength != maxHistoryLength)
-	{
-		this->m_maxHistoryLength = maxHistoryLength;
-		setDirty();
-	}
-
-}
-
 QString QQSettings::defaultUA()
 {
 	return m_defaultUA.size() == 0 ?
 				QString::fromUtf8(DEFAULT_UA) :
 				m_defaultUA;
-}
-
-void QQSettings::setDefaultUA(const QString & defaultUA)
-{
-	if(this->m_defaultUA != defaultUA)
-	{
-		m_defaultUA = defaultUA;
-		setDirty();
-	}
-}
-
-void QQSettings::setTotozServerUrl(const QString & totozServerUrl)
-{
-	if(this->m_totozServerUrl != totozServerUrl)
-	{
-		m_totozServerUrl = totozServerUrl;
-		setDirty();
-		emit totozServerUrlChanged(m_totozServerUrl);
-	}
-}
-
-void QQSettings::setTotozMode(QQSettings::TotozMode totozMode)
-{
-	qDebug() << "setTotozMode = " << totozMode;
-	if(this->m_totozMode != totozMode)
-	{
-		m_totozMode = totozMode;
-		setDirty();
-	}
-}
-
-void QQSettings::setDefaultLogin(const QString& defaultLogin)
-{
-	qDebug() << "setDefaultLogin = " << defaultLogin;
-	if(this->m_defaultLogin != defaultLogin)
-	{
-		m_defaultLogin = defaultLogin;
-		setDirty();
-	}
 }
 
 QQBouchot * QQSettings::bouchot(QString bouchotName)
@@ -120,25 +70,12 @@ QList<QQBouchot *> QQSettings::listBouchots(QString group)
 	return rep;
 }
 
-void QQSettings::addBouchot(QQBouchot *bouchot)
-{
-	m_listBouchots.append(bouchot);
-	setDirty();
-}
-
-void QQSettings::addBouchots(const QList<QQBouchot *>& newBouchots)
-{
-	m_listBouchots << newBouchots;
-	setDirty();
-}
-
 void QQSettings::removeBouchot(QQBouchot * bouchot)
 {
 	if( bouchot != NULL)
 	{
 		m_listBouchots.removeOne(bouchot);
 		delete bouchot;
-		setDirty();
 	}
 }
 
@@ -183,15 +120,6 @@ void QQSettings::stopBouchot(QString &nomBouchot)
 	}
 }
 
-void QQSettings::setWinGeometry(const QRect & wGeometry)
-{
-	if(m_wGeometry != wGeometry)
-	{
-		m_wGeometry = wGeometry;
-		setDirty();
-	}
-}
-
 QList<QString> QQSettings::listTabs()
 {
 	QList<QString> rep;
@@ -201,15 +129,6 @@ QList<QString> QQSettings::listTabs()
 
 	qDebug() << "QQSettings::getListTabs : " << rep;
 	return rep;
-}
-
-void QQSettings::setPalmiMinimized(bool palmiMini)
-{
-	if(m_palmiMini != palmiMini)
-	{
-		m_palmiMini = palmiMini;
-		setDirty();
-	}
 }
 
 bool QQSettings::readSettings()
@@ -289,17 +208,11 @@ bool QQSettings::readSettings()
 	}
 	settings.endGroup();
 
-	if(! QFile::exists(settings.fileName()))
-		setDirty();
-
 	return true;
 }
 
 bool QQSettings::saveSettings()
 {
-	if(! isDirty())
-		return true;
-
 	QSettings settings(QSettings::IniFormat, QSettings::UserScope, "Moules Corp", "quteqoin");
 
 	settings.setValue(QString::fromAscii("max_hist_len"),
@@ -358,31 +271,8 @@ bool QQSettings::saveSettings()
 	settings.setValue("bouchots", QVariant(bouchotNameList.join(QChar::fromAscii(BOUCHOTS_SPLIT_CHAR))));
 	//qDebug() << settings.fileName();
 
-	setClean();
 	return true;
 }
-
-bool QQSettings::maybeSave()
-{
-	if(isDirty())
-	{
-		QMessageBox msgBox;
-		msgBox.setText(tr("Settings have changed."));
-		msgBox.setInformativeText(tr("Save Settings?"));
-		msgBox.setStandardButtons(QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
-		msgBox.setDefaultButton(QMessageBox::Save);
-		int ret = msgBox.exec();
-
-		if (ret == QMessageBox::Save)
-			return saveSettings();
-		else if (ret == QMessageBox::Discard)
-			return true;
-		else if (ret == QMessageBox::Cancel)
-			return false;
-	}
-	return true;
-}
-
 
 void QQSettings::proxyAuthenticationRequired(const QNetworkProxy & proxy, QAuthenticator * authenticator)
 {
