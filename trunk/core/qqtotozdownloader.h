@@ -1,5 +1,5 @@
-#ifndef QQTOTOZMANAGER_H
-#define QQTOTOZMANAGER_H
+#ifndef QQTOTOZDOWNLOADER_H
+#define QQTOTOZDOWNLOADER_H
 
 #include "core/qqnetworkaccessor.h"
 #include "core/qqtotoz.h"
@@ -23,6 +23,8 @@ signals:
 
 public slots:
 	void fetchTotoz(const QString & totozId);
+
+protected slots:
 	void serverURLchanged(const QString & newUrl);
 	void requestFinishedSlot(QNetworkReply* reply);
 
@@ -31,4 +33,4 @@ private:
 	QHash<QNetworkReply *, QString> m_totozIdReplyHash;
 };
 
-#endif // QQTOTOZMANAGER_H
+#endif // QQTOTOZDOWNLOADER_H
