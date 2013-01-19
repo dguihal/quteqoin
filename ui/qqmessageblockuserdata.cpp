@@ -1,6 +1,6 @@
 #include "qqmessageblockuserdata.h"
 
-#include <QDebug>
+#include <QtDebug>
 
 QQMessageBlockUserData::QQMessageBlockUserData()
 {

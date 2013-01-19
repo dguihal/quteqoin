@@ -3,12 +3,11 @@
 #include "core/qqsettings.h"
 #include "xml/totozmanager/qqtmxmlparser.h"
 
-#include <QDebug>
+#include <QtDebug>
 #include <QXmlSimpleReader>
 #include <QXmlInputSource>
 
 #define TOTOZ_URL "http://totoz.sauf.ca"
-#define QUERY_URL "search.xml?terms="
 
 
 QQTMRequester::QQTMRequester(QQSettings * settings) :
@@ -53,12 +52,13 @@ void QQTMRequester::searchTotoz(const QString & key)
 
 void QQTMRequester::searchTotoz(const QString & key, int offset)
 {
+	QString searchPattern = m_settings->totozQueryPattern();
+	searchPattern.replace("%t", key.toAscii().toPercentEncoding());
+	searchPattern.replace("%o", QString::number(offset));
+
 	QString urlString = QString::fromAscii(TOTOZ_URL)
 						.append("/")
-						.append(QUERY_URL)
-						.append(key.toAscii().toPercentEncoding())
-						.append("&offset=")
-						.append(QString::number(offset));
+						.append(searchPattern);
 
 	QUrl url(urlString);
 

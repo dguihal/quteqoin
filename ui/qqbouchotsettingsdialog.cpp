@@ -1,7 +1,7 @@
 #include "qqbouchotsettingsdialog.h"
 #include "ui_qqbouchotsettingsdialog.h"
 
-#include <QDebug>
+#include <QtDebug>
 
 QQBouchotSettingsDialog::QQBouchotSettingsDialog(QWidget *parent) :
 	QDialog(parent),

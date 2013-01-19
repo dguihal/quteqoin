@@ -32,6 +32,10 @@ public:
 
 	void setTotozServerUrl(const QString & totozServerUrl);
 	QString totozServerUrl() { return m_totozServerUrl; }
+	void setTotozServerAllowSearch(const bool totozServerAllowSearch) { m_totozServerAllowSearch = totozServerAllowSearch; }
+	bool totozServerAllowSearch() { return m_totozServerAllowSearch; }
+	void setTotozQueryPattern(const QString & totozQueryPattern);
+	QString totozQueryPattern() { return m_totozQueryPattern; }
 
 	void setTotozMode(TotozMode);
 	TotozMode totozMode() { return m_totozMode; }
@@ -89,8 +93,12 @@ private:
 	uint m_maxHistoryLength;
 	QString m_defaultUA;
 	QString m_defaultLogin;
+
 	QString m_totozServerUrl;
+	bool m_totozServerAllowSearch;
+	QString m_totozQueryPattern;
 	TotozMode m_totozMode;
+
 	bool m_palmiMini;
 
 	QString m_proxyUser;

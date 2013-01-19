@@ -3,7 +3,7 @@
 #include "core/qqtotoz.h"
 
 #include <QBuffer>
-#include <QDebug>
+#include <QtDebug>
 #include <QEventLoop>
 #include <QNetworkAccessManager>
 #include <QNetworkProxyFactory>

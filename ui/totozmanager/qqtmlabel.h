@@ -14,17 +14,21 @@ public:
 	explicit QQTMLabel(const QString & totozId ="", QWidget * parent = 0 );
 	~QQTMLabel();
 
+	void enableBookmarksMenu(const bool enableBMenu = true) { m_bookmarkMenuEnabled = enableBMenu; }
+
 public slots:
 	void update();
 
 signals:
 	void totozClicked(QString anchor);
+	void bookmarkingAsked(QString anchor);
 
 protected:
 	virtual void mousePressEvent(QMouseEvent * ev);
 	virtual void mouseReleaseEvent(QMouseEvent * ev);
 	virtual void enterEvent(QEvent * event);
 	virtual void leaveEvent(QEvent * event);
+	virtual void contextMenuEvent(QContextMenuEvent * ev);
 
 private:
 	void displayMovie(QMovie * movie);
@@ -38,6 +42,7 @@ private:
 	bool loadFailed;
 
 	bool m_mousePressOK;
+	bool m_bookmarkMenuEnabled;
 };
 
 #endif // QQTOTOTZMANAGER_H

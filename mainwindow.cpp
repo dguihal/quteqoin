@@ -8,7 +8,7 @@
 #include "ui/qqtotozmanager.h"
 
 #include <QCloseEvent>
-#include <QDebug>
+#include <QtDebug>
 #include <QIcon>
 #include <QKeyEvent>
 #include <QLayout>
@@ -82,6 +82,8 @@ void MainWindow::displayOptions()
 	settingsDialog.setDefaultUA(m_settings->defaultUA());
 	settingsDialog.setDefaultLogin(m_settings->defaultLogin());
 	settingsDialog.setTotozServerUrl(m_settings->totozServerUrl());
+	settingsDialog.setTotozAllowSearch(m_settings->totozServerAllowSearch());
+	settingsDialog.setTotozQueryPattern(m_settings->totozQueryPattern());
 	settingsDialog.setTotozMode(m_settings->totozMode());
 	settingsDialog.setMaxHistoryLength(m_settings->maxHistoryLength());
 

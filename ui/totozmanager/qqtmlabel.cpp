@@ -2,8 +2,11 @@
 
 #include "core/qqtotoz.h"
 
+#include <QtDebug>
 #include <QImage>
+#include <QMenu>
 #include <QMovie>
+#include <QMouseEvent>
 #include <QPixmap>
 #include <QPoint>
 #include <QSize>
@@ -17,6 +20,7 @@ QQTMLabel::QQTMLabel(const QString & totozId, QWidget * parent) :
 {
 	m_totozId = totozId;
 	m_mousePressOK = false;
+	m_bookmarkMenuEnabled = true;
 
 	setToolTip(getAnchor());
 	setWordWrap(true);
@@ -71,13 +75,14 @@ void QQTMLabel::update()
 void QQTMLabel::mousePressEvent(QMouseEvent * ev)
 {
 	QLabel::mousePressEvent(ev);
-	m_mousePressOK = true;
+	if(ev->button() == Qt::LeftButton)
+		m_mousePressOK = true;
 }
 
 void QQTMLabel::mouseReleaseEvent(QMouseEvent * ev)
 {
 	QLabel::mouseReleaseEvent(ev);
-	if(m_mousePressOK)
+	if(ev->button() == Qt::LeftButton && m_mousePressOK)
 		emit totozClicked(getAnchor());
 }
 
@@ -93,6 +98,30 @@ void QQTMLabel::leaveEvent(QEvent * event)
 	m_mousePressOK = false;
 }
 
+void QQTMLabel::contextMenuEvent(QContextMenuEvent * ev)
+{
+	QLabel::contextMenuEvent(ev);
+
+	QMenu menu(this);
+	QString actBookmStr("Bookmark");
+	if(m_bookmarkMenuEnabled)
+		menu.addAction(actBookmStr);
+
+	QString actSendPalmiStr("Send to palmi");
+	menu.addAction(actSendPalmiStr);
+
+	QAction * actionTriggered = NULL;
+	if( (actionTriggered = menu.exec(ev->globalPos())) != NULL )
+	{
+		QString text = actionTriggered->text();
+		if(text == actBookmStr)
+			emit bookmarkingAsked(getAnchor());
+		else if(text == actSendPalmiStr)
+			emit totozClicked(getAnchor());
+		else
+			qWarning() << "Unknown action triggered";
+	}
+}
 
 void QQTMLabel::displayMovie(QMovie * movie)
 {

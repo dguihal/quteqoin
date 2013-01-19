@@ -3,7 +3,7 @@
 
 #include "core/qqnorlogeref.h"
 
-#include <QDebug>
+#include <QtDebug>
 #include <QRegExp>
 #include <QShortcut>
 

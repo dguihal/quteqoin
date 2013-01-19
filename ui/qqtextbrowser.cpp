@@ -6,7 +6,7 @@
 
 #include <QApplication>
 #include <QCursor>
-#include <QDebug>
+#include <QtDebug>
 #include <QMouseEvent>
 #include <QPainter>
 #include <QScrollBar>
