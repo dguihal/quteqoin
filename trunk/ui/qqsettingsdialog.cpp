@@ -15,7 +15,7 @@ QQSettingsDialog::QQSettingsDialog(QWidget *parent) :
 {
 	ui->setupUi(this);
 	ui->bouchotListView->setModel(new QStringListModel());
-	connect(ui->srvAllowSearch, SIGNAL(clicked(bool)), this, SLOT(setTotozAllowSearch(bool)));
+	connect(ui->srvAllowSearch, SIGNAL(clicked(bool)), this, SLOT(setTotozServerAllowSearch(bool)));
 
 	connect(ui->addBouchotButton, SIGNAL(clicked()), this, SLOT(addBouchot()));
 	connect(ui->deleteBouchotButton, SIGNAL(clicked()), this, SLOT(deleteBouchot()));
@@ -59,15 +59,15 @@ QString QQSettingsDialog::totozServerUrl()
 	return ui->srvTotozLineEdit->text();
 }
 
-void QQSettingsDialog::setTotozAllowSearch(bool totozAllowSearch)
+void QQSettingsDialog::setTotozServerAllowSearch(bool totozServerAllowSearch)
 {
-	if(totozAllowSearch != ui->srvAllowSearch->isChecked())
-		ui->srvAllowSearch->setChecked(totozAllowSearch);
+	if(totozServerAllowSearch != ui->srvAllowSearch->isChecked())
+		ui->srvAllowSearch->setChecked(totozServerAllowSearch);
 
-	ui->srvTotozQueryPatternLineEdit->setDisabled(! totozAllowSearch);
+	ui->srvTotozQueryPatternLineEdit->setDisabled(! totozServerAllowSearch);
 }
 
-bool QQSettingsDialog::totozAllowSearch()
+bool QQSettingsDialog::totozServerAllowSearch()
 {
 	return ui->srvAllowSearch->isChecked();
 }

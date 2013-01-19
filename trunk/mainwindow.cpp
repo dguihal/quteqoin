@@ -82,7 +82,7 @@ void MainWindow::displayOptions()
 	settingsDialog.setDefaultUA(m_settings->defaultUA());
 	settingsDialog.setDefaultLogin(m_settings->defaultLogin());
 	settingsDialog.setTotozServerUrl(m_settings->totozServerUrl());
-	settingsDialog.setTotozAllowSearch(m_settings->totozServerAllowSearch());
+	settingsDialog.setTotozServerAllowSearch(m_settings->totozServerAllowSearch());
 	settingsDialog.setTotozQueryPattern(m_settings->totozQueryPattern());
 	settingsDialog.setTotozMode(m_settings->totozMode());
 	settingsDialog.setMaxHistoryLength(m_settings->maxHistoryLength());
@@ -102,6 +102,8 @@ void MainWindow::displayOptions()
 		m_settings->setDefaultUA(settingsDialog.defaultUA());
 		m_settings->setDefaultLogin(settingsDialog.defaultLogin());
 		m_settings->setTotozServerUrl(settingsDialog.totozServerUrl());
+		m_settings->setTotozServerAllowSearch(settingsDialog.totozServerAllowSearch());
+		m_settings->setTotozQueryPattern(settingsDialog.totozQueryPattern());
 		m_settings->setTotozMode((QQSettings::TotozMode) settingsDialog.totozMode());
 
 		unsigned int oldMaxHLength = m_settings->maxHistoryLength();
@@ -146,8 +148,6 @@ void MainWindow::displayOptions()
 				m_pini->newPostsAvailable(modifBouchot->settings().group());
 				m_pini->purgePiniTab(oldGroup, modifBouchot->name());
 			}
-
-			m_settings->setDirty();
 		}
 
 		//Les bouchots ajoutes
@@ -215,11 +215,8 @@ void MainWindow::initBouchot(QQBouchot * bouchot)
 
 void MainWindow::closeEvent(QCloseEvent * event)
 {
-	qDebug()<<"MainWindow::closeEvent";
-	if(m_settings->maybeSave())
-		event->accept();
-	else
-		event->ignore();
+	QMainWindow::closeEvent(event);
+	m_settings->saveSettings();
 }
 
 void MainWindow::resizeEvent(QResizeEvent * event)
