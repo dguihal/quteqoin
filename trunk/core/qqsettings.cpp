@@ -5,7 +5,7 @@
 #include "ui/qqproxyauthdialog.h"
 
 #include <QAuthenticator>
-#include <QDebug>
+#include <QtDebug>
 #include <QFile>
 #include <QList>
 #include <QMessageBox>
@@ -21,6 +21,8 @@
 #define DEFAULT_TOTOZ_MODE "1"
 #define DEFAULT_PALMI_MINI "0"
 
+#define TOTOZ_SEARCH_PATTERN "search.xml?terms=%t&offset=%o"
+
 QQSettings::QQSettings(QObject *parent) :
 	QObject(parent)
 {
@@ -28,6 +30,10 @@ QQSettings::QQSettings(QObject *parent) :
 	m_palmiMini = false;
 	m_maxHistoryLength = 0;
 	m_totozMode = QQSettings::Bald_Mode;
+
+	m_totozQueryPattern = QString(TOTOZ_SEARCH_PATTERN);
+	m_totozServerAllowSearch = true;
+
 	readSettings();
 }
 

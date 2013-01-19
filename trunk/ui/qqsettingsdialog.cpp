@@ -4,8 +4,9 @@
 #include "core/qqbouchot.h"
 #include "ui/qqbouchotsettingsdialog.h"
 
-#include <QDebug>
+#include <QtDebug>
 #include <QStringListModel>
+#include <QPalette>
 #include <QUrl>
 
 QQSettingsDialog::QQSettingsDialog(QWidget *parent) :
@@ -14,6 +15,7 @@ QQSettingsDialog::QQSettingsDialog(QWidget *parent) :
 {
 	ui->setupUi(this);
 	ui->bouchotListView->setModel(new QStringListModel());
+	connect(ui->srvAllowSearch, SIGNAL(clicked(bool)), this, SLOT(setTotozAllowSearch(bool)));
 
 	connect(ui->addBouchotButton, SIGNAL(clicked()), this, SLOT(addBouchot()));
 	connect(ui->deleteBouchotButton, SIGNAL(clicked()), this, SLOT(deleteBouchot()));
@@ -57,6 +59,29 @@ QString QQSettingsDialog::totozServerUrl()
 	return ui->srvTotozLineEdit->text();
 }
 
+void QQSettingsDialog::setTotozAllowSearch(bool totozAllowSearch)
+{
+	if(totozAllowSearch != ui->srvAllowSearch->isChecked())
+		ui->srvAllowSearch->setChecked(totozAllowSearch);
+
+	ui->srvTotozQueryPatternLineEdit->setDisabled(! totozAllowSearch);
+}
+
+bool QQSettingsDialog::totozAllowSearch()
+{
+	return ui->srvAllowSearch->isChecked();
+}
+
+void QQSettingsDialog::setTotozQueryPattern(const QString & totozQueryPattern)
+{
+	return ui->srvTotozQueryPatternLineEdit->setText(totozQueryPattern);
+}
+
+QString QQSettingsDialog::totozQueryPattern()
+{
+	return ui->srvTotozLineEdit->text();
+}
+
 void QQSettingsDialog::setTotozMode(int totozMode)
 {
 	ui->totozModeComboBox->setCurrentIndex(totozMode);
@@ -67,7 +92,7 @@ int QQSettingsDialog::totozMode()
 	return ui->totozModeComboBox->currentIndex();
 }
 
-void QQSettingsDialog::setDefaultLogin(const QString& defaultLogin)
+void QQSettingsDialog::setDefaultLogin(const QString & defaultLogin)
 {
 	ui->defaultLoginLineEdit->setText(defaultLogin);
 }

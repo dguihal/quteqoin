@@ -8,7 +8,7 @@
 #include "ui/qqmessageblockuserdata.h"
 
 #include <QDateTime>
-#include <QDebug>
+#include <QtDebug>
 #include <QIcon>
 #include <QRegExp>
 #include <QTextCharFormat>

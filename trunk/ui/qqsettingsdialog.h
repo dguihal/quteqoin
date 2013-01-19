@@ -31,7 +31,12 @@ public:
 	void setTotozServerUrl(const QString & totozSrvUrl);
 	QString totozServerUrl();
 
-	void setTotozMode(int);
+	bool totozAllowSearch();
+
+	void setTotozQueryPattern(const QString & totozQueryPattern);
+	QString totozQueryPattern();
+
+	void setTotozMode(int totozMode);
 	int totozMode();
 
 	void setDefaultLogin(const QString&);
@@ -44,6 +49,7 @@ public:
 	QMap<QString, QQBouchot::QQBouchotSettings> oldBouchots() { return m_oldBouchots; }
 
 public slots:
+	void setTotozAllowSearch(bool totozAllowSearch);
 	void addBouchot();
 	void deleteBouchot();
 	void editBouchot();

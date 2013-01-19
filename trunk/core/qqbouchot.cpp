@@ -5,7 +5,7 @@
 #include "xml/qqxmlparser.h"
 
 #include <QDateTime>
-#include <QDebug>
+#include <QtDebug>
 #include <QNetworkProxyFactory>
 #include <QNetworkReply>
 #include <QNetworkRequest>

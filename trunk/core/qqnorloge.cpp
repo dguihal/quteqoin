@@ -1,6 +1,6 @@
 #include "qqnorloge.h"
 
-#include <QDebug>
+#include <QtDebug>
 #include <QDateTime>
 #include <QStringList>
 

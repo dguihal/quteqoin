@@ -4,7 +4,7 @@
 #include "core/qqnorloge.h"
 #include "core/qqpost.h"
 
-#include <QDebug>
+#include <QtDebug>
 #include <QList>
 #include <QPointer>
 #include <QString>

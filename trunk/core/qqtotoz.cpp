@@ -1,7 +1,7 @@
 #include "qqtotoz.h"
 
 #include <QCryptographicHash>
-#include <QDebug>
+#include <QtDebug>
 
 QQTotoz::QQTotoz() {}
 
