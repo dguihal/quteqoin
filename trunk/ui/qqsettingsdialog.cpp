@@ -79,7 +79,7 @@ void QQSettingsDialog::setTotozQueryPattern(const QString & totozQueryPattern)
 
 QString QQSettingsDialog::totozQueryPattern()
 {
-	return ui->srvTotozLineEdit->text();
+	return ui->srvTotozQueryPatternLineEdit->text();
 }
 
 void QQSettingsDialog::setTotozMode(int totozMode)
