@@ -156,7 +156,10 @@ bool QQXmlParser::startElement(const QString &namespaceURI, const QString &local
 			(m_elementNames.top() == "login"))
 	  )
 	{
-		m_tmpString.append("<").append(localName).append(">");
+		m_tmpString.append("<").append(localName);
+		for(int i = 0; i < atts.length(); i++)
+			m_tmpString.append(" ").append(atts.qName(i)).append("=\"").append(atts.value(i)).append("\"");
+		m_tmpString.append(">");
 	}
 	else
 		m_elementNames.push(localName);
@@ -173,7 +176,7 @@ bool QQXmlParser::endElement(const QString &namespaceURI, const QString &localNa
 	//qDebug() << "QQXmlParser::endElement" << namespaceURI << " ;; " << localName << " ;; " << qName << endl;
 	if (localName != m_elementNames.top())
 	{
-		m_tmpString.append("<").append(localName).append(">");
+		m_tmpString.append("</").append(localName).append(">");
 		return true;
 	}
 
