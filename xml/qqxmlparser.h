@@ -32,42 +32,43 @@ class QQXmlParser : public QObject, public QXmlDefaultHandler
 {
 	Q_OBJECT
 
-	public:
-		QQXmlParser();
-		virtual ~QQXmlParser();
+public:
+	QQXmlParser();
+	virtual ~QQXmlParser();
 
-		QString errorString () const;
-		void setLastId(int lastId) { this->m_lastId = lastId; }
-		void setTypeSlip(QQBouchot::TypeSlip typeSlip) { this->m_typeSlip = typeSlip; }
+	QString errorString () const;
+	void setLastId(int lastId) { this->m_lastId = lastId; }
+	void setTypeSlip(QQBouchot::TypeSlip typeSlip) { this->m_typeSlip = typeSlip; }
 
-		// Methodes héritées de QXmlErrorHandler
-		// bool warning(const QXmlParseException & exception);
-		// bool error(const QXmlParseException & exception);
-		// bool fatalError(const QXmlParseException & exception);
+	// Methodes héritées de QXmlErrorHandler
+	// bool warning(const QXmlParseException & exception);
+	// bool error(const QXmlParseException & exception);
+	// bool fatalError(const QXmlParseException & exception);
 
-		// Methodes héritées de QXmlContentHandler
-		// void setDocumentLocator(QXmlLocator * locator);
-		// bool startDocument();
-		// bool endDocument();
-		// bool startPrefixMapping(const QString & prefix, const QString & uri);
-		// bool endPrefixMapping(const QString & prefix);
-		bool startElement(const QString & namespaceURI, const QString & localName, const QString & qName, const QXmlAttributes & atts);
-		bool endElement(const QString & namespaceURI, const QString & localName, const QString & qName);
-		bool characters(const QString & ch);
-		// bool ignorableWhitespace(const QString & ch);
-		// bool processingInstruction(const QString & target, const QString & data);
-		bool skippedEntity(const QString & name);
+	// Methodes héritées de QXmlContentHandler
+	// void setDocumentLocator(QXmlLocator * locator);
+	bool startDocument();
+	bool endDocument();
+	// bool startPrefixMapping(const QString & prefix, const QString & uri);
+	// bool endPrefixMapping(const QString & prefix);
+	bool startElement(const QString & namespaceURI, const QString & localName, const QString & qName, const QXmlAttributes & atts);
+	bool endElement(const QString & namespaceURI, const QString & localName, const QString & qName);
+	bool characters(const QString & ch);
+	// bool ignorableWhitespace(const QString & ch);
+	// bool processingInstruction(const QString & target, const QString & data);
+	bool skippedEntity(const QString & name);
 
-	signals:
-		void newPostReady(QQPost & newPost);
+signals:
+	void newPostReady(QQPost & newPost);
+	void finished();
 
-	private:
-		QStack<QString>	m_elementNames;
-		QString			m_tmpString;
-		QString			m_errorString;
-		QQPost			m_currentPost;
+private:
+	QStack<QString>	m_elementNames;
+	QString			m_tmpString;
+	QString			m_errorString;
+	QQPost			m_currentPost;
 
-		int m_lastId;
-		QQBouchot::TypeSlip m_typeSlip;
+	int m_lastId;
+	QQBouchot::TypeSlip m_typeSlip;
 };
 #endif

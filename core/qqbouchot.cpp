@@ -49,6 +49,15 @@ QQBouchot::QQBouchot(const QString & name, QQSettings * settings) :
 	m_newPostHistory.clear();
 	m_lastId=0;
 	m_settings = settings;
+
+	m_xmlParser = new QQXmlParser();
+	connect(m_xmlParser, SIGNAL(newPostReady(QQPost&)), this, SLOT(insertNewPost(QQPost&)));
+	connect(m_xmlParser, SIGNAL(finished()), this, SLOT(parsingFinished()));
+}
+
+QQBouchot::~QQBouchot()
+{
+	delete m_xmlParser;
 }
 
 void QQBouchot::postMessage(const QString &message)
@@ -177,9 +186,6 @@ void QQBouchot::fetchBackend()
 
 void QQBouchot::requestFinishedSlot(QNetworkReply *reply)
 {
-	//qDebug() << QDateTime::currentDateTime().currentMSecsSinceEpoch() << " : "
-	//		 << "QQBouchot::requestFinishedSlot isFinished=" << reply->isFinished();
-
 	// Recuperation du Statut HTTP
 	//QVariant statusCodeV = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute);
 
@@ -215,26 +221,26 @@ void QQBouchot::parseBackend(const QByteArray & data)
 {
 	QXmlSimpleReader xmlReader;
 	QXmlInputSource xmlSource;
-	QQXmlParser xmlParser;
-	xmlParser.setLastId(m_lastId);
-	xmlParser.setTypeSlip(this->m_bSettings.slipType());
 
-	connect(&xmlParser, SIGNAL(newPostReady(QQPost&)), this, SLOT(insertNewPost(QQPost&)));
+	m_xmlParser->setLastId(m_lastId);
+	m_xmlParser->setTypeSlip(m_bSettings.slipType());
+
 	xmlSource.setData(data);
-	xmlReader.setContentHandler(&xmlParser);
-	xmlReader.setErrorHandler(&xmlParser);
+	xmlReader.setContentHandler(m_xmlParser);
+	xmlReader.setErrorHandler(m_xmlParser);
 	xmlReader.parse(&xmlSource);
+}
 
-
+void QQBouchot::parsingFinished()
+{
 	if( m_newPostHistory.size() > 0 )
 	{
 		qDebug() << QDateTime::currentDateTime().currentMSecsSinceEpoch() << " : "
-				 << "QQBouchot::replyFinished, newPostsInserted emis";
+				 << "QQBouchot::parsingFinished, newPostsInserted emis";
 		m_history.append(m_newPostHistory);
 		m_lastId = m_history.last()->id().toInt();
 		emit newPostsAvailable(m_bSettings.group());
 	}
-
 }
 
 void QQBouchot::insertNewPost(QQPost &newPost)
