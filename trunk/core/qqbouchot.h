@@ -3,7 +3,6 @@
 
 #include "core/qqnetworkaccessor.h"
 #include "core/qqpost.h"
-#include "core/qqsettings.h"
 
 #include <QColor>
 #include <QObject>
@@ -14,6 +13,8 @@
 #include <QUrl>
 
 class QNetworkReply;
+class QQXmlParser;
+class QQSettings;
 
 
 class QQBouchot : public QQNetworkAccessor
@@ -83,7 +84,7 @@ public:
 	};
 
 	QQBouchot(const QString & name, QQSettings * settings = 0);
-	~QQBouchot() {}
+	~QQBouchot();
 
 	QString name() { return m_name; }
 	//void setName(const QString &newName) { m_name = newName; }
@@ -115,16 +116,19 @@ protected slots:
 	void fetchBackend();
 	void requestFinishedSlot(QNetworkReply *);
 	void insertNewPost(QQPost &);
+	void parsingFinished();
 
 private:
 
 	QList<QQPost *> m_history;
 	int m_lastId;
 	QString m_name;
-	QQSettings * m_settings;
 	QList<QQPost *> m_newPostHistory;
 	QQBouchotSettings m_bSettings;
 	QTimer timer;
+
+	QQSettings * m_settings;
+	QQXmlParser * m_xmlParser;
 };
 
 /*

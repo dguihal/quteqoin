@@ -23,7 +23,8 @@ QQXmlParser::QQXmlParser()
 	: QXmlDefaultHandler()
 {
 	m_currentPost.reset();
-	this->m_lastId = 0;
+	m_typeSlip = QQBouchot::SlipTagsEncoded;
+	m_lastId = 0;
 }
 
 //
@@ -62,10 +63,10 @@ bool QQXmlParser::warning(const QXmlParseException & exception)
 //
 bool QQXmlParser::characters(const QString & ch)
 {
-//	qDebug() << "QQXmlParser::characters ;; " << ch << endl;
+	//	qDebug() << "QQXmlParser::characters ;; " << ch << endl;
 	if((m_elementNames.top() == "info") ||
-		 (m_elementNames.top() == "message") ||
-		 (m_elementNames.top() == "login"))
+	   (m_elementNames.top() == "message") ||
+	   (m_elementNames.top() == "login"))
 	{
 		QString tmp = ch;
 		if (m_typeSlip == QQBouchot::SlipTagsRaw)
@@ -96,65 +97,69 @@ void QQXmlParser::setDocumentLocator(QXmlLocator * locator)
 //
 bool QQXmlParser::skippedEntity(const QString & name)
 {
-//	qDebug() << "QQXmlParser::skippedEntity ;; " << name << endl;
+	//	qDebug() << "QQXmlParser::skippedEntity ;; " << name << endl;
 	if((m_elementNames.top() == "info") ||
-		 (m_elementNames.top() == "message") ||
-		 (m_elementNames.top() == "login"))
+	   (m_elementNames.top() == "message") ||
+	   (m_elementNames.top() == "login"))
 	{
-			m_tmpString += "&";
-			m_tmpString += name;
-			m_tmpString += ";";
+		m_tmpString += "&";
+		m_tmpString += name;
+		m_tmpString += ";";
 	}
 	return true;
 }
-/*
+
 //
 bool QQXmlParser::startDocument ()
 {
-	qDebug() << "QQXmlParser::startDocument" << endl;
+	m_elementNames.clear();
+	m_tmpString.clear();
+	m_errorString.clear();
+	m_currentPost.reset();
 	return true;
 }
 //
 bool QQXmlParser::endDocument ()
 {
-	qDebug() << "QQXmlParser::endDocument" << endl;
+	m_lastId = 0;
+	emit finished();
 	return true;
 }
-*/
+
 //
 bool QQXmlParser::startElement(const QString &namespaceURI, const QString &localName,
-								const QString &qName, const QXmlAttributes &atts)
+							   const QString &qName, const QXmlAttributes &atts)
 {
 	// Pour éviter le warning
 	(void) namespaceURI;
 	(void) qName;
 
-	//qDebug() << "QQXmlParser::startElement" << namespaceURI << " ;; " << localName << " ;; " << qName << " ;; " << atts.count() << endl;
 	if (localName == "post")
 	{
 		int i;
 		for (i = 0; i < atts.count(); i++)
 		{
-			//qDebug() << "QQXmlParser::startElement, Attributes : " << atts.localName(i) << " = " << atts.value(i) << endl;
 			if(atts.localName(i) == "id")
 			{
 				if(atts.value(i).toInt() <= this->m_lastId)
 				{
 					m_errorString = QString::fromUtf8("Id déjà connu, arrêt du parser xml");
+					emit finished();
 					return false;
 				}
 
 				m_currentPost.setId(atts.value(i));
 			}
-			else if(atts.localName(i) == "time") m_currentPost.setNorloge(atts.value(i));
+			else if(atts.localName(i) == "time")
+				m_currentPost.setNorloge(atts.value(i));
 		}
 	}
 
 	if (m_elementNames.size() > 0 &&
-			((m_elementNames.top() == "info") ||
-			(m_elementNames.top() == "message") ||
-			(m_elementNames.top() == "login"))
-	  )
+		((m_elementNames.top() == "info") ||
+		 (m_elementNames.top() == "message") ||
+		 (m_elementNames.top() == "login"))
+		)
 	{
 		m_tmpString.append("<").append(localName);
 		for(int i = 0; i < atts.length(); i++)
@@ -167,7 +172,7 @@ bool QQXmlParser::startElement(const QString &namespaceURI, const QString &local
 }
 //
 bool QQXmlParser::endElement(const QString &namespaceURI, const QString &localName,
-							  const QString &qName)
+							 const QString &qName)
 {
 	// Pour éviter le warning
 	(void) namespaceURI;
