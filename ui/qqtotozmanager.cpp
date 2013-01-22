@@ -36,6 +36,8 @@ QQTotozManager::QQTotozManager(QQSettings * settings, QWidget *parent) :
 	else
 		ui->qqTMTabWidget->removeTab(TAB_SEARCH_INDEX);
 
+	ui->cancelSearchButton->hide();
+
 	ui->qqTMTabWidget->currentWidget()->layout()->setContentsMargins(1, 1, 2, 1);
 
 	this->layout()->setContentsMargins(1, 1, 1, 1);
@@ -79,6 +81,8 @@ void QQTotozManager::tabChanged(int tabIndex)
 
 void QQTotozManager::searchTotoz()
 {
+	ui->cancelSearchButton->show();
+
 	QString searchStr = ui->searchLineEdit->text();
 	if(searchStr.length() >= 3)
 	{
@@ -93,6 +97,8 @@ void QQTotozManager::searchTotoz()
 
 void QQTotozManager::totozSearchFinished()
 {
+	ui->cancelSearchButton->hide();
+
 	setCursor(QCursor(Qt::ArrowCursor));
 	ui->searchLineEdit->setCursor(QCursor(Qt::ArrowCursor));
 	ui->searchLineEdit->setStyleSheet(searchLineEditSS);
@@ -135,6 +141,18 @@ void QQTotozManager::totozSearchFinished()
 	setFixedWidth(width());
 	setMinimumHeight(0);
 	setMaximumHeight(QWIDGETSIZE_MAX);
+}
+
+void QQTotozManager::totozSearchCanceled()
+{
+	m_requester->cancel();
+
+	ui->cancelSearchButton->hide();
+
+	setCursor(QCursor(Qt::ArrowCursor));
+	ui->searchLineEdit->setCursor(QCursor(Qt::ArrowCursor));
+	ui->searchLineEdit->setStyleSheet(searchLineEditSS);
+
 }
 
 void QQTotozManager::totozSelected(QString anchor)

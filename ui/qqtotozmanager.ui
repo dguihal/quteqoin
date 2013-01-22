@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>225</width>
+    <width>250</width>
     <height>462</height>
    </rect>
   </property>
@@ -58,8 +58,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>194</width>
-            <height>412</height>
+            <width>220</width>
+            <height>410</height>
            </rect>
           </property>
          </widget>
@@ -73,7 +73,24 @@
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout_2">
        <item>
-        <widget class="QLineEdit" name="searchLineEdit"/>
+        <widget class="QWidget" name="widget" native="true">
+         <layout class="QHBoxLayout" name="horizontalLayout_2">
+          <item>
+           <widget class="QLineEdit" name="searchLineEdit"/>
+          </item>
+          <item>
+           <widget class="QPushButton" name="cancelSearchButton">
+            <property name="text">
+             <string/>
+            </property>
+            <property name="icon">
+             <iconset resource="../rc/tribunesDef.qrc">
+              <normaloff>:/img/delete-icon.png</normaloff>:/img/delete-icon.png</iconset>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
        </item>
        <item>
         <widget class="QScrollArea" name="searchScrollArea">
@@ -104,7 +121,7 @@
             <x>0</x>
             <y>0</y>
             <width>224</width>
-            <height>386</height>
+            <height>373</height>
            </rect>
           </property>
          </widget>
@@ -116,6 +133,8 @@
    </item>
   </layout>
  </widget>
- <resources/>
+ <resources>
+  <include location="../rc/tribunesDef.qrc"/>
+ </resources>
  <connections/>
 </ui>
