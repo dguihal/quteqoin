@@ -28,6 +28,7 @@ public slots:
 	void tabChanged(int tabIndex);
 	void searchTotoz();
 	void totozSearchFinished();
+	void totozSearchCanceled();
 
 signals:
 	void totozClicked(QString anchor);

@@ -4,6 +4,7 @@
 #include "xml/totozmanager/qqtmxmlparser.h"
 
 #include <QtDebug>
+#include <QNetworkReply>
 #include <QXmlSimpleReader>
 #include <QXmlInputSource>
 
@@ -15,6 +16,7 @@ QQTMRequester::QQTMRequester(QQSettings * settings) :
 {
 	m_settings = settings;
 	m_currKey.clear();
+	m_netReply = NULL;
 
 	m_xmlParser = new QQTMXmlParser(this);
 	connect(m_xmlParser, SIGNAL(finished()), this, SLOT(parsingFinished()));
@@ -22,6 +24,8 @@ QQTMRequester::QQTMRequester(QQSettings * settings) :
 
 QQTMRequester::~QQTMRequester()
 {
+	if(m_netReply != NULL)
+		m_netReply->abort();
 	delete m_xmlParser;
 }
 
@@ -39,7 +43,13 @@ void QQTMRequester::requestFinishedSlot(QNetworkReply * reply)
 		xmlReader.setErrorHandler(m_xmlParser);
 		xmlReader.parse(xmlSource);
 	}
+	else
+	{
+		qDebug() << "QQTMRequester::requestFinishedSlot : reply->error()=" << reply->error() << ", " << reply->errorString();
+		emit requestFinished();
+	}
 
+	m_netReply = NULL;
 	reply->deleteLater();
 }
 
@@ -48,6 +58,12 @@ void QQTMRequester::searchTotoz(const QString & key)
 	m_totozes.clear();
 	m_currKey = key;
 	searchTotoz(key, 0);
+}
+
+void QQTMRequester::cancel()
+{
+	if(m_netReply != NULL)
+		m_netReply->abort();
 }
 
 void QQTMRequester::searchTotoz(const QString & key, int offset)
@@ -66,7 +82,7 @@ void QQTMRequester::searchTotoz(const QString & key, int offset)
 	request.setAttribute(QNetworkRequest::CacheLoadControlAttribute,
 						 QNetworkRequest::PreferCache);
 
-	httpGet(request);
+	m_netReply = httpGet(request);
 }
 
 void QQTMRequester::parsingFinished()

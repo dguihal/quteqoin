@@ -3,6 +3,7 @@
 
 #include "core/qqnetworkaccessor.h"
 
+class QNetworkReply;
 class QQSettings;
 class QQTMXmlParser;
 
@@ -22,6 +23,7 @@ public:
 public slots:
 	virtual void requestFinishedSlot(QNetworkReply * reply);
 	void searchTotoz(const QString & key);
+	void cancel();
 
 signals:
 	void requestFinished();
@@ -35,6 +37,8 @@ protected slots:
 private:
 	QQSettings * m_settings;
 	QQTMXmlParser * m_xmlParser;
+
+	QNetworkReply * m_netReply;
 
 	QList<QString> m_totozes;
 	QString m_currKey;
