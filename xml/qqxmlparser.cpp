@@ -116,6 +116,7 @@ bool QQXmlParser::startDocument ()
 	m_tmpString.clear();
 	m_errorString.clear();
 	m_currentPost.reset();
+	m_maxId = 0;
 	return true;
 }
 //
@@ -141,7 +142,9 @@ bool QQXmlParser::startElement(const QString &namespaceURI, const QString &local
 		{
 			if(atts.localName(i) == "id")
 			{
-				if(atts.value(i).toInt() <= this->m_lastId)
+				int idValue = atts.value(i).toInt();
+				m_maxId = idValue > m_maxId ? idValue : m_maxId;
+				if(idValue <= this->m_lastId)
 				{
 					m_errorString = QString::fromUtf8("Id déjà connu, arrêt du parser xml");
 					emit finished();
