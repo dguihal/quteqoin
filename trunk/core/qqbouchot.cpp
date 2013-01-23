@@ -240,7 +240,7 @@ void QQBouchot::parsingFinished()
 		qDebug() << QDateTime::currentDateTime().currentMSecsSinceEpoch() << " : "
 				 << "QQBouchot::parsingFinished, newPostsInserted emis";
 		m_history.append(m_newPostHistory);
-		m_lastId = m_history.last()->id().toInt();
+		m_lastId = m_xmlParser->maxId();
 		emit newPostsAvailable(m_bSettings.group());
 	}
 }

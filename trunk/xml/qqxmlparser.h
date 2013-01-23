@@ -58,6 +58,8 @@ public:
 	// bool processingInstruction(const QString & target, const QString & data);
 	bool skippedEntity(const QString & name);
 
+	int maxId() { return m_maxId; }
+
 signals:
 	void newPostReady(QQPost & newPost);
 	void finished();
@@ -69,6 +71,7 @@ private:
 	QQPost			m_currentPost;
 
 	int m_lastId;
+	int m_maxId;
 	QQBouchot::TypeSlip m_typeSlip;
 };
 #endif
