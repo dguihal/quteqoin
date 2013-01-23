@@ -193,11 +193,11 @@ bool QQXmlParser::endElement(const QString &namespaceURI, const QString &localNa
 	else
 	{
 		if (localName == "info")
-			m_currentPost.setUA(Qt::escape(m_tmpString));
+			m_currentPost.setUA(Qt::escape(m_tmpString.trimmed()));
 		else if (localName == "message")
-			m_currentPost.setMessage(m_tmpString);
+			m_currentPost.setMessage(m_tmpString.trimmed());
 		else if (localName == "login")
-			m_currentPost.setLogin(Qt::escape(m_tmpString));
+			m_currentPost.setLogin(Qt::escape(m_tmpString.trimmed()));
 		m_tmpString.clear();
 	}
 	m_elementNames.pop();
