@@ -2,7 +2,7 @@
 
 #include <QNetworkProxyFactory>
 
-QQNetworkAccessor::QQNetworkAccessor( QObject * parent, QObject * proxyAuthMgr ) :
+QQNetworkAccessor::QQNetworkAccessor(QObject * parent, QObject * proxyAuthMgr) :
 	QObject(parent)
 {
 	m_qnam = createQNAM();

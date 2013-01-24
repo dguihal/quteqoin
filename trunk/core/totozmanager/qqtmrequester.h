@@ -15,7 +15,7 @@ class QQTMRequester : public QQNetworkAccessor
 	Q_OBJECT
 
 public:
-	explicit QQTMRequester(QQSettings * settings);
+	explicit QQTMRequester(QObject * parent, QQSettings * settings);
 	~QQTMRequester();
 
 	QList<QString> results() { return m_totozes; }

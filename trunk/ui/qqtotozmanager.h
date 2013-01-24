@@ -1,7 +1,7 @@
 #ifndef QQTOTOZMANAGER_H
 #define QQTOTOZMANAGER_H
 
-#include <QDialog>
+#include <QDockWidget>
 #include <QPoint>
 #include <QString>
 
@@ -13,7 +13,7 @@ class QQSettings;
 class QQTotozDownloader;
 class QQTMRequester;
 
-class QQTotozManager : public QDialog
+class QQTotozManager : public QDockWidget
 {
 	Q_OBJECT
 

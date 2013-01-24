@@ -35,9 +35,9 @@ SOURCES += main.cpp\
 	core/qqpurgebouchothistoevent.cpp \
 	core/qqbigornoitem.cpp \
 	ui/qqtotozmanager.cpp \
-	ui/totozmanager/qqtmrequester.cpp \
+	core/totozmanager/qqtmrequester.cpp \
 	ui/totozmanager/qqtmlabel.cpp \
-    xml/totozmanager/qqtmxmlparser.cpp
+	xml/totozmanager/qqtmxmlparser.cpp
 
 HEADERS  += mainwindow.h \
 	core/qqsettings.h \
@@ -61,9 +61,9 @@ HEADERS  += mainwindow.h \
 	core/qqpurgebouchothistoevent.h \
 	core/qqbigornoitem.h \
 	ui/qqtotozmanager.h \
-	ui/totozmanager/qqtmrequester.h \
+	core/totozmanager/qqtmrequester.h \
 	ui/totozmanager/qqtmlabel.h \
-    xml/totozmanager/qqtmxmlparser.h
+	xml/totozmanager/qqtmxmlparser.h
 
 FORMS    += mainwindow.ui \
 	ui/qqpalmipede.ui \
