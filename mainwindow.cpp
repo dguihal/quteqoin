@@ -21,25 +21,28 @@ MainWindow::MainWindow(QWidget *parent) :
 {
 	m_ui->setupUi(this);
 
-	m_totozManager = NULL;
-
 	QIcon icon = QIcon(QString::fromAscii(":/img/rubber_duck_yellow.svg"));
 	setWindowIcon(icon);
 
 	m_settings = new QQSettings(this);
 	if(m_settings->hasWGeometry())
 		setGeometry(m_settings->winGeometry());
-	m_palmi = new QQPalmipede(this);
-	m_pini = new QQPinipede(m_settings, this);
 
-	QLayout *layout = new QVBoxLayout();
-	int leftM, topM, rightM, bottomM;
-	layout->getContentsMargins(& leftM, & topM,
-							   & rightM, &bottomM);
-	layout->setContentsMargins(0, topM, 0, bottomM);
-	layout->addWidget(m_pini);
-	layout->addWidget(m_palmi);
-	m_ui->centralWidget->setLayout(layout);
+	m_pini = new QQPinipede(m_settings, this);
+	setCentralWidget(m_pini);
+
+	m_palmi = new QQPalmipede(this);
+	m_palmi->setAllowedAreas(Qt::TopDockWidgetArea |
+							 Qt::BottomDockWidgetArea);
+	m_palmi->setVisible(true);
+	addDockWidget(Qt::BottomDockWidgetArea, m_palmi, Qt::Horizontal);
+
+	m_totozManager = new QQTotozManager(m_settings, this);
+	connect(m_totozManager, SIGNAL(totozClicked(QString)), m_palmi, SLOT(insertReplaceText(QString)));
+	m_totozManager->setAllowedAreas(Qt::LeftDockWidgetArea |
+									Qt::RightDockWidgetArea);
+	m_totozManager->setVisible(false);
+	addDockWidget(Qt::RightDockWidgetArea, m_totozManager, Qt::Vertical);
 
 	QList<QQBouchot *> bouchots = m_settings->listBouchots();
 	for(int i = 0; i < bouchots.size(); i++)
@@ -62,6 +65,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	else
 		this->m_ui->actionEtendu->trigger();
 
+	//restoreState()
 	m_settings->startBouchots();
 }
 
@@ -168,12 +172,6 @@ void MainWindow::displayOptions()
 
 void MainWindow::displayTotozM()
 {
-	if(m_totozManager == NULL)
-	{
-		m_totozManager = new QQTotozManager(m_settings, this);
-		connect(m_totozManager, SIGNAL(totozClicked(QString)), m_palmi, SLOT(insertReplaceText(QString)));
-	}
-
 	m_totozManager->show();
 	m_totozManager->raise();
 	m_totozManager->activateWindow();
@@ -216,6 +214,7 @@ void MainWindow::initBouchot(QQBouchot * bouchot)
 void MainWindow::closeEvent(QCloseEvent * event)
 {
 	QMainWindow::closeEvent(event);
+	//saveState();
 	m_settings->saveSettings();
 }
 
@@ -232,9 +231,9 @@ void MainWindow::keyPressEvent(QKeyEvent * event)
 	switch(key)
 	{
 	case Qt::Key_F5:
-			m_settings->stopBouchots();
-			m_settings->startBouchots();
-			break;
+		m_settings->stopBouchots();
+		m_settings->startBouchots();
+		break;
 	}
 
 }

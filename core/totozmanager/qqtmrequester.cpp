@@ -11,8 +11,8 @@
 #define TOTOZ_URL "http://totoz.sauf.ca"
 
 
-QQTMRequester::QQTMRequester(QQSettings * settings) :
-	QQNetworkAccessor(settings)
+QQTMRequester::QQTMRequester(QObject * parent, QQSettings * settings) :
+	QQNetworkAccessor(parent, settings)
 {
 	m_settings = settings;
 	m_currKey.clear();

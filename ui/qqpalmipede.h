@@ -1,7 +1,7 @@
 #ifndef QQPALMIPEDE_H
 #define QQPALMIPEDE_H
 
-#include <QGroupBox>
+#include <QDockWidget>
 #include <QString>
 
 class QColor;
@@ -11,7 +11,7 @@ namespace Ui {
 class QQPalmipede;
 }
 
-class QQPalmipede : public QGroupBox
+class QQPalmipede : public QDockWidget
 {
 	Q_OBJECT
 
@@ -44,6 +44,8 @@ private:
 
 	int palmiTextSelectionStart;
 	QString palmiSelectedText;
+
+	QString m_windowTitle;
 
 private slots:
 	void boldClicked();

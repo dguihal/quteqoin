@@ -7,13 +7,11 @@
 #include <QRegExp>
 #include <QShortcut>
 
-#define PALMI_TITLE "Palmipède Command Board"
-
 QQPalmipede::QQPalmipede(QWidget *parent) :
-	QGroupBox(parent),
+	QDockWidget(parent),
 	ui(new Ui::QQPalmipede)
 {
-	this->m_minimal = false;
+	m_minimal = false;
 
 	ui->setupUi(this);
 
@@ -45,9 +43,7 @@ QQPalmipede::QQPalmipede(QWidget *parent) :
 	connect(ui->postLineEdit, SIGNAL(returnPressed()),
 			ui->postPushButton, SLOT(animateClick()));
 
-	this->ui->boardSelectorComboBoxMin->setVisible(this->m_minimal);
-
-	setTitle(trUtf8(PALMI_TITLE));
+	ui->boardSelectorComboBoxMin->setVisible(this->m_minimal);
 }
 
 QQPalmipede::~QQPalmipede()
@@ -164,10 +160,15 @@ void QQPalmipede::setMinimal(bool minimal)
 {
 	m_minimal = minimal;
 
-	this->ui->cmdGrpWidget->setVisible(! m_minimal);
-	this->ui->postPushButton->setVisible(! m_minimal);
-	this->ui->boardSelectorComboBoxMin->setVisible(m_minimal);
-	m_minimal ? this->setTitle("") : setTitle(trUtf8(PALMI_TITLE));
+	ui->cmdGrpWidget->setVisible(! m_minimal);
+	ui->postPushButton->setVisible(! m_minimal);
+	ui->boardSelectorComboBoxMin->setVisible(m_minimal);
+
+	int height = ui->postLineEdit->height();
+	if(! minimal)
+		height += ui->cmdGrpWidget->height();
+
+	ui->dockWidgetContents->setMaximumHeight(height);
 }
 
 

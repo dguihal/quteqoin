@@ -2,8 +2,8 @@
 #include "ui_qqtotozmanager.h"
 
 #include "core/qqtotozdownloader.h"
-#include "totozmanager/qqtmrequester.h"
-#include "totozmanager/qqtmlabel.h"
+#include "core/totozmanager/qqtmrequester.h"
+#include "ui/totozmanager/qqtmlabel.h"
 
 #include <QCursor>
 #include <QtDebug>
@@ -16,16 +16,17 @@
 #define TAB_BOOKMARKS_INDEX 0
 #define TAB_SEARCH_INDEX 1
 
+#define TOTOZMANAGER_TITLE	"Totoz Manager"
+
 QQTotozManager::QQTotozManager(QQSettings * settings, QWidget *parent) :
-	QDialog(parent),
+	QDockWidget(TOTOZMANAGER_TITLE, parent),
 	ui(new Ui::QQTotozManager)
 {
-	setModal(false);
 	m_positionInitialized = false;
 
 	m_settings = settings;
 
-	m_requester = new QQTMRequester(settings);
+	m_requester = new QQTMRequester(this, settings);
 	connect(m_requester, SIGNAL(requestFinished()), this, SLOT(totozSearchFinished()));
 
 	m_totozDownloader = new QQTotozDownloader(settings);
@@ -38,12 +39,14 @@ QQTotozManager::QQTotozManager(QQSettings * settings, QWidget *parent) :
 
 	ui->cancelSearchButton->hide();
 
-	ui->qqTMTabWidget->currentWidget()->layout()->setContentsMargins(1, 1, 2, 1);
-
 	this->layout()->setContentsMargins(1, 1, 1, 1);
+	ui->qqTMTabWidget->widget(TAB_BOOKMARKS_INDEX)->layout()->setContentsMargins(0, 1, 0, 1);
+	ui->qqTMTabWidget->widget(TAB_SEARCH_INDEX)->layout()->setContentsMargins(0, 1, 0, 1);
 
-	ui->searchScrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-	ui->searchScrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+	ui->serverScrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+	ui->bookmarkScrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+	ui->serverScrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+	ui->bookmarkScrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
 
 	connect(ui->qqTMTabWidget, SIGNAL(currentChanged(int)), this, SLOT(tabChanged(int)));
 	connect(ui->searchLineEdit, SIGNAL(returnPressed()), this, SLOT(searchTotoz()));
@@ -52,20 +55,18 @@ QQTotozManager::QQTotozManager(QQSettings * settings, QWidget *parent) :
 QQTotozManager::~QQTotozManager()
 {
 	delete ui;
-	m_requester->deleteLater();
-	m_totozDownloader->deleteLater();
 }
 
 void QQTotozManager::closeEvent(QCloseEvent * e)
 {
-	QDialog::closeEvent(e);
+	QDockWidget::closeEvent(e);
 	m_position = pos();
 	m_positionInitialized = true;
 }
 
 void QQTotozManager::showEvent(QShowEvent * e)
 {
-	QDialog::showEvent(e);
+	QDockWidget::showEvent(e);
 	if(m_positionInitialized)
 		move(m_position);
 }
@@ -125,22 +126,12 @@ void QQTotozManager::totozSearchFinished()
 		}
 
 		widget->setLayout(layout);
-		QWidget * oldWidget = ui->searchScrollArea->takeWidget();
-		ui->searchScrollArea->setWidget(widget);
-		ui->searchScrollAreaContents = widget;
+		QWidget * oldWidget = ui->serverScrollArea->takeWidget();
+		ui->serverScrollArea->setWidget(widget);
+		ui->serverScrollAreaContents = widget;
 
 		delete oldWidget;
 	}
-
-	// To adjust size horizontaly without changing height
-
-	setMinimumWidth(0);
-	setMaximumWidth(QWIDGETSIZE_MAX);
-	setFixedHeight(height());
-	adjustSize();
-	setFixedWidth(width());
-	setMinimumHeight(0);
-	setMaximumHeight(QWIDGETSIZE_MAX);
 }
 
 void QQTotozManager::totozSearchCanceled()
