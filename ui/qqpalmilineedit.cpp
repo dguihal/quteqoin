@@ -45,6 +45,9 @@ void QQPalmiLineEdit::keyPressEvent(QKeyEvent * e)
 		case Qt::Key_U:
 			insertSurroundText(QString::fromAscii("<u>"), QString::fromAscii("</u>"));
 			break;
+		default :
+			QLineEdit::keyPressEvent(e);
+			break;
 		}
 	}
 	else
