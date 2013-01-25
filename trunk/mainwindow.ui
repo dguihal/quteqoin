@@ -31,14 +31,9 @@
     <addaction name="separator"/>
     <addaction name="actionQuit"/>
    </widget>
-   <widget class="QMenu" name="menuConfig">
+   <widget class="QMenu" name="displayMenu">
     <property name="title">
-     <string>&amp;Edit</string>
-    </property>
-   </widget>
-   <widget class="QMenu" name="menuAffichage">
-    <property name="title">
-     <string>&amp;Affichage</string>
+     <string>&amp;Display</string>
     </property>
     <widget class="QMenu" name="menuPalmipede">
      <property name="title">
@@ -57,18 +52,17 @@
     <addaction name="menuPalmipede"/>
     <addaction name="menuPinip_de"/>
    </widget>
-   <widget class="QMenu" name="menuOutils">
+   <widget class="QMenu" name="toolsMenu">
     <property name="title">
-     <string>&amp;Outils</string>
+     <string>&amp;Tools</string>
     </property>
     <addaction name="separator"/>
     <addaction name="actionOptions"/>
     <addaction name="actionTotoz"/>
    </widget>
    <addaction name="menuFile"/>
-   <addaction name="menuConfig"/>
-   <addaction name="menuAffichage"/>
-   <addaction name="menuOutils"/>
+   <addaction name="displayMenu"/>
+   <addaction name="toolsMenu"/>
   </widget>
   <action name="actionTabbed">
    <property name="checkable">
