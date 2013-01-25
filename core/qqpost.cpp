@@ -95,10 +95,7 @@ QString QQPost::norlogeFormatee()
 //
 bool QQPost::equal(QQPost &b)
 {
-	if( (b.m_id == this->m_id) &&
-		true ) // comparaison bouchots
-		return true;
-	return false;
+	return (b.m_id == this->m_id); // comparaison bouchots
 }
 
 //
@@ -111,7 +108,7 @@ bool QQPost::operator== (QQPost &b)
 bool QQPost::operator< (QQPost &b)
 {
 	if(this->bouchot()->name() == b.bouchot()->name())
-		return this->m_id < b.m_id;
+		return this->m_id.toInt() < b.m_id.toInt();
 	else
 		return this->m_norloge < b.m_norloge;
 }
