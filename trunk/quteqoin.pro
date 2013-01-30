@@ -36,7 +36,7 @@ SOURCES += main.cpp\
 	core/qqbigornoitem.cpp \
 	ui/qqtotozmanager.cpp \
 	core/totozmanager/qqtmrequester.cpp \
-	ui/totozmanager/qqtmlabel.cpp \
+	ui/qqtotozviewer.cpp \
 	xml/totozmanager/qqtmxmlparser.cpp
 
 HEADERS  += mainwindow.h \
@@ -62,7 +62,7 @@ HEADERS  += mainwindow.h \
 	core/qqbigornoitem.h \
 	ui/qqtotozmanager.h \
 	core/totozmanager/qqtmrequester.h \
-	ui/totozmanager/qqtmlabel.h \
+	ui/qqtotozviewer.h \
 	xml/totozmanager/qqtmxmlparser.h
 
 FORMS    += mainwindow.ui \

@@ -2,9 +2,7 @@
 
 #include "core/qqtotoz.h"
 
-#include <QBuffer>
 #include <QtDebug>
-#include <QEventLoop>
 #include <QNetworkAccessManager>
 #include <QNetworkProxyFactory>
 #include <QNetworkRequest>
@@ -17,11 +15,11 @@ QQTotozDownloader::QQTotozDownloader(QQSettings * settings) :
 	m_totozServerUrl = settings->totozServerUrl();
 }
 
-void QQTotozDownloader::fetchTotoz(const QString & totozId)
+void QQTotozDownloader::fetchTotoz(QString & totozId)
 {
 	// si l'id est valide et que l'on ne l'a pas déjà téléchargé dans le cache
 	// TODO : Une expiration du cache, voire un if-modified-since !!!!
-	if(totozId.length() > 0 && ! QFile::exists(QQTotoz::getPath(totozId)))
+	if(totozId.length() > 0 && ! QQTotoz::cacheExists(totozId))
 	{
 		QString queryUrl = m_totozServerUrl;
 		queryUrl.append("/").append(totozId);
@@ -68,18 +66,20 @@ void QQTotozDownloader::requestFinishedSlot(QNetworkReply * reply)
 
 		qWarning() << "QQTotozManager::requestFinishedSlot, error : " << reply->errorString()
 				   << "HTTP statusCode : " << statusCodeV.toString();
+		emit fetchTotozFinished(totozId, false);
 	} // Tout est OK on poursuit
 	else
 	{
-		QFile file(QQTotoz::getPath(totozId));
-		file.open(QIODevice::WriteOnly);
-		file.write(reply->readAll());
+		QQTotoz totoz(totozId);
+		totoz.setData(reply->readAll());
+		totoz.save();
 
 		if(reply->hasRawHeader(QString::fromAscii("Etag").toAscii()))
 		{
 			QString etag(reply->rawHeader(QString::fromAscii("Etag").toAscii()));
 			qDebug() << "QQTotozManager::requestFinishedSlot, etag = " << etag;
 		}
+		emit fetchTotozFinished(totozId, true);
 	}
 
 	reply->deleteLater();

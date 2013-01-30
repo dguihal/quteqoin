@@ -21,6 +21,7 @@ class QQTextBrowser;
 class QTextCursor;
 class QQPost;
 class QQTotozDownloader;
+class QQTotozViewer;
 
 class QLabel;
 class QMovie;
@@ -50,13 +51,16 @@ public slots:
 	void norlogeClicked(QQNorloge norloge);
 	void norlogeRefHovered(QQNorlogeRef norlogeRef);
 	void unHighlight();
-	void showTotozSlot(QQTotoz & totoz);
-	void hideTotozSlot();
+	void showTotozViewer(QString & totozId);
+	void hideTotozViewer();
 	void loginClicked(QString);
 	void newPostsAvailable(QString groupName);
 
 signals:
 	void insertTextPalmi(QString text);
+
+protected:
+	virtual void contextMenuEvent(QContextMenuEvent * ev);
 
 private:
 	void printPostAtCursor(QTextCursor & cursor, QQPost * post);
@@ -65,9 +69,8 @@ private:
 	QQSettings * m_settings;
 	QQTotozDownloader * m_totozDownloader;
 	QQTextBrowser * m_tBrowserHighlighted;
+	QQTotozViewer * m_totozViewer;
 	QLabel * m_hiddenPostViewerLabel;
-	QLabel * m_totozLabel;
-	QMovie * m_totozMovie;
 	QBuffer m_totozData;
 	QString m_hiddenPostViewerLabelSSheet;
 

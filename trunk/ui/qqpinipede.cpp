@@ -8,9 +8,11 @@
 #include "ui/qqpalmipede.h"
 #include "ui/qqsyntaxhighlighter.h"
 #include "ui/qqtextbrowser.h"
+#include "ui/qqtotozviewer.h"
 
 #include <QtAlgorithms>
 #include <QApplication>
+#include <QContextMenuEvent>
 #include <QCursor>
 #include <QImage>
 #include <QLabel>
@@ -42,21 +44,23 @@ QQPinipede::QQPinipede(QQSettings * settings, QWidget * parent) :
 	m_hiddenPostViewerLabel->setScaledContents(true);
 	m_hiddenPostViewerLabel->hide();
 
-	m_totozLabel = new QLabel(this);
-	m_totozLabel->setAttribute(Qt::WA_TransparentForMouseEvents);
-	m_totozLabel->setScaledContents(false);
-	m_totozLabel->hide();
-	m_totozMovie = NULL;
+	m_totozViewer = new QQTotozViewer("", this);
+	m_totozViewer->setAttribute(Qt::WA_TransparentForMouseEvents);
+	m_totozViewer->setScaledContents(false);
+	m_totozViewer->setTotozDownloader(m_totozDownloader);
+	m_totozViewer->hide();
 	connect(m_settings, SIGNAL(totozServerUrlChanged(QString)),
 			m_totozDownloader, SLOT(serverURLchanged(QString)));
+	connect(m_totozDownloader, SIGNAL(totozAvailable()),
+			m_totozViewer, SLOT(update()));
 }
 
 QQPinipede::~QQPinipede()
 {
 	delete m_totozDownloader;
-	delete m_totozLabel;
-	if( m_totozMovie != NULL )
-		delete m_totozMovie;
+	QList<QString> listTabs = m_listPostsTabMap.keys();
+	for(int i = 0; i < listTabs.size(); i++)
+		delete m_listPostsTabMap.take(listTabs.at(i));
 }
 
 void QQPinipede::addPiniTab(const QString & groupName)
@@ -78,14 +82,14 @@ void QQPinipede::addPiniTab(const QString & groupName)
 	//textBrowser->document() devient le proprietaire du highlighter
 	QQSyntaxHighlighter * highlighter = new QQSyntaxHighlighter(m_settings, textBrowser->document());
 	highlighter->setNotificationWindow(window());
-	connect(highlighter, SIGNAL(totozRequired(const QString &)),
-			m_totozDownloader, SLOT(fetchTotoz(const QString &)));
+	connect(highlighter, SIGNAL(totozRequired(QString &)),
+			m_totozDownloader, SLOT(fetchTotoz(QString &)));
 
 	connect(textBrowser, SIGNAL(norlogeClicked(QQNorloge)), this, SLOT(norlogeClicked(QQNorloge)));
 	connect(textBrowser, SIGNAL(norlogeRefHovered(QQNorlogeRef)), this, SLOT(norlogeRefHovered(QQNorlogeRef)));
 	connect(textBrowser, SIGNAL(unHighlight()), this, SLOT(unHighlight()));
-	connect(textBrowser, SIGNAL(showTotozSig(QQTotoz &)), this, SLOT(showTotozSlot(QQTotoz &)));
-	connect(textBrowser, SIGNAL(hideTotozSig()), this, SLOT(hideTotozSlot()));
+	connect(textBrowser, SIGNAL(displayTotoz(QString &)), this, SLOT(showTotozViewer(QString &)));
+	connect(textBrowser, SIGNAL(concealTotoz()), this, SLOT(hideTotozViewer()));
 
 	if (this->count() > 1)
 		this->tabBar()->show();
@@ -558,60 +562,30 @@ void QQPinipede::unHighlight()
 	m_tBrowserHighlighted = NULL;
 }
 
-void QQPinipede::showTotozSlot(QQTotoz & totoz)
+void QQPinipede::showTotozViewer(QString & totozId)
 {
-	m_totozMovie = new QMovie(totoz.getPath());
-	if( m_totozMovie->isValid() )
-	{
-		m_totozMovie->setCacheMode(QMovie::CacheNone);
-		m_totozMovie->jumpToFrame(0);
-		m_totozLabel->setMovie(m_totozMovie);
-		m_totozLabel->resize(m_totozMovie->frameRect().size());
+	hideTotozViewer();
 
-		QPoint totozLabelPos = mapFromGlobal(QCursor::pos());
-		QSize piniSize = size();
-		if(totozLabelPos.x() > (piniSize.width() / 2))
-			totozLabelPos.setX(totozLabelPos.x() - m_totozLabel->width());
-		if(totozLabelPos.y() > (piniSize.height() / 2))
-			totozLabelPos.setY(totozLabelPos.y() - m_totozLabel->height());
-		m_totozLabel->move(totozLabelPos);
+	m_totozViewer->setTotozId(totozId);
 
-		m_totozMovie->start();
-		m_totozLabel->show();
-	}
+	QPoint totozViewerPos = mapFromGlobal(QCursor::pos());
+	QSize piniSize = size();
+	if(totozViewerPos.x() > (piniSize.width() / 2))
+		totozViewerPos.setX(totozViewerPos.x() - m_totozViewer->width() + 10);
 	else
-	{
-		delete m_totozMovie;
-		m_totozMovie = NULL;
-		QImage image;
-		if(image.load(totoz.getPath()))
-		{
-			QPixmap pixmap = QPixmap::fromImage(image);
-			m_totozLabel->setPixmap(pixmap);
-			m_totozLabel->setMinimumSize(pixmap.width(), pixmap.height());
-			m_totozLabel->adjustSize();
+		totozViewerPos.setX(totozViewerPos.x() - 10);
+	if(totozViewerPos.y() > (piniSize.height() / 2))
+		totozViewerPos.setY(totozViewerPos.y() - m_totozViewer->height() + 10);
+	else
+		totozViewerPos.setY(totozViewerPos.y() - 10);
+	m_totozViewer->move(totozViewerPos);
 
-			QPoint totozLabelPos = mapFromGlobal(QCursor::pos());
-			QSize piniSize = size();
-			if(totozLabelPos.x() > (piniSize.width() / 2))
-				totozLabelPos.setX(totozLabelPos.x() - m_totozLabel->width());
-			if(totozLabelPos.y() > (piniSize.height() / 2))
-				totozLabelPos.setY(totozLabelPos.y() - m_totozLabel->height());
-			m_totozLabel->move(totozLabelPos);
-
-			m_totozLabel->show();
-		}
-	}
+	m_totozViewer->show();
 }
 
-void QQPinipede::hideTotozSlot()
+void QQPinipede::hideTotozViewer()
 {
-	if(m_totozMovie != NULL)
-	{
-		m_totozLabel->hide();
-		delete m_totozMovie;
-		m_totozMovie = NULL;
-	}
+	m_totozViewer->hide();
 }
 
 void QQPinipede::loginClicked(QString tabGroupName)
@@ -631,4 +605,15 @@ QQPost * QQPinipede::getPostForGroup(QString &groupName, int numPost)
 	}
 
 	return NULL;
+}
+
+void QQPinipede::contextMenuEvent(QContextMenuEvent * ev)
+{
+	if(m_totozViewer->isVisible())
+	{
+		QApplication::sendEvent(m_totozViewer, ev);
+		ev->accept();
+	}
+	else
+		QTabWidget::contextMenuEvent(ev);
 }

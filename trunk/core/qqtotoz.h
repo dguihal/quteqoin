@@ -1,6 +1,7 @@
 #ifndef QQTOTOZ_H
 #define QQTOTOZ_H
 
+#include <QDateTime>
 #include <QDesktopServices>
 #include <QDir>
 #include <QFile>
@@ -12,29 +13,41 @@ class QQTotoz
 {
 public:
 	explicit QQTotoz();
-	QQTotoz(const QString & totozId, int posInMessage = -1);
+	QQTotoz(const QString & totozId);
 	QQTotoz(const QQTotoz & totoz);
 	~QQTotoz();
 
 	QString getOrigString() const { return (QString::fromAscii("[:")).append(m_id).append(QString::fromAscii("]")); }
 	QString getId() { return m_id; }
-	int getPosInMessage() const { return m_posInMessage; }
-	void setPosInMessage(const int posInMessage) { m_posInMessage = posInMessage; }
 
-	bool isValid() { return m_id.length() > 0 && QFile::exists(this->getPath()); }
+	bool isValid() { return m_id.length() > 0 && cacheExists(); }
+	bool cacheExists();
+	QString cacheDirPath() { return getPath(m_id); }
 
-	QString getPath() { return QQTotoz::getPath(m_id); }
+	QByteArray data() { return m_totozData; }
+	void setData(QByteArray array) { m_totozData = array; m_wasmodfied = true; }
+	QStringList getTags() { return m_tags; }
+	bool isNSFW() { return m_isNSFW; }
 
-	static QString getPath(QString id);
+	void save();
 
+	static bool cacheExists(QString id) { return QFile::exists(getPath(id)); }
 signals:
 
 public slots:
 
 private:
-	QString m_id;
-	int m_posInMessage;
+	void load();
+	static QString getPath(QString id);
 
+	QString m_id;
+
+	QByteArray m_totozData;
+	QStringList m_tags;
+	bool m_isNSFW;
+	QDateTime m_expireDate;
+
+	bool m_wasmodfied;
 };
 
 #endif // QQTOTOZ_H

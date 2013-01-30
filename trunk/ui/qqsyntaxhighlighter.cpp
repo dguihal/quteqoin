@@ -300,9 +300,12 @@ void QQSyntaxHighlighter::highlightTotoz(const QString & text)
 
 	if(userData->wasParsed())
 	{
-		QList<QQTotoz> totozes = userData->totozZones();
-		for(int i = 0; i < totozes.size(); i ++)
-			formatTotoz(totozes.at(i));
+		QList<int> totozIndexes = userData->totozIndexes();
+		for(int i = 0; i < totozIndexes.size(); i ++)
+		{
+			int index = totozIndexes.at(i);
+			formatTotoz(index, userData->totozIdForIndex(index));
+		}
 	}
 	else
 	{
@@ -318,23 +321,26 @@ void QQSyntaxHighlighter::highlightTotoz(const QString & text)
 		{
 			int length = m_totozReg.matchedLength();
 
-			QQTotoz totoz = QQTotoz(text.mid(index, length), index);
-			emit totozRequired(totoz.getId());
-			userData->addTotozZone(totoz);
-			formatTotoz(totoz);
+			QString totozId = text.mid(index, length);
+			userData->addTotozZone(index, totozId);
+
+			QString totozName = totozId.mid(2, totozId.length() - 3);
+			emit totozRequired(totozName);
+
+			formatTotoz(index, totozId);
 
 			index = text.indexOf(m_totozReg, index + length);
 		}
 	}
 }
 
-void QQSyntaxHighlighter::formatTotoz(const QQTotoz & totoz)
+void QQSyntaxHighlighter::formatTotoz(int index, const QString & totozId)
 {
 	QTextCharFormat totozMessageFormat;
 	totozMessageFormat.setForeground(QColor("#00AA11"));
 	totozMessageFormat.setFontWeight(QFont::Bold);
 
-	setFormat(totoz.getPosInMessage(), totoz.getOrigString().length(), totozMessageFormat);
+	setFormat(index, totozId.length(), totozMessageFormat);
 
 }
 
