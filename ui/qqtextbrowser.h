@@ -29,8 +29,8 @@ signals:
 	void norlogeClicked(QQNorloge norloge);
 	void norlogeRefHovered(QQNorlogeRef norloge);
 	void unHighlight();
-	void showTotozSig(QQTotoz & totoz);
-	void hideTotozSig();
+	void displayTotoz(QString & totozId);
+	void concealTotoz();
 	void loginClicked(QString groupName);
 
 protected:
@@ -47,7 +47,7 @@ private:
 
 	void hideTotoz();
 	void highlightNorloge(QQNorlogeRef nRef);
-	void showTotoz(QQTotoz & totoz);
+	void showTotoz(QString & totozId);
 	void unHighlightNorloge();
 
 	class QQNotifArea : public QWidget

@@ -41,9 +41,10 @@ public:
 	QList<QQNorlogeRef> norlogeRefs() const { return m_listNRef; }
 	bool hasNRefToSelfPost() const;
 
-	void addTotozZone(const QQTotoz & totoz) { m_listTotoz.append(totoz); }
-	QQTotoz totozForIndex(int index);
-	QList<QQTotoz> totozZones() const { return m_listTotoz; }
+	void addTotozZone(int index, const QString & totozId) { m_mapTotozId.insert(index, totozId); }
+	QPair<int, QString> totozIdAndIndexForIndex(int index) { return stringForIndex(index, m_mapTotozId); }
+	QString totozIdForIndex(int index) { return totozIdAndIndexForIndex(index).second; }
+	QList<int> totozIndexes() const { return m_mapTotozId.uniqueKeys(); }
 
 	void addDuckZone(int index, const QString & duck) { m_mapDuck.insert(index, duck); }
 	QPair<int, QString> duckForIndex(int index) { return stringForIndex(index, m_mapDuck); }
@@ -75,7 +76,7 @@ private:
 
 	QList<QQNorlogeRef> m_listNRef;
 	QList<QQBigornoItem> m_listBigorno;
-	QList<QQTotoz> m_listTotoz;
+	QMap<int, QString> m_mapTotozId;
 	QMap<int, QString> m_mapDuck;
 	QMap<int, QString> m_mapTableV;
 

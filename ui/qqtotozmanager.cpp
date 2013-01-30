@@ -3,7 +3,7 @@
 
 #include "core/qqtotozdownloader.h"
 #include "core/totozmanager/qqtmrequester.h"
-#include "ui/totozmanager/qqtmlabel.h"
+#include "ui/qqtotozviewer.h"
 
 #include <QCursor>
 #include <QtDebug>
@@ -38,6 +38,7 @@ QQTotozManager::QQTotozManager(QQSettings * settings, QWidget *parent) :
 		ui->qqTMTabWidget->removeTab(TAB_SEARCH_INDEX);
 
 	ui->cancelSearchButton->hide();
+	connect(ui->cancelSearchButton, SIGNAL(clicked()), this, SLOT(totozSearchCanceled()));
 
 	this->layout()->setContentsMargins(1, 1, 1, 1);
 	ui->qqTMTabWidget->widget(TAB_BOOKMARKS_INDEX)->layout()->setContentsMargins(0, 1, 0, 1);
@@ -50,6 +51,8 @@ QQTotozManager::QQTotozManager(QQSettings * settings, QWidget *parent) :
 
 	connect(ui->qqTMTabWidget, SIGNAL(currentChanged(int)), this, SLOT(tabChanged(int)));
 	connect(ui->searchLineEdit, SIGNAL(returnPressed()), this, SLOT(searchTotoz()));
+
+	ui->dockWidgetContents->setMaximumWidth(ui->qqTMTabWidget->width());
 }
 
 QQTotozManager::~QQTotozManager()
@@ -119,11 +122,14 @@ void QQTotozManager::totozSearchFinished()
 
 		for(int i = 0; i < results.size(); i++)
 		{
-			QQTMLabel * label = new QQTMLabel(results.at(i));
-			label->enableBookmarksMenu();
-			connect(label, SIGNAL(totozClicked(QString)), this, SLOT(totozSelected(QString)));
-			layout->addWidget(label);
+			QQTotozViewer * viewer = new QQTotozViewer(this);
+			viewer->enableBookmarksMenu();
+			viewer->setTotozDownloader(m_totozDownloader);
+			viewer->setTotozId(results.at(i));
+			layout->addWidget(viewer);
 		}
+
+		layout->addSpacerItem(new QSpacerItem(1, 1, QSizePolicy::Minimum, QSizePolicy::Expanding));
 
 		widget->setLayout(layout);
 		QWidget * oldWidget = ui->serverScrollArea->takeWidget();

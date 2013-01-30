@@ -17,7 +17,7 @@ QQMessageBlockUserData::QQMessageBlockUserData(const QQMessageBlockUserData & us
 	m_isNew = userData.m_isNew;
 	m_post = userData.m_post;
 	m_listNRef = userData.m_listNRef;
-	m_listTotoz = userData.m_listTotoz;
+	m_mapTotozId = userData.m_mapTotozId;
 	m_mapDuck = userData.m_mapDuck;
 	m_mapTableV = userData.m_mapTableV;
 	m_listBigorno = userData.m_listBigorno;
@@ -27,7 +27,7 @@ QQMessageBlockUserData::QQMessageBlockUserData(const QQMessageBlockUserData & us
 QQMessageBlockUserData::~QQMessageBlockUserData()
 {
 	m_listNRef.clear();
-	m_listTotoz.clear();
+	m_mapTotozId.clear();
 	m_mapDuck.clear();
 	m_mapTableV.clear();
 	m_ranges.clear();
@@ -63,19 +63,6 @@ bool QQMessageBlockUserData::hasNRefToSelfPost() const
 			return true;
 	}
 	return false;
-}
-
-QQTotoz QQMessageBlockUserData::totozForIndex(int index)
-{
-	int i = 0;
-	while(i < m_listTotoz.size())
-	{
-		QQTotoz totoz = m_listTotoz.at(i);
-		if(isIndexInString(index, totoz.getPosInMessage(), totoz.getOrigString()))
-			return totoz;
-		i++;
-	}
-	return QQTotoz();
 }
 
 QPair<int, QString> QQMessageBlockUserData::stringForIndex(int index, const QMap<int, QString> & map)

@@ -28,7 +28,7 @@ public:
 	void setNotificationWindow(QWidget * window) { m_notifWindow = window; }
 
 signals:
-	void totozRequired(const QString & totozId);
+	void totozRequired(QString & totozId);
 
 public slots:
 
@@ -45,7 +45,7 @@ private:
 	void highlightTableVolante(const QString & text);
 	void formatTableV(int tableVIndex, int tableVStringLength);
 	void highlightTotoz(const QString & text);
-	void formatTotoz(const QQTotoz & totoz);
+	void formatTotoz(int index, const QString & totozId);
 	void highlightBigorno(const QString & text);
 
 	QQNorlogeRef m_nRef;

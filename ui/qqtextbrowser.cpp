@@ -208,18 +208,14 @@ void QQTextBrowser::mouseMoveEvent(QMouseEvent * event)
 			}
 
 			//Gestion des Totoz
-			QQTotoz totoz = blockData->totozForIndex(cursor.positionInBlock());
-			if( totoz.isValid() )
+			QString totozId = blockData->totozIdForIndex(cursor.positionInBlock());
+			if(totozId.length() > 0)
 			{
-				qDebug() << "QQTextBrowser::mouseMoveEvent, Totoz detecte, str = " << totoz.getId()
-						 << " position : " << totoz.getPosInMessage();
-				showTotoz(totoz);
+				//qDebug() << "QQTextBrowser::mouseMoveEvent, Totoz detecte, str = " << totozId;
+				showTotoz(totozId);
 			}
-			else
-			{
-				//il faut cacher l'affichage du Totoz puisqu'on n'en survole pas
+			else //il faut cacher l'affichage du Totoz puisqu'on n'en survole pas
 				hideTotoz();
-			}
 
 		}
 		else if(blockData->isIndexInZRange(cursor.positionInBlock(),
@@ -261,13 +257,12 @@ void QQTextBrowser::unHighlightNorloge()
 	}
 }
 
-void QQTextBrowser::showTotoz(QQTotoz & totoz)
+void QQTextBrowser::showTotoz(QString & totozId)
 {
-	if(totoz.isValid() && totoz.getId() != m_displayedTotozId)
+	if(totozId != m_displayedTotozId)
 	{
-		hideTotoz();
-		m_displayedTotozId = totoz.getId();
-		emit showTotozSig(totoz);
+		m_displayedTotozId = totozId;
+		emit displayTotoz(totozId);
 	}
 }
 
@@ -276,7 +271,7 @@ void QQTextBrowser::hideTotoz()
 	if(m_displayedTotozId.length() > 0)
 	{
 		m_displayedTotozId.clear();
-		emit hideTotozSig();
+		emit concealTotoz();
 	}
 }
 
@@ -296,12 +291,12 @@ void QQTextBrowser::leaveEvent(QEvent * event)
 
 void QQTextBrowser::mousePressEvent(QMouseEvent * event)
 {
-	QTextEdit::mousePressEvent(event);
-
 	// Stockage de la postion
 	m_lastPoint = event->pos();
 	// positionnement du flag de detection de debut du clic
 	m_mouseClick = true;
+
+	QTextEdit::mousePressEvent(event);
 
 	if(event->button() == Qt::LeftButton)
 		viewport()->setCursor(Qt::IBeamCursor);

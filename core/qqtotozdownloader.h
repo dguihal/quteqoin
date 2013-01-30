@@ -22,7 +22,10 @@ public:
 signals:
 
 public slots:
-	void fetchTotoz(const QString & totozId);
+	void fetchTotoz(QString & totozId);
+
+signals:
+	void fetchTotozFinished(QString & totozId, bool success);
 
 protected slots:
 	void serverURLchanged(const QString & newUrl);

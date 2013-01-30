@@ -15,15 +15,6 @@ QQPalmipede::QQPalmipede(QWidget *parent) :
 
 	ui->setupUi(this);
 
-	/*
-	QKeySequence keySeqBlam(Qt::ALT + Qt::Key_O);
-	blamShortcut = new QShortcut(keySeqBlam, this);
-	QObject::connect(blamShortcut, SIGNAL(activated()), this, SLOT(insertBlam()));
-	QKeySequence keySeqPaf(Qt::ALT + Qt::Key_P);
-	pafShortcut = new QShortcut(keySeqPaf, this);
-	QObject::connect(pafShortcut, SIGNAL(activated()), this, SLOT(insertPaf()));
-	*/
-
 	connect(ui->boldButton, SIGNAL(clicked()),
 			this, SLOT(boldClicked()));
 	connect(ui->italicButton, SIGNAL(clicked()),
