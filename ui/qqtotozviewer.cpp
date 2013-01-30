@@ -22,7 +22,7 @@ void QQTotozViewer::init(const QString & totozId)
 	m_downloader = NULL;
 	m_totozDataBuffer = new QBuffer(this);
 
-	setStyleSheet("QLabel { background-color : rgba(255, 255, 255, 200); color : black; }");
+	setStyleSheet("QLabel { background-color : rgba(255, 255, 255, 0); color : black; }");
 	setTextFormat(Qt::PlainText);
 	setTextInteractionFlags(Qt::NoTextInteraction);
 	setWordWrap(false);
@@ -156,6 +156,7 @@ void QQTotozViewer::contextMenuEvent(QContextMenuEvent * ev)
 
 void QQTotozViewer::displayText(QString text)
 {
+	setStyleSheet("QLabel { background-color : rgba(255, 255, 255, 200); color : black; }");
 	QFontMetrics fm(font());
 	QSize txtSize = fm.size(Qt::TextSingleLine, text);
 	setMinimumSize(txtSize);
@@ -165,6 +166,7 @@ void QQTotozViewer::displayText(QString text)
 
 void QQTotozViewer::displayMovie()
 {
+	setStyleSheet("QLabel { background-color : rgba(255, 255, 255, 0); color : black; }");
 	m_totozMovie->setCacheMode(QMovie::CacheNone);
 	m_totozMovie->jumpToFrame(0);
 	setMovie(m_totozMovie);
@@ -176,6 +178,7 @@ void QQTotozViewer::displayMovie()
 
 void QQTotozViewer::displayImage(QImage & image)
 {
+	setStyleSheet("QLabel { background-color : rgba(255, 255, 255, 0); color : black; }");
 	QPixmap pixmap = QPixmap::fromImage(image);
 	setPixmap(pixmap);
 	setMinimumSize(pixmap.width(), pixmap.height());
