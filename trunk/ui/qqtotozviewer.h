@@ -14,8 +14,8 @@ class QQTotozViewer : public QLabel
 	Q_OBJECT
 
 public:
-	explicit QQTotozViewer(QWidget * parent = 0) : QLabel(parent) { init(""); }
-	explicit QQTotozViewer(const QString & totozId = "", QWidget * parent = 0) : QLabel(parent) { init(totozId); }
+	QQTotozViewer(QWidget * parent = 0) : QLabel(parent) { init(""); }
+	QQTotozViewer(const QString & totozId = "", QWidget * parent = 0) : QLabel(parent) { init(totozId); }
 	~QQTotozViewer();
 
 	void enableBookmarksMenu(const bool enableBMenu = true) { m_bookmarkMenuEnabled = enableBMenu; }
