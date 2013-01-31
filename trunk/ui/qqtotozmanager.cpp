@@ -16,13 +16,15 @@
 #define TAB_BOOKMARKS_INDEX 0
 #define TAB_SEARCH_INDEX 1
 
+#define TOTOZMANAGER_OBJECT_NAME "QQTotozManager"
+
 #define TOTOZMANAGER_TITLE	"Totoz Manager"
 
 QQTotozManager::QQTotozManager(QQSettings * settings, QWidget *parent) :
 	QDockWidget(TOTOZMANAGER_TITLE, parent),
 	ui(new Ui::QQTotozManager)
 {
-	m_positionInitialized = false;
+	setObjectName(TOTOZMANAGER_OBJECT_NAME);
 
 	m_settings = settings;
 
@@ -58,20 +60,6 @@ QQTotozManager::QQTotozManager(QQSettings * settings, QWidget *parent) :
 QQTotozManager::~QQTotozManager()
 {
 	delete ui;
-}
-
-void QQTotozManager::closeEvent(QCloseEvent * e)
-{
-	QDockWidget::closeEvent(e);
-	m_position = pos();
-	m_positionInitialized = true;
-}
-
-void QQTotozManager::showEvent(QShowEvent * e)
-{
-	QDockWidget::showEvent(e);
-	if(m_positionInitialized)
-		move(m_position);
 }
 
 void QQTotozManager::tabChanged(int tabIndex)

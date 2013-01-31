@@ -52,7 +52,7 @@ QString QQTotoz::getPath(QString id)
 
 void QQTotoz::load()
 {
-	qDebug() << "QQTotoz::load id: " << m_id << ", path:" << getPath(m_id);
+	//qDebug() << "QQTotoz::load id: " << m_id << ", path:" << getPath(m_id);
 	QFile file(getPath(m_id));
 	file.open(QIODevice::ReadOnly);
 
@@ -123,13 +123,13 @@ void QQTotoz::load()
 	buffer.close();
 	file.close();
 
-	if(xml.error() != QXmlStreamReader::NoError)
+	if(xml.error() != QXmlStreamReader::NoError || m_totozData.size() == 0)
 		file.remove();
 }
 
 void QQTotoz::save()
 {
-	qDebug() << "QQTotoz::save id: " << m_id << ", path:" << getPath(m_id);
+	//qDebug() << "QQTotoz::save id: " << m_id << ", path:" << getPath(m_id);
 	QFile file(getPath(m_id));
 	file.open(QIODevice::WriteOnly);
 

@@ -193,9 +193,9 @@ void QQBouchot::requestFinishedSlot(QNetworkReply *reply)
 
 	if(reply->error() != QNetworkReply::NoError)
 	{
-		qWarning() << QDateTime::currentDateTime().currentMSecsSinceEpoch()
-				   << " : QQBouchot::requestFinishedSlot, error : " << reply->error()
-				   << ", msg : " << reply->errorString();
+		//qWarning() << QDateTime::currentDateTime().currentMSecsSinceEpoch()
+		//		   << " : QQBouchot::requestFinishedSlot, error : " << reply->error()
+		//		   << ", msg : " << reply->errorString();
 		stopRefresh();
 	}
 	else
@@ -203,12 +203,12 @@ void QQBouchot::requestFinishedSlot(QNetworkReply *reply)
 		switch(reply->request().attribute(QNetworkRequest::User, QQBouchot::UnknownRequest).toInt(0))
 		{
 		case QQBouchot::PostRequest:
-			qDebug() << "QQBouchot::requestFinishedSlot post Request detected, refresh du backend ";
+			//qDebug() << "QQBouchot::requestFinishedSlot post Request detected, refresh du backend ";
 			fetchBackend();
 			break;
 
 		case QQBouchot::BackendRequest:
-			qDebug() << "QQBouchot::requestFinishedSlot fetch backend detected";
+			//qDebug() << "QQBouchot::requestFinishedSlot fetch backend detected";
 			parseBackend(reply->readAll());
 			break;
 
@@ -237,8 +237,8 @@ void QQBouchot::parsingFinished()
 {
 	if( m_newPostHistory.size() > 0 )
 	{
-		qDebug() << QDateTime::currentDateTime().currentMSecsSinceEpoch() << " : "
-				 << "QQBouchot::parsingFinished, newPostsInserted emis";
+		//qDebug() << QDateTime::currentDateTime().currentMSecsSinceEpoch() << " : "
+		//		 << "QQBouchot::parsingFinished, newPostsInserted emis";
 		m_history.append(m_newPostHistory);
 		m_lastId = m_xmlParser->maxId();
 		emit newPostsAvailable(m_bSettings.group());

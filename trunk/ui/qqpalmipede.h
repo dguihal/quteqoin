@@ -31,6 +31,9 @@ signals:
 public slots:
 	void insertReplaceText(const QString & tag);
 
+protected:
+	virtual void focusInEvent(QFocusEvent * event);
+
 private:
 	void changeNorloges(const QString & bouchot);
 	void setMinimal(bool minimal);

@@ -2,7 +2,6 @@
 #define QQTOTOZMANAGER_H
 
 #include <QDockWidget>
-#include <QPoint>
 #include <QString>
 
 namespace Ui {
@@ -20,9 +19,6 @@ class QQTotozManager : public QDockWidget
 public:
 	explicit QQTotozManager(QQSettings * settings, QWidget * parent = 0);
 	~QQTotozManager();
-
-	virtual void closeEvent(QCloseEvent * e);
-	virtual void showEvent(QShowEvent *e);
 
 public slots:
 	void tabChanged(int tabIndex);
@@ -42,9 +38,6 @@ private:
 	QQSettings * m_settings;
 	QQTMRequester * m_requester;
 	QQTotozDownloader * m_totozDownloader;
-
-	bool m_positionInitialized;
-	QPoint m_position;
 
 	QString searchLineEditSS;
 };

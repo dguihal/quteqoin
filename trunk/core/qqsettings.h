@@ -1,10 +1,9 @@
 #ifndef QQSETTINGS_H
 #define QQSETTINGS_H
 
-#include <QObject>
 #include <QMutex>
 #include <QNetworkProxy>
-#include <QRect>
+#include <QSettings>
 #include <QString>
 
 class QQBouchot;
@@ -14,14 +13,18 @@ class QAuthenticator;
 class QSettings;
 class QString;
 
-class QQSettings : public QObject
+#define SETTINGS_QQMAINWINDOW_STATE "mainwindow_state"
+#define SETTINGS_QQMAINWINDOW_GEOMETRY "mainwindow_geometry"
+
+
+class QQSettings : public QSettings
 {
 	Q_OBJECT
 
 public:
 	enum TotozMode { Inline_Mode = 0, Popup_Mode = 1, Bald_Mode = 2 };
 
-	explicit QQSettings(QObject *parent = 0);
+	explicit QQSettings(QObject * parent = 0);
 	~QQSettings();
 
 	void setMaxHistoryLength(unsigned int maxHistoryLength) { this->m_maxHistoryLength = maxHistoryLength; }
@@ -64,14 +67,6 @@ public:
 	void stopBouchots();
 	void stopBouchot(QString &);
 
-	void setWinGeometry(const QRect & wGeometry) { m_wGeometry = wGeometry; }
-	QRect winGeometry() { return m_wGeometry; }
-	bool hasWGeometry() { return
-				! m_wGeometry.isNull() &&
-				! m_wGeometry.isEmpty() &&
-				m_wGeometry.isValid();
-						}
-
 	QList<QString> listTabs();
 
 	void setPalmiMinimized(bool palmiMini) { m_palmiMini = palmiMini; }
@@ -99,8 +94,6 @@ private:
 
 	QString m_proxyUser;
 	QString m_proxyPasswd;
-
-	QRect m_wGeometry;
 
 	QList<QQBouchot *> m_listBouchots;
 
