@@ -4,13 +4,17 @@
 #include "core/qqnorlogeref.h"
 
 #include <QtDebug>
+#include <QFocusEvent>
 #include <QRegExp>
 #include <QShortcut>
+
+#define PALMIPEDE_OBJECT_NAME "QQPalmipede"
 
 QQPalmipede::QQPalmipede(QWidget *parent) :
 	QDockWidget(parent),
 	ui(new Ui::QQPalmipede)
 {
+	setObjectName(PALMIPEDE_OBJECT_NAME);
 	m_minimal = false;
 
 	ui->setupUi(this);
@@ -108,6 +112,12 @@ void QQPalmipede::insertReplaceText(const QString & tag)
 	}
 
 	ui->postLineEdit->insertReplaceText(t_tag);
+}
+
+void QQPalmipede::focusInEvent(QFocusEvent * event)
+{
+	QDockWidget::focusInEvent(event);
+	ui->postLineEdit->setFocus();
 }
 
 void QQPalmipede::changeNorloges(const QString & bouchot)
@@ -221,6 +231,7 @@ void QQPalmipede::bouchotSelectorActivated(int index)
 	changeNorloges(bouchot);
 	QColor bouchotColor = ui->boardSelectorComboBox->itemData(index).value<QColor>();
 	ui->postLineEdit->changeColor(bouchotColor);
+	ui->postLineEdit->setFocus();
 	m_oldBouchot = bouchot;
 }
 

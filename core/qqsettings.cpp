@@ -9,7 +9,6 @@
 #include <QFile>
 #include <QList>
 #include <QMessageBox>
-#include <QSettings>
 #include <QString>
 #include <QStringList>
 #include <QApplication>
@@ -23,9 +22,10 @@
 #define DEFAULT_TOTOZ_SERVER_URL "http://totoz.eu/gif/"
 #define DEFAULT_PALMI_MINI "0"
 
-QQSettings::QQSettings(QObject *parent) :
-	QObject(parent)
+QQSettings::QQSettings(QObject * parent) :
+	QSettings(parent)
 {
+
 	m_palmiMini = DEFAULT_PALMI_MINI;
 	m_maxHistoryLength = DEFAULT_MAX_HIST_LEN;
 
@@ -134,163 +134,146 @@ QList<QString> QQSettings::listTabs()
 
 bool QQSettings::readSettings()
 {
-	QSettings settings(QSettings::IniFormat, QSettings::UserScope, "Moules Corp", "quteqoin");
-
-	setMaxHistoryLength(settings
-						.value("max_hist_len",
+	setMaxHistoryLength(value("max_hist_len",
 							   QVariant(DEFAULT_MAX_HIST_LEN))
 						.toInt());
 
-	setDefaultUA(settings
-				 .value("default_ua")
+	setDefaultUA(value("default_ua")
 				 .toString());
 
-	setPalmiMinimized(settings
-					  .value("palmi_minimized",
+	setPalmiMinimized(value("palmi_minimized",
 							 QVariant(DEFAULT_PALMI_MINI))
 					  .toBool());
 
-	QString totozUrl = settings
-					   .value("totoz_server_url",
+	QString totozUrl = value("totoz_server_url",
 							  QVariant(DEFAULT_TOTOZ_SERVER_URL))
 					   .toString();
 	setTotozServerUrl(totozUrl);
 
-	setTotozServerAllowSearch(settings
-							  .value("totoz_serveur_allow_search",
+	setTotozServerAllowSearch(value("totoz_serveur_allow_search",
 									 QVariant(DEFAULT_TOTOZ_SERVER_ALLOW_SEARCH))
 							  .toBool());
 
-	QString totozQueryPattern = settings
-					   .value("totoz_query_pattern",
+	QString totozQueryPattern = value("totoz_query_pattern",
 							  QVariant(DEFAULT_TOTOZ_QUERY_PATTERN))
 					   .toString();
 	setTotozQueryPattern(totozQueryPattern);
 
-	setTotozMode((QQSettings::TotozMode)settings
-				 .value("totoz_mode",
+	setTotozMode((QQSettings::TotozMode) value("totoz_mode",
 						QVariant(DEFAULT_TOTOZ_MODE))
 				 .toInt());
 
-	QString bouchots = settings.value("bouchots", "").toString();
+	QString bouchots = value("bouchots", "").toString();
 	QStringList bouchotsSplit = bouchots.split(
 									QChar::fromAscii(BOUCHOTS_SPLIT_CHAR),
 									QString::SkipEmptyParts);
 
-	setWinGeometry(settings
-				   .value(QString::fromAscii("win_geometry"),
-						  QVariant(QRect()))
-				   .toRect());
-
-	settings.beginGroup(QString::fromAscii("bouchot"));
+	beginGroup(QString::fromAscii("bouchot"));
 	for(int i = 0; i < bouchotsSplit.size(); i++)
 	{
 		QQBouchot *newBouchot = new QQBouchot(bouchotsSplit[i], this);
 
 		QQBouchot::QQBouchotSettings newBouchotSettings = newBouchot->settings();
 
-		settings.beginGroup(newBouchot->name());
+		beginGroup(newBouchot->name());
 
 		newBouchotSettings.setColorFromString(
-					settings.value(QString::fromAscii("color"), "").toString());
+					value(QString::fromAscii("color"), "").toString());
 		newBouchotSettings.setAliasesFromString(
-					settings.value(QString::fromAscii("aliases"), "").toString());
+					value(QString::fromAscii("aliases"), "").toString());
 		newBouchotSettings.setRefresh(
-					settings.value(QString::fromAscii("refresh"), "").toInt());
+					value(QString::fromAscii("refresh"), "").toInt());
 		//A modifier pour la gestion des multis
 		newBouchotSettings.setLogin(
-					settings.value(QString::fromAscii("login"), "").toString());
+					value(QString::fromAscii("login"), "").toString());
 		newBouchotSettings.setCookie(
-					settings.value(QString::fromAscii("cookies"), "").toString());
+					value(QString::fromAscii("cookies"), "").toString());
 		//
 		newBouchotSettings.setUa(
-					settings.value(QString::fromAscii("ua"), "").toString());
+					value(QString::fromAscii("ua"), "").toString());
 		newBouchotSettings.setBackendUrl(
-					settings.value(QString::fromAscii("backendUrl"), "").toString());
+					value(QString::fromAscii("backendUrl"), "").toString());
 		newBouchotSettings.setPostUrl(
-					settings.value(QString::fromAscii("postUrl"), "").toString());
+					value(QString::fromAscii("postUrl"), "").toString());
 		newBouchotSettings.setPostData(
-					settings.value(QString::fromAscii("postData"), "").toString());
+					value(QString::fromAscii("postData"), "").toString());
 		newBouchotSettings.setGroup(
-					settings.value(QString::fromAscii("group"), "").toString());
+					value(QString::fromAscii("group"), "").toString());
 		newBouchotSettings.setSlipType(
-					(QQBouchot::TypeSlip) settings.value(QString::fromAscii("slipType"), "").toInt());
+					(QQBouchot::TypeSlip) value(QString::fromAscii("slipType"), "").toInt());
 
-		settings.endGroup();
+		endGroup();
 
 		newBouchot->setSettings(newBouchotSettings);
 
 		m_listBouchots.append(newBouchot);
 	}
-	settings.endGroup();
+	endGroup();
 
 	return true;
 }
 
 bool QQSettings::saveSettings()
 {
-	QSettings settings(QSettings::IniFormat, QSettings::UserScope, "Moules Corp", "quteqoin");
-
-	settings.setValue(QString::fromAscii("max_hist_len"),
+	setValue(QString::fromAscii("max_hist_len"),
 					  QVariant(m_maxHistoryLength));
-	settings.setValue(QString::fromAscii("default_ua"),
+	setValue(QString::fromAscii("default_ua"),
 					  QVariant(m_defaultUA));
-	settings.setValue(QString::fromAscii("palmi_minimized"),
+	setValue(QString::fromAscii("palmi_minimized"),
 					  QVariant(m_palmiMini));
-	settings.setValue(QString::fromAscii("totoz_server_url"),
+	setValue(QString::fromAscii("totoz_server_url"),
 					  QVariant(m_totozServerUrl));
-	settings.setValue(QString::fromAscii("totoz_serveur_allow_search"),
+	setValue(QString::fromAscii("totoz_serveur_allow_search"),
 					  QVariant(m_totozServerAllowSearch));
-	settings.setValue(QString::fromAscii("totoz_query_pattern"),
+	setValue(QString::fromAscii("totoz_query_pattern"),
 					  QVariant(m_totozQueryPattern));
-	settings.setValue(QString::fromAscii("totoz_mode"),
+	setValue(QString::fromAscii("totoz_mode"),
 					  QVariant(m_totozMode));
-	settings.setValue(QString::fromAscii("win_geometry"),
-					  QVariant(m_wGeometry));
 
 	QStringList bouchotNameList;
 
-	settings.beginGroup(QString::fromAscii("bouchot"));
+	beginGroup(QString::fromAscii("bouchot"));
 	for(int i = 0; i < m_listBouchots.size(); i++)
 	{
 		QQBouchot *bouchot = m_listBouchots[i];
 
 		QQBouchot::QQBouchotSettings bouchotSettings = bouchot->settings();
 
-		settings.beginGroup(bouchot->name());
-		settings.setValue(QString::fromAscii("color"),
+		beginGroup(bouchot->name());
+		setValue(QString::fromAscii("color"),
 						  QVariant(bouchotSettings.colorToString()));
-		settings.setValue(QString::fromAscii("aliases"),
+		setValue(QString::fromAscii("aliases"),
 						  QVariant(bouchotSettings.aliasesToString()));
-		settings.setValue(QString::fromAscii("refresh"),
+		setValue(QString::fromAscii("refresh"),
 						  QVariant(bouchotSettings.refreshToString()));
 		//A modifier pour la gestion des multis
-		settings.setValue(QString::fromAscii("login"),
+		setValue(QString::fromAscii("login"),
 						  QVariant(bouchotSettings.login()));
-		settings.setValue(QString::fromAscii("cookies"),
+		setValue(QString::fromAscii("cookies"),
 						  QVariant(bouchotSettings.cookie()));
 		//
-		settings.setValue(QString::fromAscii("ua"),
+		setValue(QString::fromAscii("ua"),
 						  QVariant(bouchotSettings.ua()));
-		settings.setValue(QString::fromAscii("backendUrl"),
+		setValue(QString::fromAscii("backendUrl"),
 						  QVariant(bouchotSettings.backendUrl()));
-		settings.setValue(QString::fromAscii("postUrl"),
+		setValue(QString::fromAscii("postUrl"),
 						  QVariant(bouchotSettings.postUrl()));
-		settings.setValue(QString::fromAscii("postData"),
+		setValue(QString::fromAscii("postData"),
 						  QVariant(bouchotSettings.postData()));
-		settings.setValue(QString::fromAscii("group"),
+		setValue(QString::fromAscii("group"),
 						  QVariant(bouchotSettings.group()));
-		settings.setValue(QString::fromAscii("slipType"),
+		setValue(QString::fromAscii("slipType"),
 						  QVariant(bouchotSettings.slipType()));
 
-		settings.endGroup();
+		endGroup();
 		bouchotNameList<<bouchot->name();
 
 	}
-	settings.endGroup();
-	settings.setValue("bouchots", QVariant(bouchotNameList.join(QChar::fromAscii(BOUCHOTS_SPLIT_CHAR))));
+	endGroup();
+	setValue("bouchots", QVariant(bouchotNameList.join(QChar::fromAscii(BOUCHOTS_SPLIT_CHAR))));
 	//qDebug() << settings.fileName();
 
+	sync();
 	return true;
 }
 

@@ -25,8 +25,6 @@ MainWindow::MainWindow(QWidget *parent) :
 	setWindowIcon(icon);
 
 	m_settings = new QQSettings(this);
-	if(m_settings->hasWGeometry())
-		setGeometry(m_settings->winGeometry());
 
 	m_pini = new QQPinipede(m_settings, this);
 	setCentralWidget(m_pini);
@@ -65,7 +63,13 @@ MainWindow::MainWindow(QWidget *parent) :
 	else
 		this->m_ui->actionEtendu->trigger();
 
-	//restoreState()
+	if(m_settings->contains(SETTINGS_QQMAINWINDOW_GEOMETRY))
+		restoreGeometry(m_settings->value(SETTINGS_QQMAINWINDOW_GEOMETRY).toByteArray());
+	if(m_settings->contains(SETTINGS_QQMAINWINDOW_STATE))
+		restoreState(m_settings->value(SETTINGS_QQMAINWINDOW_STATE).toByteArray());
+
+	m_palmi->setFocus(Qt::OtherFocusReason);
+
 	m_settings->startBouchots();
 }
 
@@ -189,16 +193,16 @@ void MainWindow::doPostMessage(const QString & bouchot, const QString & message)
 
 void MainWindow::doTriggerMiniPalmi()
 {
-	this->m_ui->actionEtendu->setChecked(false);
-	this->m_ui->actionMinimal->setChecked(true);
+	m_ui->actionEtendu->setChecked(false);
+	m_ui->actionMinimal->setChecked(true);
 
 	m_settings->setPalmiMinimized(true);
 }
 
 void MainWindow::doTriggerMaxiPalmi()
 {
-	this->m_ui->actionEtendu->setChecked(true);
-	this->m_ui->actionMinimal->setChecked(false);
+	m_ui->actionEtendu->setChecked(true);
+	m_ui->actionMinimal->setChecked(false);
 
 	m_settings->setPalmiMinimized(false);
 }
@@ -214,16 +218,10 @@ void MainWindow::initBouchot(QQBouchot * bouchot)
 void MainWindow::closeEvent(QCloseEvent * event)
 {
 	QMainWindow::closeEvent(event);
-	//saveState();
+	m_settings->setValue(SETTINGS_QQMAINWINDOW_GEOMETRY, saveGeometry());
+	m_settings->setValue(SETTINGS_QQMAINWINDOW_STATE, saveState());
 	m_settings->saveSettings();
 }
-
-void MainWindow::resizeEvent(QResizeEvent * event)
-{
-	QMainWindow::resizeEvent(event);
-	m_settings->setWinGeometry(geometry());
-}
-
 
 void MainWindow::keyPressEvent(QKeyEvent * event)
 {
@@ -233,6 +231,9 @@ void MainWindow::keyPressEvent(QKeyEvent * event)
 	case Qt::Key_F5:
 		m_settings->stopBouchots();
 		m_settings->startBouchots();
+		break;
+	default :
+		QMainWindow::keyPressEvent(event);
 		break;
 	}
 
