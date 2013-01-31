@@ -32,12 +32,18 @@ void QQTotozViewer::init(const QString & totozId)
 
 void QQTotozViewer::setTotozId(const QString & totozId)
 {
-	m_totozId = totozId;
+	if(totozId.startsWith("[:") && totozId.endsWith("]"))
+		m_totozId = totozId.mid(2, totozId.length() - 3);
+	else
+		m_totozId = totozId;
 
 	setToolTip(getAnchor());
 
 	if(totozId.length() > 0)
+	{
+		m_hasfailed = false;
 		updateImg();
+	}
 }
 
 QQTotozViewer::~QQTotozViewer()
@@ -73,12 +79,15 @@ void QQTotozViewer::updateImg()
 		else
 		{
 			m_totozDataBuffer->close();
+			QQTotoz::invalidateCache(m_totozId);
 			m_totozMovie = new QMovie(":/img/totoz-loader.gif");
 
 			displayMovie();
 
-			if(m_downloader != NULL)
+			if(m_downloader != NULL && ! m_hasfailed)
 			{
+				m_hasfailed = true; // to prevent infinite loops
+
 				connect(m_downloader, SIGNAL(fetchTotozFinished(QString &, bool)),
 						this, SLOT(totozAvailable(QString &, bool)));
 				m_downloader->fetchTotoz(m_totozId);

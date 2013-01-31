@@ -53,6 +53,7 @@ private:
 
 	bool m_mousePressOK;
 	bool m_bookmarkMenuEnabled;
+	bool m_hasfailed;
 };
 
 #endif // QQTOTOTZMANAGER_H
