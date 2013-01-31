@@ -17,6 +17,7 @@
 #include <QImage>
 #include <QLabel>
 #include <QMovie>
+#include <QPaintEngine>
 #include <QScrollBar>
 #include <QTextDocument>
 #include <QTextDocumentFragment>
@@ -219,38 +220,55 @@ void QQPinipede::printPostAtCursor(QTextCursor & cursor, QQPost * post)
 	QQMessageBlockUserData * data = new QQMessageBlockUserData();
 	data->setPost(post);
 
+	int textLen = 0;
+	QFontMetrics * fm;
+	int tabStopWidth = m_textBrowserHash.value(post->bouchot()->settings().group())->tabStopWidth();
+	QPaintDevice * pd = m_textBrowserHash.value(post->bouchot()->settings().group())->paintEngine()->paintDevice();
+
 	//norloge
 
 	QTextCharFormat norlogeFormat;
 	norlogeFormat.setToolTip(post->id());
 	norlogeFormat.setFontWeight(QFont::Bold);
 
+	QString txt = post->norlogeFormatee();
+
 	QQMessageBlockUserData::ZoneRange rangeNorloge;
 	rangeNorloge.begin = cursor.positionInBlock();
-	cursor.insertText(post->norlogeFormatee(), norlogeFormat);
+	cursor.insertText(txt, norlogeFormat);
 	rangeNorloge.end = cursor.positionInBlock();
 	data->setZRange(QQMessageBlockUserData::NORLOGE, rangeNorloge);
+
+	fm = new QFontMetrics(norlogeFormat.font(), pd);
+	textLen += fm->size(Qt::TextSingleLine | Qt::TextExpandTabs, txt).width();
+	delete fm;
+
 	cursor.insertText(QString::fromUtf8(" "), defaultFormat);
+
+	fm = new QFontMetrics(defaultFormat.font(), pd);
+	textLen += fm->size(Qt::TextSingleLine | Qt::TextExpandTabs," ").width();
+	delete fm;
+
 
 	//login ou ua
 
 	QTextCharFormat loginUaFormat;
 	loginUaFormat.setToolTip(post->UA());
-	QString txt;
+
 	QQMessageBlockUserData::ZoneRange rangeLoginUA;
 	rangeLoginUA.begin = cursor.positionInBlock();
 	if( post->login().size() != 0 )
 	{
 		loginUaFormat.setForeground(QColor("#553333"));
 
-		txt = post->login().left(12);
+		txt = post->login();
 	}
 	else if( post->UA().size() != 0 )
 	{
 		loginUaFormat.setFontItalic(true);
 		loginUaFormat.setForeground(QColor("#883333"));
 
-		txt = post->UA().left(12);
+		txt = post->UA();
 	}
 	else
 	{
@@ -260,17 +278,30 @@ void QQPinipede::printPostAtCursor(QTextCursor & cursor, QQPost * post)
 		txt = QString::fromAscii("$NO UA$");
 	}
 
-	//[:magic]
-	while(txt.length() < 6)
-		txt.append(QChar(' '));
+#define PINI_MSG_START_SHIFT 150
+
+	fm = new QFontMetrics(loginUaFormat.font(), pd);
+	if(textLen + fm->size(Qt::TextSingleLine | Qt::TextExpandTabs, txt).width() > PINI_MSG_START_SHIFT)
+	{
+		txt = fm->elidedText(txt, Qt::ElideRight, PINI_MSG_START_SHIFT - textLen);
+		txt.append("\t");
+	}
+	else
+	{
+		do
+		{
+			txt.append("\t");
+		} while(textLen + fm->size(Qt::TextSingleLine | Qt::TextExpandTabs, txt).width() < PINI_MSG_START_SHIFT - tabStopWidth);
+	}
+	delete fm;
+
+#undef PINI_MSG_START_SHIFT
 
 	cursor.insertText(txt, loginUaFormat);
+
 	rangeLoginUA.end = cursor.positionInBlock();
 
 	data->setZRange(QQMessageBlockUserData::LOGINUA, rangeLoginUA);
-
-	// marque la tabulation pour affichage
-	cursor.insertText(QString::fromUtf8("\t"), defaultFormat);
 
 	//message
 	QQMessageBlockUserData::ZoneRange rangeMsg;
