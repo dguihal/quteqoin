@@ -32,12 +32,14 @@ public:
 	void save();
 
 	static bool cacheExists(QString id) { return QFile::exists(getPath(id)); }
+	static void invalidateCache(QString id) { QFile::remove(getPath(id)); }
 signals:
 
 public slots:
 
 private:
 	void load();
+
 	static QString getPath(QString id);
 
 	QString m_id;
