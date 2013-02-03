@@ -1,6 +1,8 @@
 #ifndef QQTOTOZMANAGER_H
 #define QQTOTOZMANAGER_H
 
+#include "core/qqtotoz.h"
+
 #include <QDockWidget>
 #include <QString>
 
@@ -8,6 +10,7 @@ namespace Ui {
 class QQTotozManager;
 }
 
+class QScrollArea;
 class QQSettings;
 class QQTotozDownloader;
 class QQTMRequester;
@@ -31,8 +34,13 @@ signals:
 
 protected slots:
 	void totozSelected(QString anchor);
+	void totozBookmarkDo(QString anchor, QQTotoz::TotozBookmarkAction action);
+	void searchBookmarks(QString text);
 
 private:
+	void fillBookmarks();
+	void createViewer(QScrollArea * dest, const QStringList & ids, QQTotoz::TotozBookmarkAction action);
+
 	Ui::QQTotozManager *ui;
 
 	QQSettings * m_settings;

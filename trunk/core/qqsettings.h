@@ -16,6 +16,7 @@ class QString;
 #define SETTINGS_QQMAINWINDOW_STATE "mainwindow_state"
 #define SETTINGS_QQMAINWINDOW_GEOMETRY "mainwindow_geometry"
 
+#define SETTINGS_QQTOTOZ_BOOKMARKLIST "totoz_bookmarklist"
 
 class QQSettings : public QSettings
 {

@@ -5,9 +5,8 @@
 #include <QDesktopServices>
 #include <QDir>
 #include <QFile>
-#include <QObject>
-#include <QSharedPointer>
 #include <QString>
+
 
 class QQTotoz
 {
@@ -31,8 +30,11 @@ public:
 
 	void save();
 
+	enum TotozBookmarkAction { ADD, REMOVE };
+
 	static bool cacheExists(QString id) { return QFile::exists(getPath(id)); }
 	static void invalidateCache(QString id) { QFile::remove(getPath(id)); }
+
 signals:
 
 public slots:
