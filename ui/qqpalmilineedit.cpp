@@ -11,12 +11,6 @@ QQPalmiLineEdit::QQPalmiLineEdit(QWidget *parent) :
 {
 }
 
-void QQPalmiLineEdit::focusOutEvent(QFocusEvent * e)
-{
-	// Pour éviter le warning
-	(void) e;
-}
-
 void QQPalmiLineEdit::keyPressEvent(QKeyEvent * e)
 {
 	if(e->modifiers() == Qt::AltModifier)
