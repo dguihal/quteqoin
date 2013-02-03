@@ -1,6 +1,5 @@
 #include "qqtotozviewer.h"
 
-#include "core/qqtotoz.h"
 #include "core/qqtotozdownloader.h"
 
 #include <QtDebug>
@@ -17,7 +16,8 @@
 void QQTotozViewer::init(const QString & totozId)
 {
 	m_mousePressOK = false;
-	m_bookmarkMenuEnabled = true;
+	m_bookmarkAddEnabled = false;
+	m_bookmarkRemEnabled = false;
 	m_totozMovie = NULL;
 	m_downloader = NULL;
 	m_totozDataBuffer = new QBuffer(this);
@@ -143,9 +143,12 @@ void QQTotozViewer::contextMenuEvent(QContextMenuEvent * ev)
 	ev->accept();
 
 	QMenu menu(this);
-	QString actBookmStr("Bookmark");
-	if(m_bookmarkMenuEnabled)
-		menu.addAction(actBookmStr);
+	QString actBookmAddStr("Add to bookmarks");
+	QString actBookmRemStr("Remove from bookmarks");
+	if(m_bookmarkAddEnabled)
+		menu.addAction(actBookmAddStr);
+	if(m_bookmarkRemEnabled)
+		menu.addAction(actBookmRemStr);
 
 	QString actSendPalmiStr("Send to palmi");
 	menu.addAction(actSendPalmiStr);
@@ -154,8 +157,10 @@ void QQTotozViewer::contextMenuEvent(QContextMenuEvent * ev)
 	if( (actionTriggered = menu.exec(ev->globalPos())) != NULL )
 	{
 		QString text = actionTriggered->text();
-		if(text == actBookmStr)
-			emit bookmarkingAsked(getAnchor());
+		if(text == actBookmAddStr)
+			emit totozBookmarkAct(m_totozId, QQTotoz::ADD);
+		else if(text == actBookmRemStr)
+			emit totozBookmarkAct(m_totozId, QQTotoz::REMOVE);
 		else if(text == actSendPalmiStr)
 			emit totozClicked(getAnchor());
 		else

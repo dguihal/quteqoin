@@ -1,6 +1,8 @@
 #ifndef QQTMLABEL_H
 #define QQTMLABEL_H
 
+#include "core/qqtotoz.h"
+
 #include <QBuffer>
 #include <QLabel>
 #include <QString>
@@ -18,7 +20,8 @@ public:
 	QQTotozViewer(const QString & totozId = "", QWidget * parent = 0) : QLabel(parent) { init(totozId); }
 	~QQTotozViewer();
 
-	void enableBookmarksMenu(const bool enableBMenu = true) { m_bookmarkMenuEnabled = enableBMenu; }
+	void enableBookmarksAdd(const bool enableBmAdd = true) { m_bookmarkAddEnabled = enableBmAdd; }
+	void enableBookmarksRem(const bool enableBmRem = true) { m_bookmarkRemEnabled = enableBmRem; }
 	void setTotozId(const QString & totozId);
 	void setTotozDownloader(QQTotozDownloader * downloader) { if(downloader != NULL) m_downloader = downloader; }
 
@@ -27,7 +30,7 @@ public slots:
 
 signals:
 	void totozClicked(QString anchor);
-	void bookmarkingAsked(QString anchor);
+	void totozBookmarkAct(QString anchor, QQTotoz::TotozBookmarkAction);
 
 protected:
 	void updateImg();
@@ -52,7 +55,8 @@ private:
 	QQTotozDownloader * m_downloader;
 
 	bool m_mousePressOK;
-	bool m_bookmarkMenuEnabled;
+	bool m_bookmarkAddEnabled;
+	bool m_bookmarkRemEnabled;
 	bool m_hasfailed;
 };
 
