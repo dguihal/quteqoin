@@ -52,8 +52,6 @@ QQPinipede::QQPinipede(QQSettings * settings, QWidget * parent) :
 	m_totozViewer->hide();
 	connect(m_settings, SIGNAL(totozServerUrlChanged(QString)),
 			m_totozDownloader, SLOT(serverURLchanged(QString)));
-	connect(m_totozDownloader, SIGNAL(totozAvailable()),
-			m_totozViewer, SLOT(update()));
 }
 
 QQPinipede::~QQPinipede()
