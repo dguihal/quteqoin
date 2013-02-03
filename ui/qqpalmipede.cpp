@@ -112,6 +112,7 @@ void QQPalmipede::insertReplaceText(const QString & tag)
 	}
 
 	ui->postLineEdit->insertReplaceText(t_tag);
+	setFocus();
 }
 
 void QQPalmipede::focusInEvent(QFocusEvent * event)
