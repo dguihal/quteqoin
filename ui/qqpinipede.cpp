@@ -85,6 +85,7 @@ void QQPinipede::addPiniTab(const QString & groupName)
 			m_totozDownloader, SLOT(fetchTotoz(QString &)));
 
 	connect(textBrowser, SIGNAL(norlogeClicked(QQNorloge)), this, SLOT(norlogeClicked(QQNorloge)));
+	connect(textBrowser, SIGNAL(loginClicked(QString)), this, SLOT(loginClicked(QString)));
 	connect(textBrowser, SIGNAL(norlogeRefHovered(QQNorlogeRef)), this, SLOT(norlogeRefHovered(QQNorlogeRef)));
 	connect(textBrowser, SIGNAL(unHighlight()), this, SLOT(unHighlight()));
 	connect(textBrowser, SIGNAL(displayTotoz(QString &)), this, SLOT(showTotozViewer(QString &)));
@@ -475,6 +476,11 @@ void QQPinipede::norlogeClicked(QQNorloge norloge)
 	emit insertTextPalmi(norloge.toStringPalmi() + QString::fromAscii(" "));
 }
 
+void QQPinipede::loginClicked(QString login)
+{
+	emit insertTextPalmi(login + QString::fromAscii("< "));
+}
+
 void QQPinipede::norlogeRefHovered(QQNorlogeRef norlogeRef)
 {
 	QString dstBouchot = norlogeRef.dstBouchot();
@@ -615,13 +621,6 @@ void QQPinipede::showTotozViewer(QString & totozId)
 void QQPinipede::hideTotozViewer()
 {
 	m_totozViewer->hide();
-}
-
-void QQPinipede::loginClicked(QString tabGroupName)
-{
-	// Pour éviter le warning
-	(void) tabGroupName;
-	//QQTextBrowser *qqTBSender = (QQTextBrowser *)sender();
 }
 
 QQPost * QQPinipede::getPostForGroup(QString &groupName, int numPost)
