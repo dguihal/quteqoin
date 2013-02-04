@@ -359,7 +359,12 @@ void QQTextBrowser::mouseReleaseEvent(QMouseEvent * event)
 		}
 		else if(blockData->isIndexInZRange(cursor.positionInBlock(),
 										   QQMessageBlockUserData::LOGINUA))
-			emit loginClicked(m_groupName);
+		{
+			QString login = blockData->post()->login();
+			if(login.size() == 0)
+				login = blockData->post()->UA();
+			emit loginClicked(login);
+		}
 	}
 }
 

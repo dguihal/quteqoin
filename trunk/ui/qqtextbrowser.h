@@ -31,7 +31,7 @@ signals:
 	void unHighlight();
 	void displayTotoz(QString & totozId);
 	void concealTotoz();
-	void loginClicked(QString groupName);
+	void loginClicked(QString login);
 
 protected:
 	void leaveEvent(QEvent * event);
