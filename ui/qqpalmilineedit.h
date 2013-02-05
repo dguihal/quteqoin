@@ -21,6 +21,10 @@ public slots:
 
 protected:
 	virtual void keyPressEvent(QKeyEvent * e);
+	virtual void focusInEvent(QFocusEvent *e);
+
+private:
+	void updateTotozCompleter();
 };
 
 #endif // QQPALMILINEEDIT_H
