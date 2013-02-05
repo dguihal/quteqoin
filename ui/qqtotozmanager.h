@@ -46,8 +46,6 @@ private:
 	QQSettings * m_settings;
 	QQTMRequester * m_requester;
 	QQTotozDownloader * m_totozDownloader;
-
-	QString searchLineEditSS;
 };
 
 #endif // QQTOTOZMANAGER_H
