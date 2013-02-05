@@ -87,7 +87,6 @@ void QQTotozManager::searchTotoz()
 
 		setCursor(QCursor(Qt::BusyCursor));
 		ui->searchLineEdit->setCursor(QCursor(Qt::BusyCursor));
-		searchLineEditSS = ui->searchLineEdit->styleSheet();
 		ui->searchLineEdit->setStyleSheet("QLineEdit{background: black;color: white;}");
 
 		m_requester->searchTotoz(searchStr);
@@ -100,9 +99,14 @@ void QQTotozManager::totozSearchFinished()
 
 	setCursor(QCursor(Qt::ArrowCursor));
 	ui->searchLineEdit->setCursor(QCursor(Qt::ArrowCursor));
-	ui->searchLineEdit->setStyleSheet(searchLineEditSS);
+	ui->searchLineEdit->setStyleSheet("");
 
 	QList<QString> results = m_requester->results();
+
+	QWidget * widget = new QWidget(this);
+	QVBoxLayout * layout = new QVBoxLayout();
+	layout->setContentsMargins(0, 0, 0, 0);
+
 	if(results.size() > 0)
 	{
 		for(int i = 0; i < results.size(); i++)
@@ -112,10 +116,6 @@ void QQTotozManager::totozSearchFinished()
 		}
 
 		createViewer(ui->serverScrollArea, results, QQTotoz::ADD);
-
-		QWidget * widget = new QWidget(this);
-		QVBoxLayout * layout = new QVBoxLayout();
-		layout->setContentsMargins(0, 0, 0, 0);
 
 		for(int i = 0; i < results.size(); i++)
 		{
@@ -128,15 +128,21 @@ void QQTotozManager::totozSearchFinished()
 			layout->addWidget(viewer);
 		}
 
-		layout->addSpacerItem(new QSpacerItem(1, 1, QSizePolicy::Minimum, QSizePolicy::Expanding));
-
-		widget->setLayout(layout);
-		QWidget * oldWidget = ui->serverScrollArea->takeWidget();
-		ui->serverScrollArea->setWidget(widget);
-		ui->serverScrollAreaContents = widget;
-
-		oldWidget->deleteLater();
 	}
+	else
+	{
+		QLabel * label = new QLabel("No totoz found", widget);
+		layout->addWidget(label);
+
+	}
+
+	layout->addSpacerItem(new QSpacerItem(1, 1, QSizePolicy::Minimum, QSizePolicy::Expanding));
+	widget->setLayout(layout);
+	QWidget * oldWidget = ui->serverScrollArea->takeWidget();
+	ui->serverScrollArea->setWidget(widget);
+	ui->serverScrollAreaContents = widget;
+
+	oldWidget->deleteLater();
 }
 
 void QQTotozManager::searchBookmarks(QString text)
@@ -169,7 +175,7 @@ void QQTotozManager::totozSearchCanceled()
 
 	setCursor(QCursor(Qt::ArrowCursor));
 	ui->searchLineEdit->setCursor(QCursor(Qt::ArrowCursor));
-	ui->searchLineEdit->setStyleSheet(searchLineEditSS);
+	ui->searchLineEdit->setStyleSheet("");
 
 }
 
