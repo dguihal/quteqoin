@@ -53,7 +53,7 @@ void QQSyntaxHighlighter::highlightBlockForNRef()
 	if(userData == NULL || ! userData->isValid())
 		return;
 
-	QTextBlockFormat fmt;
+	QTextBlockFormat fmt = currentBlock().blockFormat();
 	fmt.setBackground(userData->post()->bouchot()->settings().colorLight());
 
 	if(m_nRef.isValid())
@@ -154,7 +154,7 @@ void QQSyntaxHighlighter::formatNRef(QQNorlogeRef & nRef)
 	QColor printColor("#0000DD");
 	QColor repColor("#DD0000");
 
-	QTextCharFormat fmt = format(0);
+	QTextCharFormat fmt = format(nRef.getPosInMessage());
 
 	if(! nRef.isReponse())
 	{
@@ -336,7 +336,7 @@ void QQSyntaxHighlighter::highlightTotoz(const QString & text)
 
 void QQSyntaxHighlighter::formatTotoz(int index, const QString & totozId)
 {
-	QTextCharFormat totozMessageFormat;
+	QTextCharFormat totozMessageFormat = format(index);
 	totozMessageFormat.setForeground(QColor("#00AA11"));
 	totozMessageFormat.setFontWeight(QFont::Bold);
 
