@@ -105,6 +105,7 @@ void QQPalmiLineEdit::focusInEvent(QFocusEvent * e)
 {
 	Q_UNUSED(e);
 	updateTotozCompleter();
+	QLineEdit::focusInEvent(e);
 }
 
 void QQPalmiLineEdit::updateTotozCompleter()
