@@ -481,12 +481,9 @@ void QQPinipede::loginClicked(QString login)
 
 void QQPinipede::norlogeRefHovered(QQNorlogeRef norlogeRef)
 {
-	QString dstBouchot = norlogeRef.dstBouchot();
-	QString dstNorloge = norlogeRef.dstNorloge();
+	qDebug() << "QQPinipede::norlogeRefHovered, datetimepart=" << norlogeRef.dstNorloge() << ", destbouchot=" << norlogeRef.dstBouchot();
 
-	qDebug() << "QQPinipede::norlogeRefHovered, datetimepart=" << dstNorloge << ", destbouchot=" << dstBouchot;
-
-	QQBouchot * bouchot = m_settings->bouchot(dstBouchot);
+	QQBouchot * bouchot = m_settings->bouchot(norlogeRef.dstBouchot());
 
 	if(bouchot == NULL)
 	{
@@ -539,11 +536,7 @@ void QQPinipede::norlogeRefHovered(QQNorlogeRef norlogeRef)
 				continue;
 			QQMessageBlockUserData * userData = dynamic_cast<QQMessageBlockUserData *>(cursor.block().userData());
 
-			QString currNorloge = userData->post()->norloge();
-			QQBouchot * currBouchot = userData->post()->bouchot();
-
-			if( ( dstBouchot == currBouchot->name() || currBouchot->settings().containsAlias(dstBouchot) ) &&
-				currNorloge.startsWith(dstNorloge) )
+			if(norlogeRef.matchesPost(userData->post()))
 			{
 				qDebug() << "QQPinipede::norlogeRefHovered cursor.blockNumber()=" << cursor.blockNumber();
 				cursor.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);

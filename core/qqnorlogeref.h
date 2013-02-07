@@ -12,7 +12,7 @@
 class QQNorlogeRef : public QQNorloge
 {
 public:
-	QQNorlogeRef();
+	explicit QQNorlogeRef();
 	QQNorlogeRef(const QString & bouchot, const QString & dateh, const QString & norlogeRef, int posInMessage);
 	QQNorlogeRef(const QQNorlogeRef & norlogeRef);
 
@@ -36,9 +36,9 @@ public:
 	static QRegExp norlogeRegexp(const QString & bouchot)
 	{
 		return QRegExp(QString::fromUtf8("(((?:[0-9]+/)?(?:1[0-2]|0[1-9])/(?:3[0-1]|[1-2][0-9]|0[1-9])#)?" //date
-										  "((?:2[0-3]|[0-1][0-9]):(?:[0-5][0-9])(?::[0-5][0-9])?" //time
-										  "(?:[¹²³]|[:\\^][1-9]|[:\\^][1-9][0-9])?))" //subtime
-										  "(@") + bouchot + QString::fromAscii(")?"), //tribune
+										 "((?:2[0-3]|[0-1][0-9]):(?:[0-5][0-9])(?::[0-5][0-9])?" //time
+										 "(?:[¹²³]|[:\\^][1-9]|[:\\^][1-9][0-9])?))" //subtime
+										 "(@") + bouchot + QString::fromAscii(")?"), //tribune
 					   Qt::CaseSensitive,
 					   QRegExp::RegExp);
 	}
@@ -50,23 +50,21 @@ public:
 	QString dstBouchot() const;
 	QString dstNorloge() const;
 
-	QString nRefId() const;
-
-	void addPostTarget(QQPost * post);
+	bool matchesPost(QQPost * post);
+	bool matchesNRef(const QQNorlogeRef & other);
 	bool isReponse();
 
-	bool isValid() { return m_valid; }
-
+	bool isValid() const { return m_valid; }
 
 	bool operator == ( const QQNorlogeRef & other ) const
 	{
-		bool res = ( QString::compare(this->nRefId(), other.nRefId()) == 0 );
-		//qDebug() << "this->nRefId = " << this->nRefId() << ",other->nRefId = " << other.nRefId() << ", res=" <<  res;
+		bool res = ( this->isValid() == other.isValid() &&
+					 QString::compare(this->dstBouchot(), other.dstBouchot()) == 0 &&
+					 QString::compare(this->dstNorloge(), other.dstNorloge()) == 0 &&
+					 this->getPosInMessage() == other.getPosInMessage() );
 
 		return res;
 	}
-	bool operator != ( const QQNorlogeRef & other ) const
-		{ return !( (* this) == other ); }
 
 private:
 	QString m_refDateYearPart;
@@ -85,6 +83,8 @@ private:
 	QList< QPointer<QQPost> > m_listPostTarget;
 
 	bool m_valid;
+
+	bool m_hasDate;
 
 	bool m_isReponseDefined;
 	bool m_isResponse;

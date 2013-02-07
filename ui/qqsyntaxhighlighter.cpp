@@ -58,14 +58,15 @@ void QQSyntaxHighlighter::highlightBlockForNRef()
 
 	if(m_nRef.isValid())
 	{
-		QString dstNorloge = m_nRef.dstNorloge();
-		QString dstBouchot = m_nRef.dstBouchot();
+		// QString dstNorloge = m_nRef.dstNorloge();
+		// QString dstBouchot = m_nRef.dstBouchot();
 
-		QString currNorloge = userData->post()->norlogeComplete();
-		QQBouchot * currBouchot = userData->post()->bouchot();
+		// QString currNorloge = userData->post()->norlogeComplete();
+		// QQBouchot * currBouchot = userData->post()->bouchot();
 
-		if( ( dstBouchot == currBouchot->name() || currBouchot->settings().containsAlias(dstBouchot) ) &&
-			currNorloge.startsWith(dstNorloge) )
+		// if( ( dstBouchot == currBouchot->name() || currBouchot->settings().containsAlias(dstBouchot) ) &&
+		//	currNorloge.startsWith(dstNorloge) )
+		if(m_nRef.matchesPost(userData->post()))
 		{
 			fmt.setBackground(QColor("#FFE940"));
 			setCurrentBlockState(QQSyntaxHighlighter::FULL_HIGHLIGHTED);
@@ -134,9 +135,8 @@ void QQSyntaxHighlighter::linkNorlogeRef(QQNorlogeRef & nRef)
 	{
 		QQPost * post = history.at(i);
 
-		if(nRef.dstNorloge() == post->norloge())
+		if(nRef.matchesPost(post))
 		{
-			nRef.addPostTarget(post);
 			targetFound = true;
 		}
 		else if(targetFound)
@@ -156,17 +156,15 @@ void QQSyntaxHighlighter::formatNRef(QQNorlogeRef & nRef)
 
 	QTextCharFormat fmt = format(nRef.getPosInMessage());
 
-	if(! nRef.isReponse())
-	{
-		fmt.setForeground(printColor);
-	}
-	else
+	if(nRef.isReponse())
 	{
 		fmt.setForeground(repColor);
 		fmt.setFontWeight(QFont::DemiBold);
 	}
+	else
+		fmt.setForeground(printColor);
 
-	if(m_nRef == nRef)
+	if(m_nRef.matchesNRef(nRef))
 	{
 		fmt.setBackground(highlightColor);
 		setCurrentBlockState(QQSyntaxHighlighter::NORLOGE_HIGHLIGHTED);

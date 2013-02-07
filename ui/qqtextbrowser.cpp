@@ -236,7 +236,7 @@ void QQTextBrowser::mouseMoveEvent(QMouseEvent * event)
 
 void QQTextBrowser::highlightNorloge(QQNorlogeRef nRef)
 {
-	if(nRef.isValid() && m_highlightedNRef != nRef)
+	if(! (m_highlightedNRef == nRef))
 	{
 		qDebug() << "QQTextBrowser::mouseMoveEvent norlogeRefHovered : nRef.getOrigNRef() = " << nRef.getOrigNRef();
 		unHighlightNorloge();
