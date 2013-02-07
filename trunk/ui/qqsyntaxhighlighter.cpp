@@ -362,7 +362,7 @@ void QQSyntaxHighlighter::highlightBigorno(const QString & text)
 	bigorno.append("moules)<");
 
 	QRegExp m_bigornoReg = QRegExp(bigorno,
-								   Qt::CaseSensitive,
+								   Qt::CaseInsensitive,
 								   QRegExp::RegExp);
 
 	int index = text.indexOf(m_bigornoReg, messageRange.begin );

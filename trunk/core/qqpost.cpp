@@ -60,10 +60,10 @@ bool QQPost::isSelfPost()
 {
 	QQBouchot::QQBouchotSettings bouchotSettings = bouchot()->settings();
 
-	if(bouchotSettings.login().size() != 0 && bouchotSettings.login().compare(m_login) == 0)
+	if(bouchotSettings.login().size() != 0 && QString::compare(bouchotSettings.login(), m_login, Qt::CaseSensitive) == 0)
 		return true;
 
-	if(bouchotSettings.ua().size() != 0 && bouchotSettings.ua().compare(m_ua) == 0)
+	if(bouchotSettings.ua().size() != 0 && QString::compare(bouchotSettings.ua(), m_ua, Qt::CaseSensitive) == 0)
 		return true;
 
 	return false;
