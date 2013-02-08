@@ -86,7 +86,7 @@ void QQBouchot::postMessage(const QString &message)
 		request.setRawHeader("Cookie", m_bSettings.cookie().toAscii());
 
 	request.setRawHeader("Accept", "*/*");
-	request.setRawHeader("Accept-Encoding","gzip, defalte");
+	request.setRawHeader("Accept-Encoding","gzip, deflate");
 	request.setRawHeader("Referer", request.url().toString().toAscii());
 	httpPost(request, postData);
 }
