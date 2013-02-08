@@ -193,10 +193,10 @@ void QQBouchot::requestFinishedSlot(QNetworkReply *reply)
 
 	if(reply->error() != QNetworkReply::NoError)
 	{
-		//qWarning() << QDateTime::currentDateTime().currentMSecsSinceEpoch()
-		//		   << " : QQBouchot::requestFinishedSlot, error : " << reply->error()
-		//		   << ", msg : " << reply->errorString();
-		stopRefresh();
+		qWarning() << QDateTime::currentDateTime().currentMSecsSinceEpoch()
+				   << " : QQBouchot::requestFinishedSlot, error : " << reply->error()
+				   << ", msg : " << reply->errorString();
+		//stopRefresh();
 	}
 	else
 	{
