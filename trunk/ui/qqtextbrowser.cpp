@@ -179,7 +179,7 @@ void QQTextBrowser::mouseMoveEvent(QMouseEvent * event)
 	QTextCursor cursor = cursorForPosition(event->pos());
 
 	QTextBlock block = cursor.block();
-	QQMessageBlockUserData * blockData = dynamic_cast<QQMessageBlockUserData *>(block.userData());
+	QQMessageBlockUserData * blockData = qobject_cast<QQMessageBlockUserData *>(block.userData());
 
 	if(blockData != NULL)
 	{
