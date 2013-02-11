@@ -75,6 +75,12 @@ void QQPalmiLineEdit::keyPressEvent(QKeyEvent * e)
 		case Qt::Key_I:
 			insertSurroundText(QString::fromAscii("<i>"), QString::fromAscii("</i>"));
 			break;
+		case Qt::Key_J:
+			insertReplaceText(QString::fromAscii("\\o/"));
+			break;
+		case Qt::Key_K:
+			insertReplaceText(QString::fromAscii("/o\\"));
+			break;
 		case Qt::Key_M:
 			insertSurroundText(QString::fromAscii("====> <b>Moment "), QString::fromAscii("</b> <===="));
 			break;
