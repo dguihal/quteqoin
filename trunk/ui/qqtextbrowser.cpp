@@ -179,7 +179,7 @@ void QQTextBrowser::mouseMoveEvent(QMouseEvent * event)
 	QTextCursor cursor = cursorForPosition(event->pos());
 
 	QTextBlock block = cursor.block();
-	QQMessageBlockUserData * blockData = qobject_cast<QQMessageBlockUserData *>(block.userData());
+	QQMessageBlockUserData * blockData = (QQMessageBlockUserData *) (block.userData());
 
 	if(blockData != NULL)
 	{
@@ -223,7 +223,8 @@ void QQTextBrowser::mouseMoveEvent(QMouseEvent * event)
 			Q_ASSERT(!post.isNull());
 			QString norlogeString = post->norloge();
 			QQNorlogeRef nRef = QQNorlogeRef(post->bouchot()->name(),
-											 norlogeString, norlogeString, 1);
+											 norlogeString, norlogeString,
+											 post->norlogeIndex());
 			highlightNorloge(nRef);
 		}
 		else

@@ -136,7 +136,7 @@ void QQPinipede::purgePinitab(const QString &groupName, const QString &bouchotNa
 		qDebug() << "QQPinipede::purgePiniTab block num=" << cursor.block().blockNumber()
 				 << ", doc->blockCount()=" << textBrowser->document()->blockCount();
 
-		QQMessageBlockUserData * userData = qobject_cast<QQMessageBlockUserData *>(cursor.block().userData());
+		QQMessageBlockUserData * userData = (QQMessageBlockUserData *) (cursor.block().userData());
 		qDebug() << "QQPinipede::purgePiniTab userData->post()->bouchot()->name()=" << userData->post()->bouchot()->name()
 				 << ", bouchotName=" << bouchotName;
 		if ( userData->post()->bouchot()->name() == bouchotName )
@@ -534,7 +534,7 @@ void QQPinipede::norlogeRefHovered(QQNorlogeRef norlogeRef)
 			//		 << ", mainTable->columns()=" << mainTable->columns();
 			if(cursor.block().userState() == QQSyntaxHighlighter::NOT_HIGHLIGHTED)
 				continue;
-			QQMessageBlockUserData * userData = qobject_cast<QQMessageBlockUserData *>(cursor.block().userData());
+			QQMessageBlockUserData * userData = (QQMessageBlockUserData *) (cursor.block().userData());
 
 			if(norlogeRef.matchesPost(userData->post()))
 			{
