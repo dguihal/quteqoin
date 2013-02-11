@@ -58,6 +58,12 @@ public:
 	// bool processingInstruction(const QString & target, const QString & data);
 	bool skippedEntity(const QString & name);
 
+	// Methodes héritées de QXmlLexicalHandler
+	bool startCDATA() { m_isInCData = true; return true; }
+	//bool startDTD();
+	bool endDATA() { m_isInCData = false; return true; }
+	//bool endDTD();
+
 	int maxId() { return m_maxId; }
 
 signals:
@@ -73,5 +79,7 @@ private:
 	int m_lastId;
 	int m_maxId;
 	QQBouchot::TypeSlip m_typeSlip;
+
+	bool m_isInCData;
 };
 #endif
