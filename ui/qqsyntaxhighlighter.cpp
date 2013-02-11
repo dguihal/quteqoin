@@ -56,21 +56,10 @@ void QQSyntaxHighlighter::highlightBlockForNRef()
 	QTextBlockFormat fmt = currentBlock().blockFormat();
 	fmt.setBackground(userData->post()->bouchot()->settings().colorLight());
 
-	if(m_nRef.isValid())
+	if(m_nRef.matchesPost(userData->post()))
 	{
-		// QString dstNorloge = m_nRef.dstNorloge();
-		// QString dstBouchot = m_nRef.dstBouchot();
-
-		// QString currNorloge = userData->post()->norlogeComplete();
-		// QQBouchot * currBouchot = userData->post()->bouchot();
-
-		// if( ( dstBouchot == currBouchot->name() || currBouchot->settings().containsAlias(dstBouchot) ) &&
-		//	currNorloge.startsWith(dstNorloge) )
-		if(m_nRef.matchesPost(userData->post()))
-		{
-			fmt.setBackground(QColor("#FFE940"));
-			setCurrentBlockState(QQSyntaxHighlighter::FULL_HIGHLIGHTED);
-		}
+		fmt.setBackground(QColor("#FFE940"));
+		setCurrentBlockState(QQSyntaxHighlighter::FULL_HIGHLIGHTED);
 	}
 
 	QTextCursor curs(currentBlock());

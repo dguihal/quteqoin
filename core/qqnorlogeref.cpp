@@ -9,10 +9,11 @@
 QQNorlogeRef::QQNorlogeRef() :
 	QQNorloge()
 {
-	m_refDateIndexPart = 0;
 	m_posInMessage = -1;
+	m_norlogeIndex = 0;
 	m_valid = false;
 	m_hasDate = false;
+	m_hasSec = false;
 	m_isReponseDefined = false;
 	m_isResponse = false;
 }
@@ -25,54 +26,57 @@ QQNorlogeRef::QQNorlogeRef(const QString &bouchot, const QString &dateh, const Q
 	m_posInMessage = posInMessage;
 	m_valid = true;
 	m_hasDate = true;
+	m_hasSec = true;
 
 	QRegExp reg = norlogeRegexp();
 
-	m_refDateIndexPart = 0; //tous les correspondants par défaut
+	m_norlogeIndex = 0; //tous les correspondants par défaut
 
 	if(reg.exactMatch(norlogeRef))
 	{
 		QStringList capturedTexts = reg.capturedTexts();
 		QString date = capturedTexts[2];
+		m_hasDate = false;
 		if(date.size() > 0)
 		{
 			QStringList dateSplit = date.split(QChar::fromAscii('/'));
 			if(dateSplit.size() > 2)
-				m_refDateYearPart = dateSplit.takeFirst();
+				m_dateYearPart = dateSplit.takeFirst();
 
-			m_refDateMonthPart = dateSplit.takeFirst();
-			m_refDateDayPart = dateSplit.takeFirst();
-			m_refDateDayPart.remove(QChar::fromAscii('#'));
+			m_dateMonthPart = dateSplit.takeFirst();
+			m_dateDayPart = dateSplit.takeFirst();
+			m_dateDayPart.remove(QChar::fromAscii('#'));
 		}
-		else
-			m_hasDate = false;
 
 		QString time = capturedTexts[3];
 		QStringList timeSplit = time.split(QChar::fromAscii(':'));
-		m_refDateHourPart = timeSplit.takeFirst();
-		m_refDateMinutePart = timeSplit.takeFirst();
+		m_dateHourPart = timeSplit.takeFirst();
+		m_dateMinutePart = timeSplit.takeFirst();
+
 		if(timeSplit.size() > 0)
 		{
+			m_hasSec = true;
 			QString sec = timeSplit.takeFirst();
-			m_refDateSecondPart = sec.left(2);
+			m_dateSecondPart = sec.left(2);
 			sec.remove(0, 2);
 			if(sec.length() > 0)
 			{
 				if(sec.startsWith(QString::fromUtf8("¹")))
-					m_refDateIndexPart = 1;
+					m_norlogeIndex = 1;
 				else if(sec.startsWith(QString::fromUtf8("²")))
-					m_refDateIndexPart = 2;
+					m_norlogeIndex = 2;
 				else if(sec.startsWith(QString::fromUtf8("³")))
-					m_refDateIndexPart = 3;
+					m_norlogeIndex = 3;
 				else
 				{
 					sec.remove(0, 1);
-					m_refDateIndexPart = sec.toInt();
+					m_norlogeIndex = sec.toInt();
 				}
 			}
 		}
+		//gestion du :1
 		if(timeSplit.size() > 0)
-			m_refDateIndexPart = timeSplit.takeFirst().toInt();
+				m_norlogeIndex = timeSplit.takeFirst().toInt();
 
 		m_dstBouchot = capturedTexts[4];
 		//supression du @ initial
@@ -86,13 +90,6 @@ QQNorlogeRef::QQNorlogeRef(const QString &bouchot, const QString &dateh, const Q
 QQNorlogeRef::QQNorlogeRef(const QQNorlogeRef & norlogeRef) :
 	QQNorloge(norlogeRef)
 {
-	m_refDateYearPart = norlogeRef.m_refDateYearPart;
-	m_refDateMonthPart = norlogeRef.m_refDateMonthPart;
-	m_refDateDayPart = norlogeRef.m_refDateDayPart;
-	m_refDateHourPart = norlogeRef.m_refDateHourPart;
-	m_refDateMinutePart = norlogeRef.m_refDateMinutePart;
-	m_refDateSecondPart = norlogeRef.m_refDateSecondPart;
-	m_refDateIndexPart = norlogeRef.m_refDateIndexPart;
 	m_listPostTarget.append(norlogeRef.m_listPostTarget);
 
 	m_dstBouchot = norlogeRef.m_dstBouchot;
@@ -101,7 +98,8 @@ QQNorlogeRef::QQNorlogeRef(const QQNorlogeRef & norlogeRef) :
 	m_posInMessage = norlogeRef.m_posInMessage;
 
 	m_valid = norlogeRef.m_valid;
-	m_hasDate = norlogeRef.m_hasDate;;
+	m_hasDate = norlogeRef.m_hasDate;
+	m_hasSec = norlogeRef.m_hasSec;
 
 	m_isReponseDefined = norlogeRef.m_isReponseDefined;
 	m_isResponse = norlogeRef.m_isResponse;
@@ -118,21 +116,23 @@ QString QQNorlogeRef::dstNorloge() const
 
 	if(m_hasDate)
 	{
-		dstNorloge.append((m_refDateYearPart.size() > 0) ? m_refDateYearPart : m_dateYearPart );
-		dstNorloge.append((m_refDateMonthPart.size() > 0) ? m_refDateMonthPart : m_dateMonthPart );
-		dstNorloge.append((m_refDateDayPart.size() > 0) ? m_refDateDayPart : m_dateDayPart );
+		dstNorloge.append(m_dateYearPart);
+		dstNorloge.append(m_dateMonthPart);
+		dstNorloge.append(m_dateDayPart);
 	}
-	dstNorloge.append((m_refDateHourPart.size() > 0) ? m_refDateHourPart : m_dateHourPart );
-	dstNorloge.append((m_refDateMinutePart.size() > 0) ? m_refDateMinutePart : m_dateMinutePart );
-	dstNorloge.append((m_refDateSecondPart.size() > 0) ? m_refDateSecondPart : m_dateSecondPart );
-	//dstNorloge.append((m_refDateSecondPart.size() > 0) ? m_refDateSecondPart : QString::fromAscii("") );
-	//dstNorloge.append((m_refDateIndexPart > 0) ? QString::fromAscii("^").append(QString::number(m_refDateIndexPart)) : QString::fromAscii("") );
+	dstNorloge.append(m_dateHourPart);
+	dstNorloge.append(m_dateMinutePart);
+	if(m_hasSec)
+		dstNorloge.append(m_dateSecondPart);
 
 	return dstNorloge;
 }
 
 bool QQNorlogeRef::matchesPost(QQPost * post)
 {
+	if(! m_valid)
+		return false;
+
 	bool found = false;
 	for(int i = 0; i < m_listPostTarget.size(); i++ )
 	{
@@ -151,15 +151,11 @@ bool QQNorlogeRef::matchesPost(QQPost * post)
 		{
 			QString postN = post->norloge();
 			QString dstN = dstNorloge();
-			if(m_hasDate && (postN.startsWith(dstN)))
+			if(postN.endsWith(dstN))
 			{
-				m_listPostTarget.append(QPointer<QQPost>(post));
-				found = true;
-			}
-			else if(postN.endsWith(dstN))
-			{
-				if(m_refDateIndexPart == 0 ||
-				   (m_refDateIndexPart == post->norlogeIndex()))
+				//qDebug() << "QNorlogeRef::matchesPost : " << m_norlogeIndex << ", " << post->norlogeIndex();
+				if(m_norlogeIndex == 0 ||
+				   (m_norlogeIndex == post->norlogeIndex()))
 				{
 					m_listPostTarget.append(QPointer<QQPost>(post));
 					found = true;
@@ -173,7 +169,7 @@ bool QQNorlogeRef::matchesPost(QQPost * post)
 
 bool QQNorlogeRef::matchesNRef(const QQNorlogeRef & other)
 {
-	if(!this->isValid() || ! other.isValid())
+	if(! m_valid || ! other.isValid())
 		return false;
 
 	if(QString::compare(this->dstBouchot(), other.dstBouchot()) != 0)
@@ -187,7 +183,9 @@ bool QQNorlogeRef::matchesNRef(const QQNorlogeRef & other)
 	else if(! selfNorloge.endsWith(otherNorloge))
 		return false;
 
-	if(m_refDateIndexPart != 0 && other.m_refDateIndexPart != 0 && m_refDateIndexPart != other.m_refDateIndexPart)
+	if(m_norlogeIndex != 0 && m_norlogeIndex != other.m_norlogeIndex)
+		 return false;
+	else if(m_norlogeIndex != 0 && other.m_norlogeIndex != 0 && m_norlogeIndex != other.m_norlogeIndex)
 		return false;
 
 	return true;

@@ -220,10 +220,9 @@ void QQTextBrowser::mouseMoveEvent(QMouseEvent * event)
 			QPointer<QQPost> post = blockData->post();
 			Q_ASSERT(!post.isNull());
 			QString norlogeString = post->norloge();
-			QString norlogeRefString = norlogeString;
-			norlogeRefString.append(":").append(QString::number(post->norlogeIndex()));
 			QQNorlogeRef nRef = QQNorlogeRef(post->bouchot()->name(),
-											 norlogeString, norlogeRefString);
+											 norlogeString, norlogeString);
+			nRef.setNorlogeIndex(post->norlogeIndex());
 			highlightNorloge(nRef);
 		}
 		else
