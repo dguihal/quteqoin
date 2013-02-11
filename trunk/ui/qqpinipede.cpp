@@ -219,8 +219,9 @@ void QQPinipede::printPostAtCursor(QTextCursor & cursor, QQPost * post)
 	data->setPost(post);
 
 	int textLen = 0;
-	QFontMetrics * fm;
-	int tabStopWidth = m_textBrowserHash.value(post->bouchot()->settings().group())->tabStopWidth();
+	QQTextBrowser * browser = m_textBrowserHash.value(post->bouchot()->settings().group());
+	QFontMetrics fm = browser->fontMetrics();
+	int tabStopWidth = browser->tabStopWidth();
 
 	//norloge
 
@@ -236,15 +237,11 @@ void QQPinipede::printPostAtCursor(QTextCursor & cursor, QQPost * post)
 	rangeNorloge.end = cursor.positionInBlock();
 	data->setZRange(QQMessageBlockUserData::NORLOGE, rangeNorloge);
 
-	fm = new QFontMetrics(norlogeFormat.font(), NULL);
-	textLen += fm->size(Qt::TextSingleLine | Qt::TextExpandTabs, txt).width();
-	delete fm;
+	textLen += fm.size(Qt::TextSingleLine | Qt::TextExpandTabs, txt).width();
 
 	cursor.insertText(QString::fromUtf8(" "), defaultFormat);
 
-	fm = new QFontMetrics(defaultFormat.font(), NULL);
-	textLen += fm->size(Qt::TextSingleLine | Qt::TextExpandTabs," ").width();
-	delete fm;
+	textLen += fm.size(Qt::TextSingleLine | Qt::TextExpandTabs," ").width();
 
 
 	//login ou ua
@@ -277,10 +274,9 @@ void QQPinipede::printPostAtCursor(QTextCursor & cursor, QQPost * post)
 
 #define PINI_MSG_START_SHIFT 150
 
-	fm = new QFontMetrics(loginUaFormat.font(), NULL);
-	if(textLen + fm->size(Qt::TextSingleLine | Qt::TextExpandTabs, txt).width() > PINI_MSG_START_SHIFT)
+	if(textLen + fm.size(Qt::TextSingleLine | Qt::TextExpandTabs, txt).width() > PINI_MSG_START_SHIFT)
 	{
-		txt = fm->elidedText(txt, Qt::ElideRight, PINI_MSG_START_SHIFT - textLen);
+		txt = fm.elidedText(txt, Qt::ElideRight, PINI_MSG_START_SHIFT - textLen);
 		txt.append("\t");
 	}
 	else
@@ -288,9 +284,8 @@ void QQPinipede::printPostAtCursor(QTextCursor & cursor, QQPost * post)
 		do
 		{
 			txt.append("\t");
-		} while(textLen + fm->size(Qt::TextSingleLine | Qt::TextExpandTabs, txt).width() < PINI_MSG_START_SHIFT - tabStopWidth);
+		} while(textLen + fm.size(Qt::TextSingleLine | Qt::TextExpandTabs, txt).width() < PINI_MSG_START_SHIFT - tabStopWidth);
 	}
-	delete fm;
 
 #undef PINI_MSG_START_SHIFT
 
