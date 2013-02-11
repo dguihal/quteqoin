@@ -4,9 +4,10 @@
 #include "core/qqpost.h"
 #include "ui/qqmessageblockuserdata.h"
 
+#include <QtDebug>
 #include <QApplication>
 #include <QCursor>
-#include <QtDebug>
+#include <QFontMetrics>
 #include <QMouseEvent>
 #include <QPainter>
 #include <QScrollBar>
@@ -158,7 +159,7 @@ void QQTextBrowser::mouseMoveEvent(QMouseEvent * event)
 	//qDebug() << "####################################";
 	QTextEdit::mouseMoveEvent(event);
 
-	if( anchorAt(event->pos()).length() > 0 )
+	if(anchorAt(event->pos()).length() > 0)
 		viewport()->setCursor(Qt::PointingHandCursor);
 	else if (! m_mouseClick)
 		viewport()->setCursor(Qt::ArrowCursor);
@@ -166,13 +167,10 @@ void QQTextBrowser::mouseMoveEvent(QMouseEvent * event)
 	//Est-on au dessus d'une url
 	// Ouverture l'url si on est au dessus d'un lien
 	QString httpAnchor = anchorAt(event->pos());
-	if( httpAnchor.length() > 0 )
+	if(httpAnchor.length() > 0)
 	{
-		QString text = httpAnchor.left(64);
-		if(httpAnchor.length() > 64)
-			text.append(QString::fromAscii("..."));
-
-		QToolTip::showText(event->globalPos(), text, this);
+		QFontMetrics fm(QToolTip::font());
+		QToolTip::showText(event->globalPos(), fm.elidedText(httpAnchor, Qt::ElideRight, 400), this);
 		return;
 	}
 
@@ -222,9 +220,10 @@ void QQTextBrowser::mouseMoveEvent(QMouseEvent * event)
 			QPointer<QQPost> post = blockData->post();
 			Q_ASSERT(!post.isNull());
 			QString norlogeString = post->norloge();
+			QString norlogeRefString = norlogeString;
+			norlogeRefString.append(":").append(QString::number(post->norlogeIndex()));
 			QQNorlogeRef nRef = QQNorlogeRef(post->bouchot()->name(),
-											 norlogeString, norlogeString,
-											 post->norlogeIndex());
+											 norlogeString, norlogeRefString);
 			highlightNorloge(nRef);
 		}
 		else
@@ -378,7 +377,7 @@ void QQTextBrowser::paintEvent(QPaintEvent * event)
 	bigornoPainter.setRenderHint(QPainter::Antialiasing, true);
 	QColor bigornoBrushColor(60, 0, 0, 100);
 	bigornoPainter.setBrush(QBrush(bigornoBrushColor));
-	QColor  bigornoPenColor(150, 0, 0);
+	QColor bigornoPenColor(150, 0, 0);
 	bigornoPainter.setPen(QPen(QBrush(bigornoPenColor), 0.6));
 
 	// Recuperation du premier bloc a dessiner
@@ -433,4 +432,10 @@ void QQTextBrowser::resizeEvent(QResizeEvent * event)
 
 	QRect cr = contentsRect();
 	m_notifArea->setGeometry(QRect(cr.left(), cr.top(), notifAreaWidth(), cr.height()));
+}
+
+void QQTextBrowser::wheelEvent(QWheelEvent * event)
+{
+	if(! (event->modifiers() && Qt::ControlModifier != 0))
+		QTextEdit::wheelEvent(event);
 }
