@@ -43,7 +43,6 @@ public:
 					   QRegExp::RegExp);
 	}
 
-	int getNorlogeRefIndex() const { return m_refDateIndexPart; }
 	QString getOrigNRef() const { return m_origNRef; }
 	int getPosInMessage() const { return m_posInMessage; }
 
@@ -67,14 +66,6 @@ public:
 	}
 
 private:
-	QString m_refDateYearPart;
-	QString m_refDateMonthPart;
-	QString m_refDateDayPart;
-	QString m_refDateHourPart;
-	QString m_refDateMinutePart;
-	QString m_refDateSecondPart;
-	int m_refDateIndexPart;
-
 	QString m_dstBouchot;
 
 	QString m_origNRef;
@@ -85,6 +76,7 @@ private:
 	bool m_valid;
 
 	bool m_hasDate;
+	bool m_hasSec;
 
 	bool m_isReponseDefined;
 	bool m_isResponse;

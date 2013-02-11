@@ -456,7 +456,7 @@ unsigned int QQPinipede::insertPostToList(QList<QQPost *> *listPosts, QQPost *po
 				listPosts->at(i)->bouchot()->name().compare(post->bouchot()->name()) == 0)
 		{
 			listPosts->at(i)->setNorlogeMultiple(true);
-			post->incrIndex();
+			post->setNorlogeIndex(listPosts->at(i)->norlogeIndex() + 1);
 		}
 	}
 	listPosts->append(post);
