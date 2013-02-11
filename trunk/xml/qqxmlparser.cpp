@@ -16,6 +16,7 @@
 
 #include "qqxmlparser.h"
 
+#include <QtDebug>
 #include <QTextDocument>
 
 //
@@ -25,6 +26,7 @@ QQXmlParser::QQXmlParser()
 	m_currentPost.reset();
 	m_typeSlip = QQBouchot::SlipTagsEncoded;
 	m_lastId = 0;
+	m_isInCData = false;
 }
 
 //
@@ -64,14 +66,23 @@ bool QQXmlParser::warning(const QXmlParseException & exception)
 bool QQXmlParser::characters(const QString & ch)
 {
 	//	qDebug() << "QQXmlParser::characters ;; " << ch << endl;
-	if((m_elementNames.top() == "info") ||
+	if(m_isInCData)
+	{
+		m_tmpString.append(ch);
+	}
+	else if((m_elementNames.top() == "info") ||
 	   (m_elementNames.top() == "message") ||
 	   (m_elementNames.top() == "login"))
 	{
-		QString tmp = ch;
 		if (m_typeSlip == QQBouchot::SlipTagsRaw)
-			tmp.replace("&","&amp;").replace(">","&gt;").replace("<","&lt;");
-		m_tmpString.append(tmp);
+		{
+			QString tmp = ch;
+			m_tmpString.append(tmp.replace("&","&amp;").replace(">","&gt;").replace("<","&lt;"));
+		}
+		else
+		{
+			m_tmpString.append(ch);
+		}
 	}
 	return true;
 }
