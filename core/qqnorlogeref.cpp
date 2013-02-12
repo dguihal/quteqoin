@@ -183,9 +183,9 @@ bool QQNorlogeRef::matchesNRef(const QQNorlogeRef & other)
 	else if(! selfNorloge.endsWith(otherNorloge))
 		return false;
 
-	if(m_norlogeIndex != 0 && m_norlogeIndex != other.m_norlogeIndex)
-		 return false;
-	else if(m_norlogeIndex != 0 && other.m_norlogeIndex != 0 && m_norlogeIndex != other.m_norlogeIndex)
+	else if(m_norlogeIndex != 0 &&
+			other.m_norlogeIndex != 0 &&
+			m_norlogeIndex != other.m_norlogeIndex)
 		return false;
 
 	return true;
