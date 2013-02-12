@@ -32,7 +32,6 @@ MainWindow::MainWindow(QWidget *parent) :
 	m_palmi = new QQPalmipede(this);
 	m_palmi->setAllowedAreas(Qt::TopDockWidgetArea |
 							 Qt::BottomDockWidgetArea);
-	m_palmi->setVisible(true);
 	addDockWidget(Qt::BottomDockWidgetArea, m_palmi, Qt::Horizontal);
 
 	m_totozManager = new QQTotozManager(m_settings, this);
@@ -68,6 +67,9 @@ MainWindow::MainWindow(QWidget *parent) :
 	if(m_settings->contains(SETTINGS_QQMAINWINDOW_STATE))
 		restoreState(m_settings->value(SETTINGS_QQMAINWINDOW_STATE).toByteArray());
 
+	//Special euro<
+	// s'assurer que le palmi est visible
+	m_palmi->setVisible(true);
 	m_palmi->setFocus(Qt::OtherFocusReason);
 
 	m_settings->startBouchots();
