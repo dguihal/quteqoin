@@ -352,8 +352,11 @@ void QQTextBrowser::mouseReleaseEvent(QMouseEvent * event)
 		{
 			Q_ASSERT(blockData->post() != NULL);
 
-			QQNorloge norloge(blockData->post()->bouchot()->name(),
-							  blockData->post()->norloge());
+			QQPost * post = blockData->post();
+			QQNorloge norloge(post->bouchot()->name(),
+							  post->norloge());
+			if(post->isNorlogeMultiple())
+				norloge.setNorlogeIndex(post->norlogeIndex());
 			emit norlogeClicked(norloge);
 		}
 		else if(blockData->isIndexInZRange(cursor.positionInBlock(),
