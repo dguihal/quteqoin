@@ -8,6 +8,7 @@
 #include <QApplication>
 #include <QCursor>
 #include <QFontMetrics>
+#include <QMenu>
 #include <QMouseEvent>
 #include <QPainter>
 #include <QScrollBar>
@@ -440,4 +441,16 @@ void QQTextBrowser::wheelEvent(QWheelEvent * event)
 {
 	if(! (event->modifiers() && Qt::ControlModifier != 0))
 		QTextEdit::wheelEvent(event);
+}
+
+void QQTextBrowser::contextMenuEvent(QContextMenuEvent * ev)
+{
+	if(m_displayedTotozId.size() > 0)
+	{
+		QPoint pos = ev->globalPos();
+		emit displayTotozContextMenu(pos);
+		ev->accept();
+	}
+	else
+		QTextEdit::contextMenuEvent(ev);
 }

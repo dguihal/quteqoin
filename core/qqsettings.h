@@ -13,10 +13,13 @@ class QAuthenticator;
 class QSettings;
 class QString;
 
-#define SETTINGS_QQMAINWINDOW_STATE "mainwindow_state"
-#define SETTINGS_QQMAINWINDOW_GEOMETRY "mainwindow_geometry"
+#define SETTINGS_MAINWINDOW_STATE "mainwindow_state"
+#define SETTINGS_MAINWINDOW_GEOMETRY "mainwindow_geometry"
 
-#define SETTINGS_QQTOTOZ_BOOKMARKLIST "totoz_bookmarklist"
+#define SETTINGS_TOTOZ_BOOKMARKLIST "totoz_bookmarklist"
+
+#define SETTINGS_TOTOZ_SERVER_URL "totoz_server_url"
+#define DEFAULT_TOTOZ_SERVER_URL "http://totoz.eu/gif/"
 
 class QQSettings : public QSettings
 {
@@ -34,8 +37,6 @@ public:
 	void setDefaultUA(const QString & defaultUA) { m_defaultUA = defaultUA; }
 	QString defaultUA();
 
-	void setTotozServerUrl(const QString & totozServerUrl) { m_totozServerUrl = totozServerUrl; }
-	QString totozServerUrl() { return m_totozServerUrl; }
 	void setTotozServerAllowSearch(const bool totozServerAllowSearch) { m_totozServerAllowSearch = totozServerAllowSearch; }
 	bool totozServerAllowSearch() { return m_totozServerAllowSearch; }
 	void setTotozQueryPattern(const QString & totozQueryPattern) { m_totozQueryPattern = totozQueryPattern; }
@@ -73,9 +74,6 @@ public:
 	void setPalmiMinimized(bool palmiMini) { m_palmiMini = palmiMini; }
 	bool palmiMinimized() { return m_palmiMini; }
 
-signals:
-	void totozServerUrlChanged(const QString & newTotozUrl);
-
 public slots:
 	bool readSettings();
 	bool saveSettings();
@@ -86,7 +84,6 @@ private:
 	QString m_defaultUA;
 	QString m_defaultLogin;
 
-	QString m_totozServerUrl;
 	bool m_totozServerAllowSearch;
 	QString m_totozQueryPattern;
 	TotozMode m_totozMode;

@@ -9,19 +9,17 @@
 #include <QNetworkReply>
 #include <QUrl>
 
-QQTotozDownloader::QQTotozDownloader(QQSettings * settings) :
-	QQNetworkAccessor(settings)
-{
-	m_totozServerUrl = settings->totozServerUrl();
-}
-
 void QQTotozDownloader::fetchTotoz(QString & totozId)
 {
 	// si l'id est valide et que l'on ne l'a pas déjà téléchargé dans le cache
 	// TODO : Une expiration du cache, voire un if-modified-since !!!!
 	if(totozId.length() > 0 && ! QQTotoz::cacheExists(totozId))
 	{
-		QString queryUrl = m_totozServerUrl;
+		QQSettings settings;
+		QString queryUrl = DEFAULT_TOTOZ_SERVER_URL;
+		if(settings.contains(SETTINGS_TOTOZ_SERVER_URL))
+			queryUrl = settings.value(SETTINGS_TOTOZ_SERVER_URL).toString();
+
 		queryUrl.append("/").append(totozId);
 		QUrl url(queryUrl);
 
@@ -32,11 +30,6 @@ void QQTotozDownloader::fetchTotoz(QString & totozId)
 		QNetworkReply * reply = httpGet(request);
 		m_totozIdReplyHash.insert(reply, totozId);
 	}
-}
-
-void QQTotozDownloader::serverURLchanged(const QString &newUrl)
-{
-	m_totozServerUrl = newUrl;
 }
 
 void QQTotozDownloader::requestFinishedSlot(QNetworkReply * reply)

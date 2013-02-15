@@ -98,6 +98,35 @@ void QQTotozViewer::updateImg()
 	}
 }
 
+void QQTotozViewer::displayContextMenu(QPoint & pos)
+{
+	QMenu menu(this);
+	QString actBookmAddStr("Add to bookmarks");
+	QString actBookmRemStr("Remove from bookmarks");
+	if(m_bookmarkAddEnabled)
+		menu.addAction(actBookmAddStr);
+	if(m_bookmarkRemEnabled)
+		menu.addAction(actBookmRemStr);
+
+	QString actSendPalmiStr("Send to palmi");
+	menu.addAction(actSendPalmiStr);
+
+	QAction * actionTriggered = NULL;
+	if( (actionTriggered = menu.exec(pos)) != NULL )
+	{
+		QString text = actionTriggered->text();
+		if(text == actBookmAddStr)
+			emit totozBookmarkAct(m_totozId, QQTotoz::ADD);
+		else if(text == actBookmRemStr)
+			emit totozBookmarkAct(m_totozId, QQTotoz::REMOVE);
+		else if(text == actSendPalmiStr)
+			emit totozClicked(getAnchor());
+		else
+			qWarning() << "Unknown action triggered";
+	}
+
+}
+
 void QQTotozViewer::totozAvailable(QString & totozId, bool success)
 {
 	if(totozId == m_totozId)
@@ -141,31 +170,9 @@ void QQTotozViewer::contextMenuEvent(QContextMenuEvent * ev)
 	//QLabel::contextMenuEvent(ev);
 
 	ev->accept();
+	QPoint pos = ev->globalPos();
 
-	QMenu menu(this);
-	QString actBookmAddStr("Add to bookmarks");
-	QString actBookmRemStr("Remove from bookmarks");
-	if(m_bookmarkAddEnabled)
-		menu.addAction(actBookmAddStr);
-	if(m_bookmarkRemEnabled)
-		menu.addAction(actBookmRemStr);
-
-	QString actSendPalmiStr("Send to palmi");
-	menu.addAction(actSendPalmiStr);
-
-	QAction * actionTriggered = NULL;
-	if( (actionTriggered = menu.exec(ev->globalPos())) != NULL )
-	{
-		QString text = actionTriggered->text();
-		if(text == actBookmAddStr)
-			emit totozBookmarkAct(m_totozId, QQTotoz::ADD);
-		else if(text == actBookmRemStr)
-			emit totozBookmarkAct(m_totozId, QQTotoz::REMOVE);
-		else if(text == actSendPalmiStr)
-			emit totozClicked(getAnchor());
-		else
-			qWarning() << "Unknown action triggered";
-	}
+	displayContextMenu(pos);
 }
 
 void QQTotozViewer::displayText(QString text)

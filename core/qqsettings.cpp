@@ -19,7 +19,6 @@
 #define DEFAULT_TOTOZ_SERVER_ALLOW_SEARCH 1
 #define DEFAULT_TOTOZ_MODE QQSettings::Bald_Mode
 #define DEFAULT_TOTOZ_QUERY_PATTERN "search.xml?terms=%t&offset=%o"
-#define DEFAULT_TOTOZ_SERVER_URL "http://totoz.eu/gif/"
 #define DEFAULT_PALMI_MINI "0"
 
 QQSettings::QQSettings(QObject * parent) :
@@ -31,7 +30,6 @@ QQSettings::QQSettings(QObject * parent) :
 
 	m_totozQueryPattern = QString(DEFAULT_TOTOZ_QUERY_PATTERN);
 	m_totozServerAllowSearch = DEFAULT_TOTOZ_SERVER_ALLOW_SEARCH;
-	m_totozServerUrl = QString(DEFAULT_TOTOZ_SERVER_URL);
 	m_totozMode = DEFAULT_TOTOZ_MODE;
 
 	readSettings();
@@ -145,11 +143,6 @@ bool QQSettings::readSettings()
 							 QVariant(DEFAULT_PALMI_MINI))
 					  .toBool());
 
-	QString totozUrl = value("totoz_server_url",
-							  QVariant(DEFAULT_TOTOZ_SERVER_URL))
-					   .toString();
-	setTotozServerUrl(totozUrl);
-
 	setTotozServerAllowSearch(value("totoz_serveur_allow_search",
 									 QVariant(DEFAULT_TOTOZ_SERVER_ALLOW_SEARCH))
 							  .toBool());
@@ -221,8 +214,6 @@ bool QQSettings::saveSettings()
 					  QVariant(m_defaultUA));
 	setValue(QString::fromAscii("palmi_minimized"),
 					  QVariant(m_palmiMini));
-	setValue(QString::fromAscii("totoz_server_url"),
-					  QVariant(m_totozServerUrl));
 	setValue(QString::fromAscii("totoz_serveur_allow_search"),
 					  QVariant(m_totozServerAllowSearch));
 	setValue(QString::fromAscii("totoz_query_pattern"),
