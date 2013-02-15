@@ -25,7 +25,6 @@ public:
 
 public slots:
 	void displayOptions();
-	void displayTotozM();
 	void doPostMessage(const QString & bouchot, const QString & message);
 	void doTriggerMiniPalmi();
 	void doTriggerMaxiPalmi();

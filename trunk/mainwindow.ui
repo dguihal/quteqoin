@@ -56,9 +56,7 @@
     <property name="title">
      <string>&amp;Tools</string>
     </property>
-    <addaction name="separator"/>
     <addaction name="actionOptions"/>
-    <addaction name="actionTotoz"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="displayMenu"/>

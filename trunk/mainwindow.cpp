@@ -35,11 +35,14 @@ MainWindow::MainWindow(QWidget *parent) :
 	addDockWidget(Qt::BottomDockWidgetArea, m_palmi, Qt::Horizontal);
 
 	m_totozManager = new QQTotozManager(m_settings, this);
-	connect(m_totozManager, SIGNAL(totozClicked(QString)), m_palmi, SLOT(insertReplaceText(QString)));
 	m_totozManager->setAllowedAreas(Qt::LeftDockWidgetArea |
 									Qt::RightDockWidgetArea);
 	m_totozManager->setVisible(false);
+	connect(m_totozManager, SIGNAL(totozClicked(QString)), m_palmi, SLOT(insertReplaceText(QString)));
 	addDockWidget(Qt::RightDockWidgetArea, m_totozManager, Qt::Vertical);
+
+	QAction * actionTotozManager = m_totozManager->toggleViewAction();
+	m_ui->toolsMenu->addAction(actionTotozManager);
 
 	QList<QQBouchot *> bouchots = m_settings->listBouchots();
 	for(int i = 0; i < bouchots.size(); i++)
@@ -49,14 +52,13 @@ MainWindow::MainWindow(QWidget *parent) :
 	connect(m_pini, SIGNAL(insertTextPalmi(QString)), m_palmi, SLOT(insertReplaceText(QString)));
 
 	connect(m_palmi, SIGNAL(postMessage(QString,QString)), this, SLOT(doPostMessage(QString,QString)));
-	connect(m_ui->actionOptions, SIGNAL(triggered()), this, SLOT(displayOptions()));
-	connect(m_ui->actionTotoz, SIGNAL(triggered()), this, SLOT(displayTotozM()));
 	connect(m_ui->actionEnregistrer_parametres, SIGNAL(triggered()), m_settings, SLOT(saveSettings()));
 	connect(m_ui->actionQuit, SIGNAL(triggered()), this, SLOT(close()));
-	connect(this->m_ui->actionEtendu, SIGNAL(triggered()), this, SLOT(doTriggerMaxiPalmi()));
-	connect(this->m_ui->actionMinimal, SIGNAL(triggered()), this, SLOT(doTriggerMiniPalmi()));
-	connect(this->m_ui->actionEtendu, SIGNAL(triggered()), this->m_palmi, SLOT(maximizePalmi()));
-	connect(this->m_ui->actionMinimal, SIGNAL(triggered()), this->m_palmi, SLOT(minimizePalmi()));
+	connect(m_ui->actionEtendu, SIGNAL(triggered()), this, SLOT(doTriggerMaxiPalmi()));
+	connect(m_ui->actionMinimal, SIGNAL(triggered()), this, SLOT(doTriggerMiniPalmi()));
+	connect(m_ui->actionEtendu, SIGNAL(triggered()), m_palmi, SLOT(maximizePalmi()));
+	connect(m_ui->actionMinimal, SIGNAL(triggered()), m_palmi, SLOT(minimizePalmi()));
+	connect(m_ui->actionOptions, SIGNAL(triggered()), this, SLOT(displayOptions()));
 
 	if(m_settings->palmiMinimized())
 		this->m_ui->actionMinimal->trigger();
@@ -178,13 +180,6 @@ void MainWindow::displayOptions()
 		}
 	}
 	m_settings->startBouchots();
-}
-
-void MainWindow::displayTotozM()
-{
-	m_totozManager->show();
-	m_totozManager->raise();
-	m_totozManager->activateWindow();
 }
 
 void MainWindow::doPostMessage(const QString & bouchot, const QString & message)
