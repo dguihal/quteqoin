@@ -148,9 +148,9 @@ void QQTotozManager::totozSearchFinished()
 void QQTotozManager::searchBookmarks(QString text)
 {
 	QStringList matchingTotozIds;
-	if(m_settings->contains(SETTINGS_QQTOTOZ_BOOKMARKLIST))
+	if(m_settings->contains(SETTINGS_TOTOZ_BOOKMARKLIST))
 	{
-		QStringList totozIds = m_settings->value(SETTINGS_QQTOTOZ_BOOKMARKLIST).toStringList();
+		QStringList totozIds = m_settings->value(SETTINGS_TOTOZ_BOOKMARKLIST).toStringList();
 		if(text.size() == 0)
 			matchingTotozIds << totozIds;
 		else
@@ -188,8 +188,8 @@ void QQTotozManager::totozSelected(QString anchor)
 void QQTotozManager::totozBookmarkDo(QString anchor, QQTotoz::TotozBookmarkAction action)
 {
 	QStringList totozIds;
-	if(m_settings->contains(SETTINGS_QQTOTOZ_BOOKMARKLIST))
-		totozIds = m_settings->value(SETTINGS_QQTOTOZ_BOOKMARKLIST).toStringList();
+	if(m_settings->contains(SETTINGS_TOTOZ_BOOKMARKLIST))
+		totozIds = m_settings->value(SETTINGS_TOTOZ_BOOKMARKLIST).toStringList();
 
 	bool modified = false;
 	if(totozIds.contains(anchor, Qt::CaseInsensitive))
@@ -197,7 +197,7 @@ void QQTotozManager::totozBookmarkDo(QString anchor, QQTotoz::TotozBookmarkActio
 		if(action == QQTotoz::REMOVE)
 		{
 			totozIds.removeAll(anchor);
-			m_settings->setValue(SETTINGS_QQTOTOZ_BOOKMARKLIST, totozIds);
+			m_settings->setValue(SETTINGS_TOTOZ_BOOKMARKLIST, totozIds);
 			modified = true;
 		}
 	}
@@ -206,7 +206,7 @@ void QQTotozManager::totozBookmarkDo(QString anchor, QQTotoz::TotozBookmarkActio
 		if(action == QQTotoz::ADD)
 		{
 			totozIds.append(anchor);
-			m_settings->setValue(SETTINGS_QQTOTOZ_BOOKMARKLIST, totozIds);
+			m_settings->setValue(SETTINGS_TOTOZ_BOOKMARKLIST, totozIds);
 			modified = true;
 		}
 	}
@@ -218,10 +218,10 @@ void QQTotozManager::totozBookmarkDo(QString anchor, QQTotoz::TotozBookmarkActio
 void QQTotozManager::fillBookmarks()
 {
 	QStringList totozIds;
-	if(m_settings->contains(SETTINGS_QQTOTOZ_BOOKMARKLIST))
-		totozIds = m_settings->value(SETTINGS_QQTOTOZ_BOOKMARKLIST).toStringList();
+	if(m_settings->contains(SETTINGS_TOTOZ_BOOKMARKLIST))
+		totozIds = m_settings->value(SETTINGS_TOTOZ_BOOKMARKLIST).toStringList();
 	else
-		m_settings->setValue(SETTINGS_QQTOTOZ_BOOKMARKLIST, totozIds);
+		m_settings->setValue(SETTINGS_TOTOZ_BOOKMARKLIST, totozIds);
 
 	createViewer(ui->bookmarkScrollArea, totozIds, QQTotoz::REMOVE);
 }

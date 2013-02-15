@@ -17,7 +17,8 @@ class QQTotozDownloader : public QQNetworkAccessor
 	Q_OBJECT
 
 public:
-	explicit QQTotozDownloader(QQSettings * settings);
+	explicit QQTotozDownloader(QQSettings * settings) :
+		QQNetworkAccessor(settings) {}
 
 signals:
 
@@ -28,11 +29,9 @@ signals:
 	void fetchTotozFinished(QString & totozId, bool success);
 
 protected slots:
-	void serverURLchanged(const QString & newUrl);
 	void requestFinishedSlot(QNetworkReply* reply);
 
 private:
-	QString m_totozServerUrl;
 	QHash<QNetworkReply *, QString> m_totozIdReplyHash;
 };
 

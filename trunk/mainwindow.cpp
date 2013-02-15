@@ -45,6 +45,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	for(int i = 0; i < bouchots.size(); i++)
 		initBouchot(bouchots.at(i));
 
+	m_pini->setTotozManager(m_totozManager);
 	connect(m_pini, SIGNAL(insertTextPalmi(QString)), m_palmi, SLOT(insertReplaceText(QString)));
 
 	connect(m_palmi, SIGNAL(postMessage(QString,QString)), this, SLOT(doPostMessage(QString,QString)));
@@ -62,10 +63,10 @@ MainWindow::MainWindow(QWidget *parent) :
 	else
 		this->m_ui->actionEtendu->trigger();
 
-	if(m_settings->contains(SETTINGS_QQMAINWINDOW_GEOMETRY))
-		restoreGeometry(m_settings->value(SETTINGS_QQMAINWINDOW_GEOMETRY).toByteArray());
-	if(m_settings->contains(SETTINGS_QQMAINWINDOW_STATE))
-		restoreState(m_settings->value(SETTINGS_QQMAINWINDOW_STATE).toByteArray());
+	if(m_settings->contains(SETTINGS_MAINWINDOW_GEOMETRY))
+		restoreGeometry(m_settings->value(SETTINGS_MAINWINDOW_GEOMETRY).toByteArray());
+	if(m_settings->contains(SETTINGS_MAINWINDOW_STATE))
+		restoreState(m_settings->value(SETTINGS_MAINWINDOW_STATE).toByteArray());
 
 	//Special euro<
 	// s'assurer que le palmi est visible
@@ -91,7 +92,10 @@ void MainWindow::displayOptions()
 	QQSettingsDialog settingsDialog(this);
 	settingsDialog.setDefaultUA(m_settings->defaultUA());
 	settingsDialog.setDefaultLogin(m_settings->defaultLogin());
-	settingsDialog.setTotozServerUrl(m_settings->totozServerUrl());
+	if(m_settings->contains(SETTINGS_TOTOZ_SERVER_URL))
+		settingsDialog.setTotozServerUrl(m_settings->value(SETTINGS_TOTOZ_SERVER_URL).toString());
+	else
+		settingsDialog.setTotozServerUrl(DEFAULT_TOTOZ_SERVER_URL);
 	settingsDialog.setTotozServerAllowSearch(m_settings->totozServerAllowSearch());
 	settingsDialog.setTotozQueryPattern(m_settings->totozQueryPattern());
 	settingsDialog.setTotozMode(m_settings->totozMode());
@@ -111,7 +115,7 @@ void MainWindow::displayOptions()
 	{
 		m_settings->setDefaultUA(settingsDialog.defaultUA());
 		m_settings->setDefaultLogin(settingsDialog.defaultLogin());
-		m_settings->setTotozServerUrl(settingsDialog.totozServerUrl());
+		m_settings->setValue(SETTINGS_TOTOZ_SERVER_URL, settingsDialog.totozServerUrl());
 		m_settings->setTotozServerAllowSearch(settingsDialog.totozServerAllowSearch());
 		m_settings->setTotozQueryPattern(settingsDialog.totozQueryPattern());
 		m_settings->setTotozMode((QQSettings::TotozMode) settingsDialog.totozMode());
@@ -220,8 +224,8 @@ void MainWindow::initBouchot(QQBouchot * bouchot)
 void MainWindow::closeEvent(QCloseEvent * event)
 {
 	QMainWindow::closeEvent(event);
-	m_settings->setValue(SETTINGS_QQMAINWINDOW_GEOMETRY, saveGeometry());
-	m_settings->setValue(SETTINGS_QQMAINWINDOW_STATE, saveState());
+	m_settings->setValue(SETTINGS_MAINWINDOW_GEOMETRY, saveGeometry());
+	m_settings->setValue(SETTINGS_MAINWINDOW_STATE, saveState());
 	m_settings->saveSettings();
 }
 

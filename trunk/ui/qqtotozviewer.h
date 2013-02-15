@@ -26,6 +26,7 @@ public:
 	void setTotozDownloader(QQTotozDownloader * downloader) { if(downloader != NULL) m_downloader = downloader; }
 
 public slots:
+	void displayContextMenu(QPoint & pos);
 	void totozAvailable(QString & totozId, bool success);
 
 signals:

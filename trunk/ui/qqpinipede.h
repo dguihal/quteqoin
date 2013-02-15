@@ -18,6 +18,7 @@ class QQBouchot;
 class QQSyntaxHighlighter;
 class QQSettings;
 class QQTextBrowser;
+class QQTotozManager;
 class QTextCursor;
 class QQPost;
 class QQTotozDownloader;
@@ -45,6 +46,8 @@ public:
 
 	QQPost * getPostForGroup(QString &groupName, int numPost);
 
+	void setTotozManager(QQTotozManager * ttManager);
+
 	void purgePinitabHistory(const QString & groupName);
 
 public slots:
@@ -68,6 +71,7 @@ private:
 
 	QQSettings * m_settings;
 	QQTotozDownloader * m_totozDownloader;
+	QQTotozManager * m_totozManager;
 	QQTextBrowser * m_tBrowserHighlighted;
 	QQTotozViewer * m_totozViewer;
 	QLabel * m_hiddenPostViewerLabel;

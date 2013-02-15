@@ -8,6 +8,7 @@
 #include "ui/qqpalmipede.h"
 #include "ui/qqsyntaxhighlighter.h"
 #include "ui/qqtextbrowser.h"
+#include "ui/qqtotozmanager.h"
 #include "ui/qqtotozviewer.h"
 
 #include <QtAlgorithms>
@@ -30,6 +31,8 @@ QQPinipede::QQPinipede(QQSettings * settings, QWidget * parent) :
 {
 	this->tabBar()->hide();
 
+	m_totozManager = NULL;
+
 	m_settings = settings;
 	m_totozDownloader = new QQTotozDownloader(m_settings);
 	m_tBrowserHighlighted = NULL;
@@ -45,12 +48,11 @@ QQPinipede::QQPinipede(QQSettings * settings, QWidget * parent) :
 	m_hiddenPostViewerLabel->hide();
 
 	m_totozViewer = new QQTotozViewer("", this);
+	m_totozViewer->hide();
 	m_totozViewer->setAttribute(Qt::WA_TransparentForMouseEvents);
 	m_totozViewer->setScaledContents(false);
 	m_totozViewer->setTotozDownloader(m_totozDownloader);
-	m_totozViewer->hide();
-	connect(m_settings, SIGNAL(totozServerUrlChanged(QString)),
-			m_totozDownloader, SLOT(serverURLchanged(QString)));
+	m_totozViewer->enableBookmarksAdd();
 }
 
 QQPinipede::~QQPinipede()
@@ -68,13 +70,8 @@ void QQPinipede::addPiniTab(const QString & groupName)
 	if( this->m_textBrowserHash.value(groupName) != NULL )
 		return;
 
-	QWidget * widget = new QWidget;
-	QVBoxLayout * layout = new QVBoxLayout(widget);
-	layout->setContentsMargins(0, 0, 0, 0);
-
 	QQTextBrowser * textBrowser = new QQTextBrowser(groupName, this);
-	layout->addWidget(textBrowser);
-	this->addTab(widget, groupName);
+	this->addTab(textBrowser, groupName);
 
 	m_textBrowserHash.insert(groupName, textBrowser);
 	//textBrowser->document() devient le proprietaire du highlighter
@@ -89,6 +86,7 @@ void QQPinipede::addPiniTab(const QString & groupName)
 	connect(textBrowser, SIGNAL(unHighlight()), this, SLOT(unHighlight()));
 	connect(textBrowser, SIGNAL(displayTotoz(QString &)), this, SLOT(showTotozViewer(QString &)));
 	connect(textBrowser, SIGNAL(concealTotoz()), this, SLOT(hideTotozViewer()));
+	connect(textBrowser, SIGNAL(displayTotozContextMenu(QPoint &)), m_totozViewer, SLOT(displayContextMenu(QPoint &)));
 
 	if (this->count() > 1)
 		this->tabBar()->show();
@@ -588,8 +586,9 @@ void QQPinipede::showTotozViewer(QString & totozId)
 	hideTotozViewer();
 
 	m_totozViewer->setTotozId(totozId);
+	m_totozViewer->setParent(currentWidget());
 
-	QPoint totozViewerPos = mapFromGlobal(QCursor::pos());
+	QPoint totozViewerPos = currentWidget()->mapFromGlobal(QCursor::pos());
 	QSize piniSize = size();
 	if(totozViewerPos.x() > (piniSize.width() / 2))
 		totozViewerPos.setX(totozViewerPos.x() - m_totozViewer->width() + 10);
@@ -607,6 +606,7 @@ void QQPinipede::showTotozViewer(QString & totozId)
 void QQPinipede::hideTotozViewer()
 {
 	m_totozViewer->hide();
+	m_totozViewer->setParent(this);
 }
 
 QQPost * QQPinipede::getPostForGroup(QString &groupName, int numPost)
@@ -619,6 +619,18 @@ QQPost * QQPinipede::getPostForGroup(QString &groupName, int numPost)
 	}
 
 	return NULL;
+}
+
+void QQPinipede::setTotozManager(QQTotozManager * ttManager)
+{
+	if(m_totozManager != NULL)
+		disconnect(m_totozManager);
+
+	m_totozManager = ttManager;
+
+	if(m_totozManager != NULL)
+		connect(m_totozViewer, SIGNAL(totozBookmarkAct(QString,QQTotoz::TotozBookmarkAction)),
+				m_totozManager, SLOT(totozBookmarkDo(QString,QQTotoz::TotozBookmarkAction)));
 }
 
 void QQPinipede::contextMenuEvent(QContextMenuEvent * ev)

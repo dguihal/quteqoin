@@ -118,8 +118,8 @@ void QQPalmiLineEdit::updateTotozCompleter()
 {
 	QQSettings settings;
 	QStringList bookmarkedTotozList;
-	if(settings.contains(SETTINGS_QQTOTOZ_BOOKMARKLIST))
-		bookmarkedTotozList << settings.value(SETTINGS_QQTOTOZ_BOOKMARKLIST).toStringList();
+	if(settings.contains(SETTINGS_TOTOZ_BOOKMARKLIST))
+		bookmarkedTotozList << settings.value(SETTINGS_TOTOZ_BOOKMARKLIST).toStringList();
 
 	QRegExp reg1("^");
 	bookmarkedTotozList.replaceInStrings(reg1, "[:");
