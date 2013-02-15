@@ -25,6 +25,8 @@ public:
 	void addBouchot(const QString & newBouchot, const QColor & newBouchotColor);
 	void removeBouchot(const QString & oldBouchot);
 
+	void setMinimal(bool minimal);
+
 signals:
 	void postMessage(const QString & bouchot, const QString & message);
 
@@ -36,7 +38,6 @@ protected:
 
 private:
 	void changeNorloges(const QString & bouchot);
-	void setMinimal(bool minimal);
 
 	Ui::QQPalmipede *ui;
 	QShortcut *blamShortcut;
@@ -61,8 +62,6 @@ private slots:
 	void insertBlam();
 	void insertPaf();
 	void postPushButtonClicked();
-	void minimizePalmi();
-	void maximizePalmi();
 };
 
 #endif // QQPALMIPEDE_H
