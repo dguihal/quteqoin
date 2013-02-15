@@ -5,8 +5,8 @@
 #include "core/totozmanager/qqtmrequester.h"
 #include "ui/qqtotozviewer.h"
 
-#include <QCursor>
 #include <QtDebug>
+#include <QCursor>
 #include <QLabel>
 #include <QGraphicsGridLayout>
 #include <QGraphicsView>
@@ -25,6 +25,9 @@ QQTotozManager::QQTotozManager(QQSettings * settings, QWidget *parent) :
 	ui(new Ui::QQTotozManager)
 {
 	setObjectName(TOTOZMANAGER_OBJECT_NAME);
+	setFeatures(QDockWidget::DockWidgetClosable |
+				QDockWidget::DockWidgetMovable |
+				QDockWidget::DockWidgetFloatable);
 
 	m_settings = settings;
 
@@ -145,6 +148,18 @@ void QQTotozManager::totozSearchFinished()
 	oldWidget->deleteLater();
 }
 
+void QQTotozManager::totozSearchCanceled()
+{
+	m_requester->cancel();
+
+	ui->cancelSearchButton->hide();
+
+	setCursor(QCursor(Qt::ArrowCursor));
+	ui->searchLineEdit->setCursor(QCursor(Qt::ArrowCursor));
+	ui->searchLineEdit->setStyleSheet("");
+
+}
+
 void QQTotozManager::searchBookmarks(QString text)
 {
 	QStringList matchingTotozIds;
@@ -165,18 +180,6 @@ void QQTotozManager::searchBookmarks(QString text)
 	}
 
 	createViewer(ui->bookmarkScrollArea, matchingTotozIds, QQTotoz::REMOVE);
-}
-
-void QQTotozManager::totozSearchCanceled()
-{
-	m_requester->cancel();
-
-	ui->cancelSearchButton->hide();
-
-	setCursor(QCursor(Qt::ArrowCursor));
-	ui->searchLineEdit->setCursor(QCursor(Qt::ArrowCursor));
-	ui->searchLineEdit->setStyleSheet("");
-
 }
 
 void QQTotozManager::totozSelected(QString anchor)
