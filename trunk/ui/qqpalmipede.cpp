@@ -73,15 +73,6 @@ void QQPalmipede::removeBouchot(const QString &oldBouchot)
 	}
 }
 
-void QQPalmipede::minimizePalmi()
-{
-	setMinimal(true);
-}
-
-void QQPalmipede::maximizePalmi()
-{
-	setMinimal(false);
-}
 void QQPalmipede::insertReplaceText(const QString & tag)
 {
 	QString t_tag = tag;

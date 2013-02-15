@@ -56,8 +56,6 @@ MainWindow::MainWindow(QWidget *parent) :
 	connect(m_ui->actionQuit, SIGNAL(triggered()), this, SLOT(close()));
 	connect(m_ui->actionEtendu, SIGNAL(triggered()), this, SLOT(doTriggerMaxiPalmi()));
 	connect(m_ui->actionMinimal, SIGNAL(triggered()), this, SLOT(doTriggerMiniPalmi()));
-	connect(m_ui->actionEtendu, SIGNAL(triggered()), m_palmi, SLOT(maximizePalmi()));
-	connect(m_ui->actionMinimal, SIGNAL(triggered()), m_palmi, SLOT(minimizePalmi()));
 	connect(m_ui->actionOptions, SIGNAL(triggered()), this, SLOT(displayOptions()));
 
 	if(m_settings->palmiMinimized())
@@ -198,6 +196,7 @@ void MainWindow::doTriggerMiniPalmi()
 	m_ui->actionMinimal->setChecked(true);
 
 	m_settings->setPalmiMinimized(true);
+	m_palmi->setMinimal(true);
 }
 
 void MainWindow::doTriggerMaxiPalmi()
@@ -206,6 +205,7 @@ void MainWindow::doTriggerMaxiPalmi()
 	m_ui->actionMinimal->setChecked(false);
 
 	m_settings->setPalmiMinimized(false);
+	m_palmi->setMinimal(false);
 }
 
 void MainWindow::initBouchot(QQBouchot * bouchot)
