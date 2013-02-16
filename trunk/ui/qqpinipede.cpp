@@ -53,6 +53,7 @@ QQPinipede::QQPinipede(QQSettings * settings, QWidget * parent) :
 	m_totozViewer->setScaledContents(false);
 	m_totozViewer->setTotozDownloader(m_totozDownloader);
 	m_totozViewer->enableBookmarksAdd();
+	connect(m_totozViewer, SIGNAL(totozClicked(QString)), this, SLOT(totozClicked(QString)));
 }
 
 QQPinipede::~QQPinipede()
@@ -465,6 +466,11 @@ unsigned int QQPinipede::insertPostToList(QList<QQPost *> *listPosts, QQPost *po
 void QQPinipede::norlogeClicked(QQNorloge norloge)
 {
 	emit insertTextPalmi(norloge.toStringPalmi() + QString::fromAscii(" "));
+}
+
+void QQPinipede::totozClicked(QString totozId)
+{
+	emit insertTextPalmi(totozId + QString::fromAscii(" "));
 }
 
 void QQPinipede::loginClicked(QString login)
