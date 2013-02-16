@@ -56,6 +56,7 @@ public slots:
 	void unHighlight();
 	void showTotozViewer(QString & totozId);
 	void hideTotozViewer();
+	void totozClicked(QString totozId);
 	void loginClicked(QString login);
 	void newPostsAvailable(QString groupName);
 
