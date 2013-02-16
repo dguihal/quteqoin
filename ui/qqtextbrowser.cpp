@@ -337,7 +337,7 @@ void QQTextBrowser::mouseReleaseEvent(QMouseEvent * event)
 	QString httpAnchor = anchorAt(event->pos());
 	if( httpAnchor.length() > 0 )
 	{
-		QDesktopServices::openUrl(httpAnchor);
+		QDesktopServices::openUrl(QUrl::fromPercentEncoding(httpAnchor.toAscii()));
 		return;
 	}
 
