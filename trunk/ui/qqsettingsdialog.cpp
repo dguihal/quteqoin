@@ -59,6 +59,15 @@ QString QQSettingsDialog::totozServerUrl()
 	return ui->srvTotozLineEdit->text();
 }
 
+void QQSettingsDialog::setTotozServerBaseImg(const QString & totozBaseImg)
+{
+	ui->srvTotozBaseImgLineEdit->setText(totozBaseImg);
+}
+QString QQSettingsDialog::totozServerBaseImg()
+{
+	return ui->srvTotozBaseImgLineEdit->text();
+}
+
 void QQSettingsDialog::setTotozServerAllowSearch(bool totozServerAllowSearch)
 {
 	if(totozServerAllowSearch != ui->srvAllowSearch->isChecked())

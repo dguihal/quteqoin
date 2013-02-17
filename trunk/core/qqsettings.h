@@ -19,7 +19,16 @@ class QString;
 #define SETTINGS_TOTOZ_BOOKMARKLIST "totoz_bookmarklist"
 
 #define SETTINGS_TOTOZ_SERVER_URL "totoz_server_url"
-#define DEFAULT_TOTOZ_SERVER_URL "http://totoz.eu/gif/"
+#define DEFAULT_TOTOZ_SERVER_URL "http://totoz.eu"
+
+#define SETTINGS_TOTOZ_SERVER_BASE_IMG "totoz_server_base_img"
+#define DEFAULT_TOTOZ_SERVER_BASE_IMG "img"
+
+#define SETTINGS_TOTOZ_SERVER_ALLOW_SEARCH "totoz_serveur_allow_search"
+#define DEFAULT_TOTOZ_SERVER_ALLOW_SEARCH 1
+
+#define SETTINGS_TOTOZ_SERVER_QUERY_PATTERN "totoz_query_pattern"
+#define DEFAULT_TOTOZ_SERVER_QUERY_SEARCH "search.xml?terms=%t&offset=%o"
 
 class QQSettings : public QSettings
 {
@@ -36,11 +45,6 @@ public:
 
 	void setDefaultUA(const QString & defaultUA) { m_defaultUA = defaultUA; }
 	QString defaultUA();
-
-	void setTotozServerAllowSearch(const bool totozServerAllowSearch) { m_totozServerAllowSearch = totozServerAllowSearch; }
-	bool totozServerAllowSearch() { return m_totozServerAllowSearch; }
-	void setTotozQueryPattern(const QString & totozQueryPattern) { m_totozQueryPattern = totozQueryPattern; }
-	QString totozQueryPattern() { return m_totozQueryPattern; }
 
 	void setTotozMode(QQSettings::TotozMode totozMode) { m_totozMode = totozMode; }
 	TotozMode totozMode() { return m_totozMode; }
@@ -84,8 +88,6 @@ private:
 	QString m_defaultUA;
 	QString m_defaultLogin;
 
-	bool m_totozServerAllowSearch;
-	QString m_totozQueryPattern;
 	TotozMode m_totozMode;
 
 	bool m_palmiMini;

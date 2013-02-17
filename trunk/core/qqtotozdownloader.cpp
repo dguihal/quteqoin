@@ -16,10 +16,9 @@ void QQTotozDownloader::fetchTotoz(QString & totozId)
 	if(totozId.length() > 0 && ! QQTotoz::cacheExists(totozId))
 	{
 		QQSettings settings;
-		QString queryUrl = DEFAULT_TOTOZ_SERVER_URL;
-		if(settings.contains(SETTINGS_TOTOZ_SERVER_URL))
-			queryUrl = settings.value(SETTINGS_TOTOZ_SERVER_URL).toString();
-
+		QString queryUrl = settings.value(SETTINGS_TOTOZ_SERVER_URL, DEFAULT_TOTOZ_SERVER_URL).toString();
+		queryUrl.append("/").append(
+					settings.value(SETTINGS_TOTOZ_SERVER_BASE_IMG, DEFAULT_TOTOZ_SERVER_BASE_IMG).toString());
 		queryUrl.append("/").append(totozId);
 		QUrl url(queryUrl);
 

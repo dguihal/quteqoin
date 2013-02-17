@@ -8,9 +8,6 @@
 #include <QXmlSimpleReader>
 #include <QXmlInputSource>
 
-#define TOTOZ_URL "http://totoz.sauf.ca"
-
-
 QQTMRequester::QQTMRequester(QObject * parent, QQSettings * settings) :
 	QQNetworkAccessor(parent, settings)
 {
@@ -68,11 +65,16 @@ void QQTMRequester::cancel()
 
 void QQTMRequester::searchTotoz(const QString & key, int offset)
 {
-	QString searchPattern = m_settings->totozQueryPattern();
+	QQSettings settings;
+
+	QString searchPattern = settings.value(SETTINGS_TOTOZ_SERVER_QUERY_PATTERN,
+										   DEFAULT_TOTOZ_SERVER_QUERY_SEARCH).toString();
 	searchPattern.replace("%t", key.toAscii().toPercentEncoding());
 	searchPattern.replace("%o", QString::number(offset));
 
-	QString urlString = QString::fromAscii(TOTOZ_URL)
+
+	QString urlString = settings.value(SETTINGS_TOTOZ_SERVER_URL,
+									   DEFAULT_TOTOZ_SERVER_URL).toString()
 						.append("/")
 						.append(searchPattern);
 

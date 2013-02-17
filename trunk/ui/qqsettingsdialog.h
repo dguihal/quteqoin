@@ -31,6 +31,9 @@ public:
 	void setTotozServerUrl(const QString & totozSrvUrl);
 	QString totozServerUrl();
 
+	void setTotozServerBaseImg(const QString & totozBaseImg);
+	QString totozServerBaseImg();
+
 	bool totozServerAllowSearch();
 
 	void setTotozQueryPattern(const QString & totozQueryPattern);

@@ -28,8 +28,6 @@ QQSettings::QQSettings(QObject * parent) :
 	m_palmiMini = DEFAULT_PALMI_MINI;
 	m_maxHistoryLength = DEFAULT_MAX_HIST_LEN;
 
-	m_totozQueryPattern = QString(DEFAULT_TOTOZ_QUERY_PATTERN);
-	m_totozServerAllowSearch = DEFAULT_TOTOZ_SERVER_ALLOW_SEARCH;
 	m_totozMode = DEFAULT_TOTOZ_MODE;
 
 	readSettings();
@@ -143,15 +141,6 @@ bool QQSettings::readSettings()
 							 QVariant(DEFAULT_PALMI_MINI))
 					  .toBool());
 
-	setTotozServerAllowSearch(value("totoz_serveur_allow_search",
-									 QVariant(DEFAULT_TOTOZ_SERVER_ALLOW_SEARCH))
-							  .toBool());
-
-	QString totozQueryPattern = value("totoz_query_pattern",
-							  QVariant(DEFAULT_TOTOZ_QUERY_PATTERN))
-					   .toString();
-	setTotozQueryPattern(totozQueryPattern);
-
 	setTotozMode((QQSettings::TotozMode) value("totoz_mode",
 						QVariant(DEFAULT_TOTOZ_MODE))
 				 .toInt());
@@ -214,10 +203,6 @@ bool QQSettings::saveSettings()
 					  QVariant(m_defaultUA));
 	setValue(QString::fromAscii("palmi_minimized"),
 					  QVariant(m_palmiMini));
-	setValue(QString::fromAscii("totoz_serveur_allow_search"),
-					  QVariant(m_totozServerAllowSearch));
-	setValue(QString::fromAscii("totoz_query_pattern"),
-					  QVariant(m_totozQueryPattern));
 	setValue(QString::fromAscii("totoz_mode"),
 					  QVariant(m_totozMode));
 

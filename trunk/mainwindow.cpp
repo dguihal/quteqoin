@@ -92,12 +92,15 @@ void MainWindow::displayOptions()
 	QQSettingsDialog settingsDialog(this);
 	settingsDialog.setDefaultUA(m_settings->defaultUA());
 	settingsDialog.setDefaultLogin(m_settings->defaultLogin());
-	if(m_settings->contains(SETTINGS_TOTOZ_SERVER_URL))
-		settingsDialog.setTotozServerUrl(m_settings->value(SETTINGS_TOTOZ_SERVER_URL).toString());
-	else
-		settingsDialog.setTotozServerUrl(DEFAULT_TOTOZ_SERVER_URL);
-	settingsDialog.setTotozServerAllowSearch(m_settings->totozServerAllowSearch());
-	settingsDialog.setTotozQueryPattern(m_settings->totozQueryPattern());
+
+	settingsDialog.setTotozServerUrl(
+					m_settings->value(SETTINGS_TOTOZ_SERVER_URL, DEFAULT_TOTOZ_SERVER_URL).toString());
+	settingsDialog.setTotozServerBaseImg(
+				m_settings->value(SETTINGS_TOTOZ_SERVER_BASE_IMG, DEFAULT_TOTOZ_SERVER_BASE_IMG).toString());
+	settingsDialog.setTotozServerAllowSearch(
+				m_settings->value(SETTINGS_TOTOZ_SERVER_ALLOW_SEARCH, DEFAULT_TOTOZ_SERVER_ALLOW_SEARCH).toBool());
+	settingsDialog.setTotozQueryPattern(
+				m_settings->value(SETTINGS_TOTOZ_SERVER_QUERY_PATTERN, DEFAULT_TOTOZ_SERVER_QUERY_SEARCH).toString());
 	settingsDialog.setTotozMode(m_settings->totozMode());
 	settingsDialog.setMaxHistoryLength(m_settings->maxHistoryLength());
 
@@ -116,8 +119,9 @@ void MainWindow::displayOptions()
 		m_settings->setDefaultUA(settingsDialog.defaultUA());
 		m_settings->setDefaultLogin(settingsDialog.defaultLogin());
 		m_settings->setValue(SETTINGS_TOTOZ_SERVER_URL, settingsDialog.totozServerUrl());
-		m_settings->setTotozServerAllowSearch(settingsDialog.totozServerAllowSearch());
-		m_settings->setTotozQueryPattern(settingsDialog.totozQueryPattern());
+		m_settings->setValue(SETTINGS_TOTOZ_SERVER_BASE_IMG, settingsDialog.totozServerBaseImg());
+		m_settings->setValue(SETTINGS_TOTOZ_SERVER_ALLOW_SEARCH, settingsDialog.totozServerAllowSearch());
+		m_settings->setValue(SETTINGS_TOTOZ_SERVER_QUERY_PATTERN, settingsDialog.totozQueryPattern());
 		m_settings->setTotozMode((QQSettings::TotozMode) settingsDialog.totozMode());
 
 		unsigned int oldMaxHLength = m_settings->maxHistoryLength();

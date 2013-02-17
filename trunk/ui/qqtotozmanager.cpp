@@ -37,7 +37,7 @@ QQTotozManager::QQTotozManager(QQSettings * settings, QWidget *parent) :
 	m_totozDownloader = new QQTotozDownloader(settings);
 
 	ui->setupUi(this);
-	if(m_settings->totozServerAllowSearch())
+	if(m_settings->value(SETTINGS_TOTOZ_SERVER_ALLOW_SEARCH, DEFAULT_TOTOZ_SERVER_ALLOW_SEARCH).toBool() == true)
 		ui->qqTMTabWidget->setCurrentIndex(TAB_BOOKMARKS_INDEX);
 	else
 		ui->qqTMTabWidget->removeTab(TAB_SEARCH_INDEX);
