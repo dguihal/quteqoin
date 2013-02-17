@@ -38,12 +38,8 @@ QString QQTotoz::getPath(QString id)
 {
 	QDir dirCache(QDesktopServices::storageLocation(QDesktopServices::CacheLocation));
 
-	if(! dirCache.cd("QuteQoin"))
-	{
+	if(! dirCache.exists())
 		dirCache.mkpath(dirCache.path());
-		dirCache.mkdir("QuteQoin");
-		dirCache.cd("QuteQoin");
-	}
 
 	QString totozIdMd5 = QString(QCryptographicHash::hash((id.toLower().toAscii()),
 														  QCryptographicHash::Md5).toHex());
