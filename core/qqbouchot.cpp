@@ -174,8 +174,7 @@ void QQBouchot::fetchBackend()
 	request.setAttribute(QNetworkRequest::CacheLoadControlAttribute,
 						 QNetworkRequest::AlwaysNetwork);
 
-	if(m_bSettings.ua().isEmpty() == false)
-		request.setRawHeader(QString::fromAscii("User-Agent").toAscii(), m_bSettings.ua().toAscii());
+	request.setRawHeader(QString::fromAscii("User-Agent").toAscii(), m_settings->defaultUA().toAscii());
 
 	if(m_bSettings.cookie().isEmpty() == false)
 		request.setRawHeader(QString::fromAscii("Cookie").toAscii(), m_bSettings.cookie().toAscii());
