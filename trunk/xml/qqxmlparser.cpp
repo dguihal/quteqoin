@@ -75,14 +75,9 @@ bool QQXmlParser::characters(const QString & ch)
 	   (m_elementNames.top() == "login"))
 	{
 		if (m_typeSlip == QQBouchot::SlipTagsRaw)
-		{
-			QString tmp = ch;
-			m_tmpString.append(tmp.replace("&","&amp;").replace(">","&gt;").replace("<","&lt;"));
-		}
+			m_tmpString.append(Qt::escape(ch));
 		else
-		{
 			m_tmpString.append(ch);
-		}
 	}
 	return true;
 }
