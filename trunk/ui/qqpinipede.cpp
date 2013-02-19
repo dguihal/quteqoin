@@ -212,19 +212,26 @@ void QQPinipede::purgePinitabHistory(const QString & groupName)
 void QQPinipede::printPostAtCursor(QTextCursor & cursor, QQPost * post)
 {
 	QTextBlock block = cursor.block();
+	QQTextBrowser * browser = m_textBrowserHash.value(post->bouchot()->settings().group());
 
-	QTextCharFormat defaultFormat;
+	QTextBlockFormat bFormat = cursor.blockFormat();
+	bFormat.setTabPositions(cursor.document()->defaultTextOption().tabs());
+	cursor.setBlockFormat(bFormat);
+
 	QQMessageBlockUserData * data = new QQMessageBlockUserData();
 	data->setPost(post);
 
 	int textLen = 0;
-	QQTextBrowser * browser = m_textBrowserHash.value(post->bouchot()->settings().group());
-	QFontMetrics fm = browser->fontMetrics();
-	int tabStopWidth = browser->tabStopWidth();
+	QFont currFont = cursor.document()->defaultFont();
+	int loginUAAreaWidth = browser->timeUAAreaWidth();
+
+	QTextCharFormat defaultFormat;
+	defaultFormat.setFont(currFont);
 
 	//norloge
 
 	QTextCharFormat norlogeFormat;
+	norlogeFormat.setFont(currFont);
 	norlogeFormat.setToolTip(post->id());
 	norlogeFormat.setFontWeight(QFont::Bold);
 
@@ -236,16 +243,19 @@ void QQPinipede::printPostAtCursor(QTextCursor & cursor, QQPost * post)
 	rangeNorloge.end = cursor.positionInBlock();
 	data->setZRange(QQMessageBlockUserData::NORLOGE, rangeNorloge);
 
+	QFontMetrics fm = QFontMetrics(norlogeFormat.font());
 	textLen += fm.size(Qt::TextSingleLine | Qt::TextExpandTabs, txt).width();
 
-	cursor.insertText(QString::fromUtf8(" "), defaultFormat);
+	cursor.insertText(" ", defaultFormat);
 
+	fm = QFontMetrics(defaultFormat.font());
 	textLen += fm.size(Qt::TextSingleLine | Qt::TextExpandTabs," ").width();
 
 
 	//login ou ua
 
 	QTextCharFormat loginUaFormat;
+	loginUaFormat.setFont(currFont);
 	loginUaFormat.setToolTip(post->UA());
 
 	QQMessageBlockUserData::ZoneRange rangeLoginUA;
@@ -271,22 +281,10 @@ void QQPinipede::printPostAtCursor(QTextCursor & cursor, QQPost * post)
 		txt = QString::fromAscii("$NO UA$");
 	}
 
-#define PINI_MSG_START_SHIFT 150
-
-	if(textLen + fm.size(Qt::TextSingleLine | Qt::TextExpandTabs, txt).width() > PINI_MSG_START_SHIFT)
-	{
-		txt = fm.elidedText(txt, Qt::ElideRight, PINI_MSG_START_SHIFT - textLen);
-		txt.append("\t");
-	}
-	else
-	{
-		do
-		{
-			txt.append("\t");
-		} while(textLen + fm.size(Qt::TextSingleLine | Qt::TextExpandTabs, txt).width() < PINI_MSG_START_SHIFT - tabStopWidth);
-	}
-
-#undef PINI_MSG_START_SHIFT
+	fm = QFontMetrics(loginUaFormat.font());
+	if(textLen + fm.size(Qt::TextSingleLine | Qt::TextExpandTabs, txt).width() > loginUAAreaWidth)
+		txt = fm.elidedText(txt, Qt::ElideMiddle, loginUAAreaWidth - textLen);
+	txt.append("\t");
 
 	cursor.insertText(txt, loginUaFormat);
 
@@ -295,8 +293,10 @@ void QQPinipede::printPostAtCursor(QTextCursor & cursor, QQPost * post)
 	data->setZRange(QQMessageBlockUserData::LOGINUA, rangeLoginUA);
 
 	//message
+
 	QQMessageBlockUserData::ZoneRange rangeMsg;
 	rangeMsg.begin = cursor.positionInBlock();
+	cursor.setCharFormat(defaultFormat);
 	cursor.insertHtml(post->message());
 	rangeMsg.end = cursor.positionInBlock();
 	data->setZRange(QQMessageBlockUserData::MESSAGE, rangeMsg);
@@ -595,15 +595,15 @@ void QQPinipede::showTotozViewer(QString & totozId)
 	m_totozViewer->setParent(currentWidget());
 
 	QPoint totozViewerPos = currentWidget()->mapFromGlobal(QCursor::pos());
-	QSize piniSize = size();
-	if(totozViewerPos.x() > (piniSize.width() / 2))
-		totozViewerPos.setX(totozViewerPos.x() - m_totozViewer->width() + 10);
+	QSize viewerSize = currentWidget()->size();
+	if(totozViewerPos.x() > (viewerSize.width() / 2))
+		totozViewerPos.setX(totozViewerPos.x() - m_totozViewer->width());
 	else
-		totozViewerPos.setX(totozViewerPos.x() - 10);
-	if(totozViewerPos.y() > (piniSize.height() / 2))
-		totozViewerPos.setY(totozViewerPos.y() - m_totozViewer->height() + 10);
+		totozViewerPos.setX(totozViewerPos.x());
+	if(totozViewerPos.y() > (viewerSize.height() / 2))
+		totozViewerPos.setY(totozViewerPos.y() - m_totozViewer->height());
 	else
-		totozViewerPos.setY(totozViewerPos.y() - 10);
+		totozViewerPos.setY(totozViewerPos.y());
 	m_totozViewer->move(totozViewerPos);
 
 	m_totozViewer->show();

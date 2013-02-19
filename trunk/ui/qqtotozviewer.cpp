@@ -177,12 +177,14 @@ void QQTotozViewer::contextMenuEvent(QContextMenuEvent * ev)
 
 void QQTotozViewer::displayText(QString text)
 {
+	QPoint curPos = pos();
 	setStyleSheet("QLabel { background-color : rgba(255, 255, 255, 200); color : black; }");
 	QFontMetrics fm(font());
 	QSize txtSize = fm.size(Qt::TextSingleLine, text);
 	setMinimumSize(txtSize);
 	setMaximumSize(txtSize);
 	setText(text);
+	move(curPos);
 }
 
 void QQTotozViewer::displayMovie()
