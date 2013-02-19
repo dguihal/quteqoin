@@ -18,8 +18,8 @@
 #include <QTextTableCell>
 #include <QToolTip>
 
-#define TAB_POS_IN_PX 70
-#define NOTIF_AREA_WIDTH 20
+#define TIME_UA_AREA_WIDTH_CHAR 26 // 10 + 1 + 15 Chars
+#define NOTIF_AREA_WIDTH 20 //Px
 
 QQTextBrowser::QQTextBrowser(QString groupName, QQPinipede *parent) :
 	QTextEdit(parent)
@@ -33,14 +33,15 @@ QQTextBrowser::QQTextBrowser(QString groupName, QQPinipede *parent) :
 	QTextDocument * doc = document();
 	doc->setUndoRedoEnabled(false);
 	doc->setDocumentMargin(0);
+	doc->setDefaultFont(font());
 
 	QTextOption opt = doc->defaultTextOption();
 	opt.setWrapMode(QTextOption::WrapAtWordBoundaryOrAnywhere);
 	opt.setAlignment(Qt::AlignLeft);
 
 	QList<QTextOption::Tab> listTabs;
-	m_timeUAAreaWidthPx = QFontMetrics(document()->defaultFont()).averageCharWidth() * (10 + 1 + 16); // Time + space + login/ua
-	int tabPosPx = QFontMetrics(font()).averageCharWidth() * (10 + 1 + 16 + 1); // Time + space + login/ua + margin
+	m_timeUAAreaWidthPx = QFontMetrics(document()->defaultFont()).width('a') * TIME_UA_AREA_WIDTH_CHAR;
+	int tabPosPx = QFontMetrics(font()).width('a') * (TIME_UA_AREA_WIDTH_CHAR + 1); // + margin
 	QTextOption::Tab tab(tabPosPx, QTextOption::DelimiterTab, '\t');
 	listTabs << tab;
 	
