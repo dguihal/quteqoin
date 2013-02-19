@@ -20,6 +20,7 @@ public:
 	~QQTextBrowser();
 
 	int notifAreaWidth();
+	int timeUAAreaWidth() { return m_timeUAAreaWidthPx; }
 	void notifAreaPaintEvent(QPaintEvent * event);
 
 public slots:
@@ -67,6 +68,8 @@ private:
 
 	bool m_mouseClick;
 	QPoint m_lastPoint;
+
+	int m_timeUAAreaWidthPx;
 
 	bool m_highlightAsked;
 	QQNorlogeRef m_highlightedNRef;

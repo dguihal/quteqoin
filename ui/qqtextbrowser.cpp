@@ -37,6 +37,14 @@ QQTextBrowser::QQTextBrowser(QString groupName, QQPinipede *parent) :
 	QTextOption opt = doc->defaultTextOption();
 	opt.setWrapMode(QTextOption::WrapAtWordBoundaryOrAnywhere);
 	opt.setAlignment(Qt::AlignLeft);
+
+	QList<QTextOption::Tab> listTabs;
+	m_timeUAAreaWidthPx = QFontMetrics(document()->defaultFont()).averageCharWidth() * (10 + 1 + 16); // Time + space + login/ua
+	int tabPosPx = QFontMetrics(font()).averageCharWidth() * (10 + 1 + 16 + 1); // Time + space + login/ua + margin
+	QTextOption::Tab tab(tabPosPx, QTextOption::DelimiterTab, '\t');
+	listTabs << tab;
+	
+	opt.setTabs(listTabs);
 	doc->setDefaultTextOption(opt);
 
 	this->setMouseTracking(true);
