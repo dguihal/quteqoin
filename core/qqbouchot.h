@@ -109,6 +109,9 @@ public:
 	static QQBouchotSettings getBouchotDef(const QString & nameBouchot);
 	static QStringList getBouchotDefNameList();
 
+public slots:
+	void slotSslErrors(const QList<QSslError> & errors);
+
 signals:
 	void newPostsAvailable(QString groupName);
 

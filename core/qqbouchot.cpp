@@ -9,6 +9,7 @@
 #include <QNetworkProxyFactory>
 #include <QNetworkReply>
 #include <QNetworkRequest>
+#include <QSslError>
 #include <QXmlSimpleReader>
 #include <QXmlInputSource>
 
@@ -178,17 +179,33 @@ void QQBouchot::fetchBackend()
 
 	if(m_bSettings.cookie().isEmpty() == false)
 		request.setRawHeader(QString::fromAscii("Cookie").toAscii(), m_bSettings.cookie().toAscii());
-
-	httpGet(request);
+	
+	QNetworkReply * reply = httpGet(request);
+	connect(reply, SIGNAL(sslErrors(const QList<QSslError>&)), this, SLOT(slotSslErrors(const QList<QSslError>&)));
 
 	timer.setInterval(m_bSettings.refresh() * 1000);
 	timer.start();
 }
 
-void QQBouchot::requestFinishedSlot(QNetworkReply *reply)
+
+void QQBouchot::slotSslErrors(const QList<QSslError> & errors)
+{
+	for(int i = 0; i < errors.size(); i++)
+	{
+		if(errors[i].error() != QSslError::NoError)
+		{
+			qDebug() << "QQNetworkAccessor::slotNetworkReplyError: " << errors[i].errorString();
+		}
+	}
+}
+
+void QQBouchot::requestFinishedSlot(QNetworkReply * reply)
 {
 	// Recuperation du Statut HTTP
 	//QVariant statusCodeV = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute);
+	
+	qDebug() << QDateTime::currentDateTime().currentMSecsSinceEpoch() << " : "
+		<< "QQBouchot::requestFinishedSlot url=" << reply->url();
 
 	if(reply->error() != QNetworkReply::NoError)
 	{
