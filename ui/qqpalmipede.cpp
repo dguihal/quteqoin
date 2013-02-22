@@ -66,7 +66,7 @@ void QQPalmipede::addBouchot(const QString &newBouchot, const QColor& newBouchot
 void QQPalmipede::removeBouchot(const QString &oldBouchot)
 {
 	int index = ui->boardSelectorComboBox->findText(oldBouchot, Qt::MatchExactly | Qt::MatchCaseSensitive);
-	if(index > 0)
+	if(index >= 0)
 	{
 		ui->boardSelectorComboBox->removeItem(index);
 		ui->boardSelectorComboBoxMin->removeItem(index);

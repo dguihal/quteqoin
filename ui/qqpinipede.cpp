@@ -109,6 +109,9 @@ void QQPinipede::removePiniTab(const QString& name)
 			break;
 		}
 
+	m_textBrowserHash.remove(name);
+	m_listPostsTabMap.remove(name);
+
 	if (this->count() < 2)
 		this->tabBar()->hide();
 }

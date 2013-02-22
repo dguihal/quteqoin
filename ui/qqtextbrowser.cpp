@@ -44,7 +44,7 @@ QQTextBrowser::QQTextBrowser(QString groupName, QQPinipede *parent) :
 	int tabPosPx = QFontMetrics(font()).width('a') * (TIME_UA_AREA_WIDTH_CHAR + 1); // + margin
 	QTextOption::Tab tab(tabPosPx, QTextOption::DelimiterTab, '\t');
 	listTabs << tab;
-	
+
 	opt.setTabs(listTabs);
 	doc->setDefaultTextOption(opt);
 
@@ -103,7 +103,7 @@ void QQTextBrowser::notifAreaPaintEvent(QPaintEvent * event)
 		QQMessageBlockUserData * uData = (QQMessageBlockUserData *) block.userData();
 		int offset = 0;
 		int width = notifAreaWidth() / 3;
-		if(uData != NULL)
+		if(uData != NULL && uData->post() != NULL)
 		{
 			QTextCursor curs(block);
 			qreal height = block.layout()->boundingRect().height();
