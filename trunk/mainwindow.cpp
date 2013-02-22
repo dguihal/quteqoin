@@ -140,8 +140,15 @@ void MainWindow::displayOptions()
 		{
 			iDel.next();
 			QQBouchot * delBouchot = m_settings->bouchot(iDel.key());
-			m_pini->purgePiniTab(delBouchot->settings().group(), delBouchot->name());
+			QString group = delBouchot->settings().group();
+
 			m_settings->removeBouchot(delBouchot);
+			m_palmi->removeBouchot(delBouchot->name());
+
+			QList<QQBouchot *> bouchots = m_settings->listBouchots(group);
+			(bouchots.size() == 0) ?
+						m_pini->removePiniTab(group) :
+						m_pini->purgePiniTab(group, delBouchot->name());
 		}
 
 		//Les bouchots modifies
@@ -164,7 +171,11 @@ void MainWindow::displayOptions()
 				m_pini->addPiniTab(modifBouchot->settings().group());
 				modifBouchot->setNewPostsFromHistory();
 				m_pini->newPostsAvailable(modifBouchot->settings().group());
-				m_pini->purgePiniTab(oldGroup, modifBouchot->name());
+
+				QList<QQBouchot *> bouchots = m_settings->listBouchots(oldGroup);
+				(bouchots.size() == 0) ?
+							m_pini->removePiniTab(oldGroup) :
+							m_pini->purgePiniTab(oldGroup, modifBouchot->name());
 			}
 		}
 
@@ -214,10 +225,10 @@ void MainWindow::doTriggerMaxiPalmi()
 
 void MainWindow::initBouchot(QQBouchot * bouchot)
 {
-	connect(bouchot, SIGNAL(newPostsAvailable(QString)), m_pini, SLOT(newPostsAvailable(QString)));
-
 	m_pini->addPiniTab(bouchot->settings().group());
 	m_palmi->addBouchot(bouchot->name(), bouchot->settings().colorLight());
+
+	connect(bouchot, SIGNAL(newPostsAvailable(QString)), m_pini, SLOT(newPostsAvailable(QString)));
 }
 
 void MainWindow::closeEvent(QCloseEvent * event)
