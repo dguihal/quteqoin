@@ -9,6 +9,7 @@
 #include <QNetworkProxyFactory>
 #include <QNetworkReply>
 #include <QNetworkRequest>
+#include <QRegExp>
 #include <QSslError>
 #include <QXmlSimpleReader>
 #include <QXmlInputSource>
@@ -50,7 +51,7 @@ QQBouchot::QQBouchot(const QString & name, QQSettings * settings) :
 	m_bSettings.setRefresh(0);
 	m_history.clear();
 	m_newPostHistory.clear();
-	m_lastId=0;
+	m_lastId=-1;
 	m_settings = settings;
 
 	m_xmlParser = new QQXmlParser();
@@ -164,8 +165,26 @@ void QQBouchot::fetchBackend()
 	//on bloque le timer
 	timer.stop();
 
-	lastId.setNum(m_lastId);
-	url.replace(QString::fromAscii("%i"), lastId);
+	if(m_lastId < 0)
+	{
+		//1° appel au backend, on supprime le last/last_id/... de l'url
+		QRegExp reg;
+		reg.setCaseSensitivity(Qt::CaseSensitive);
+		reg.setPatternSyntax(QRegExp::RegExp2);
+		reg.setPattern("&?\\w+=%i");
+		url.replace(reg, "");
+		//Nettoyage de l'url finale
+		reg.setPattern("\\?$");
+		url.replace(reg, "");
+		reg.setPatternSyntax(QRegExp::FixedString);
+		reg.setPattern("?&");
+		url.replace(reg, "?");
+	}
+	else
+	{
+		lastId.setNum(m_lastId);
+		url.replace(QString::fromAscii("%i"), lastId);
+	}
 
 	qDebug() << QDateTime::currentDateTime().currentMSecsSinceEpoch() << " : "
 			 << "QQBouchot::fetchBackend url=" << url;
