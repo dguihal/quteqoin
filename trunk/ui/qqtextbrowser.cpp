@@ -174,16 +174,6 @@ void QQTextBrowser::mouseMoveEvent(QMouseEvent * event)
 	else if (! m_mouseClick)
 		viewport()->setCursor(Qt::ArrowCursor);
 
-	//Est-on au dessus d'une url
-	// Ouverture l'url si on est au dessus d'un lien
-	QString httpAnchor = anchorAt(event->pos());
-	if(httpAnchor.length() > 0)
-	{
-		QFontMetrics fm(QToolTip::font());
-		QToolTip::showText(event->globalPos(), fm.elidedText(httpAnchor, Qt::ElideRight, 400), this);
-		return;
-	}
-
 	QTextCursor cursor = cursorForPosition(event->pos());
 
 	QTextBlock block = cursor.block();
@@ -195,7 +185,17 @@ void QQTextBrowser::mouseMoveEvent(QMouseEvent * event)
 		if(blockData->isIndexInZRange(cursor.positionInBlock(),
 									  QQMessageBlockUserData::MESSAGE))
 		{
-			QToolTip::hideText();
+			//Est-on au dessus d'une url
+			// Ouverture l'url si on est au dessus d'un lien
+			QString httpAnchor = anchorAt(event->pos());
+			if(httpAnchor.length() > 0)
+			{
+				QFontMetrics fm(QToolTip::font());
+				QToolTip::showText(event->globalPos(), fm.elidedText(httpAnchor, Qt::ElideRight, 400), this);
+			}
+			else
+				QToolTip::hideText();
+
 			//Est-on au dessus d'une norloge
 			QQNorlogeRef nRef = blockData->norlogeRefForIndex(cursor.positionInBlock());
 			if(nRef.isValid())
