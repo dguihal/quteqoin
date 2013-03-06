@@ -2,6 +2,7 @@
 #define QQPALMILINEEDIT_H
 
 #include <QLineEdit>
+#include <QStringList>
 
 class QFocusEvent;
 class QKeyEvent;
@@ -25,6 +26,9 @@ protected:
 
 private:
 	void updateTotozCompleter();
+	void completeTotoz();
+
+	QStringList m_listTotoz;
 };
 
 #endif // QQPALMILINEEDIT_H
