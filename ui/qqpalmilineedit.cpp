@@ -4,7 +4,6 @@
 #include "core/qqsettings.h"
 
 #include <QtDebug>
-#include <QCompleter>
 #include <QFocusEvent>
 #include <QKeyEvent>
 #include <QRegExp>
@@ -64,9 +63,11 @@ void QQPalmiLineEdit::insertReplaceText(const QString & tag)
 
 void QQPalmiLineEdit::keyPressEvent(QKeyEvent * e)
 {
+	bool eventManaged = false;
 	if(e->modifiers() == Qt::AltModifier)
 	{
 		int key = e->key();
+		eventManaged = true;
 		switch(key)
 		{
 		case Qt::Key_B:
@@ -97,13 +98,39 @@ void QQPalmiLineEdit::keyPressEvent(QKeyEvent * e)
 			insertSurroundText(QString::fromAscii("<u>"), QString::fromAscii("</u>"));
 			break;
 		default :
-			QLineEdit::keyPressEvent(e);
+			eventManaged = false;
 			break;
 		}
 	}
-	else
+
+	if(! eventManaged)
 	{
 		QLineEdit::keyPressEvent(e);
+
+		if(e->key() <= 0x0ff) //Permet de ne pas reagir sur les touches fleches / delete / ...
+			completeTotoz();
+	}
+}
+
+void QQPalmiLineEdit::completeTotoz()
+{
+	QString txt = text().left(cursorPosition());
+	int pos = txt.lastIndexOf("[:");
+	if(pos >= 0)
+	{
+		txt = txt.right(txt.length() - (pos + 2));
+		if(! txt.contains(']'))
+		{
+			QRegExp reg(QString('^') + txt); 
+			QStringList list = m_listTotoz.filter(reg);
+			if(list.size() > 0)
+			{
+				QString totoz = list.first().append(']');
+				setSelection(cursorPosition(), 0 - txt.length());
+				insertReplaceText(totoz);
+				setSelection(cursorPosition(), 0 - (totoz.length() - txt.length()));
+			}
+		}
 	}
 }
 
@@ -117,19 +144,6 @@ void QQPalmiLineEdit::focusInEvent(QFocusEvent * e)
 void QQPalmiLineEdit::updateTotozCompleter()
 {
 	QQSettings settings;
-	QStringList bookmarkedTotozList;
-	if(settings.contains(SETTINGS_TOTOZ_BOOKMARKLIST))
-		bookmarkedTotozList << settings.value(SETTINGS_TOTOZ_BOOKMARKLIST).toStringList();
-
-	QRegExp reg1("^");
-	bookmarkedTotozList.replaceInStrings(reg1, "[:");
-
-	QRegExp reg2("$");
-	bookmarkedTotozList.replaceInStrings(reg2, "]");
-
-	QCompleter * completer = new QCompleter(bookmarkedTotozList, this);
-	completer->setCaseSensitivity(Qt::CaseInsensitive);
-	completer->setCompletionMode(QCompleter::InlineCompletion);
-
-	setCompleter(completer);
+	m_listTotoz = settings.value(SETTINGS_TOTOZ_BOOKMARKLIST).toStringList();
+	m_listTotoz.sort();
 }
