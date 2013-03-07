@@ -543,6 +543,8 @@ void QQPinipede::norlogeRefHovered(QQNorlogeRef norlogeRef)
 				qDebug() << "QQPinipede::norlogeRefHovered cursor.blockNumber()=" << cursor.blockNumber();
 				cursor.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
 				QTextDocumentFragment fragment = cursor.selection();
+				if(! destCursor.atBlockStart())
+					destCursor.insertBlock();
 				destCursor.insertFragment(fragment);
 			}
 
