@@ -15,7 +15,7 @@
 
 #define BOUCHOTS_SPLIT_CHAR ';'
 #define DEFAULT_MAX_HIST_LEN 500
-#define DEFAULT_UA "quteqoin crash edition"
+#define DEFAULT_UA "quteqoin/0.42"
 #define DEFAULT_TOTOZ_SERVER_ALLOW_SEARCH 1
 #define DEFAULT_TOTOZ_MODE QQSettings::Bald_Mode
 #define DEFAULT_TOTOZ_QUERY_PATTERN "search.xml?terms=%t&offset=%o"
