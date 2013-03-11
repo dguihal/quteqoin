@@ -1,0 +1,11 @@
+<RCC>
+    <qresource prefix="/img">
+        <file>add-icon.png</file>
+        <file>delete-icon.png</file>
+        <file>menu-edit-icon.png</file>
+        <file>Point_exclamation_rouge.svg</file>
+        <file>Fleche_verte.svg</file>
+        <file>rubber_duck_yellow.svg</file>
+        <file>totoz-loader.gif</file>
+    </qresource>
+</RCC>
