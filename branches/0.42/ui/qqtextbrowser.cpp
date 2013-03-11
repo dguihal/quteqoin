@@ -169,10 +169,14 @@ void QQTextBrowser::mouseMoveEvent(QMouseEvent * event)
 	//qDebug() << "####################################";
 	QTextEdit::mouseMoveEvent(event);
 
-	if(anchorAt(event->pos()).length() > 0)
-		viewport()->setCursor(Qt::PointingHandCursor);
-	else if (! m_mouseClick)
-		viewport()->setCursor(Qt::ArrowCursor);
+	QString httpAnchor = anchorAt(event->pos());
+	if(! m_mouseClick)
+	{
+		QCursor cursor(Qt::ArrowCursor);
+		if(httpAnchor.length() > 0)
+			cursor.setShape(Qt::PointingHandCursor);
+		viewport()->setCursor(cursor);
+	}
 
 	QTextCursor cursor = cursorForPosition(event->pos());
 
@@ -187,7 +191,6 @@ void QQTextBrowser::mouseMoveEvent(QMouseEvent * event)
 		{
 			//Est-on au dessus d'une url
 			// Ouverture l'url si on est au dessus d'un lien
-			QString httpAnchor = anchorAt(event->pos());
 			if(httpAnchor.length() > 0)
 			{
 				QFontMetrics fm(QToolTip::font());
@@ -312,12 +315,17 @@ void QQTextBrowser::mouseReleaseEvent(QMouseEvent * event)
 {
 	QTextEdit::mouseReleaseEvent(event);
 
-	viewport()->setCursor(Qt::ArrowCursor);
-	// Verification que l'on est pas en pleine selection
-	if((m_mouseClick == false) || (event->pos() != m_lastPoint))
-		return;
-
 	m_mouseClick = false;
+
+	QString httpAnchor = anchorAt(event->pos());
+	QCursor mCursor(Qt::ArrowCursor);
+	if(httpAnchor.length() > 0)
+		mCursor.setShape(Qt::PointingHandCursor);
+	viewport()->setCursor(mCursor);
+	
+	// Verification que l'on est pas en pleine selection
+	if(event->pos() != m_lastPoint)
+		return;
 
 	// Reset de l'icone de l'application
 	QIcon icon = QIcon(QString::fromAscii(":/img/rubber_duck_yellow.svg"));
@@ -343,7 +351,6 @@ void QQTextBrowser::mouseReleaseEvent(QMouseEvent * event)
 		m_notifArea->update();
 
 	// Ouverture l'url si on est au dessus d'un lien
-	QString httpAnchor = anchorAt(event->pos());
 	if( httpAnchor.length() > 0 )
 	{
 		QDesktopServices::openUrl(QUrl::fromPercentEncoding(httpAnchor.toAscii()));
