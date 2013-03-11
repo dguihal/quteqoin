@@ -13,6 +13,7 @@
 #include <QPainter>
 #include <QScrollBar>
 #include <QTextBlock>
+#include <QTextCodec>
 #include <QTextLayout>
 #include <QTextTable>
 #include <QTextTableCell>
@@ -202,26 +203,14 @@ void QQTextBrowser::mouseMoveEvent(QMouseEvent * event)
 			//Est-on au dessus d'une norloge
 			QQNorlogeRef nRef = blockData->norlogeRefForIndex(cursor.positionInBlock());
 			if(nRef.isValid())
-			{
-				//qDebug() << "QQTextBrowser::mouseMoveEvent, Norloge detectee, str = "
-				//		 << nRef.getOrigNRef() << " position : " << nRef.getPosInMessage();
 				highlightNorloge(nRef);
-			}
-			else
-			{
-				//qDebug() << "QQTextBrowser::mouseMoveEvent, Pas de Norloge detectee";
-				// Il faut unhilighter puisqu'on ne survole pas de norloge
+			else // Il faut unhilighter puisqu'on ne survole pas de norloge
 				unHighlightNorloge();
-
-			}
 
 			//Gestion des Totoz
 			QString totozId = blockData->totozIdForIndex(cursor.positionInBlock());
 			if(totozId.length() > 0)
-			{
-				//qDebug() << "QQTextBrowser::mouseMoveEvent, Totoz detecte, str = " << totozId;
 				showTotoz(totozId);
-			}
 			else //il faut cacher l'affichage du Totoz puisqu'on n'en survole pas
 				hideTotoz();
 
@@ -353,7 +342,17 @@ void QQTextBrowser::mouseReleaseEvent(QMouseEvent * event)
 	// Ouverture l'url si on est au dessus d'un lien
 	if( httpAnchor.length() > 0 )
 	{
-		QDesktopServices::openUrl(QUrl::fromPercentEncoding(httpAnchor.toAscii()));
+		QUrl url;
+		if(QTextCodec::codecForName("ISO 8859-1")->canEncode(httpAnchor))
+			url.setEncodedUrl(httpAnchor.toAscii());
+		else
+			url.setUrl(httpAnchor);
+
+		if(url.isValid())
+			QDesktopServices::openUrl(url);
+		else
+			qWarning() << "url : " << url << "is not valid";
+
 		return;
 	}
 
