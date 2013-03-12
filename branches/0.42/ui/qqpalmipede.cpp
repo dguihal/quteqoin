@@ -79,16 +79,17 @@ void QQPalmipede::insertReplaceText(const QString &bouchot, const QString &tag)
 	insertReplaceText(tag);
 
 	// Si le palmi est vide, il faut changer la tribune selectionnee
+	int boardIndex = ui->boardSelectorComboBox->currentIndex();
 	if(wasPostLineEditEmpty)
 	{
-		int index = ui->boardSelectorComboBox->findText(bouchot);
-		if(index >= 0)
+		boardIndex = ui->boardSelectorComboBox->findText(bouchot);
+		if(boardIndex >= 0)
 		{
-			ui->boardSelectorComboBox->setCurrentIndex(index);
-			ui->boardSelectorComboBoxMin->setCurrentIndex(index);
-			bouchotSelectorActivated(index);
+			ui->boardSelectorComboBox->setCurrentIndex(boardIndex);
+			ui->boardSelectorComboBoxMin->setCurrentIndex(boardIndex);
 		}
 	}
+	bouchotSelectorActivated(boardIndex);
 }
 
 void QQPalmipede::insertReplaceText(const QString &tag)
@@ -129,7 +130,7 @@ void QQPalmipede::changeNorloges(const QString & bouchot)
 
 		if(norloge.contains(bouchotRemoverReg))
 			destText.append(norloge.left(norloge.length() - bouchotRemoverReg.matchedLength()));
-		else if(! norloge.contains(bouchotAdderReg))
+		else if(! norloge.contains(bouchotAdderReg) && bouchot != m_oldBouchot)
 			destText.append(norloge).append(QString::fromAscii("@")).append(m_oldBouchot);
 		else
 			destText.append(norloge);
