@@ -379,9 +379,8 @@ void QQTextBrowser::mouseReleaseEvent(QMouseEvent * event)
 										   QQMessageBlockUserData::LOGINUA))
 		{
 			QString login = post->login();
-			if(login.size() == 0)
-				login = post->UA();
-			emit loginClicked(post->bouchot()->name(), post->login());
+			if(login.size() != 0)
+				emit loginClicked(post->bouchot()->name(), login);
 		}
 	}
 }
