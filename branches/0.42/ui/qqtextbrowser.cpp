@@ -379,7 +379,13 @@ void QQTextBrowser::mouseReleaseEvent(QMouseEvent * event)
 										   QQMessageBlockUserData::LOGINUA))
 		{
 			QString login = post->login();
-			if(login.size() != 0)
+			if(login.size() == 0)
+			{
+				QString ua = post->UA();
+				if(ua.size() != 0 && ! ua.contains('/', Qt::CaseSensitive))
+					emit loginClicked(post->bouchot()->name(), ua);
+			}
+			else
 				emit loginClicked(post->bouchot()->name(), login);
 		}
 	}
