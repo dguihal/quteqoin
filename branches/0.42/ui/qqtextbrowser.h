@@ -27,13 +27,13 @@ public slots:
 	void updateNotifArea(int);
 
 signals:
-	void norlogeClicked(QQNorloge norloge);
+	void norlogeClicked(QString bouchot, QQNorloge norloge);
 	void norlogeRefHovered(QQNorlogeRef norloge);
 	void unHighlight();
 	void displayTotoz(QString & totozId);
 	void concealTotoz();
 	void displayTotozContextMenu(QPoint & pos);
-	void loginClicked(QString login);
+	void loginClicked(QString bouchot, QString login);
 
 protected:
 	virtual void leaveEvent(QEvent * event);

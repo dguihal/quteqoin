@@ -49,7 +49,7 @@ MainWindow::MainWindow(QWidget *parent) :
 		initBouchot(bouchots.at(i));
 
 	m_pini->setTotozManager(m_totozManager);
-	connect(m_pini, SIGNAL(insertTextPalmi(QString)), m_palmi, SLOT(insertReplaceText(QString)));
+	connect(m_pini, SIGNAL(insertTextPalmi(QString, QString)), m_palmi, SLOT(insertReplaceText(QString, QString)));
 
 	connect(m_palmi, SIGNAL(postMessage(QString,QString)), this, SLOT(doPostMessage(QString,QString)));
 	connect(m_ui->actionEnregistrer_parametres, SIGNAL(triggered()), m_settings, SLOT(saveSettings()));

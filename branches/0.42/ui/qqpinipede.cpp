@@ -66,8 +66,6 @@ QQPinipede::~QQPinipede()
 
 void QQPinipede::addPiniTab(const QString & groupName)
 {
-	qDebug() << "QQPinipede::addPiniTab" ;
-
 	if( this->m_textBrowserHash.value(groupName) != NULL )
 		return;
 
@@ -81,8 +79,8 @@ void QQPinipede::addPiniTab(const QString & groupName)
 	connect(highlighter, SIGNAL(totozRequired(QString &)),
 			m_totozDownloader, SLOT(fetchTotoz(QString &)));
 
-	connect(textBrowser, SIGNAL(norlogeClicked(QQNorloge)), this, SLOT(norlogeClicked(QQNorloge)));
-	connect(textBrowser, SIGNAL(loginClicked(QString)), this, SLOT(loginClicked(QString)));
+	connect(textBrowser, SIGNAL(norlogeClicked(QString, QQNorloge)), this, SLOT(norlogeClicked(QString, QQNorloge)));
+	connect(textBrowser, SIGNAL(loginClicked(QString, QString)), this, SLOT(loginClicked(QString, QString)));
 	connect(textBrowser, SIGNAL(norlogeRefHovered(QQNorlogeRef)), this, SLOT(norlogeRefHovered(QQNorlogeRef)));
 	connect(textBrowser, SIGNAL(unHighlight()), this, SLOT(unHighlight()));
 	connect(textBrowser, SIGNAL(displayTotoz(QString &)), this, SLOT(showTotozViewer(QString &)));
@@ -466,19 +464,14 @@ unsigned int QQPinipede::insertPostToList(QList<QQPost *> *listPosts, QQPost *po
 }
 
 
-void QQPinipede::norlogeClicked(QQNorloge norloge)
+void QQPinipede::norlogeClicked(QString bouchot, QQNorloge norloge)
 {
-	emit insertTextPalmi(norloge.toStringPalmi() + QString::fromAscii(" "));
+	emit insertTextPalmi(bouchot, norloge.toStringPalmi() + QString::fromAscii(" "));
 }
 
-void QQPinipede::totozClicked(QString totozId)
+void QQPinipede::loginClicked(QString bouchot, QString login)
 {
-	emit insertTextPalmi(totozId + QString::fromAscii(" "));
-}
-
-void QQPinipede::loginClicked(QString login)
-{
-	emit insertTextPalmi(login + QString::fromAscii("< "));
+	emit insertTextPalmi(bouchot, login + QString::fromAscii("< "));
 }
 
 void QQPinipede::norlogeRefHovered(QQNorlogeRef norlogeRef)

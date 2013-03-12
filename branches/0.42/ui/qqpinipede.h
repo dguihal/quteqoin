@@ -51,17 +51,16 @@ public:
 	void purgePinitabHistory(const QString & groupName);
 
 public slots:
-	void norlogeClicked(QQNorloge norloge);
+	void norlogeClicked(QString bouchot, QQNorloge norloge);
 	void norlogeRefHovered(QQNorlogeRef norlogeRef);
 	void unHighlight();
 	void showTotozViewer(QString & totozId);
 	void hideTotozViewer();
-	void totozClicked(QString totozId);
-	void loginClicked(QString login);
+	void loginClicked(QString bouchot, QString login);
 	void newPostsAvailable(QString groupName);
 
 signals:
-	void insertTextPalmi(QString text);
+	void insertTextPalmi(QString bouchot, QString text);
 
 protected:
 	virtual void contextMenuEvent(QContextMenuEvent * ev);

@@ -311,7 +311,7 @@ void QQTextBrowser::mouseReleaseEvent(QMouseEvent * event)
 	if(httpAnchor.length() > 0)
 		mCursor.setShape(Qt::PointingHandCursor);
 	viewport()->setCursor(mCursor);
-	
+
 	// Verification que l'on est pas en pleine selection
 	if(event->pos() != m_lastPoint)
 		return;
@@ -363,25 +363,25 @@ void QQTextBrowser::mouseReleaseEvent(QMouseEvent * event)
 
 	if(blockData != NULL)
 	{
+		QQPost * post = blockData->post();
 		if(blockData->isIndexInZRange(cursor.positionInBlock(),
 									  QQMessageBlockUserData::NORLOGE))
 		{
 			Q_ASSERT(blockData->post() != NULL);
 
-			QQPost * post = blockData->post();
 			QQNorloge norloge(post->bouchot()->name(),
 							  post->norloge());
 			if(post->isNorlogeMultiple())
 				norloge.setNorlogeIndex(post->norlogeIndex());
-			emit norlogeClicked(norloge);
+			emit norlogeClicked(post->bouchot()->name(), norloge);
 		}
 		else if(blockData->isIndexInZRange(cursor.positionInBlock(),
 										   QQMessageBlockUserData::LOGINUA))
 		{
-			QString login = blockData->post()->login();
+			QString login = post->login();
 			if(login.size() == 0)
-				login = blockData->post()->UA();
-			emit loginClicked(login);
+				login = post->UA();
+			emit loginClicked(post->bouchot()->name(), post->login());
 		}
 	}
 }
