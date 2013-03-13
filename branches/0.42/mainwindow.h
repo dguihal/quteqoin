@@ -33,6 +33,9 @@ protected:
 	virtual void closeEvent(QCloseEvent * event);
 	virtual void keyPressEvent(QKeyEvent * event);
 
+public slots:
+	void totozManagerVisibilityChanged(bool visible);
+
 private:
 	void initBouchot(QQBouchot * bouchot);
 

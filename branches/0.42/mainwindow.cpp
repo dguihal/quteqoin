@@ -37,8 +37,9 @@ MainWindow::MainWindow(QWidget *parent) :
 	m_totozManager = new QQTotozManager(m_settings, this);
 	m_totozManager->setAllowedAreas(Qt::LeftDockWidgetArea |
 									Qt::RightDockWidgetArea);
-	m_totozManager->setVisible(false);
 	connect(m_totozManager, SIGNAL(totozClicked(QString)), m_palmi, SLOT(insertReplaceText(QString)));
+	connect(m_totozManager, SIGNAL(visibilityChanged(bool)), this, SLOT(totozManagerVisibilityChanged(bool)));
+	m_totozManager->setVisible(false);
 	addDockWidget(Qt::RightDockWidgetArea, m_totozManager, Qt::Vertical);
 
 	QAction * actionTotozManager = m_totozManager->toggleViewAction();
@@ -264,4 +265,12 @@ void MainWindow::keyPressEvent(QKeyEvent * event)
 	if(! processed)
 		QMainWindow::keyPressEvent(event);
 
+}
+
+void MainWindow::totozManagerVisibilityChanged(bool visible)
+{
+	if(visible)
+		m_totozManager->setFocus();
+	else
+		m_palmi->setFocus();
 }
