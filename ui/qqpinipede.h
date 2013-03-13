@@ -34,7 +34,7 @@ class QQPinipede : public QTabWidget
 	Q_OBJECT
 
 public:
-	explicit QQPinipede(QQSettings * settings, QWidget *parent = 0);
+	explicit QQPinipede(QWidget *parent = 0);
 	~QQPinipede();
 
 	void addPiniTab(const QString &);
@@ -70,7 +70,6 @@ private:
 	void printPostAtCursor(QTextCursor & cursor, QQPost * post);
 	unsigned int insertPostToList(QList<QQPost *> *listPosts, QQPost *post, unsigned int indexStart);
 
-	QQSettings * m_settings;
 	QQTotozDownloader * m_totozDownloader;
 	QQTotozManager * m_totozManager;
 	QQTextBrowser * m_tBrowserHighlighted;

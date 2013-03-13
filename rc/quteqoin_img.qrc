@@ -7,5 +7,8 @@
         <file>Fleche_verte.svg</file>
         <file>rubber_duck_yellow.svg</file>
         <file>totoz-loader.gif</file>
+        <file>totoz-icon.jpeg</file>
+        <file>board-icon.png</file>
+        <file>general-icon.png</file>
     </qresource>
 </RCC>

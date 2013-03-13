@@ -28,45 +28,45 @@ public:
 	class QQBouchotSettings {
 
 	public:
-		QStringList aliases() { return m_aliases; }
+		QStringList aliases() const { return m_aliases; }
 		void setAliases(const QStringList &newAliases) { m_aliases = newAliases; }
-		QString aliasesToString() { return this->m_aliases.join(QChar::fromAscii(Separator)); }
+		QString aliasesToString() const { return this->m_aliases.join(QChar::fromAscii(Separator)); }
 		void setAliasesFromString(const QString &newAliasesString) { m_aliases = newAliasesString.split(QChar::fromAscii(Separator)); }
 		bool containsAlias(const QString & alias) { return m_aliases.contains(alias); }
 
-		QString backendUrl() { return m_backendUrl; }
+		QString backendUrl() const { return m_backendUrl; }
 		void setBackendUrl(const QString &newBackendUrl) { m_backendUrl = newBackendUrl; }
 
-		QColor color() { return m_color; }
-		QColor colorLight() { return m_color.lighter(110); }
+		QColor color() const { return m_color; }
+		QColor colorLight() const { return m_color.lighter(110); }
 		void setColor(const QColor &newColor) { m_color = newColor; }
-		QString colorToString() { return m_color.name(); }
+		QString colorToString() const { return m_color.name(); }
 		void setColorFromString(const QString &newColorString) { m_color.setNamedColor(newColorString); }
 
-		QString cookie() { return m_cookie; }
+		QString cookie() const { return m_cookie; }
 		void setCookie(const QString &newCookie) { m_cookie = newCookie; }
 
-		QString login() { return m_login; }
+		QString login() const { return m_login; }
 		void setLogin(const QString &newLogin) { m_login = newLogin; }
 
-		QString postData() { return m_postData; }
+		QString postData() const { return m_postData; }
 		void setPostData(const QString &newPostData) { m_postData = newPostData; }
 
-		QString postUrl() { return m_postUrl; }
+		QString postUrl() const { return m_postUrl; }
 		void setPostUrl(const QString &newPostUrl) { m_postUrl = newPostUrl; }
 
-		int refresh() { return m_refresh; }
+		int refresh() const { return m_refresh; }
 		void setRefresh(int newRefresh) { m_refresh = newRefresh; }
-		QString refreshToString() { return QString::number(this->m_refresh); }
+		QString refreshToString() const { return QString::number(this->m_refresh); }
 		void setRefreshFromString(const QString &newRefreshString) { m_refresh = newRefreshString.toInt(); }
 
-		QQBouchot::TypeSlip slipType() { return m_slipType; }
+		QQBouchot::TypeSlip slipType() const { return m_slipType; }
 		void setSlipType(QQBouchot::TypeSlip newSlipType) { m_slipType = newSlipType; }
 
-		QString ua() { return m_ua; }
+		QString ua() const { return m_ua; }
 		void setUa(const QString &newUA) { m_ua = newUA; }
 
-		QString group() { return m_group; }
+		QString group() const { return m_group; }
 		void setGroup(const QString & newGroup) { m_group = newGroup; }
 
 	private:
@@ -83,7 +83,7 @@ public:
 		QString m_group;
 	};
 
-	QQBouchot(const QString & name, QQSettings * settings = 0);
+	QQBouchot(const QString & name, QObject *parent = 0);
 	~QQBouchot();
 
 	QString name() { return m_name; }
@@ -108,6 +108,9 @@ public:
 	static const char Separator = ',';
 	static QQBouchotSettings getBouchotDef(const QString & nameBouchot);
 	static QStringList getBouchotDefNameList();
+	static QQBouchot * bouchot(QString nameBouchot);
+	static QList<QQBouchot *> listBouchots();
+	static QList<QQBouchot *> listBouchotsGroup(QString nameGroup);
 
 public slots:
 	void slotSslErrors(const QList<QSslError> & errors);
@@ -130,7 +133,6 @@ private:
 	QQBouchotSettings m_bSettings;
 	QTimer timer;
 
-	QQSettings * m_settings;
 	QQXmlParser * m_xmlParser;
 };
 

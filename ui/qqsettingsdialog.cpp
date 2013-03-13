@@ -177,7 +177,8 @@ void QQSettingsDialog::editBouchot()
 
 		QString bouchotName = first.data().toString();
 
-		QQBouchotSettingsDialog bouchotSettingsDialog(bouchotName, m_bouchots.value(bouchotName), m_listGroups, this);
+		QQBouchotSettingsDialog bouchotSettingsDialog(bouchotName, m_bouchots.value(bouchotName), this);
+		bouchotSettingsDialog.setGroups(m_listGroups);
 
 		if(bouchotSettingsDialog.exec() == QDialog::Accepted)
 			m_modifBouchots.insert(bouchotName, bouchotSettingsDialog.bouchotSettings());

@@ -15,7 +15,7 @@ class QQTMRequester : public QQNetworkAccessor
 	Q_OBJECT
 
 public:
-	explicit QQTMRequester(QObject * parent, QQSettings * settings);
+	explicit QQTMRequester(QObject * parent);
 	~QQTMRequester();
 
 	QList<QString> results() { return m_totozes; }
@@ -35,7 +35,6 @@ protected slots:
 	void parsingFinished();
 
 private:
-	QQSettings * m_settings;
 	QQTMXmlParser * m_xmlParser;
 
 	QNetworkReply * m_netReply;

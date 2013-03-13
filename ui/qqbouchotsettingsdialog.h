@@ -9,35 +9,38 @@
 class QQBouchot;
 
 namespace Ui {
-    class QQBouchotSettingsDialog;
+	class QQBouchotSettingsDialog;
 }
 
 class QQBouchotSettingsDialog : public QDialog
 {
-    Q_OBJECT
+	Q_OBJECT
 
 public:
-    explicit QQBouchotSettingsDialog(QWidget *parent = 0);
-	QQBouchotSettingsDialog(QString, QQBouchot::QQBouchotSettings,
-							QStringList m_listGroups, QWidget *parent = 0);
-    ~QQBouchotSettingsDialog();
+	QQBouchotSettingsDialog(QWidget *parent = 0);
+	QQBouchotSettingsDialog(QString, QQBouchot::QQBouchotSettings, QWidget *parent = 0);
+	~QQBouchotSettingsDialog();
 
-    QQBouchot::QQBouchotSettings bouchotSettings() { return m_bouchotSettings; }
-    QString bouchotName() { return m_bouchotName; }
+	QQBouchot::QQBouchotSettings bouchotSettings() { return m_bouchotSettings; }
+	QString bouchotName() { return m_bouchotName; }
 
 	void setGroups(QStringList listGroups);
+	void setNames(QStringList listNames) { m_listNames = listNames; }
 
 public slots:
-    void okPressed();
-    void cancelPressed();
-    void usePresetPressed();
+	void usePresetPressed();
+	void showColorDialog();
+	void colorChanged(QString text);
+	void nameChanged(QString text);
+	virtual void accept();
 
 private:
-    void setBouchot();
+	void setBouchot();
 
-    Ui::QQBouchotSettingsDialog *ui;
-    QQBouchot::QQBouchotSettings m_bouchotSettings;
-    QString m_bouchotName;
+	Ui::QQBouchotSettingsDialog *ui;
+	QQBouchot::QQBouchotSettings m_bouchotSettings;
+	QString m_bouchotName;
+	QStringList m_listNames;
 };
 
 #endif // QQBOUCHOTSETTINGSDIALOG_H

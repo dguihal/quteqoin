@@ -14,7 +14,7 @@
    <string>QuteQoin</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="rc/tribunesDef.qrc">
+   <iconset resource="rc/quteqoin_img.qrc">
     <normaloff>:/img/rubber_duck_yellow.svg</normaloff>:/img/rubber_duck_yellow.svg</iconset>
   </property>
   <widget class="QWidget" name="centralWidget"/>
@@ -24,14 +24,13 @@
      <x>0</x>
      <y>0</y>
      <width>600</width>
-     <height>19</height>
+     <height>18</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
     <property name="title">
      <string>&amp;File</string>
     </property>
-    <addaction name="actionEnregistrer_parametres"/>
     <addaction name="separator"/>
     <addaction name="actionQuit"/>
    </widget>
@@ -139,10 +138,15 @@
     <string>Gestionnaire &amp;Totoz</string>
    </property>
   </action>
+  <action name="actionOptions_new">
+   <property name="text">
+    <string>Options (new)</string>
+   </property>
+  </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <resources>
-  <include location="rc/tribunesDef.qrc"/>
+  <include location="rc/quteqoin_img.qrc"/>
  </resources>
  <connections/>
 </ui>

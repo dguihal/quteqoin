@@ -44,15 +44,14 @@ bouchotDefStruct bouchotsDef[] =
 	  "#ededdb", "sveetch,dax", "shoop_sessionid=", QQBouchot::SlipTagsEncoded }
 };
 
-QQBouchot::QQBouchot(const QString & name, QQSettings * settings) :
-	QQNetworkAccessor(settings)
+QQBouchot::QQBouchot(const QString & name, QObject * parent) :
+	QQNetworkAccessor(parent)
 {
 	m_name = name;
 	m_bSettings.setRefresh(0);
 	m_history.clear();
 	m_newPostHistory.clear();
 	m_lastId=-1;
-	m_settings = settings;
 
 	m_xmlParser = new QQXmlParser();
 	connect(m_xmlParser, SIGNAL(newPostReady(QQPost&)), this, SLOT(insertNewPost(QQPost&)));
@@ -82,7 +81,13 @@ void QQBouchot::postMessage(const QString &message)
 	if(m_bSettings.ua().isEmpty() == false)
 		request.setRawHeader("User-Agent", m_bSettings.ua().toAscii());
 	else
-		request.setRawHeader("User-Agent", m_settings->defaultUA().toAscii());
+	{
+		QQSettings settings;
+		request.setRawHeader("User-Agent",
+							 settings.value(SETTINGS_GENERAL_DEFAULT_UA,
+											DEFAULT_GENERAL_DEFAULT_UA).toByteArray()
+							 );
+	}
 
 	if(m_bSettings.cookie().isEmpty() == false)
 		request.setRawHeader("Cookie", m_bSettings.cookie().toAscii());
@@ -194,11 +199,15 @@ void QQBouchot::fetchBackend()
 	request.setAttribute(QNetworkRequest::CacheLoadControlAttribute,
 						 QNetworkRequest::AlwaysNetwork);
 
-	request.setRawHeader(QString::fromAscii("User-Agent").toAscii(), m_settings->defaultUA().toAscii());
+	QQSettings settings;
+	request.setRawHeader(QString::fromAscii("User-Agent").toAscii(),
+						 settings.value(SETTINGS_GENERAL_DEFAULT_UA,
+										DEFAULT_GENERAL_DEFAULT_UA).toByteArray()
+						 );
 
 	if(m_bSettings.cookie().isEmpty() == false)
 		request.setRawHeader(QString::fromAscii("Cookie").toAscii(), m_bSettings.cookie().toAscii());
-	
+
 	QNetworkReply * reply = httpGet(request);
 	connect(reply, SIGNAL(sslErrors(const QList<QSslError>&)), this, SLOT(slotSslErrors(const QList<QSslError>&)));
 
@@ -222,7 +231,7 @@ void QQBouchot::requestFinishedSlot(QNetworkReply * reply)
 {
 	// Recuperation du Statut HTTP
 	//QVariant statusCodeV = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute);
-	
+
 	qDebug() << QDateTime::currentDateTime().currentMSecsSinceEpoch() << " : "
 		<< "QQBouchot::requestFinishedSlot url=" << reply->url();
 
@@ -328,3 +337,19 @@ QStringList QQBouchot::getBouchotDefNameList()
 	return res;
 }
 
+QQBouchot * QQBouchot::bouchot(QString nameBouchot)
+{
+	Q_UNUSED(nameBouchot)
+	return NULL;
+}
+
+QList<QQBouchot *> QQBouchot::listBouchots()
+{
+	return QList<QQBouchot *>();
+}
+
+QList<QQBouchot *> QQBouchot::listBouchotsGroup(QString nameGroup)
+{
+	Q_UNUSED(nameGroup)
+	return QList<QQBouchot *>();
+}

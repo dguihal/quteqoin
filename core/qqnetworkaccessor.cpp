@@ -1,20 +1,20 @@
 #include "qqnetworkaccessor.h"
+#include "ui/qqproxyauthdialog.h"
 
+#include <QApplication>
+#include <QAuthenticator>
 #include <QNetworkProxyFactory>
 
-QQNetworkAccessor::QQNetworkAccessor(QObject * parent, QObject * proxyAuthMgr) :
+QQNetworkAccessor::QQNetworkAccessor(QObject * parent) :
 	QObject(parent)
 {
 	m_qnam = createQNAM();
-
-	if(proxyAuthMgr == 0)
-		proxyAuthMgr = parent;
 
 	connect(m_qnam, SIGNAL(finished(QNetworkReply*)),
 			this, SLOT(requestFinishedSlot(QNetworkReply*)));
 
 	connect(m_qnam, SIGNAL(proxyAuthenticationRequired(QNetworkProxy, QAuthenticator*)),
-			proxyAuthMgr, SLOT(proxyAuthenticationRequired(QNetworkProxy, QAuthenticator*)));
+			this, SLOT(proxyAuthenticationRequired(QNetworkProxy, QAuthenticator*)));
 }
 
 QNetworkAccessManager * QQNetworkAccessor::createQNAM()
@@ -34,4 +34,46 @@ QNetworkReply * QQNetworkAccessor::httpGet(const QNetworkRequest & request)
 QNetworkReply * QQNetworkAccessor::httpPost(const QNetworkRequest & request, const QByteArray &postData)
 {
 	return m_qnam->post(request, postData);
+}
+
+// Gestion du proxy
+QMutex QQNetworkAccessor::m_proxyPopupMutex;
+QString QQNetworkAccessor::m_proxyUser;
+QString QQNetworkAccessor::m_proxyPasswd;
+
+void QQNetworkAccessor::proxyAuthenticationRequired(const QNetworkProxy & proxy, QAuthenticator * authenticator)
+{
+	Q_UNUSED(proxy)
+
+	qDebug() << "QQSettings::proxyAuthenticationRequired";
+	//Premier echec
+	if(QQNetworkAccessor::m_proxyUser.size() != 0 &&
+	   authenticator->user() != QQNetworkAccessor::m_proxyUser)
+	{
+		authenticator->setUser(QQNetworkAccessor::m_proxyUser);
+		authenticator->setPassword(QQNetworkAccessor::m_proxyPasswd);
+	}
+	else // Echec ulterieur, ou pas de conf proxy, on redemande
+	{
+		if(QQNetworkAccessor::m_proxyPopupMutex.tryLock())
+		{
+			QQProxyAuthDialog * proxyDialog = new QQProxyAuthDialog();
+			proxyDialog->setLogin(QQNetworkAccessor::m_proxyUser);
+			proxyDialog->setPasswd(QQNetworkAccessor::m_proxyPasswd);
+			if(proxyDialog->exec() == QDialog::Accepted)
+			{
+				QQNetworkAccessor::m_proxyUser = proxyDialog->login();
+				QQNetworkAccessor::m_proxyPasswd = proxyDialog->passwd();
+
+				authenticator->setUser(QQNetworkAccessor::m_proxyUser);
+				authenticator->setPassword(QQNetworkAccessor::m_proxyPasswd);
+			}
+			QQNetworkAccessor::m_proxyPopupMutex.unlock();
+			//startBouchots();
+		}
+		else
+		{
+			QApplication::processEvents();
+		}
+	}
 }
