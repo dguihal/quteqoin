@@ -1,6 +1,7 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
+#include <QHash>
 #include <QMainWindow>
 
 class QQBouchot;
@@ -34,13 +35,13 @@ protected:
 	virtual void keyPressEvent(QKeyEvent * event);
 
 private:
-	void initBouchot(QQBouchot * bouchot);
+	void initBouchots();
 
 	Ui::MainWindow * m_ui;
 	QQPalmipede * m_palmi;
 	QQPinipede * m_pini;
-	QQSettings * m_settings;
 	QQTotozManager * m_totozManager;
+	QHash<QString, QQBouchot *> m_bouchots;
 };
 
 #endif // MAINWINDOW_H

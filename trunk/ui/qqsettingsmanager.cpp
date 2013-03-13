@@ -1,0 +1,220 @@
+#include "qqsettingsmanager.h"
+#include "ui_qqsettingsmanager.h"
+
+#include "core/qqsettings.h"
+#include "ui/settingsmanager/qqgeneralsettings.h"
+#include "ui/settingsmanager/qqtotozsettings.h"
+#include "ui/settingsmanager/qqboardssettings.h"
+
+#include <QtDebug>
+
+#define ITEM_GENERAL_TYPE (QListWidgetItem::UserType)
+#define ITEM_TOTOZ_TYPE (QListWidgetItem::UserType + 1)
+#define ITEM_BOARDS_TYPE (QListWidgetItem::UserType + 2)
+
+QQSettingsManager::QQSettingsManager(QWidget *parent) :
+	QDialog(parent),
+	ui(new Ui::QQSettingsManager)
+{
+	ui->setupUi(this);
+	QListWidget *listSettingsTheme = ui->listSettingsTheme;
+
+	QLayout *layout = new QVBoxLayout();
+	layout->setMargin(0);
+	listSettingsTheme->setSortingEnabled(false);
+	listSettingsTheme->setIconSize(QSize(32, 32));
+
+	listSettingsTheme->addItem(
+				new QListWidgetItem(QIcon(":/img/general-icon.png"), tr("General"),
+									listSettingsTheme, ITEM_GENERAL_TYPE)
+				);
+	m_generalSettingsW = new QQGeneralSettings();
+	initGeneralSettings();
+	m_generalSettingsW->hide();
+	layout->addWidget(m_generalSettingsW);
+
+	listSettingsTheme->addItem(
+				new QListWidgetItem(QIcon(":/img/totoz-icon.jpeg"), tr("Totoz"),
+									listSettingsTheme, ITEM_TOTOZ_TYPE)
+				);
+	m_totozSettingsW = new QQTotozSettings();
+	initTotozSettings();
+	m_totozSettingsW->hide();
+	layout->addWidget(m_totozSettingsW);
+
+	listSettingsTheme->addItem(
+				new QListWidgetItem(QIcon(":/img/board-icon.png"), tr("Boards"),
+									listSettingsTheme, ITEM_BOARDS_TYPE)
+				);
+	m_boardsSettingsW = new QQBoardsSettings();
+	initBoardsSettings();
+	m_boardsSettingsW->hide();
+	layout->addWidget(m_boardsSettingsW);
+
+	listSettingsTheme->setMaximumWidth(listSettingsTheme->sizeHintForColumn(0) + 15);
+	connect(listSettingsTheme, SIGNAL(itemSelectionChanged()),
+			this, SLOT(configItemChanged()));
+
+	ui->settingsSelWidget->setLayout(layout);
+	listSettingsTheme->setCurrentRow(0);
+}
+
+QQSettingsManager::~QQSettingsManager()
+{
+	delete ui;
+}
+
+void QQSettingsManager::accept()
+{
+	saveGeneralSettings();
+	saveTotozSettings();
+	saveBoardsSettings();
+
+	QDialog::accept();
+}
+
+void QQSettingsManager::configItemChanged()
+{
+	QListWidgetItem *item = ui->listSettingsTheme->currentItem();
+
+	ui->settingsThemeLabel->setText(item->text());
+
+	m_generalSettingsW->hide();
+	m_totozSettingsW->hide();
+	m_boardsSettingsW->hide();
+	switch(item->type())
+	{
+	case ITEM_GENERAL_TYPE:
+		m_generalSettingsW->show();
+		break;
+	case ITEM_TOTOZ_TYPE:
+		m_totozSettingsW->show();
+		break;
+	case ITEM_BOARDS_TYPE:
+		m_boardsSettingsW->show();
+		break;
+	default:
+		qWarning() << "Unknown type : " << item->type() << ", ignoring";
+	}
+}
+
+void QQSettingsManager::initGeneralSettings()
+{
+	QQSettings settings;
+
+	QString historySize = settings.value(SETTINGS_GENERAL_MAX_HISTLEN, DEFAULT_GENERAL_MAX_HISTLEN).toString();
+	m_generalSettingsW->setMaxHistorySize(historySize);
+
+	QString defaultLogin = settings.value(SETTINGS_GENERAL_DEFAULT_LOGIN, DEFAULT_GENERAL_DEFAULT_LOGIN).toString();
+	m_generalSettingsW->setDefaultLogin(defaultLogin);
+
+	QString defaultUA = settings.value(SETTINGS_GENERAL_DEFAULT_UA, DEFAULT_GENERAL_DEFAULT_UA).toString();
+	m_generalSettingsW->setDefaultUA(defaultUA);
+}
+
+void QQSettingsManager::saveGeneralSettings()
+{
+	QQSettings settings;
+
+	QString historySize = m_generalSettingsW->maxHistorySize();
+	if(historySize.size() == 0 || historySize == QString::number(DEFAULT_GENERAL_MAX_HISTLEN))
+		settings.remove(SETTINGS_GENERAL_MAX_HISTLEN);
+	else
+		settings.setValue(SETTINGS_GENERAL_MAX_HISTLEN, historySize.toInt());
+
+	QString defaultLogin = m_generalSettingsW->defaultLogin();
+	if(defaultLogin.size() == 0 || defaultLogin == DEFAULT_GENERAL_DEFAULT_LOGIN)
+		settings.remove(SETTINGS_GENERAL_DEFAULT_LOGIN);
+	else
+		settings.setValue(SETTINGS_GENERAL_DEFAULT_LOGIN, defaultLogin);
+
+	QString defaultUA = m_generalSettingsW->defaultUA();
+	if(defaultUA.size() == 0 || defaultUA == DEFAULT_GENERAL_DEFAULT_UA)
+		settings.remove(SETTINGS_GENERAL_DEFAULT_UA);
+	else
+		settings.setValue(SETTINGS_GENERAL_DEFAULT_UA, defaultUA);
+
+}
+
+void QQSettingsManager::initTotozSettings()
+{
+	QQSettings settings;
+
+	QString totozServerURL = settings.value(SETTINGS_TOTOZ_SERVER_URL, DEFAULT_TOTOZ_SERVER_URL).toString();
+	m_totozSettingsW->setTotozServerURL(totozServerURL);
+
+	QString totozServerBaseImg = settings.value(SETTINGS_TOTOZ_SERVER_BASE_IMG, DEFAULT_TOTOZ_SERVER_BASE_IMG).toString();
+	m_totozSettingsW->setTotozBaseImgUrl(totozServerBaseImg);
+
+	bool totozServerAllowSearch = settings.value(SETTINGS_TOTOZ_SERVER_ALLOW_SEARCH,  DEFAULT_TOTOZ_SERVER_ALLOW_SEARCH).toBool();
+	m_totozSettingsW->setTotozAllowSearch(totozServerAllowSearch);
+
+	QString totozServerQueryPattern = settings.value(SETTINGS_TOTOZ_SERVER_QUERY_PATTERN, DEFAULT_TOTOZ_SERVER_QUERY_PATTERN).toString();
+	m_totozSettingsW->setTotozQueryPattern(totozServerQueryPattern);
+
+	QString totozServerVisualMode = settings.value(SETTINGS_TOTOZ_VISUAL_MODE, DEFAULT_TOTOZ_VISUAL_MODE).toString();
+	m_totozSettingsW->setTotozVisualModes(DEFAULT_TOTOZ_VISUAL_MODES);
+	m_totozSettingsW->setTotozVisualMode(totozServerVisualMode);
+}
+
+void QQSettingsManager::saveTotozSettings()
+{
+	QQSettings settings;
+
+	QString totozServerURL = m_totozSettingsW->totozServerURL();
+	if(totozServerURL.size() == 0 || totozServerURL == DEFAULT_TOTOZ_SERVER_URL)
+		settings.remove(SETTINGS_TOTOZ_SERVER_URL);
+	else
+		settings.setValue(SETTINGS_TOTOZ_SERVER_URL, totozServerURL);
+
+	QString totozServerBaseImg = m_totozSettingsW->totozBaseImgUrl();
+	if(totozServerBaseImg.size() == 0 || totozServerBaseImg == DEFAULT_TOTOZ_SERVER_BASE_IMG)
+		settings.remove(SETTINGS_TOTOZ_SERVER_BASE_IMG);
+	else
+		settings.setValue(SETTINGS_TOTOZ_SERVER_BASE_IMG, totozServerBaseImg);
+
+	bool totozServerAllowSearch = m_totozSettingsW->totozAllowSearch();
+	if(totozServerAllowSearch == DEFAULT_TOTOZ_SERVER_ALLOW_SEARCH)
+		settings.remove(SETTINGS_TOTOZ_SERVER_ALLOW_SEARCH);
+	else
+		settings.setValue(SETTINGS_TOTOZ_SERVER_ALLOW_SEARCH, totozServerAllowSearch);
+
+	QString totozServerQueryPattern = m_totozSettingsW->totozQueryPattern();
+	if(totozServerQueryPattern.size() == 0 || totozServerQueryPattern == DEFAULT_TOTOZ_SERVER_QUERY_PATTERN)
+		settings.remove(SETTINGS_TOTOZ_SERVER_QUERY_PATTERN);
+	else
+		settings.setValue(SETTINGS_TOTOZ_SERVER_QUERY_PATTERN, totozServerQueryPattern);
+
+	QString totozServerVisualMode = m_totozSettingsW->totozVisualMode();
+	if(totozServerVisualMode.size() == 0 || totozServerVisualMode == DEFAULT_TOTOZ_VISUAL_MODE)
+		settings.remove(SETTINGS_TOTOZ_VISUAL_MODE);
+	else
+		settings.setValue(SETTINGS_TOTOZ_VISUAL_MODE, totozServerVisualMode);
+}
+
+void QQSettingsManager::initBoardsSettings()
+{
+	QMap<QString, QQBouchot::QQBouchotSettings> mapBouchotSettings;
+
+	//Les bouchots existant
+	QList<QQBouchot *> listBouchots = QQBouchot::listBouchots();
+	QQBouchot *bouchot = NULL;
+	for(int i = 0; i < listBouchots.size(); i++)
+	{
+		bouchot = listBouchots.at(i);
+		mapBouchotSettings.insert(bouchot->name(), bouchot->settings());
+	}
+	m_boardsSettingsW->setBouchots(mapBouchotSettings);
+}
+
+void QQSettingsManager::saveBoardsSettings()
+{
+	QQSettings settings;
+
+	QStringList oldBouchots = m_boardsSettingsW->getOldBouchots();
+	for(int i = 0; i < oldBouchots.size(); i++)
+	{
+		settings.removeBouchot(oldBouchots.at(i));
+
+	}
+}

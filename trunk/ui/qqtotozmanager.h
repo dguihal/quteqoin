@@ -20,7 +20,7 @@ class QQTotozManager : public QDockWidget
 	Q_OBJECT
 
 public:
-	explicit QQTotozManager(QQSettings * settings, QWidget * parent = 0);
+	explicit QQTotozManager(QWidget * parent = 0);
 	~QQTotozManager();
 
 public slots:
@@ -43,7 +43,6 @@ private:
 
 	Ui::QQTotozManager *ui;
 
-	QQSettings * m_settings;
 	QQTMRequester * m_requester;
 	QQTotozDownloader * m_totozDownloader;
 };

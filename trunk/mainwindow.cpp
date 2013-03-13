@@ -5,6 +5,7 @@
 #include "ui/qqpalmipede.h"
 #include "ui/qqpinipede.h"
 #include "ui/qqsettingsdialog.h"
+#include "ui/qqsettingsmanager.h"
 #include "ui/qqtotozmanager.h"
 
 #include <QCloseEvent>
@@ -24,9 +25,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	QIcon icon = QIcon(QString::fromAscii(":/img/rubber_duck_yellow.svg"));
 	setWindowIcon(icon);
 
-	m_settings = new QQSettings(this);
-
-	m_pini = new QQPinipede(m_settings, this);
+	m_pini = new QQPinipede(this);
 	setCentralWidget(m_pini);
 
 	m_palmi = new QQPalmipede(this);
@@ -34,7 +33,7 @@ MainWindow::MainWindow(QWidget *parent) :
 							 Qt::BottomDockWidgetArea);
 	addDockWidget(Qt::BottomDockWidgetArea, m_palmi, Qt::Horizontal);
 
-	m_totozManager = new QQTotozManager(m_settings, this);
+	m_totozManager = new QQTotozManager(this);
 	m_totozManager->setAllowedAreas(Qt::LeftDockWidgetArea |
 									Qt::RightDockWidgetArea);
 	m_totozManager->setVisible(false);
@@ -44,54 +43,53 @@ MainWindow::MainWindow(QWidget *parent) :
 	QAction * actionTotozManager = m_totozManager->toggleViewAction();
 	m_ui->toolsMenu->addAction(actionTotozManager);
 
-	QList<QQBouchot *> bouchots = m_settings->listBouchots();
-	for(int i = 0; i < bouchots.size(); i++)
-		initBouchot(bouchots.at(i));
-
 	m_pini->setTotozManager(m_totozManager);
 	connect(m_pini, SIGNAL(insertTextPalmi(QString)), m_palmi, SLOT(insertReplaceText(QString)));
 
 	connect(m_palmi, SIGNAL(postMessage(QString,QString)), this, SLOT(doPostMessage(QString,QString)));
-	connect(m_ui->actionEnregistrer_parametres, SIGNAL(triggered()), m_settings, SLOT(saveSettings()));
 	connect(m_ui->actionQuit, SIGNAL(triggered()), this, SLOT(close()));
 	connect(m_ui->actionEtendu, SIGNAL(triggered()), this, SLOT(doTriggerMaxiPalmi()));
 	connect(m_ui->actionMinimal, SIGNAL(triggered()), this, SLOT(doTriggerMiniPalmi()));
 	connect(m_ui->actionOptions, SIGNAL(triggered()), this, SLOT(displayOptions()));
 
-	if(m_settings->palmiMinimized())
+	QQSettings settings;
+	if(settings.value(SETTINGS_PALMI_MINI, DEFAULT_PALMI_MINI).toBool())
 		this->m_ui->actionMinimal->trigger();
 	else
 		this->m_ui->actionEtendu->trigger();
 
-	if(m_settings->contains(SETTINGS_MAINWINDOW_GEOMETRY))
-		restoreGeometry(m_settings->value(SETTINGS_MAINWINDOW_GEOMETRY).toByteArray());
-	if(m_settings->contains(SETTINGS_MAINWINDOW_STATE))
-		restoreState(m_settings->value(SETTINGS_MAINWINDOW_STATE).toByteArray());
+	if(settings.contains(SETTINGS_MAINWINDOW_GEOMETRY))
+		restoreGeometry(settings.value(SETTINGS_MAINWINDOW_GEOMETRY).toByteArray());
+	if(settings.contains(SETTINGS_MAINWINDOW_STATE))
+		restoreState(settings.value(SETTINGS_MAINWINDOW_STATE).toByteArray());
 
 	//Special euro<
 	// s'assurer que le palmi est visible
 	m_palmi->setVisible(true);
 	m_palmi->setFocus(Qt::OtherFocusReason);
 
-	m_settings->startBouchots();
+	initBouchots();
 }
 
 MainWindow::~MainWindow()
 {
-	delete m_ui;
-	delete m_pini;
-	delete m_palmi;
-	delete m_settings;
 }
 
+void MainWindow::displayOptions()
+{
+	QQSettingsManager settingsManager(this);
+	settingsManager.exec();
+}
+
+/*
 void MainWindow::displayOptions()
 {
 	//On arrete le refresh avant de continuer
 	m_settings->stopBouchots();
 
 	QQSettingsDialog settingsDialog(this);
-	settingsDialog.setDefaultUA(m_settings->defaultUA());
-	settingsDialog.setDefaultLogin(m_settings->defaultLogin());
+	settingsDialog.setDefaultUA(m_settings->value(SETTINGS_GENERAL_DEFAULT_UA, DEFAULT_GENERAL_DEFAULT_UA).toString());
+	settingsDialog.setDefaultLogin(m_settings->value(SETTINGS_GENERAL_DEFAULT_LOGIN, DEFAULT_GENERAL_DEFAULT_LOGIN).toString());
 
 	settingsDialog.setTotozServerUrl(
 					m_settings->value(SETTINGS_TOTOZ_SERVER_URL, DEFAULT_TOTOZ_SERVER_URL).toString());
@@ -100,7 +98,7 @@ void MainWindow::displayOptions()
 	settingsDialog.setTotozServerAllowSearch(
 				m_settings->value(SETTINGS_TOTOZ_SERVER_ALLOW_SEARCH, DEFAULT_TOTOZ_SERVER_ALLOW_SEARCH).toBool());
 	settingsDialog.setTotozQueryPattern(
-				m_settings->value(SETTINGS_TOTOZ_SERVER_QUERY_PATTERN, DEFAULT_TOTOZ_SERVER_QUERY_SEARCH).toString());
+				m_settings->value(SETTINGS_TOTOZ_SERVER_QUERY_PATTERN, DEFAULT_TOTOZ_SERVER_QUERY_PATTERN).toString());
 	settingsDialog.setTotozMode(m_settings->totozMode());
 	settingsDialog.setMaxHistoryLength(m_settings->maxHistoryLength());
 
@@ -116,8 +114,8 @@ void MainWindow::displayOptions()
 
 	if(settingsDialog.exec() == QDialog::Accepted)
 	{
-		m_settings->setDefaultUA(settingsDialog.defaultUA());
-		m_settings->setDefaultLogin(settingsDialog.defaultLogin());
+		m_settings->setValue(SETTINGS_GENERAL_DEFAULT_UA, settingsDialog.defaultUA());
+		m_settings->setValue(SETTINGS_GENERAL_DEFAULT_LOGIN, settingsDialog.defaultLogin());
 		m_settings->setValue(SETTINGS_TOTOZ_SERVER_URL, settingsDialog.totozServerUrl());
 		m_settings->setValue(SETTINGS_TOTOZ_SERVER_BASE_IMG, settingsDialog.totozServerBaseImg());
 		m_settings->setValue(SETTINGS_TOTOZ_SERVER_ALLOW_SEARCH, settingsDialog.totozServerAllowSearch());
@@ -194,10 +192,11 @@ void MainWindow::displayOptions()
 	}
 	m_settings->startBouchots();
 }
+*/
 
 void MainWindow::doPostMessage(const QString & bouchot, const QString & message)
 {
-	QQBouchot * bouchotDest = m_settings->bouchot(bouchot);
+	QQBouchot * bouchotDest = m_bouchots.value(bouchot, NULL);
 
 	if( bouchotDest != NULL)
 		bouchotDest->postMessage(message);
@@ -210,7 +209,8 @@ void MainWindow::doTriggerMiniPalmi()
 	m_ui->actionEtendu->setChecked(false);
 	m_ui->actionMinimal->setChecked(true);
 
-	m_settings->setPalmiMinimized(true);
+	QQSettings settings;
+	settings.setValue(SETTINGS_PALMI_MINI, true);
 	m_palmi->setMinimal(true);
 }
 
@@ -219,38 +219,49 @@ void MainWindow::doTriggerMaxiPalmi()
 	m_ui->actionEtendu->setChecked(true);
 	m_ui->actionMinimal->setChecked(false);
 
-	m_settings->setPalmiMinimized(false);
+	QQSettings settings;
+	settings.setValue(SETTINGS_PALMI_MINI, false);
 	m_palmi->setMinimal(false);
 }
 
-void MainWindow::initBouchot(QQBouchot * bouchot)
+void MainWindow::initBouchots()
 {
-	m_pini->addPiniTab(bouchot->settings().group());
-	m_palmi->addBouchot(bouchot->name(), bouchot->settings().colorLight());
+	QQSettings settings;
 
-	connect(bouchot, SIGNAL(newPostsAvailable(QString)), m_pini, SLOT(newPostsAvailable(QString)));
+	QQBouchot * bouchot = NULL;
+	QStringList list = settings.listBouchots();
+	for(int i = 0; i < list.size(); i++)
+	{
+		bouchot = settings.loadBouchot(list.at(i));
+		m_pini->addPiniTab(bouchot->settings().group());
+		m_palmi->addBouchot(bouchot->name(), bouchot->settings().colorLight());
+
+		connect(bouchot, SIGNAL(newPostsAvailable(QString)), m_pini, SLOT(newPostsAvailable(QString)));
+	}
 }
 
 void MainWindow::closeEvent(QCloseEvent * event)
 {
+	QQSettings settings;
+	settings.setValue(SETTINGS_MAINWINDOW_GEOMETRY, saveGeometry());
+	settings.setValue(SETTINGS_MAINWINDOW_STATE, saveState());
+
 	QMainWindow::closeEvent(event);
-	m_settings->setValue(SETTINGS_MAINWINDOW_GEOMETRY, saveGeometry());
-	m_settings->setValue(SETTINGS_MAINWINDOW_STATE, saveState());
-	m_settings->saveSettings();
 }
 
 void MainWindow::keyPressEvent(QKeyEvent * event)
 {
 	int key = event->key();
-	switch(key)
+	if(key == Qt::Key_F5)
 	{
-	case Qt::Key_F5:
-		m_settings->stopBouchots();
-		m_settings->startBouchots();
-		break;
-	default :
-		QMainWindow::keyPressEvent(event);
-		break;
+		QHashIterator<QString, QQBouchot *> i(m_bouchots);
+		while (i.hasNext())
+		{
+			QQBouchot * bouchot = i.value();
+			bouchot->stopRefresh();
+			bouchot->startRefresh();
+		}
 	}
-
+	else
+		QMainWindow::keyPressEvent(event);
 }
