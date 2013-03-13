@@ -241,16 +241,27 @@ void MainWindow::closeEvent(QCloseEvent * event)
 
 void MainWindow::keyPressEvent(QKeyEvent * event)
 {
+	bool processed = false;
+
 	int key = event->key();
 	switch(key)
 	{
 	case Qt::Key_F5:
 		m_settings->stopBouchots();
 		m_settings->startBouchots();
+		processed = true;
+		break;
+	case Qt::Key_T:
+		if(event->modifiers() == Qt::ControlModifier)
+		{
+			m_totozManager->setVisible(! m_totozManager->isVisible());
+			processed = true;
+		}
 		break;
 	default :
-		QMainWindow::keyPressEvent(event);
 		break;
 	}
+	if(! processed)
+		QMainWindow::keyPressEvent(event);
 
 }
