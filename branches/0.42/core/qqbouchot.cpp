@@ -29,7 +29,7 @@ typedef struct bouchotDef
 
 //Définition des bouchots préconfigurés
 // tiré d'olcc by Chrisix
-int bouchotsDefSize = 5;
+int bouchotsDefSize = 6;
 bouchotDefStruct bouchotsDef[] =
 {
 	{ "dlfp", "http://linuxfr.org/board/index.xml", "http://linuxfr.org/board", "board[message]=%m",
@@ -41,8 +41,11 @@ bouchotDefStruct bouchotsDef[] =
 	{ "finss", "http://finss.fr/drupal/node/95/xml", "http://finss.fr/drupal/node/95/post", "message=%m",
 	  "#d0ffd0", "finss", "", QQBouchot::SlipTagsRaw },
 	{ "shoop", "http://dax.sveetch.net/tribune/remote.xml?last=%i", "http://dax.sveetch.net/tribune/post.xml", "content=%m",
-	  "#ededdb", "sveetch,dax", "shoop_sessionid=", QQBouchot::SlipTagsEncoded }
-};
+	  "#ededdb", "sveetch,dax", "shoop_sessionid=", QQBouchot::SlipTagsEncoded },
+	{ "moules", "http://moules.org/board/backend", "http://moules.org/board/add", "message=%m",
+	  "#ffe3c9", "", "", QQBouchot::SlipTagsEncoded }
+}
+;
 
 QQBouchot::QQBouchot(const QString & name, QQSettings * settings) :
 	QQNetworkAccessor(settings)
