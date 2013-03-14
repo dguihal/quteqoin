@@ -20,7 +20,8 @@
 #include <QToolTip>
 
 #define TIME_UA_AREA_WIDTH_CHAR 26 // 10 + 1 + 15 Chars
-#define NOTIF_AREA_WIDTH 20 //Px
+#define NOTIF_AREA_WIDTH 30 //Px
+#define ITEM_AREA_WIDTH 6 //Px
 
 QQTextBrowser::QQTextBrowser(QString groupName, QQPinipede *parent) :
 	QTextEdit(parent)
@@ -103,7 +104,6 @@ void QQTextBrowser::notifAreaPaintEvent(QPaintEvent * event)
 	{
 		QQMessageBlockUserData * uData = (QQMessageBlockUserData *) block.userData();
 		int offset = 0;
-		int width = notifAreaWidth() / 3;
 		if(uData != NULL && uData->post() != NULL)
 		{
 			QTextCursor curs(block);
@@ -116,10 +116,10 @@ void QQTextBrowser::notifAreaPaintEvent(QPaintEvent * event)
 			{
 				painter.setBrush(newPostsBrushColor);
 				painter.setPen(QPen(QBrush(newPostsPenColor), 0.6));
-				QRect drawRect(offset, posY, width, height);
+				QRect drawRect(offset, posY, ITEM_AREA_WIDTH, height);
 				painter.drawRect(drawRect);
 			}
-			offset += width;
+			offset += ITEM_AREA_WIDTH;
 
 			///////////////////////////////////////////////////////////////////
 			/////        LE TRACKING DES POSTS                /////////////////
@@ -129,17 +129,17 @@ void QQTextBrowser::notifAreaPaintEvent(QPaintEvent * event)
 			{
 				painter.setBrush(selfPostsBrushColor);
 				painter.setPen(QPen(QBrush(selfPostsPenColor), 0.6));
-				QRect drawRect(offset, posY, width, height);
+				QRect drawRect(offset, posY, ITEM_AREA_WIDTH, height);
 				painter.drawRect(drawRect);
 			}
 			else if(uData->hasNRefToSelfPost())
 			{
 				painter.setBrush(repPostsBrushColor);
 				painter.setPen(QPen(QBrush(repPostsPenColor), 0.6));
-				QRect drawRect(offset, posY, width, height);
+				QRect drawRect(offset, posY, ITEM_AREA_WIDTH, height);
 				painter.drawRect(drawRect);
 			}
-			offset += width;
+			offset += ITEM_AREA_WIDTH;
 
 			///////////////////////////////////////////////////////////////////
 			/////        LE BIGONO (ENCORE)                  /////////////////
@@ -149,9 +149,16 @@ void QQTextBrowser::notifAreaPaintEvent(QPaintEvent * event)
 			{
 				painter.setBrush(QBrush(bigornoBrushColor));
 				painter.setPen(QPen(QBrush(bigornoPenColor), 0.6));
-				QRect drawRect(offset, posY, width, height);
+				QRect drawRect(offset, posY, ITEM_AREA_WIDTH, height);
 				painter.drawRect(drawRect);
 			}
+			offset += ITEM_AREA_WIDTH;
+
+			// LE RESTE : UNE ZONE COLOREE EN FULL CONTRAST	
+			painter.setBrush(post->bouchot()->settings().color());
+			painter.setPen(QPen(QBrush(post->bouchot()->settings().color()), 0.6));
+			QRect drawRect(offset, posY, notifAreaWidth() - offset, height);
+			painter.drawRect(drawRect);
 		}
 		block = block.next();
 	}
