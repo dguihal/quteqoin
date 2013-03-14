@@ -152,7 +152,7 @@ void QQTextBrowser::notifAreaPaintEvent(QPaintEvent * event)
 				QRect drawRect(offset, posY, ITEM_AREA_WIDTH, height);
 				painter.drawRect(drawRect);
 			}
-			offset += ITEM_AREA_WIDTH;
+			offset += ITEM_AREA_WIDTH + 1;
 
 			// LE RESTE : UNE ZONE COLOREE EN FULL CONTRAST	
 			painter.setBrush(post->bouchot()->settings().color());
