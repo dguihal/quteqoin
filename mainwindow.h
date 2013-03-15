@@ -1,7 +1,6 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include <QHash>
 #include <QMainWindow>
 
 class QQBouchot;
@@ -41,7 +40,6 @@ private:
 	QQPalmipede * m_palmi;
 	QQPinipede * m_pini;
 	QQTotozManager * m_totozManager;
-	QHash<QString, QQBouchot *> m_bouchots;
 };
 
 #endif // MAINWINDOW_H

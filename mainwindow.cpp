@@ -196,7 +196,7 @@ void MainWindow::displayOptions()
 
 void MainWindow::doPostMessage(const QString & bouchot, const QString & message)
 {
-	QQBouchot * bouchotDest = m_bouchots.value(bouchot, NULL);
+	QQBouchot * bouchotDest = QQBouchot::bouchot(bouchot);
 
 	if( bouchotDest != NULL)
 		bouchotDest->postMessage(message);
@@ -257,10 +257,10 @@ void MainWindow::keyPressEvent(QKeyEvent * event)
 	int key = event->key();
 	if(key == Qt::Key_F5)
 	{
-		QHashIterator<QString, QQBouchot *> i(m_bouchots);
-		while (i.hasNext())
+		QList<QQBouchot *> bouchots = QQBouchot::listBouchots();
+		for(int i = 0; i < bouchots.size(); i++)
 		{
-			QQBouchot * bouchot = i.value();
+			QQBouchot * bouchot = bouchots.at(i);
 			bouchot->stopRefresh();
 			bouchot->startRefresh();
 		}

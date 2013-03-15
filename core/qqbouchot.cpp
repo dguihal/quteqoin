@@ -81,16 +81,16 @@ void QQBouchot::postMessage(const QString &message)
 	request.setAttribute(QNetworkRequest::User, QQBouchot::PostRequest);
 	request.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded; charset=UTF-8");
 
-	if(m_bSettings.ua().isEmpty() == false)
-		request.setRawHeader("User-Agent", m_bSettings.ua().toAscii());
-	else
+	QString ua = m_bSettings.ua();
+	if(ua.isEmpty())
 	{
 		QQSettings settings;
-		request.setRawHeader("User-Agent",
-							 settings.value(SETTINGS_GENERAL_DEFAULT_UA,
-											DEFAULT_GENERAL_DEFAULT_UA).toByteArray()
-							 );
+		ua = settings.value(SETTINGS_GENERAL_DEFAULT_UA, DEFAULT_GENERAL_DEFAULT_UA).toString();
+		if(ua.isEmpty())
+			ua=QString(DEFAULT_GENERAL_DEFAULT_UA);
 	}
+
+	request.setRawHeader("User-Agent", ua.toAscii());
 
 	if(m_bSettings.cookie().isEmpty() == false)
 		request.setRawHeader("Cookie", m_bSettings.cookie().toAscii());
