@@ -68,6 +68,7 @@ QQBouchot * QQSettings::loadBouchot(const QString &name)
 {
 	QQBouchot::QQBouchotSettings newBouchotSettings;
 
+	beginGroup(QString::fromAscii("bouchot"));
 	beginGroup(name);
 
 	newBouchotSettings.setColorFromString(value(SETTINGS_BOUCHOT_COLOR, "").toString());
@@ -82,9 +83,10 @@ QQBouchot * QQSettings::loadBouchot(const QString &name)
 	newBouchotSettings.setGroup(value(SETTINGS_BOUCHOT_GROUP, "").toString());
 	newBouchotSettings.setSlipType((QQBouchot::TypeSlip) value(SETTINGS_BOUCHOT_SLIPTYPE, "").toInt());
 
-	endGroup();
+	endGroup(); //beginGroup(name);
+	endGroup(); //beginGroup(QString::fromAscii("bouchot"));
 
-	QQBouchot *newBouchot = new QQBouchot(name, this);
+	QQBouchot *newBouchot = new QQBouchot(name, NULL);
 	newBouchot->setSettings(newBouchotSettings);
 
 	return newBouchot;

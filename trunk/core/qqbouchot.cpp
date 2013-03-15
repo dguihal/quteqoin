@@ -56,11 +56,14 @@ QQBouchot::QQBouchot(const QString & name, QObject * parent) :
 	m_xmlParser = new QQXmlParser();
 	connect(m_xmlParser, SIGNAL(newPostReady(QQPost&)), this, SLOT(insertNewPost(QQPost&)));
 	connect(m_xmlParser, SIGNAL(finished()), this, SLOT(parsingFinished()));
+
+	QQBouchot::s_hashBouchots.insert(m_name, this);
 }
 
 QQBouchot::~QQBouchot()
 {
 	delete m_xmlParser;
+	QQBouchot::s_hashBouchots.remove(m_name);
 }
 
 void QQBouchot::postMessage(const QString &message)
@@ -337,19 +340,32 @@ QStringList QQBouchot::getBouchotDefNameList()
 	return res;
 }
 
+QHash<QString, QQBouchot *> QQBouchot::s_hashBouchots;
+
 QQBouchot * QQBouchot::bouchot(QString nameBouchot)
 {
-	Q_UNUSED(nameBouchot)
-	return NULL;
+	QQBouchot * ret = NULL;
+	if(s_hashBouchots.contains(nameBouchot))
+		ret = s_hashBouchots.value(nameBouchot);
+
+	return ret;
 }
 
 QList<QQBouchot *> QQBouchot::listBouchots()
 {
-	return QList<QQBouchot *>();
+	return s_hashBouchots.values();
 }
 
 QList<QQBouchot *> QQBouchot::listBouchotsGroup(QString nameGroup)
 {
-	Q_UNUSED(nameGroup)
-	return QList<QQBouchot *>();
+	QHashIterator<QString, QQBouchot *> i(s_hashBouchots);
+	QQBouchot *bouchot;
+	QList<QQBouchot *> res;
+
+	while (i.hasNext()) {
+		bouchot = i.next().value();
+		if(bouchot->settings().group() == nameGroup)
+			res.append(bouchot);
+	}
+	return res;
 }

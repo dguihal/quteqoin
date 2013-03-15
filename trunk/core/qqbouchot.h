@@ -5,6 +5,7 @@
 #include "core/qqpost.h"
 
 #include <QColor>
+#include <QHash>
 #include <QObject>
 #include <QList>
 #include <QString>
@@ -25,7 +26,8 @@ public:
 	enum TypeSlip { SlipTagsEncoded = 0, SlipTagsRaw = 1 };
 	enum TypeRequest { UnknownRequest = 0, BackendRequest = 1, PostRequest = 2 };
 
-	class QQBouchotSettings {
+	class QQBouchotSettings
+	{
 
 	public:
 		QStringList aliases() const { return m_aliases; }
@@ -81,6 +83,8 @@ public:
 		TypeSlip m_slipType;
 		QString m_ua;
 		QString m_group;
+
+		static const char Separator = ',';
 	};
 
 	QQBouchot(const QString & name, QObject *parent = 0);
@@ -105,7 +109,6 @@ public:
 
 	virtual bool event(QEvent * e);
 
-	static const char Separator = ',';
 	static QQBouchotSettings getBouchotDef(const QString & nameBouchot);
 	static QStringList getBouchotDefNameList();
 	static QQBouchot * bouchot(QString nameBouchot);
@@ -117,6 +120,7 @@ public slots:
 
 signals:
 	void newPostsAvailable(QString groupName);
+	void removed(QString name, QString groupName);
 
 protected slots:
 	void fetchBackend();
@@ -134,6 +138,8 @@ private:
 	QTimer timer;
 
 	QQXmlParser * m_xmlParser;
+
+	static QHash<QString, QQBouchot *> s_hashBouchots;
 };
 
 /*
