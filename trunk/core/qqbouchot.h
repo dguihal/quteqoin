@@ -121,6 +121,7 @@ public slots:
 signals:
 	void newPostsAvailable(QString groupName);
 	void removed(QString name, QString groupName);
+	void destroyed(QQBouchot *);
 
 protected slots:
 	void fetchBackend();

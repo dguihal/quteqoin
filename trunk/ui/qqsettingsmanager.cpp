@@ -211,10 +211,14 @@ void QQSettingsManager::saveBoardsSettings()
 {
 	QQSettings settings;
 
+	QQBouchot *bouchot = NULL;
+
 	QStringList oldBouchots = m_boardsSettingsW->getOldBouchots();
 	for(int i = 0; i < oldBouchots.size(); i++)
 	{
 		settings.removeBouchot(oldBouchots.at(i));
-
+		bouchot = QQBouchot::bouchot(oldBouchots.at(i));
+		if(bouchot != NULL)
+			delete bouchot;
 	}
 }

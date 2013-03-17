@@ -77,8 +77,16 @@ MainWindow::~MainWindow()
 
 void MainWindow::displayOptions()
 {
+	QList<QQBouchot *> bouchots = QQBouchot::listBouchots();
+	for(int i = 0; i < bouchots.size(); i++)
+		bouchots.at(i)->stopRefresh();
+
 	QQSettingsManager settingsManager(this);
 	settingsManager.exec();
+
+	bouchots = QQBouchot::listBouchots();
+	for(int i = 0; i < bouchots.size(); i++)
+		bouchots.at(i)->startRefresh();
 }
 
 /*
@@ -238,6 +246,7 @@ void MainWindow::initBouchots()
 		m_palmi->addBouchot(bouchot->name(), bouchot->settings().colorLight());
 
 		connect(bouchot, SIGNAL(newPostsAvailable(QString)), m_pini, SLOT(newPostsAvailable(QString)));
+		connect(bouchot, SIGNAL(destroyed(QQBouchot*)), this, SLOT(bouchotDestroyed(QQBouchot *)));
 
 		bouchot->startRefresh();
 	}
@@ -267,4 +276,18 @@ void MainWindow::keyPressEvent(QKeyEvent * event)
 	}
 	else
 		QMainWindow::keyPressEvent(event);
+}
+
+void MainWindow::bouchotDestroyed(QQBouchot *bouchot)
+{
+	QString name = bouchot->name();
+	QString group = bouchot->settings().group();
+
+	m_palmi->removeBouchot(bouchot->name());
+
+	QList<QQBouchot *> bouchots = QQBouchot::listBouchotsGroup(group);
+	(bouchots.size() == 0) ?
+				m_pini->removePiniTab(group) :
+				m_pini->purgePiniTab(group, name);
+
 }
