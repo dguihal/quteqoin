@@ -247,6 +247,7 @@ void MainWindow::initBouchots()
 
 		connect(bouchot, SIGNAL(newPostsAvailable(QString)), m_pini, SLOT(newPostsAvailable(QString)));
 		connect(bouchot, SIGNAL(destroyed(QQBouchot*)), this, SLOT(bouchotDestroyed(QQBouchot *)));
+		connect(bouchot, SIGNAL(groupChanged(QQBouchot*,QString)), this, SLOT(bouchotGroupChanged(QQBouchot*,QString)));
 
 		bouchot->startRefresh();
 	}
@@ -290,4 +291,19 @@ void MainWindow::bouchotDestroyed(QQBouchot *bouchot)
 				m_pini->removePiniTab(group) :
 				m_pini->purgePiniTab(group, name);
 
+}
+
+void MainWindow::bouchotGroupChanged(QQBouchot *bouchot, QString oldGroupName)
+{
+	QString name = bouchot->name();
+	QString group = bouchot->settings().group();
+
+	QList<QQBouchot *> bouchots = QQBouchot::listBouchotsGroup(oldGroupName);
+	(bouchots.size() == 0) ?
+				m_pini->removePiniTab(oldGroupName) :
+				m_pini->purgePiniTab(oldGroupName, name);
+
+	m_pini->addPiniTab(bouchot->settings().group());
+	bouchot->setNewPostsFromHistory();
+	m_pini->newPostsAvailable(bouchot->settings().group());
 }

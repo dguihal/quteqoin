@@ -213,12 +213,25 @@ void QQSettingsManager::saveBoardsSettings()
 
 	QQBouchot *bouchot = NULL;
 
-	QStringList oldBouchots = m_boardsSettingsW->getOldBouchots();
-	for(int i = 0; i < oldBouchots.size(); i++)
+	QStringList lstOldBouchots = m_boardsSettingsW->getOldBouchots();
+	for(int i = 0; i < lstOldBouchots.size(); i++)
 	{
-		settings.removeBouchot(oldBouchots.at(i));
-		bouchot = QQBouchot::bouchot(oldBouchots.at(i));
+		settings.removeBouchot(lstOldBouchots.at(i));
+		bouchot = QQBouchot::bouchot(lstOldBouchots.at(i));
 		if(bouchot != NULL)
 			delete bouchot;
+	}
+
+	QMap<QString, QQBouchot::QQBouchotSettings> mBouchots = m_boardsSettingsW->getModifBouchots();
+	QList<QString> bounchotNames = mBouchots.keys();
+	for(int i = 0; i < bounchotNames.size(); i++)
+	{
+		QString bounchotName = bounchotNames.at(i);
+		bouchot = QQBouchot::bouchot(bounchotName);
+		if(bouchot != NULL)
+		{
+			bouchot->setSettings(mBouchots.value(bounchotName));
+			settings.saveBouchot(bounchotName, mBouchots.value(bounchotName));
+		}
 	}
 }

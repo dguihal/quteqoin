@@ -44,7 +44,7 @@ bouchotDefStruct bouchotsDef[] =
 	  "#ededdb", "sveetch,dax", "shoop_sessionid=", QQBouchot::SlipTagsEncoded }
 };
 
-QQBouchot::QQBouchot(const QString & name, QObject * parent) :
+QQBouchot::QQBouchot(const QString &name, QObject *parent) :
 	QQNetworkAccessor(parent)
 {
 	m_name = name;
@@ -102,6 +102,13 @@ void QQBouchot::postMessage(const QString &message)
 	httpPost(request, postData);
 }
 
+void QQBouchot::setSettings(const QQBouchotSettings &newSettings)
+{
+	QString oldGroup = m_bSettings.group();
+	m_bSettings = newSettings;
+	checkGroupModified(oldGroup);
+}
+
 
 void QQBouchot::startRefresh()
 {
@@ -144,7 +151,7 @@ void QQBouchot::setNewPostsFromHistory()
 		m_newPostHistory.prepend(m_history.at(index));
 }
 
-bool QQBouchot::event(QEvent * e)
+bool QQBouchot::event(QEvent *e)
 {
 	if(e->type() == QQPurgeBouchotHistoEvent::PURGE_BOUCHOT_HISTO)
 	{
@@ -220,7 +227,7 @@ void QQBouchot::fetchBackend()
 }
 
 
-void QQBouchot::slotSslErrors(const QList<QSslError> & errors)
+void QQBouchot::slotSslErrors(const QList<QSslError> &errors)
 {
 	for(int i = 0; i < errors.size(); i++)
 	{
@@ -231,7 +238,7 @@ void QQBouchot::slotSslErrors(const QList<QSslError> & errors)
 	}
 }
 
-void QQBouchot::requestFinishedSlot(QNetworkReply * reply)
+void QQBouchot::requestFinishedSlot(QNetworkReply *reply)
 {
 	// Recuperation du Statut HTTP
 	//QVariant statusCodeV = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute);
@@ -267,7 +274,7 @@ void QQBouchot::requestFinishedSlot(QNetworkReply * reply)
 	reply->deleteLater();
 }
 
-void QQBouchot::parseBackend(const QByteArray & data)
+void QQBouchot::parseBackend(const QByteArray &data)
 {
 	QXmlSimpleReader xmlReader;
 	QXmlInputSource xmlSource;
@@ -281,6 +288,16 @@ void QQBouchot::parseBackend(const QByteArray & data)
 	xmlReader.parse(&xmlSource);
 }
 
+void QQBouchot::insertNewPost(QQPost &newPost)
+{
+	QQPost * tmpNewPost = new QQPost(newPost);
+	tmpNewPost->setParent( this );
+
+	m_newPostHistory.prepend( tmpNewPost );
+
+}
+
+
 void QQBouchot::parsingFinished()
 {
 	if( m_newPostHistory.size() > 0 )
@@ -293,27 +310,24 @@ void QQBouchot::parsingFinished()
 	}
 }
 
-void QQBouchot::insertNewPost(QQPost &newPost)
+void QQBouchot::checkGroupModified(const QString &oldGroupName)
 {
-	QQPost * tmpNewPost = new QQPost(newPost);
-	tmpNewPost->setParent( this );
-
-	m_newPostHistory.prepend( tmpNewPost );
-
+	if(m_bSettings.group() != oldGroupName)
+		emit groupChanged(this, oldGroupName);
 }
 
 /////////////////////////
 // Static
 /////////////////////////
 
-QQBouchot::QQBouchotSettings QQBouchot::getBouchotDef(const QString & nameBouchot)
+QQBouchot::QQBouchotSettings QQBouchot::getBouchotDef(const QString &bouchotName)
 {
 
 	QQBouchot::QQBouchotSettings settings;
 
 	int i = 0;
 	for(; i < bouchotsDefSize; i++)
-		if(QString::compare(nameBouchot, QLatin1String(bouchotsDef[i].name)) == 0)
+		if(QString::compare(bouchotName, QLatin1String(bouchotsDef[i].name)) == 0)
 			break;
 
 	if(i < bouchotsDefSize)
@@ -343,11 +357,11 @@ QStringList QQBouchot::getBouchotDefNameList()
 
 QHash<QString, QQBouchot *> QQBouchot::s_hashBouchots;
 
-QQBouchot * QQBouchot::bouchot(QString nameBouchot)
+QQBouchot * QQBouchot::bouchot(const QString &bouchotName)
 {
 	QQBouchot * ret = NULL;
-	if(s_hashBouchots.contains(nameBouchot))
-		ret = s_hashBouchots.value(nameBouchot);
+	if(s_hashBouchots.contains(bouchotName))
+		ret = s_hashBouchots.value(bouchotName);
 
 	return ret;
 }
@@ -357,7 +371,7 @@ QList<QQBouchot *> QQBouchot::listBouchots()
 	return s_hashBouchots.values();
 }
 
-QList<QQBouchot *> QQBouchot::listBouchotsGroup(QString nameGroup)
+QList<QQBouchot *> QQBouchot::listBouchotsGroup(const QString &groupName)
 {
 	QHashIterator<QString, QQBouchot *> i(s_hashBouchots);
 	QQBouchot *bouchot;
@@ -365,7 +379,7 @@ QList<QQBouchot *> QQBouchot::listBouchotsGroup(QString nameGroup)
 
 	while (i.hasNext()) {
 		bouchot = i.next().value();
-		if(bouchot->settings().group() == nameGroup)
+		if(bouchot->settings().group() == groupName)
 			res.append(bouchot);
 	}
 	return res;

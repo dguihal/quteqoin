@@ -127,7 +127,12 @@ void QQBoardsSettings::editBouchot()
 				refMap = &m_newBouchots;
 			else
 				refMap = &m_modifBouchots;
-			refMap->insert(bouchotName, bouchotSettingsDialog.bouchotSettings());
+			QQBouchot::QQBouchotSettings bSettings = bouchotSettingsDialog.bouchotSettings();
+			refMap->insert(bouchotName, bSettings);
+
+			//si on a ajoute un nouveau groupe, il faut le prendre en compte
+			if(!m_listGroups.contains(bSettings.group()))
+				m_listGroups.append(bSettings.group());
 		}
 	}
 }
