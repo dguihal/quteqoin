@@ -25,7 +25,7 @@ public:
 	explicit QQSettings(QObject * parent = 0);
 	~QQSettings();
 
-	void addBouchot(const QString &name, const QQBouchot::QQBouchotSettings &bouchotSettings);
+	void saveBouchot(const QString &name, const QQBouchot::QQBouchotSettings &bouchotSettings);
 	QQBouchot * loadBouchot(const QString &name);
 	void removeBouchot(const QString &name);
 

@@ -28,6 +28,7 @@ QStringList QQSettings::listBouchots()
 
 void QQSettings::removeBouchot(const QString &name)
 {
+	beginGroup(QString::fromAscii("bouchot"));
 	beginGroup(name);
 
 	remove(SETTINGS_BOUCHOT_COLOR);
@@ -43,10 +44,12 @@ void QQSettings::removeBouchot(const QString &name)
 	remove(SETTINGS_BOUCHOT_SLIPTYPE);
 
 	endGroup();
+	endGroup();
 }
 
-void QQSettings::addBouchot(const QString &name, const QQBouchot::QQBouchotSettings &bouchotSettings)
+void QQSettings::saveBouchot(const QString &name, const QQBouchot::QQBouchotSettings &bouchotSettings)
 {
+	beginGroup(QString::fromAscii("bouchot"));
 	beginGroup(name);
 
 	setValue(SETTINGS_BOUCHOT_COLOR, bouchotSettings.colorToString());
@@ -61,6 +64,7 @@ void QQSettings::addBouchot(const QString &name, const QQBouchot::QQBouchotSetti
 	setValue(SETTINGS_BOUCHOT_GROUP, bouchotSettings.group());
 	setValue(SETTINGS_BOUCHOT_SLIPTYPE, bouchotSettings.slipType());
 
+	endGroup();
 	endGroup();
 }
 

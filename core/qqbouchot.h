@@ -87,18 +87,18 @@ public:
 		static const char Separator = ',';
 	};
 
-	QQBouchot(const QString & name, QObject *parent = 0);
+	QQBouchot(const QString &name, QObject *parent = 0);
 	~QQBouchot();
 
 	QString name() { return m_name; }
 	//void setName(const QString &newName) { m_name = newName; }
 
-	void parseBackend(const QByteArray & data);
-	void postMessage(const QString & message);
+	void parseBackend(const QByteArray &data);
+	void postMessage(const QString &message);
 
 	QQBouchotSettings settings() { return m_bSettings; }
 	void setSettings(QQBouchot bouchotRef) { setSettings(bouchotRef.settings()); }
-	void setSettings(QQBouchotSettings newSettings) { m_bSettings = newSettings; }
+	void setSettings(const QQBouchotSettings &newSettings);
 
 	void startRefresh();
 	void stopRefresh();
@@ -107,29 +107,31 @@ public:
 	QList<QQPost *> getPostsHistory() {	return m_history; }
 	void setNewPostsFromHistory();
 
-	virtual bool event(QEvent * e);
+	virtual bool event(QEvent *e);
 
-	static QQBouchotSettings getBouchotDef(const QString & nameBouchot);
+	static QQBouchotSettings getBouchotDef(const QString &bouchotName);
 	static QStringList getBouchotDefNameList();
-	static QQBouchot * bouchot(QString nameBouchot);
+	static QQBouchot * bouchot(const QString &bouchotName);
 	static QList<QQBouchot *> listBouchots();
-	static QList<QQBouchot *> listBouchotsGroup(QString nameGroup);
+	static QList<QQBouchot *> listBouchotsGroup(const QString &groupName);
 
 public slots:
-	void slotSslErrors(const QList<QSslError> & errors);
+	void slotSslErrors(const QList<QSslError> &errors);
 
 signals:
 	void newPostsAvailable(QString groupName);
 	void removed(QString name, QString groupName);
-	void destroyed(QQBouchot *);
+	void destroyed(QQBouchot *bouchot);
+	void groupChanged(QQBouchot *bouchot, QString oldGroupName);
 
 protected slots:
 	void fetchBackend();
-	void requestFinishedSlot(QNetworkReply *);
-	void insertNewPost(QQPost &);
+	void requestFinishedSlot(QNetworkReply *reply);
+	void insertNewPost(QQPost &newPost);
 	void parsingFinished();
 
 private:
+	void checkGroupModified(const QString &oldGroupName);
 
 	QList<QQPost *> m_history;
 	int m_lastId;
