@@ -49,7 +49,8 @@ QQBouchotSettingsDialog::~QQBouchotSettingsDialog()
 void QQBouchotSettingsDialog::setGroups(QStringList listGroups)
 {
 	ui->groupSelComboBox->addItems(listGroups);
-	ui->groupSelComboBox->setCurrentIndex( -1 );
+	int index = ui->groupSelComboBox->findText(m_bouchotSettings.group(), Qt::MatchExactly | Qt::MatchCaseSensitive);
+	ui->groupSelComboBox->setCurrentIndex(index);
 }
 
 void QQBouchotSettingsDialog::setBouchot()
