@@ -37,7 +37,8 @@ QQTotozManager::QQTotozManager(QWidget *parent) :
 	m_totozDownloader = new QQTotozDownloader(this);
 
 	ui->setupUi(this);
-	if(settings.value(SETTINGS_TOTOZ_SERVER_ALLOW_SEARCH, DEFAULT_TOTOZ_SERVER_ALLOW_SEARCH).toBool() == true)
+	bool totozSearchEnabled = settings.value(SETTINGS_TOTOZ_SERVER_ALLOW_SEARCH, DEFAULT_TOTOZ_SERVER_ALLOW_SEARCH).toBool();
+	if(totozSearchEnabled)
 		ui->qqTMTabWidget->setCurrentIndex(TAB_BOOKMARKS_INDEX);
 	else
 		ui->qqTMTabWidget->removeTab(TAB_SEARCH_INDEX);
@@ -47,7 +48,8 @@ QQTotozManager::QQTotozManager(QWidget *parent) :
 
 	this->layout()->setContentsMargins(1, 1, 1, 1);
 	ui->qqTMTabWidget->widget(TAB_BOOKMARKS_INDEX)->layout()->setContentsMargins(0, 1, 0, 1);
-	ui->qqTMTabWidget->widget(TAB_SEARCH_INDEX)->layout()->setContentsMargins(0, 1, 0, 1);
+	if(totozSearchEnabled)
+		ui->qqTMTabWidget->widget(TAB_SEARCH_INDEX)->layout()->setContentsMargins(0, 1, 0, 1);
 
 	ui->serverScrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 	ui->bookmarkScrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);

@@ -25,21 +25,24 @@ public:
 
 public slots:
 	void displayOptions();
-	void doPostMessage(const QString & bouchot, const QString & message);
+	void doPostMessage(const QString &bouchot, const QString &message);
 	void doTriggerMiniPalmi();
 	void doTriggerMaxiPalmi();
 
 protected:
-	virtual void closeEvent(QCloseEvent * event);
-	virtual void keyPressEvent(QKeyEvent * event);
+	virtual void closeEvent(QCloseEvent *event);
+	virtual void keyPressEvent(QKeyEvent *event);
+
+protected slots:
+	void bouchotDestroyed(QQBouchot *bouchot);
 
 private:
 	void initBouchots();
 
-	Ui::MainWindow * m_ui;
-	QQPalmipede * m_palmi;
-	QQPinipede * m_pini;
-	QQTotozManager * m_totozManager;
+	Ui::MainWindow *m_ui;
+	QQPalmipede *m_palmi;
+	QQPinipede *m_pini;
+	QQTotozManager *m_totozManager;
 };
 
 #endif // MAINWINDOW_H

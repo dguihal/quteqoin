@@ -71,7 +71,7 @@ bool QQTotozSettings::totozAllowSearch()
 
 void QQTotozSettings::totozAllowSearchChanged(int)
 {
-	m_totozAllowSearch = (ui->srvAllowSearch->checkState() == Qt::Unchecked);
+	m_totozAllowSearch = (ui->srvAllowSearch->checkState() != Qt::Unchecked);
 }
 
 
