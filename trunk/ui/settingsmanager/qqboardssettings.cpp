@@ -112,11 +112,11 @@ void QQBoardsSettings::editBouchot()
 
 		QMap<QString, QQBouchot::QQBouchotSettings> *refMap = NULL;
 		if(m_newBouchots.contains(bouchotName))
-			refMap = &m_newBouchots;
+			refMap = &m_newBouchots; // nouveaux
 		else if(m_modifBouchots.contains(bouchotName))
-			refMap = &m_modifBouchots;
+			refMap = &m_modifBouchots; // existants deja modifies
 		else
-			refMap = &m_bouchots;
+			refMap = &m_bouchots; // existants non modifies
 
 		QQBouchotSettingsDialog bouchotSettingsDialog(bouchotName, refMap->value(bouchotName), this);
 		bouchotSettingsDialog.setGroups(m_listGroups);
