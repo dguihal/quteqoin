@@ -344,7 +344,10 @@ void QQTextBrowser::mouseReleaseEvent(QMouseEvent * event)
 	}
 
 	if(needUpdate)
+	{
 		m_notifArea->update();
+		emit newPostsAcknowledged(m_groupName);
+	}
 
 	// Ouverture l'url si on est au dessus d'un lien
 	if( httpAnchor.length() > 0 )

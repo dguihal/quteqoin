@@ -66,7 +66,7 @@ QQPinipede::~QQPinipede()
 
 void QQPinipede::addPiniTab(const QString & groupName)
 {
-	if( this->m_textBrowserHash.value(groupName) != NULL )
+	if(this->m_textBrowserHash.value(groupName) != NULL)
 		return;
 
 	QQTextBrowser * textBrowser = new QQTextBrowser(groupName, this);
@@ -85,6 +85,7 @@ void QQPinipede::addPiniTab(const QString & groupName)
 	connect(textBrowser, SIGNAL(unHighlight()), this, SLOT(unHighlight()));
 	connect(textBrowser, SIGNAL(displayTotoz(QString &)), this, SLOT(showTotozViewer(QString &)));
 	connect(textBrowser, SIGNAL(concealTotoz()), this, SLOT(hideTotozViewer()));
+	connect(textBrowser, SIGNAL(newPostsAcknowledged(QString)), this, SLOT(newPostsAcknowledged(QString)));
 	connect(textBrowser, SIGNAL(displayTotozContextMenu(QPoint &)), m_totozViewer, SLOT(displayContextMenu(QPoint &)));
 
 	if (this->count() > 1)
@@ -97,17 +98,14 @@ void QQPinipede::createPiniTabs(const QList<QString> &groups)
 		this->addPiniTab(groups[i]);
 }
 
-void QQPinipede::removePiniTab(const QString& name)
+void QQPinipede::removePiniTab(const QString &name)
 {
-	for (int i = 0; i < this->count(); i++)
-		if (this->tabText(i) == name)
-		{
-			delete this->widget(i);
-			this->removeTab(i);
-			break;
-		}
+	QQTextBrowser *textBrowser = m_textBrowserHash.value(name);
 
+	removeTab(indexOf(textBrowser));
 	m_textBrowserHash.remove(name);
+	delete textBrowser;
+
 	m_listPostsTabMap.remove(name);
 
 	if (this->count() < 2)
@@ -425,15 +423,25 @@ void QQPinipede::newPostsAvailable(QString groupName)
 	purgePinitabHistory(groupName);
 
 	if(wasAtEnd)
-		textBrowser->verticalScrollBar()->triggerAction( QAbstractSlider::SliderToMaximum );
+		textBrowser->verticalScrollBar()->triggerAction(QAbstractSlider::SliderToMaximum);
 
 	//Remise en place de l'ancienne forme du pointeur
 	textBrowser->viewport()->setCursor(Qt::ArrowCursor);
+
+	//Signalement de nouveaux posts dans le nom du Tab
+	QString tabName = groupName;
+	tabName.append(" (*)");
+	setTabText(indexOf(textBrowser), tabName);
 
 	newPostsAvailableMutex.unlock();
 
 }
 
+void QQPinipede::newPostsAcknowledged(QString groupName)
+{
+	QQTextBrowser * textBrowser = m_textBrowserHash.value(groupName);
+	setTabText(indexOf(textBrowser), groupName);
+}
 
 unsigned int QQPinipede::insertPostToList(QList<QQPost *> *listPosts, QQPost *post, unsigned int indexStart)
 {
