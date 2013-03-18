@@ -5,7 +5,7 @@
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
 
-#define MAX_FILE_AGE_DAY_S 60 //60j
+#define MAX_FILE_AGE_DAYS 60 //60j
 
 QQTotoz::QQTotoz() {}
 
@@ -39,7 +39,7 @@ bool QQTotoz::cacheExists()
 	//Invalidation systematique au bout de 60j
 	QFileInfo info(file);
 	QDateTime dateFile = info.created();
-	if(dateFile.daysTo(QDateTime::currentDateTime()) > MAX_FILE_AGE_DAY_S)
+	if(dateFile.daysTo(QDateTime::currentDateTime()) > MAX_FILE_AGE_DAYS)
 	{
 		file.remove();
 		return false;
