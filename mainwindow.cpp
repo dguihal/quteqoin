@@ -36,15 +36,16 @@ MainWindow::MainWindow(QWidget *parent) :
 	m_totozManager = new QQTotozManager(this);
 	m_totozManager->setAllowedAreas(Qt::LeftDockWidgetArea |
 									Qt::RightDockWidgetArea);
-	m_totozManager->setVisible(false);
 	connect(m_totozManager, SIGNAL(totozClicked(QString)), m_palmi, SLOT(insertReplaceText(QString)));
+	connect(m_totozManager, SIGNAL(visibilityChanged(bool)), this, SLOT(totozManagerVisibilityChanged(bool)));
+	m_totozManager->setVisible(false);
 	addDockWidget(Qt::RightDockWidgetArea, m_totozManager, Qt::Vertical);
 
 	QAction * actionTotozManager = m_totozManager->toggleViewAction();
 	m_ui->toolsMenu->addAction(actionTotozManager);
 
 	m_pini->setTotozManager(m_totozManager);
-	connect(m_pini, SIGNAL(insertTextPalmi(QString)), m_palmi, SLOT(insertReplaceText(QString)));
+	connect(m_pini, SIGNAL(insertTextPalmi(QString, QString)), m_palmi, SLOT(insertReplaceText(QString, QString)));
 
 	connect(m_palmi, SIGNAL(postMessage(QString,QString)), this, SLOT(doPostMessage(QString,QString)));
 	connect(m_ui->actionQuit, SIGNAL(triggered()), this, SLOT(close()));
@@ -232,6 +233,14 @@ void MainWindow::doTriggerMaxiPalmi()
 	m_palmi->setMinimal(false);
 }
 
+void MainWindow::totozManagerVisibilityChanged(bool visible)
+{
+	if(visible)
+		m_totozManager->setFocus();
+	else
+		m_palmi->setFocus();
+}
+
 void MainWindow::initBouchots()
 {
 	QQSettings settings;
@@ -264,8 +273,11 @@ void MainWindow::closeEvent(QCloseEvent * event)
 
 void MainWindow::keyPressEvent(QKeyEvent * event)
 {
-	int key = event->key();
-	if(key == Qt::Key_F5)
+	bool processed = false;
+
+	switch (event->key())
+	{
+	case Qt::Key_F5:
 	{
 		QList<QQBouchot *> bouchots = QQBouchot::listBouchots();
 		for(int i = 0; i < bouchots.size(); i++)
@@ -274,9 +286,23 @@ void MainWindow::keyPressEvent(QKeyEvent * event)
 			bouchot->stopRefresh();
 			bouchot->startRefresh();
 		}
+		break;
 	}
-	else
-		QMainWindow::keyPressEvent(event);
+	case Qt::Key_T:
+	{
+		if(event->modifiers() == Qt::ControlModifier)
+		{
+			m_totozManager->setVisible(! m_totozManager->isVisible());
+			processed = true;
+		}
+		break;
+	}
+	default :
+		break;
+	}
+
+	if(! processed)
+	QMainWindow::keyPressEvent(event);
 }
 
 void MainWindow::bouchotDestroyed(QQBouchot *bouchot)

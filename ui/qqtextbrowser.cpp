@@ -13,13 +13,15 @@
 #include <QPainter>
 #include <QScrollBar>
 #include <QTextBlock>
+#include <QTextCodec>
 #include <QTextLayout>
 #include <QTextTable>
 #include <QTextTableCell>
 #include <QToolTip>
 
 #define TIME_UA_AREA_WIDTH_CHAR 26 // 10 + 1 + 15 Chars
-#define NOTIF_AREA_WIDTH 20 //Px
+#define NOTIF_AREA_WIDTH 30 //Px
+#define ITEM_AREA_WIDTH 6 //Px
 
 QQTextBrowser::QQTextBrowser(QString groupName, QQPinipede *parent) :
 	QTextEdit(parent)
@@ -102,7 +104,6 @@ void QQTextBrowser::notifAreaPaintEvent(QPaintEvent * event)
 	{
 		QQMessageBlockUserData * uData = (QQMessageBlockUserData *) block.userData();
 		int offset = 0;
-		int width = notifAreaWidth() / 3;
 		if(uData != NULL && uData->post() != NULL)
 		{
 			QTextCursor curs(block);
@@ -115,10 +116,10 @@ void QQTextBrowser::notifAreaPaintEvent(QPaintEvent * event)
 			{
 				painter.setBrush(newPostsBrushColor);
 				painter.setPen(QPen(QBrush(newPostsPenColor), 0.6));
-				QRect drawRect(offset, posY, width, height);
+				QRect drawRect(offset, posY, ITEM_AREA_WIDTH, height);
 				painter.drawRect(drawRect);
 			}
-			offset += width;
+			offset += ITEM_AREA_WIDTH;
 
 			///////////////////////////////////////////////////////////////////
 			/////        LE TRACKING DES POSTS                /////////////////
@@ -128,17 +129,17 @@ void QQTextBrowser::notifAreaPaintEvent(QPaintEvent * event)
 			{
 				painter.setBrush(selfPostsBrushColor);
 				painter.setPen(QPen(QBrush(selfPostsPenColor), 0.6));
-				QRect drawRect(offset, posY, width, height);
+				QRect drawRect(offset, posY, ITEM_AREA_WIDTH, height);
 				painter.drawRect(drawRect);
 			}
 			else if(uData->hasNRefToSelfPost())
 			{
 				painter.setBrush(repPostsBrushColor);
 				painter.setPen(QPen(QBrush(repPostsPenColor), 0.6));
-				QRect drawRect(offset, posY, width, height);
+				QRect drawRect(offset, posY, ITEM_AREA_WIDTH, height);
 				painter.drawRect(drawRect);
 			}
-			offset += width;
+			offset += ITEM_AREA_WIDTH;
 
 			///////////////////////////////////////////////////////////////////
 			/////        LE BIGONO (ENCORE)                  /////////////////
@@ -148,9 +149,16 @@ void QQTextBrowser::notifAreaPaintEvent(QPaintEvent * event)
 			{
 				painter.setBrush(QBrush(bigornoBrushColor));
 				painter.setPen(QPen(QBrush(bigornoPenColor), 0.6));
-				QRect drawRect(offset, posY, width, height);
+				QRect drawRect(offset, posY, ITEM_AREA_WIDTH, height);
 				painter.drawRect(drawRect);
 			}
+			offset += ITEM_AREA_WIDTH + 1;
+
+			// LE RESTE : UNE ZONE COLOREE EN FULL CONTRAST	
+			painter.setBrush(post->bouchot()->settings().color());
+			painter.setPen(QPen(QBrush(post->bouchot()->settings().color()), 0.6));
+			QRect drawRect(offset, posY, notifAreaWidth() - offset, height);
+			painter.drawRect(drawRect);
 		}
 		block = block.next();
 	}
@@ -169,10 +177,14 @@ void QQTextBrowser::mouseMoveEvent(QMouseEvent * event)
 	//qDebug() << "####################################";
 	QTextEdit::mouseMoveEvent(event);
 
-	if(anchorAt(event->pos()).length() > 0)
-		viewport()->setCursor(Qt::PointingHandCursor);
-	else if (! m_mouseClick)
-		viewport()->setCursor(Qt::ArrowCursor);
+	QString httpAnchor = anchorAt(event->pos());
+	if(! m_mouseClick)
+	{
+		QCursor cursor(Qt::ArrowCursor);
+		if(httpAnchor.length() > 0)
+			cursor.setShape(Qt::PointingHandCursor);
+		viewport()->setCursor(cursor);
+	}
 
 	QTextCursor cursor = cursorForPosition(event->pos());
 
@@ -187,7 +199,6 @@ void QQTextBrowser::mouseMoveEvent(QMouseEvent * event)
 		{
 			//Est-on au dessus d'une url
 			// Ouverture l'url si on est au dessus d'un lien
-			QString httpAnchor = anchorAt(event->pos());
 			if(httpAnchor.length() > 0)
 			{
 				QFontMetrics fm(QToolTip::font());
@@ -199,26 +210,14 @@ void QQTextBrowser::mouseMoveEvent(QMouseEvent * event)
 			//Est-on au dessus d'une norloge
 			QQNorlogeRef nRef = blockData->norlogeRefForIndex(cursor.positionInBlock());
 			if(nRef.isValid())
-			{
-				//qDebug() << "QQTextBrowser::mouseMoveEvent, Norloge detectee, str = "
-				//		 << nRef.getOrigNRef() << " position : " << nRef.getPosInMessage();
 				highlightNorloge(nRef);
-			}
-			else
-			{
-				//qDebug() << "QQTextBrowser::mouseMoveEvent, Pas de Norloge detectee";
-				// Il faut unhilighter puisqu'on ne survole pas de norloge
+			else // Il faut unhilighter puisqu'on ne survole pas de norloge
 				unHighlightNorloge();
-
-			}
 
 			//Gestion des Totoz
 			QString totozId = blockData->totozIdForIndex(cursor.positionInBlock());
 			if(totozId.length() > 0)
-			{
-				//qDebug() << "QQTextBrowser::mouseMoveEvent, Totoz detecte, str = " << totozId;
 				showTotoz(totozId);
-			}
 			else //il faut cacher l'affichage du Totoz puisqu'on n'en survole pas
 				hideTotoz();
 
@@ -312,12 +311,17 @@ void QQTextBrowser::mouseReleaseEvent(QMouseEvent * event)
 {
 	QTextEdit::mouseReleaseEvent(event);
 
-	viewport()->setCursor(Qt::ArrowCursor);
-	// Verification que l'on est pas en pleine selection
-	if((m_mouseClick == false) || (event->pos() != m_lastPoint))
-		return;
-
 	m_mouseClick = false;
+
+	QString httpAnchor = anchorAt(event->pos());
+	QCursor mCursor(Qt::ArrowCursor);
+	if(httpAnchor.length() > 0)
+		mCursor.setShape(Qt::PointingHandCursor);
+	viewport()->setCursor(mCursor);
+
+	// Verification que l'on est pas en pleine selection
+	if(event->pos() != m_lastPoint)
+		return;
 
 	// Reset de l'icone de l'application
 	QIcon icon = QIcon(QString::fromAscii(":/img/rubber_duck_yellow.svg"));
@@ -340,13 +344,25 @@ void QQTextBrowser::mouseReleaseEvent(QMouseEvent * event)
 	}
 
 	if(needUpdate)
+	{
 		m_notifArea->update();
+		emit newPostsAcknowledged(m_groupName);
+	}
 
 	// Ouverture l'url si on est au dessus d'un lien
-	QString httpAnchor = anchorAt(event->pos());
 	if( httpAnchor.length() > 0 )
 	{
-		QDesktopServices::openUrl(QUrl::fromPercentEncoding(httpAnchor.toAscii()));
+		QUrl url;
+		if(QTextCodec::codecForName("ISO 8859-1")->canEncode(httpAnchor))
+			url.setEncodedUrl(httpAnchor.toAscii());
+		else
+			url.setUrl(httpAnchor);
+
+		if(url.isValid())
+			QDesktopServices::openUrl(url);
+		else
+			qWarning() << "url : " << url << "is not valid";
+
 		return;
 	}
 
@@ -357,25 +373,30 @@ void QQTextBrowser::mouseReleaseEvent(QMouseEvent * event)
 
 	if(blockData != NULL)
 	{
+		QQPost * post = blockData->post();
 		if(blockData->isIndexInZRange(cursor.positionInBlock(),
 									  QQMessageBlockUserData::NORLOGE))
 		{
 			Q_ASSERT(blockData->post() != NULL);
 
-			QQPost * post = blockData->post();
 			QQNorloge norloge(post->bouchot()->name(),
 							  post->norloge());
 			if(post->isNorlogeMultiple())
 				norloge.setNorlogeIndex(post->norlogeIndex());
-			emit norlogeClicked(norloge);
+			emit norlogeClicked(post->bouchot()->name(), norloge);
 		}
 		else if(blockData->isIndexInZRange(cursor.positionInBlock(),
 										   QQMessageBlockUserData::LOGINUA))
 		{
-			QString login = blockData->post()->login();
+			QString login = post->login();
 			if(login.size() == 0)
-				login = blockData->post()->UA();
-			emit loginClicked(login);
+			{
+				QString ua = post->UA();
+				if(ua.size() != 0 && ! ua.contains('/', Qt::CaseSensitive))
+					emit loginClicked(post->bouchot()->name(), ua);
+			}
+			else
+				emit loginClicked(post->bouchot()->name(), login);
 		}
 	}
 }

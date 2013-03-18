@@ -32,6 +32,9 @@ public slots:
 signals:
 	void totozClicked(QString anchor);
 
+protected:
+	virtual void focusInEvent(QFocusEvent *event);
+
 protected slots:
 	void totozSelected(QString anchor);
 	void totozBookmarkDo(QString anchor, QQTotoz::TotozBookmarkAction action);

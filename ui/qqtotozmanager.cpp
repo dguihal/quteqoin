@@ -39,7 +39,7 @@ QQTotozManager::QQTotozManager(QWidget *parent) :
 	ui->setupUi(this);
 	bool totozSearchEnabled = settings.value(SETTINGS_TOTOZ_SERVER_ALLOW_SEARCH, DEFAULT_TOTOZ_SERVER_ALLOW_SEARCH).toBool();
 	if(totozSearchEnabled)
-		ui->qqTMTabWidget->setCurrentIndex(TAB_BOOKMARKS_INDEX);
+		ui->qqTMTabWidget->setCurrentIndex(TAB_SEARCH_INDEX);
 	else
 		ui->qqTMTabWidget->removeTab(TAB_SEARCH_INDEX);
 
@@ -160,6 +160,12 @@ void QQTotozManager::totozSearchCanceled()
 	ui->searchLineEdit->setCursor(QCursor(Qt::ArrowCursor));
 	ui->searchLineEdit->setStyleSheet("");
 
+}
+
+void QQTotozManager::focusInEvent(QFocusEvent * event)
+{
+	QDockWidget::focusInEvent(event);
+	ui->searchLineEdit->setFocus();
 }
 
 void QQTotozManager::searchBookmarks(QString text)

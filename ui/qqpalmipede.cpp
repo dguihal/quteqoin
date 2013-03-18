@@ -73,35 +73,28 @@ void QQPalmipede::removeBouchot(const QString &oldBouchot)
 	}
 }
 
-void QQPalmipede::insertReplaceText(const QString & tag)
+void QQPalmipede::insertReplaceText(const QString &bouchot, const QString &tag)
 {
-	QString t_tag = tag;
+	int wasPostLineEditEmpty = ui->postLineEdit->text().isEmpty();
+	insertReplaceText(tag);
 
-	// Si le palmi est vide, il est preferable de changer le tribune selectionnee
-	if(ui->postLineEdit->text().isEmpty())
+	// Si le palmi est vide, il faut changer la tribune selectionnee
+	int boardIndex = ui->boardSelectorComboBox->currentIndex();
+	if(wasPostLineEditEmpty)
 	{
-		QRegExp regexp = QQNorlogeRef::norlogeRegexp();
-		t_tag.indexOf(regexp);
-		QString bouchot = regexp.cap(4).remove(0, 1); // pour supprimer le '@' initial
-		if(bouchot.length() > 0)
+		boardIndex = ui->boardSelectorComboBox->findText(bouchot);
+		if(boardIndex >= 0)
 		{
-			int index = ui->boardSelectorComboBox->findText(bouchot);
-			if(index >= 0)
-			{
-				ui->boardSelectorComboBox->setCurrentIndex(index);
-				ui->boardSelectorComboBoxMin->setCurrentIndex(index);
-				bouchotSelectorActivated(index);
-				t_tag.replace(regexp, QString::fromAscii("\\1"));
-			}
+			ui->boardSelectorComboBox->setCurrentIndex(boardIndex);
+			ui->boardSelectorComboBoxMin->setCurrentIndex(boardIndex);
 		}
 	}
-	else
-	{
-		QRegExp regexp = QQNorlogeRef::norlogeRegexp(ui->boardSelectorComboBox->currentText());
-		//Suppression des @bouchot excedentaires lorsque l'on a deja  selectionne le dit bouchot
-		t_tag.replace(regexp, QString::fromAscii("\\1"));
-	}
+	bouchotSelectorActivated(boardIndex);
+}
 
+void QQPalmipede::insertReplaceText(const QString &tag)
+{
+	QString t_tag = tag;
 	ui->postLineEdit->insertReplaceText(t_tag);
 	setFocus();
 }
@@ -137,7 +130,7 @@ void QQPalmipede::changeNorloges(const QString & bouchot)
 
 		if(norloge.contains(bouchotRemoverReg))
 			destText.append(norloge.left(norloge.length() - bouchotRemoverReg.matchedLength()));
-		else if(! norloge.contains(bouchotAdderReg))
+		else if(! norloge.contains(bouchotAdderReg) && bouchot != m_oldBouchot)
 			destText.append(norloge).append(QString::fromAscii("@")).append(m_oldBouchot);
 		else
 			destText.append(norloge);
