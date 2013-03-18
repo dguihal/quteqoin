@@ -28,6 +28,7 @@ public slots:
 	void doPostMessage(const QString &bouchot, const QString &message);
 	void doTriggerMiniPalmi();
 	void doTriggerMaxiPalmi();
+	void totozManagerVisibilityChanged(bool visible);
 
 protected:
 	virtual void closeEvent(QCloseEvent *event);

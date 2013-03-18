@@ -65,9 +65,7 @@ QQPinipede::~QQPinipede()
 
 void QQPinipede::addPiniTab(const QString & groupName)
 {
-	qDebug() << "QQPinipede::addPiniTab" ;
-
-	if( this->m_textBrowserHash.value(groupName) != NULL )
+	if(this->m_textBrowserHash.value(groupName) != NULL)
 		return;
 
 	QQTextBrowser * textBrowser = new QQTextBrowser(groupName, this);
@@ -80,12 +78,13 @@ void QQPinipede::addPiniTab(const QString & groupName)
 	connect(highlighter, SIGNAL(totozRequired(QString &)),
 			m_totozDownloader, SLOT(fetchTotoz(QString &)));
 
-	connect(textBrowser, SIGNAL(norlogeClicked(QQNorloge)), this, SLOT(norlogeClicked(QQNorloge)));
-	connect(textBrowser, SIGNAL(loginClicked(QString)), this, SLOT(loginClicked(QString)));
+	connect(textBrowser, SIGNAL(norlogeClicked(QString, QQNorloge)), this, SLOT(norlogeClicked(QString, QQNorloge)));
+	connect(textBrowser, SIGNAL(loginClicked(QString, QString)), this, SLOT(loginClicked(QString, QString)));
 	connect(textBrowser, SIGNAL(norlogeRefHovered(QQNorlogeRef)), this, SLOT(norlogeRefHovered(QQNorlogeRef)));
 	connect(textBrowser, SIGNAL(unHighlight()), this, SLOT(unHighlight()));
 	connect(textBrowser, SIGNAL(displayTotoz(QString &)), this, SLOT(showTotozViewer(QString &)));
 	connect(textBrowser, SIGNAL(concealTotoz()), this, SLOT(hideTotozViewer()));
+	connect(textBrowser, SIGNAL(newPostsAcknowledged(QString)), this, SLOT(newPostsAcknowledged(QString)));
 	connect(textBrowser, SIGNAL(displayTotozContextMenu(QPoint &)), m_totozViewer, SLOT(displayContextMenu(QPoint &)));
 
 	if (this->count() > 1)
@@ -98,17 +97,14 @@ void QQPinipede::createPiniTabs(const QList<QString> &groups)
 		this->addPiniTab(groups[i]);
 }
 
-void QQPinipede::removePiniTab(const QString& name)
+void QQPinipede::removePiniTab(const QString &name)
 {
-	for (int i = 0; i < this->count(); i++)
-		if (this->tabText(i) == name)
-		{
-			delete this->widget(i);
-			this->removeTab(i);
-			break;
-		}
+	QQTextBrowser *textBrowser = m_textBrowserHash.value(name);
 
+	removeTab(indexOf(textBrowser));
 	m_textBrowserHash.remove(name);
+	delete textBrowser;
+
 	m_listPostsTabMap.remove(name);
 
 	if (this->count() < 2)
@@ -430,13 +426,24 @@ void QQPinipede::newPostsAvailable(QString groupName)
 	purgePinitabHistory(groupName);
 
 	if(wasAtEnd)
-		textBrowser->verticalScrollBar()->triggerAction( QAbstractSlider::SliderToMaximum );
+		textBrowser->verticalScrollBar()->triggerAction(QAbstractSlider::SliderToMaximum);
 
 	//Remise en place de l'ancienne forme du pointeur
 	textBrowser->viewport()->setCursor(Qt::ArrowCursor);
 
+	//Signalement de nouveaux posts dans le nom du Tab
+	QString tabName = groupName;
+	tabName.append(" (*)");
+	setTabText(indexOf(textBrowser), tabName);
+
 	newPostsAvailableMutex.unlock();
 
+}
+
+void QQPinipede::newPostsAcknowledged(QString groupName)
+{
+	QQTextBrowser * textBrowser = m_textBrowserHash.value(groupName);
+	setTabText(indexOf(textBrowser), groupName);
 }
 
 unsigned int QQPinipede::insertPostToList(QList<QQPost *> *listPosts, QQPost *post, unsigned int indexStart)
@@ -468,19 +475,14 @@ unsigned int QQPinipede::insertPostToList(QList<QQPost *> *listPosts, QQPost *po
 }
 
 
-void QQPinipede::norlogeClicked(QQNorloge norloge)
+void QQPinipede::norlogeClicked(QString bouchot, QQNorloge norloge)
 {
-	emit insertTextPalmi(norloge.toStringPalmi() + QString::fromAscii(" "));
+	emit insertTextPalmi(bouchot, norloge.toStringPalmi() + QString::fromAscii(" "));
 }
 
-void QQPinipede::totozClicked(QString totozId)
+void QQPinipede::loginClicked(QString bouchot, QString login)
 {
-	emit insertTextPalmi(totozId + QString::fromAscii(" "));
-}
-
-void QQPinipede::loginClicked(QString login)
-{
-	emit insertTextPalmi(login + QString::fromAscii("< "));
+	emit insertTextPalmi(bouchot, login + QString::fromAscii("< "));
 }
 
 void QQPinipede::norlogeRefHovered(QQNorlogeRef norlogeRef)

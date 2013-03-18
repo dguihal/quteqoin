@@ -44,30 +44,30 @@ public:
 	void purgePiniTab(const QString &groupName, const QString &bouchotName);
 	void purgePinitab(const QString &groupName, const QString &bouchotName, unsigned int max);
 
-	QQPost * getPostForGroup(QString &groupName, int numPost);
+	QQPost *getPostForGroup(QString &groupName, int numPost);
 
-	void setTotozManager(QQTotozManager * ttManager);
+	void setTotozManager(QQTotozManager *ttManager);
 
-	void purgePinitabHistory(const QString & groupName);
+	void purgePinitabHistory(const QString &groupName);
 
 public slots:
-	void norlogeClicked(QQNorloge norloge);
+	void norlogeClicked(QString bouchot, QQNorloge norloge);
 	void norlogeRefHovered(QQNorlogeRef norlogeRef);
 	void unHighlight();
-	void showTotozViewer(QString & totozId);
+	void showTotozViewer(QString &totozId);
 	void hideTotozViewer();
-	void totozClicked(QString totozId);
-	void loginClicked(QString login);
+	void loginClicked(QString bouchot, QString login);
 	void newPostsAvailable(QString groupName);
+	void newPostsAcknowledged(QString groupName);
 
 signals:
-	void insertTextPalmi(QString text);
+	void insertTextPalmi(QString bouchot, QString text);
 
 protected:
-	virtual void contextMenuEvent(QContextMenuEvent * ev);
+	virtual void contextMenuEvent(QContextMenuEvent *ev);
 
 private:
-	void printPostAtCursor(QTextCursor & cursor, QQPost * post);
+	void printPostAtCursor(QTextCursor &cursor, QQPost *post);
 	unsigned int insertPostToList(QList<QQPost *> *listPosts, QQPost *post, unsigned int indexStart);
 
 	QQTotozDownloader * m_totozDownloader;
