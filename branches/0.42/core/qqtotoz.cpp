@@ -56,7 +56,8 @@ QString QQTotoz::getPath(QString id)
 	if(! dirCache.exists())
 		dirCache.mkpath(dirCache.path());
 
-	QString totozIdB64 = QString(id.toLower().toAscii().toBase64());
+	QString totozIdB64 = QString(id.toLower().toAscii().toBase64()).left(255);
+	totozIdB64.replace('/', '_');
 	return dirCache.filePath(totozIdB64);
 }
 
