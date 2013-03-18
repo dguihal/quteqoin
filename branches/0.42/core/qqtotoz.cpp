@@ -1,10 +1,11 @@
 #include "qqtotoz.h"
 
 #include <QBuffer>
-#include <QCryptographicHash>
 #include <QtDebug>
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
+
+#define MAX_FILE_AGE_DAY_S 60 //60j
 
 QQTotoz::QQTotoz() {}
 
@@ -31,7 +32,21 @@ QQTotoz::~QQTotoz()
 
 bool QQTotoz::cacheExists()
 {
-	return QFile::exists(QQTotoz::getPath(m_id));
+	QFile file(QQTotoz::getPath(m_id));
+	if(!file.exists(QQTotoz::getPath(m_id)))
+		return false;
+
+	//Invalidation systematique au bout de 60j
+	QFileInfo info(file);
+	QDateTime dateFile = info.created();
+	if(dateFile.daysTo(QDateTime::currentDateTime()) > MAX_FILE_AGE_DAY_S)
+	{
+		file.remove();
+		return false;
+	}
+
+	return true;
+		
 }
 
 QString QQTotoz::getPath(QString id)
@@ -41,9 +56,8 @@ QString QQTotoz::getPath(QString id)
 	if(! dirCache.exists())
 		dirCache.mkpath(dirCache.path());
 
-	QString totozIdMd5 = QString(QCryptographicHash::hash((id.toLower().toAscii()),
-														  QCryptographicHash::Md5).toHex());
-	return dirCache.filePath(totozIdMd5);
+	QString totozIdB64 = QString(id.toLower().toAscii().toBase64());
+	return dirCache.filePath(totozIdB64);
 }
 
 void QQTotoz::load()
