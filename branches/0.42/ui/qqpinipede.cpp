@@ -515,7 +515,7 @@ void QQPinipede::norlogeRefHovered(QQNorlogeRef norlogeRef)
 		do
 		{
 			highlighter->rehighlightBlock(cursor.block());
-			if(cursor.block().userState() == QQSyntaxHighlighter::FULL_HIGHLIGHTED)
+			if(cursor.block().userState() & QQSyntaxHighlighter::FULL_HIGHLIGHTED)
 				highlightSuccess = true;
 		} while ( cursor.movePosition(QTextCursor::NextBlock) &&
 				  cursor.blockNumber() <= endBlockPos );
@@ -584,8 +584,7 @@ void QQPinipede::unHighlight()
 
 	do
 	{
-		if(cursor.block().userState() == QQSyntaxHighlighter::NORLOGE_HIGHLIGHTED ||
-		   cursor.block().userState() == QQSyntaxHighlighter::FULL_HIGHLIGHTED)
+		if(cursor.block().userState() & (QQSyntaxHighlighter::NORLOGE_HIGHLIGHTED | QQSyntaxHighlighter::FULL_HIGHLIGHTED))
 			highlighter->rehighlightBlock(cursor.block());
 
 	} while ( cursor.movePosition( QTextCursor::NextBlock ) );
