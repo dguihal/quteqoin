@@ -6,12 +6,12 @@
 #include "core/qqtotoz.h"
 #include "ui/qqpinipede.h"
 
-#include <QTextEdit>
+#include <QTextBrowser>
 #include <QPoint>
 
 class QQMessageBlockUserData;
 
-class QQTextBrowser : public QTextEdit
+class QQTextBrowser : public QTextBrowser
 {
 	Q_OBJECT
 

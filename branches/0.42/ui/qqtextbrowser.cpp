@@ -24,10 +24,11 @@
 #define ITEM_AREA_WIDTH 6 //Px
 
 QQTextBrowser::QQTextBrowser(QString groupName, QQPinipede *parent) :
-	QTextEdit(parent)
+	QTextBrowser(parent)
 {
 	setFrameStyle(QFrame::NoFrame);
 	setReadOnly(true);
+	setOpenExternalLinks(true);
 	m_groupName = groupName;
 	m_highlightAsked = false;
 	m_mouseClick = false;
@@ -350,6 +351,7 @@ void QQTextBrowser::mouseReleaseEvent(QMouseEvent * event)
 	}
 
 	// Ouverture l'url si on est au dessus d'un lien
+	/*
 	if( httpAnchor.length() > 0 )
 	{
 		QUrl url;
@@ -365,6 +367,7 @@ void QQTextBrowser::mouseReleaseEvent(QMouseEvent * event)
 
 		return;
 	}
+	*/
 
 	// Gestion du clic sur une norloge ou un login
 	QTextCursor cursor = cursorForPosition(event->pos());
