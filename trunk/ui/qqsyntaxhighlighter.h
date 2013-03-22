@@ -16,7 +16,7 @@ class QQSyntaxHighlighter : public QSyntaxHighlighter
 	Q_OBJECT
 public:
 
-	enum blockState { NOT_HIGHLIGHTED, NORMAL, NORLOGE_HIGHLIGHTED, FULL_HIGHLIGHTED };
+	enum blockState { NOT_HIGHLIGHTED = 0x00, NORMAL = 0x01, NORLOGE_HIGHLIGHTED = 0x02, FULL_HIGHLIGHTED = 0x04 };
 
 	QQSyntaxHighlighter(QTextDocument * parent = 0);
 	~QQSyntaxHighlighter();

@@ -6,7 +6,6 @@
 #include <QtDebug>
 #include <QFocusEvent>
 #include <QKeyEvent>
-#include <QRegExp>
 
 QQPalmiLineEdit::QQPalmiLineEdit(QWidget *parent) :
 	QLineEdit(parent)
@@ -121,14 +120,17 @@ void QQPalmiLineEdit::completeTotoz()
 		txt = txt.right(txt.length() - (pos + 2));
 		if(! txt.contains(']'))
 		{
-			QRegExp reg(QString('^') + txt); 
-			QStringList list = m_listTotoz.filter(reg);
-			if(list.size() > 0)
+			for(int i = 0; i < m_listTotoz.size(); ++i)
 			{
-				QString totoz = list.first().append(']');
-				setSelection(cursorPosition(), 0 - txt.length());
-				insertReplaceText(totoz);
-				setSelection(cursorPosition(), 0 - (totoz.length() - txt.length()));
+				if(m_listTotoz.at(i).startsWith(txt, Qt::CaseInsensitive))
+				{
+					QString totoz = m_listTotoz.at(i);
+					totoz.append(']');
+					setSelection(cursorPosition(), 0 - txt.length());
+					insertReplaceText(totoz);
+					setSelection(cursorPosition(), 0 - (totoz.length() - txt.length()));
+					break;
+				}
 			}
 		}
 	}
