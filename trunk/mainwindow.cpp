@@ -250,6 +250,8 @@ void MainWindow::initBouchots()
 	for(int i = 0; i < list.size(); i++)
 	{
 		bouchot = settings.loadBouchot(list.at(i));
+		if(bouchot == NULL)
+			continue;
 		bouchot->setParent(this);
 		m_pini->addPiniTab(bouchot->settings().group());
 		m_palmi->addBouchot(bouchot->name(), bouchot->settings().colorLight());
