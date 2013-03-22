@@ -225,15 +225,24 @@ void QQSettingsManager::saveBoardsSettings()
 
 	// Les bouchots modifies
 	QMap<QString, QQBouchot::QQBouchotSettings> mBouchots = m_boardsSettingsW->getModifBouchots();
-	QList<QString> bounchotNames = mBouchots.keys();
-	for(int i = 0; i < bounchotNames.size(); i++)
+	QList<QString> bouchotNames = mBouchots.keys();
+	for(int i = 0; i < bouchotNames.size(); i++)
 	{
-		QString bounchotName = bounchotNames.at(i);
-		bouchot = QQBouchot::bouchot(bounchotName);
+		QString bouchotName = bouchotNames.at(i);
+		bouchot = QQBouchot::bouchot(bouchotName);
 		if(bouchot != NULL)
 		{
-			bouchot->setSettings(mBouchots.value(bounchotName));
-			settings.saveBouchot(bounchotName, mBouchots.value(bounchotName));
+			bouchot->setSettings(mBouchots.value(bouchotName));
+			settings.saveBouchot(bouchotName, mBouchots.value(bouchotName));
 		}
+	}
+	// Les bouchots ajoutes
+	mBouchots = m_boardsSettingsW->getNewBouchots();
+	bouchotNames = mBouchots.keys();
+	for(int i = 0; i < bouchotNames.size(); i++)
+	{
+		QString bouchotName = bouchotNames.at(i);
+		settings.saveBouchot(bouchotName, mBouchots.value(bouchotName));
+		emit bouchotCreated(settings.loadBouchot(bouchotName));
 	}
 }
