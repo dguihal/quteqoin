@@ -213,6 +213,7 @@ void QQSettingsManager::saveBoardsSettings()
 
 	QQBouchot *bouchot = NULL;
 
+	// Les bouchots supprimes
 	QStringList lstOldBouchots = m_boardsSettingsW->getOldBouchots();
 	for(int i = 0; i < lstOldBouchots.size(); i++)
 	{
@@ -222,6 +223,7 @@ void QQSettingsManager::saveBoardsSettings()
 			delete bouchot;
 	}
 
+	// Les bouchots modifies
 	QMap<QString, QQBouchot::QQBouchotSettings> mBouchots = m_boardsSettingsW->getModifBouchots();
 	QList<QString> bounchotNames = mBouchots.keys();
 	for(int i = 0; i < bounchotNames.size(); i++)
