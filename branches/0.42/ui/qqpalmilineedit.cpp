@@ -50,13 +50,13 @@ void QQPalmiLineEdit::insertReplaceText(const QString & tag)
 		int selStart = selectionStart();
 		txt.replace(selStart, selTxt.length(), tag);
 		setText(txt);
-		setCursorPosition(selStart + txt.length());
+		setCursorPosition(selStart + tag.length());
 	}
 	else
 	{
 		insert(tag);
 		setFocus(Qt::OtherFocusReason);
-		setCursorPosition(cursorPosition() + tag.length());
+		//setCursorPosition(cursorPosition() + tag.length());
 	}
 }
 
