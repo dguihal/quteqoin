@@ -37,6 +37,7 @@ protected:
 protected slots:
 	void bouchotDestroyed(QQBouchot *bouchot);
 	void bouchotGroupChanged(QQBouchot *bouchot, QString oldGroupName);
+	void initBouchot(QQBouchot *bouchot);
 
 private:
 	void initBouchots();

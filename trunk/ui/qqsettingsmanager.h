@@ -25,10 +25,11 @@ public:
 	explicit QQSettingsManager(QWidget *parent = 0);
 	~QQSettingsManager();
 
-protected slots:
-	virtual void accept();
+signals:
+	void bouchotCreated(QQBouchot *);
 
 protected slots:
+	virtual void accept();
 	void configItemChanged();
 
 private:

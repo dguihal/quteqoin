@@ -83,125 +83,13 @@ void MainWindow::displayOptions()
 		bouchots.at(i)->stopRefresh();
 
 	QQSettingsManager settingsManager(this);
+	connect(&settingsManager, SIGNAL(bouchotCreated(QQBouchot*)), this, SLOT(initBouchot(QQBouchot*)));
 	settingsManager.exec();
 
 	bouchots = QQBouchot::listBouchots();
 	for(int i = 0; i < bouchots.size(); i++)
 		bouchots.at(i)->startRefresh();
 }
-
-/*
-void MainWindow::displayOptions()
-{
-	//On arrete le refresh avant de continuer
-	m_settings->stopBouchots();
-
-	QQSettingsDialog settingsDialog(this);
-	settingsDialog.setDefaultUA(m_settings->value(SETTINGS_GENERAL_DEFAULT_UA, DEFAULT_GENERAL_DEFAULT_UA).toString());
-	settingsDialog.setDefaultLogin(m_settings->value(SETTINGS_GENERAL_DEFAULT_LOGIN, DEFAULT_GENERAL_DEFAULT_LOGIN).toString());
-
-	settingsDialog.setTotozServerUrl(
-					m_settings->value(SETTINGS_TOTOZ_SERVER_URL, DEFAULT_TOTOZ_SERVER_URL).toString());
-	settingsDialog.setTotozServerBaseImg(
-				m_settings->value(SETTINGS_TOTOZ_SERVER_BASE_IMG, DEFAULT_TOTOZ_SERVER_BASE_IMG).toString());
-	settingsDialog.setTotozServerAllowSearch(
-				m_settings->value(SETTINGS_TOTOZ_SERVER_ALLOW_SEARCH, DEFAULT_TOTOZ_SERVER_ALLOW_SEARCH).toBool());
-	settingsDialog.setTotozQueryPattern(
-				m_settings->value(SETTINGS_TOTOZ_SERVER_QUERY_PATTERN, DEFAULT_TOTOZ_SERVER_QUERY_PATTERN).toString());
-	settingsDialog.setTotozMode(m_settings->totozMode());
-	settingsDialog.setMaxHistoryLength(m_settings->maxHistoryLength());
-
-	QMap<QString, QQBouchot::QQBouchotSettings> mapBouchotSettings;
-	QList<QQBouchot *> listBouchots = m_settings->listBouchots();
-	QQBouchot *bouchot = NULL;
-	for(int i = 0; i < listBouchots.size(); i++ )
-	{
-		bouchot = listBouchots.at(i);
-		mapBouchotSettings.insert(bouchot->name(), bouchot->settings() );
-	}
-	settingsDialog.setBouchots(mapBouchotSettings);
-
-	if(settingsDialog.exec() == QDialog::Accepted)
-	{
-		m_settings->setValue(SETTINGS_GENERAL_DEFAULT_UA, settingsDialog.defaultUA());
-		m_settings->setValue(SETTINGS_GENERAL_DEFAULT_LOGIN, settingsDialog.defaultLogin());
-		m_settings->setValue(SETTINGS_TOTOZ_SERVER_URL, settingsDialog.totozServerUrl());
-		m_settings->setValue(SETTINGS_TOTOZ_SERVER_BASE_IMG, settingsDialog.totozServerBaseImg());
-		m_settings->setValue(SETTINGS_TOTOZ_SERVER_ALLOW_SEARCH, settingsDialog.totozServerAllowSearch());
-		m_settings->setValue(SETTINGS_TOTOZ_SERVER_QUERY_PATTERN, settingsDialog.totozQueryPattern());
-		m_settings->setTotozMode((QQSettings::TotozMode) settingsDialog.totozMode());
-
-		unsigned int oldMaxHLength = m_settings->maxHistoryLength();
-		m_settings->setMaxHistoryLength(settingsDialog.maxHistoryLength());
-		if(m_settings->maxHistoryLength() < oldMaxHLength)
-		{
-			QList<QString> listTabs = m_settings->listTabs();
-			for(int i = 0; i < listTabs.size(); i++)
-				m_pini->purgePinitabHistory(listTabs.at(i));
-		}
-
-		//Les bouchots supprimes
-		QMap<QString, QQBouchot::QQBouchotSettings> settingsDeletedbouchots = settingsDialog.oldBouchots();
-		QMapIterator<QString, QQBouchot::QQBouchotSettings> iDel(settingsDeletedbouchots);
-		while(iDel.hasNext())
-		{
-			iDel.next();
-			QQBouchot * delBouchot = m_settings->bouchot(iDel.key());
-			QString group = delBouchot->settings().group();
-
-			m_settings->removeBouchot(delBouchot);
-			m_palmi->removeBouchot(delBouchot->name());
-
-			QList<QQBouchot *> bouchots = m_settings->listBouchots(group);
-			(bouchots.size() == 0) ?
-						m_pini->removePiniTab(group) :
-						m_pini->purgePiniTab(group, delBouchot->name());
-		}
-
-		//Les bouchots modifies
-		QMap<QString, QQBouchot::QQBouchotSettings> settingsModifiedbouchots = settingsDialog.modifiedBouchots();
-		QMapIterator<QString, QQBouchot::QQBouchotSettings> iModif(settingsModifiedbouchots);
-		while(iModif.hasNext())
-		{
-			iModif.next();
-			QQBouchot * modifBouchot = m_settings->bouchot(iModif.key());
-			//Sauvegarde de l'ancien groupe au cas ou il aurait été modifié pour pouvoir
-			// effectuer une maj du pini au cas ou ...
-			QString oldGroup = modifBouchot->settings().group();
-
-			modifBouchot->setSettings(iModif.value());
-
-			// Si c'est le groupe qui est modifié il faut impérativement faire un rafraichissement du Pini
-			// afin d'effectuer la migration
-			if(modifBouchot->settings().group() != oldGroup)
-			{
-				m_pini->addPiniTab(modifBouchot->settings().group());
-				modifBouchot->setNewPostsFromHistory();
-				m_pini->newPostsAvailable(modifBouchot->settings().group());
-
-				QList<QQBouchot *> bouchots = m_settings->listBouchots(oldGroup);
-				(bouchots.size() == 0) ?
-							m_pini->removePiniTab(oldGroup) :
-							m_pini->purgePiniTab(oldGroup, modifBouchot->name());
-			}
-		}
-
-		//Les bouchots ajoutes
-		QMap<QString, QQBouchot::QQBouchotSettings> settingsNewBouchots = settingsDialog.newBouchots();
-		QMapIterator<QString, QQBouchot::QQBouchotSettings> iNew(settingsNewBouchots);
-		while(iNew.hasNext())
-		{
-			iNew.next();
-			QQBouchot * newBouchot = new QQBouchot(iNew.key(), m_settings);
-			newBouchot->setSettings(iNew.value());
-
-			initBouchot(newBouchot);
-			m_settings->addBouchot(newBouchot);
-		}
-	}
-	m_settings->startBouchots();
-}
-*/
 
 void MainWindow::doPostMessage(const QString & bouchot, const QString & message)
 {
@@ -239,29 +127,6 @@ void MainWindow::totozManagerVisibilityChanged(bool visible)
 		m_totozManager->setFocus();
 	else
 		m_palmi->setFocus();
-}
-
-void MainWindow::initBouchots()
-{
-	QQSettings settings;
-
-	QQBouchot * bouchot = NULL;
-	QStringList list = settings.listBouchots();
-	for(int i = 0; i < list.size(); i++)
-	{
-		bouchot = settings.loadBouchot(list.at(i));
-		if(bouchot == NULL)
-			continue;
-		bouchot->setParent(this);
-		m_pini->addPiniTab(bouchot->settings().group());
-		m_palmi->addBouchot(bouchot->name(), bouchot->settings().colorLight());
-
-		connect(bouchot, SIGNAL(newPostsAvailable(QString)), m_pini, SLOT(newPostsAvailable(QString)));
-		connect(bouchot, SIGNAL(destroyed(QQBouchot*)), this, SLOT(bouchotDestroyed(QQBouchot *)));
-		connect(bouchot, SIGNAL(groupChanged(QQBouchot*,QString)), this, SLOT(bouchotGroupChanged(QQBouchot*,QString)));
-
-		bouchot->startRefresh();
-	}
 }
 
 void MainWindow::closeEvent(QCloseEvent * event)
@@ -334,4 +199,36 @@ void MainWindow::bouchotGroupChanged(QQBouchot *bouchot, QString oldGroupName)
 	m_pini->addPiniTab(bouchot->settings().group());
 	bouchot->setNewPostsFromHistory();
 	m_pini->newPostsAvailable(bouchot->settings().group());
+}
+
+void MainWindow::initBouchot(QQBouchot *bouchot)
+{
+	if(bouchot == NULL)
+		return;
+
+	bouchot->setParent(this);
+	m_pini->addPiniTab(bouchot->settings().group());
+	m_palmi->addBouchot(bouchot->name(), bouchot->settings().colorLight());
+
+	connect(bouchot, SIGNAL(newPostsAvailable(QString)), m_pini, SLOT(newPostsAvailable(QString)));
+	connect(bouchot, SIGNAL(destroyed(QQBouchot*)), this, SLOT(bouchotDestroyed(QQBouchot *)));
+	connect(bouchot, SIGNAL(groupChanged(QQBouchot*,QString)), this, SLOT(bouchotGroupChanged(QQBouchot*,QString)));
+}
+
+
+void MainWindow::initBouchots()
+{
+	QQSettings settings;
+
+	QStringList list = settings.listBouchots();
+	QQBouchot * bouchot = NULL;
+	for(int i = 0; i < list.size(); i++)
+	{
+		bouchot = settings.loadBouchot(list.at(i));
+		if(bouchot == NULL)
+			continue;
+
+		initBouchot(bouchot);
+		bouchot->startRefresh();
+	}
 }
