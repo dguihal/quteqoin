@@ -45,6 +45,10 @@ void QQSettings::removeBouchot(const QString &name)
 
 	endGroup();
 	endGroup();
+
+	QStringList listBouchotsNames = listBouchots();
+	listBouchotsNames.removeAll(name);
+	setValue(SETTINGS_LIST_BOUCHOTS, QVariant(listBouchotsNames.join(QChar::fromAscii(BOUCHOTS_SPLIT_CHAR))));
 }
 
 void QQSettings::saveBouchot(const QString &name, const QQBouchot::QQBouchotSettings &bouchotSettings)
@@ -66,6 +70,11 @@ void QQSettings::saveBouchot(const QString &name, const QQBouchot::QQBouchotSett
 
 	endGroup();
 	endGroup();
+
+	QStringList listBouchotsNames = listBouchots();
+	if(! listBouchotsNames.contains(name, Qt::CaseInsensitive))
+		listBouchotsNames.append(name);
+	setValue(SETTINGS_LIST_BOUCHOTS, QVariant(listBouchotsNames.join(QChar::fromAscii(BOUCHOTS_SPLIT_CHAR))));
 }
 
 QQBouchot * QQSettings::loadBouchot(const QString &name)
@@ -74,6 +83,10 @@ QQBouchot * QQSettings::loadBouchot(const QString &name)
 
 	beginGroup(QString::fromAscii("bouchot"));
 	beginGroup(name);
+
+	// Pas d'url de backend , pas de bouchot
+	if(! contains(SETTINGS_BOUCHOT_BACKENDURL))
+		return NULL;
 
 	newBouchotSettings.setColorFromString(value(SETTINGS_BOUCHOT_COLOR, "").toString());
 	newBouchotSettings.setAliasesFromString(value(SETTINGS_BOUCHOT_ALIASES, "").toString());
@@ -89,6 +102,7 @@ QQBouchot * QQSettings::loadBouchot(const QString &name)
 
 	endGroup(); //beginGroup(name);
 	endGroup(); //beginGroup(QString::fromAscii("bouchot"));
+
 
 	QQBouchot *newBouchot = new QQBouchot(name, NULL);
 	newBouchot->setSettings(newBouchotSettings);
