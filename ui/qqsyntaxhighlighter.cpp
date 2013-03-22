@@ -58,7 +58,9 @@ void QQSyntaxHighlighter::highlightBlockForNRef()
 	if(m_nRef.matchesPost(userData->post()))
 	{
 		fmt.setBackground(QColor("#FFE940"));
-		setCurrentBlockState(QQSyntaxHighlighter::FULL_HIGHLIGHTED);
+		int blockState = currentBlockState();
+		blockState |= QQSyntaxHighlighter::FULL_HIGHLIGHTED;
+		setCurrentBlockState(blockState);
 	}
 
 	QTextCursor curs(currentBlock());
@@ -155,7 +157,9 @@ void QQSyntaxHighlighter::formatNRef(QQNorlogeRef & nRef)
 	if(m_nRef.matchesNRef(nRef))
 	{
 		fmt.setBackground(highlightColor);
-		setCurrentBlockState(QQSyntaxHighlighter::NORLOGE_HIGHLIGHTED);
+		int blockState = currentBlockState();
+		blockState |= QQSyntaxHighlighter::NORLOGE_HIGHLIGHTED;
+		setCurrentBlockState(blockState);
 	}
 
 	setFormat(nRef.getPosInMessage(), nRef.getOrigNRef().length(), fmt);
