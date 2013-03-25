@@ -62,8 +62,9 @@ QString QQGeneralSettings::maxHistorySize()
 	return m_maxHistorySize;
 }
 
-void QQGeneralSettings::maxHistorySizeChanged(const QString &)
+void QQGeneralSettings::maxHistorySizeChanged(const QString &maxHistorySize)
 {
+	Q_UNUSED(maxHistorySize);
 	m_maxHistorySize = ui->maxHistLineEdit->text();
 }
 
@@ -78,8 +79,9 @@ QString QQGeneralSettings::defaultLogin()
 	return m_defaultLogin;
 }
 
-void QQGeneralSettings::defaultLoginChanged(const QString &)
+void QQGeneralSettings::defaultLoginChanged(const QString &defaultLogin)
 {
+	Q_UNUSED(defaultLogin);
 	m_defaultLogin = ui->defaultLoginLineEdit->text();
 }
 
@@ -94,7 +96,26 @@ QString QQGeneralSettings::defaultUA()
 	return m_defaultUA;
 }
 
-void QQGeneralSettings::defaultUAChanged(const QString &)
+void QQGeneralSettings::defaultUAChanged(const QString &defaultUA)
 {
+	Q_UNUSED(defaultUA);
 	m_defaultUA = ui->defaultUALlineEdit->text();
 }
+
+//PROPERTY DefaultwebSearchUrl
+void QQGeneralSettings::setDefaultWebSearchUrl(const QString &defaultWebSearchUrl)
+{
+	ui->defaultWebSearchUrlLineEdit->setText(defaultWebSearchUrl);
+}
+
+QString QQGeneralSettings::defaultWebSearchUrl()
+{
+	return m_defaultwebSearchUrl;
+}
+
+void QQGeneralSettings::defaultWebSearchUrl(const QString &defaultWebSearchUrl)
+{
+	Q_UNUSED(defaultWebSearchUrl);
+	m_defaultwebSearchUrl = ui->defaultWebSearchUrlLineEdit->text();
+}
+

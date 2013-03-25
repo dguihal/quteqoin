@@ -13,6 +13,7 @@ class QQGeneralSettings : public QWidget
 	Q_PROPERTY(QString m_maxHistorySize READ maxHistorySize WRITE setMaxHistorySize)
 	Q_PROPERTY(QString m_defaultUA READ defaultUA WRITE setDefaultUA)
 	Q_PROPERTY(QString m_defaultLogin READ defaultLogin WRITE setDefaultLogin)
+	Q_PROPERTY(QString m_defaultwebSearchUrl READ defaultLogin WRITE setDefaultLogin)
 
 public:
 	explicit QQGeneralSettings(QWidget *parent = 0);
@@ -27,11 +28,15 @@ public:
 	void setDefaultUA(const QString &defaultUA);
 	QString defaultUA();
 
+	void setDefaultWebSearchUrl(const QString &defaultWebSearchUrl);
+	QString defaultWebSearchUrl();
+
 protected slots:
 	void fontChanged(const QFont &font);
-	void maxHistorySizeChanged(const QString &);
-	void defaultLoginChanged(const QString &);
-	void defaultUAChanged(const QString &);
+	void maxHistorySizeChanged(const QString &maxHistorySize);
+	void defaultLoginChanged(const QString &defaultLogin);
+	void defaultUAChanged(const QString &defaultUA);
+	void defaultWebSearchUrl(const QString &defaultWebSearchUrl);
 
 private:
 	Ui::QQGeneralSettings *ui;
@@ -39,6 +44,7 @@ private:
 	QString m_maxHistorySize;
 	QString m_defaultLogin;
 	QString m_defaultUA;
+	QString m_defaultwebSearchUrl;
 };
 
 #endif // QQGENERALSETTINGS_H
