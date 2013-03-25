@@ -1,6 +1,8 @@
 #ifndef QQSETTINGSPARAMS_H
 #define QQSETTINGSPARAMS_H
 
+#define MAX_CACHE_AGE_DAYS 60
+
 // MAIN WINDOW
 #define SETTINGS_MAINWINDOW_STATE "mainwindow_state"
 #define SETTINGS_MAINWINDOW_GEOMETRY "mainwindow_geometry"

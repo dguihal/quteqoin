@@ -3,6 +3,7 @@
 #include "core/qqtotoz.h"
 
 #include <QtDebug>
+#include <QDateTime>
 #include <QNetworkAccessManager>
 #include <QNetworkProxyFactory>
 #include <QNetworkRequest>
@@ -11,9 +12,11 @@
 
 void QQTotozDownloader::fetchTotoz(QString & totozId)
 {
-	// si l'id est valide et que l'on ne l'a pas déjà téléchargé dans le cache
-	// TODO : Une expiration du cache, voire un if-modified-since !!!!
-	if(totozId.length() > 0 && ! QQTotoz::cacheExists(totozId))
+	if(totozId.length() == 0)
+		return;
+
+	QQTotoz totoz(totozId);
+	if(totoz.isCacheExpired())
 	{
 		QQSettings settings;
 		QString queryUrl = settings.value(SETTINGS_TOTOZ_SERVER_URL, DEFAULT_TOTOZ_SERVER_URL).toString();
@@ -41,7 +44,7 @@ void QQTotozDownloader::requestFinishedSlot(QNetworkReply * reply)
 	m_totozIdReplyHash.remove(reply);
 
 	if(!redirectedURL.isEmpty() &&
-			redirectedURL != reply->url())
+	   redirectedURL != reply->url())
 	{
 		qDebug() << "QQTotozManager::requestFinishedSlot: Redirected to " << redirectedURL.toString();
 		QNetworkRequest request(redirectedURL);
@@ -64,13 +67,20 @@ void QQTotozDownloader::requestFinishedSlot(QNetworkReply * reply)
 	{
 		QQTotoz totoz(totozId);
 		totoz.setData(reply->readAll());
-		totoz.save();
-
-		if(reply->hasRawHeader(QString::fromAscii("Etag").toAscii()))
+		QDateTime expire;
+		if(reply->hasRawHeader("Expires"))
 		{
-			QString etag(reply->rawHeader(QString::fromAscii("Etag").toAscii()));
-			qDebug() << "QQTotozManager::requestFinishedSlot, etag = " << etag;
+			expire = parseRC822(QString::fromAscii(reply->rawHeader("Expires")));
+			totoz.setCacheExpireDate(expire);
 		}
+		else
+		{
+			expire = QDateTime::currentDateTime();
+			expire.addDays(MAX_CACHE_AGE_DAYS);
+		}
+		qDebug() << "QQTotozDownloader::requestFinishedSlot, totozId =" << totozId;
+		totoz.setCacheExpireDate(expire);
+		totoz.save();
 		emit fetchTotozFinished(totozId, true);
 	}
 
