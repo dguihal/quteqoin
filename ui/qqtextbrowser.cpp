@@ -20,7 +20,7 @@
 #include <QToolTip>
 
 #define TIME_UA_AREA_WIDTH_CHAR 26 // 10 + 1 + 15 Chars
-#define NOTIF_AREA_WIDTH 30 //Px
+#define NOTIF_AREA_WIDTH 18 //Px
 #define ITEM_AREA_WIDTH 6 //Px
 
 QQTextBrowser::QQTextBrowser(QString groupName, QQPinipede *parent) :
@@ -110,6 +110,16 @@ void QQTextBrowser::notifAreaPaintEvent(QPaintEvent * event)
 			QTextCursor curs(block);
 			qreal height = block.layout()->boundingRect().height();
 			int posY = cursorRect(curs).y();
+			QQPost * post = uData->post();
+
+			///////////////////////////////////////////////////////////////////
+			/////        BACKGROUND                           /////////////////
+			///////////////////////////////////////////////////////////////////
+			painter.setBrush(post->bouchot()->settings().color());
+			painter.setPen(QPen(QBrush(post->bouchot()->settings().color()), 0.6));
+			QRect drawRect(0, posY, notifAreaWidth(), height);
+			painter.drawRect(drawRect);
+
 			///////////////////////////////////////////////////////////////////
 			/////        LES NOUVEAUX POSTS                   /////////////////
 			///////////////////////////////////////////////////////////////////
@@ -117,7 +127,7 @@ void QQTextBrowser::notifAreaPaintEvent(QPaintEvent * event)
 			{
 				painter.setBrush(newPostsBrushColor);
 				painter.setPen(QPen(QBrush(newPostsPenColor), 0.6));
-				QRect drawRect(offset, posY, ITEM_AREA_WIDTH, height);
+				QRect drawRect(0, posY, ITEM_AREA_WIDTH, height);
 				painter.drawRect(drawRect);
 			}
 			offset += ITEM_AREA_WIDTH;
@@ -125,7 +135,6 @@ void QQTextBrowser::notifAreaPaintEvent(QPaintEvent * event)
 			///////////////////////////////////////////////////////////////////
 			/////        LE TRACKING DES POSTS                /////////////////
 			///////////////////////////////////////////////////////////////////
-			QQPost * post = uData->post();
 			if(post->isSelfPost())
 			{
 				painter.setBrush(selfPostsBrushColor);
@@ -153,13 +162,6 @@ void QQTextBrowser::notifAreaPaintEvent(QPaintEvent * event)
 				QRect drawRect(offset, posY, ITEM_AREA_WIDTH, height);
 				painter.drawRect(drawRect);
 			}
-			offset += ITEM_AREA_WIDTH + 1;
-
-			// LE RESTE : UNE ZONE COLOREE EN FULL CONTRAST	
-			painter.setBrush(post->bouchot()->settings().color());
-			painter.setPen(QPen(QBrush(post->bouchot()->settings().color()), 0.6));
-			QRect drawRect(offset, posY, notifAreaWidth() - offset, height);
-			painter.drawRect(drawRect);
 		}
 		block = block.next();
 	}
@@ -349,25 +351,6 @@ void QQTextBrowser::mouseReleaseEvent(QMouseEvent * event)
 		m_notifArea->update();
 		emit newPostsAcknowledged(m_groupName);
 	}
-
-	// Ouverture l'url si on est au dessus d'un lien
-	/*
-	if( httpAnchor.length() > 0 )
-	{
-		QUrl url;
-		if(QTextCodec::codecForName("ISO 8859-1")->canEncode(httpAnchor))
-			url.setEncodedUrl(httpAnchor.toAscii());
-		else
-			url.setUrl(httpAnchor);
-
-		if(url.isValid())
-			QDesktopServices::openUrl(url);
-		else
-			qWarning() << "url : " << url << "is not valid";
-
-		return;
-	}
-	*/
 
 	// Gestion du clic sur une norloge ou un login
 	QTextCursor cursor = cursorForPosition(event->pos());
