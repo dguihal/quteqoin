@@ -110,6 +110,9 @@ void QQSettingsManager::initGeneralSettings()
 
 	QString defaultUA = settings.value(SETTINGS_GENERAL_DEFAULT_UA, DEFAULT_GENERAL_DEFAULT_UA).toString();
 	m_generalSettingsW->setDefaultUA(defaultUA);
+
+	QString defaultWebSearchUrl = settings.value(SETTINGS_GENERAL_WEBSEARCH_URL, DEFAULT_GENERAL_WEBSEARCH_URL).toString();
+	m_generalSettingsW->setDefaultWebSearchUrl(defaultWebSearchUrl);
 }
 
 void QQSettingsManager::saveGeneralSettings()
@@ -134,6 +137,11 @@ void QQSettingsManager::saveGeneralSettings()
 	else
 		settings.setValue(SETTINGS_GENERAL_DEFAULT_UA, defaultUA);
 
+	QString defaultWebSearchUrl = m_generalSettingsW->defaultWebSearchUrl();
+	if(defaultWebSearchUrl.size() == 0 || defaultWebSearchUrl == DEFAULT_GENERAL_WEBSEARCH_URL)
+		settings.remove(SETTINGS_GENERAL_WEBSEARCH_URL);
+	else
+		settings.setValue(SETTINGS_GENERAL_WEBSEARCH_URL, defaultWebSearchUrl);
 }
 
 void QQSettingsManager::initTotozSettings()
