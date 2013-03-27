@@ -571,12 +571,12 @@ void QQPinipede::unHighlight()
 {
 	//qDebug() << "QQPinipede::unHighlight";
 
+	m_hiddenPostViewerLabel->hide();
+
 	if(m_tBrowserHighlighted == NULL)
 		return;
 
 	qDebug() << "QQPinipede::unHighlight, m_tBrowserHighlighted not NULL";
-
-	m_hiddenPostViewerLabel->hide();
 
 	QTextCursor cursor( m_tBrowserHighlighted->document() );
 	QQSyntaxHighlighter * highlighter = m_tBrowserHighlighted->document()->findChildren<QQSyntaxHighlighter *>().at(0);
