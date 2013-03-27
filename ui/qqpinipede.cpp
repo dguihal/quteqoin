@@ -574,6 +574,8 @@ void QQPinipede::unHighlight()
 {
 	//qDebug() << "QQPinipede::unHighlight";
 
+	m_hiddenPostViewerLabel->hide();
+
 	if(m_tBrowserHighlighted == NULL)
 		return;
 
