@@ -113,6 +113,7 @@ void QQPalmiLineEdit::keyPressEvent(QKeyEvent *e)
 void QQPalmiLineEdit::completeTotoz()
 {
 	QString txt = text().left(cursorPosition());
+	qDebug() << txt << cursorPosition();
 	int pos = txt.lastIndexOf("[:");
 	if(pos >= 0)
 	{
@@ -125,8 +126,8 @@ void QQPalmiLineEdit::completeTotoz()
 				{
 					QString totoz = m_listTotoz.at(i);
 					totoz.append(']');
-					setSelection(cursorPosition(), 0 - txt.length());
-					insertReplaceText(totoz);
+					//setSelection(cursorPosition(), 0 - txt.length());
+					insertReplaceText(totoz.right(totoz.length() - txt.length()));
 					setSelection(cursorPosition(), 0 - (totoz.length() - txt.length()));
 					break;
 				}
