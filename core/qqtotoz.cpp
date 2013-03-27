@@ -1,10 +1,11 @@
 #include "qqtotoz.h"
-#include "core/qqsettingsparams.h"
 
 #include <QBuffer>
 #include <QtDebug>
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
+
+#define MAX_FILE_AGE_DAYS 60 //60j
 
 QQTotoz::QQTotoz() {}
 
@@ -38,25 +39,14 @@ bool QQTotoz::cacheExists()
 	//Invalidation systematique au bout de 60j
 	QFileInfo info(file);
 	QDateTime dateFile = info.created();
-	if(dateFile.daysTo(QDateTime::currentDateTime()) > MAX_CACHE_AGE_DAYS)
+	if(dateFile.daysTo(QDateTime::currentDateTime()) > MAX_FILE_AGE_DAYS)
 	{
 		file.remove();
 		return false;
 	}
 
 	return true;
-}
-
-bool QQTotoz::isCacheExpired()
-{
-	bool cacheExpired = false;
-	QDateTime now = QDateTime::currentDateTime();
-
-	cacheExpired |= (! cacheExists());
-	cacheExpired |= (! m_cacheExpireDate.isValid());
-	cacheExpired |= (! (m_cacheExpireDate.secsTo(now) <= 0));
-
-	return cacheExpired;
+		
 }
 
 QString QQTotoz::getPath(QString id)
@@ -114,7 +104,7 @@ void QQTotoz::load()
 			}
 			else if(currentElement == "expiredate")
 			{
-				m_cacheExpireDate = QDateTime::fromString(xml.readElementText(), Qt::ISODate);
+				m_expireDate.fromString(xml.readElementText(), Qt::ISODate);
 			}
 			else if(currentElement == "imgdata" || currentElement == "totoz")
 			{
@@ -181,7 +171,7 @@ void QQTotoz::save()
 	xml.writeEndElement(); //tags
 
 	xml.writeStartElement("expiredate");
-	xml.writeCharacters(m_cacheExpireDate.toString(Qt::ISODate));
+	xml.writeCharacters(m_expireDate.toString(Qt::ISODate));
 	xml.writeEndElement(); //expiredate
 
 	xml.writeStartElement("imgdata");

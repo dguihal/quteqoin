@@ -46,7 +46,7 @@ public:
 	QString defaultLogin();
 
 	void setBouchots(const QMap<QString, QQBouchot::QQBouchotSettings>);
-	//QMap<QString, QQBouchot::QQBouchotSettings> bouchots() { return m_bouchots; }
+	QMap<QString, QQBouchot::QQBouchotSettings> bouchots() { return m_bouchots; }
 	QMap<QString, QQBouchot::QQBouchotSettings> modifiedBouchots() { return m_modifBouchots; }
 	QMap<QString, QQBouchot::QQBouchotSettings> newBouchots() { return m_newBouchots; }
 	QMap<QString, QQBouchot::QQBouchotSettings> oldBouchots() { return m_oldBouchots; }

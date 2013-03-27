@@ -46,10 +46,8 @@ protected:
 	virtual void wheelEvent(QWheelEvent *event);
 	virtual void contextMenuEvent(QContextMenuEvent *ev);
 
-protected slots:
-	void webSearchActiontriggered();
-
 private:
+
 	void hideTotoz();
 	void highlightNorloge(QQNorlogeRef nRef);
 	void showTotoz(QString &totozId);

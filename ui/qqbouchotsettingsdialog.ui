@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>387</width>
-    <height>468</height>
+    <height>442</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -50,16 +50,7 @@
       <item row="3" column="1">
        <widget class="QWidget" name="widget_2" native="true">
         <layout class="QHBoxLayout" name="horizontalLayout">
-         <property name="leftMargin">
-          <number>0</number>
-         </property>
-         <property name="topMargin">
-          <number>0</number>
-         </property>
-         <property name="rightMargin">
-          <number>0</number>
-         </property>
-         <property name="bottomMargin">
+         <property name="margin">
           <number>0</number>
          </property>
          <item>
@@ -68,7 +59,7 @@
          <item>
           <widget class="QPushButton" name="colorSelPushButton">
            <property name="text">
-            <string/>
+            <string>Sel.</string>
            </property>
           </widget>
          </item>

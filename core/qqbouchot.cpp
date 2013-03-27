@@ -47,27 +47,24 @@ bouchotDefStruct bouchotsDef[] =
 }
 ;
 
-QQBouchot::QQBouchot(const QString &name, QObject *parent) :
-	QQNetworkAccessor(parent)
+QQBouchot::QQBouchot(const QString & name, QQSettings * settings) :
+	QQNetworkAccessor(settings)
 {
 	m_name = name;
 	m_bSettings.setRefresh(0);
 	m_history.clear();
 	m_newPostHistory.clear();
 	m_lastId=-1;
+	m_settings = settings;
 
 	m_xmlParser = new QQXmlParser();
 	connect(m_xmlParser, SIGNAL(newPostReady(QQPost&)), this, SLOT(insertNewPost(QQPost&)));
 	connect(m_xmlParser, SIGNAL(finished()), this, SLOT(parsingFinished()));
-
-	QQBouchot::s_hashBouchots.insert(m_name, this);
 }
 
 QQBouchot::~QQBouchot()
 {
-	emit destroyed(this);
 	delete m_xmlParser;
-	QQBouchot::s_hashBouchots.remove(m_name);
 }
 
 void QQBouchot::postMessage(const QString &message)
@@ -85,16 +82,10 @@ void QQBouchot::postMessage(const QString &message)
 	request.setAttribute(QNetworkRequest::User, QQBouchot::PostRequest);
 	request.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded; charset=UTF-8");
 
-	QString ua = m_bSettings.ua();
-	if(ua.isEmpty())
-	{
-		QQSettings settings;
-		ua = settings.value(SETTINGS_GENERAL_DEFAULT_UA, DEFAULT_GENERAL_DEFAULT_UA).toString();
-		if(ua.isEmpty())
-			ua=QString(DEFAULT_GENERAL_DEFAULT_UA);
-	}
-
-	request.setRawHeader("User-Agent", ua.toAscii());
+	if(m_bSettings.ua().isEmpty() == false)
+		request.setRawHeader("User-Agent", m_bSettings.ua().toAscii());
+	else
+		request.setRawHeader("User-Agent", m_settings->defaultUA().toAscii());
 
 	if(m_bSettings.cookie().isEmpty() == false)
 		request.setRawHeader("Cookie", m_bSettings.cookie().toAscii());
@@ -103,13 +94,6 @@ void QQBouchot::postMessage(const QString &message)
 	request.setRawHeader("Accept-Encoding","gzip, deflate");
 	request.setRawHeader("Referer", request.url().toString().toAscii());
 	httpPost(request, postData);
-}
-
-void QQBouchot::setSettings(const QQBouchotSettings &newSettings)
-{
-	QString oldGroup = m_bSettings.group();
-	m_bSettings = newSettings;
-	checkGroupModified(oldGroup);
 }
 
 
@@ -154,7 +138,7 @@ void QQBouchot::setNewPostsFromHistory()
 		m_newPostHistory.prepend(m_history.at(index));
 }
 
-bool QQBouchot::event(QEvent *e)
+bool QQBouchot::event(QEvent * e)
 {
 	if(e->type() == QQPurgeBouchotHistoEvent::PURGE_BOUCHOT_HISTO)
 	{
@@ -213,15 +197,11 @@ void QQBouchot::fetchBackend()
 	request.setAttribute(QNetworkRequest::CacheLoadControlAttribute,
 						 QNetworkRequest::AlwaysNetwork);
 
-	QQSettings settings;
-	request.setRawHeader(QString::fromAscii("User-Agent").toAscii(),
-						 settings.value(SETTINGS_GENERAL_DEFAULT_UA,
-										DEFAULT_GENERAL_DEFAULT_UA).toByteArray()
-						 );
+	request.setRawHeader(QString::fromAscii("User-Agent").toAscii(), m_settings->defaultUA().toAscii());
 
 	if(m_bSettings.cookie().isEmpty() == false)
 		request.setRawHeader(QString::fromAscii("Cookie").toAscii(), m_bSettings.cookie().toAscii());
-
+	
 	QNetworkReply * reply = httpGet(request);
 	connect(reply, SIGNAL(sslErrors(const QList<QSslError>&)), this, SLOT(slotSslErrors(const QList<QSslError>&)));
 
@@ -230,7 +210,7 @@ void QQBouchot::fetchBackend()
 }
 
 
-void QQBouchot::slotSslErrors(const QList<QSslError> &errors)
+void QQBouchot::slotSslErrors(const QList<QSslError> & errors)
 {
 	for(int i = 0; i < errors.size(); i++)
 	{
@@ -241,11 +221,11 @@ void QQBouchot::slotSslErrors(const QList<QSslError> &errors)
 	}
 }
 
-void QQBouchot::requestFinishedSlot(QNetworkReply *reply)
+void QQBouchot::requestFinishedSlot(QNetworkReply * reply)
 {
 	// Recuperation du Statut HTTP
 	//QVariant statusCodeV = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute);
-
+	
 	qDebug() << QDateTime::currentDateTime().currentMSecsSinceEpoch() << " : "
 		<< "QQBouchot::requestFinishedSlot url=" << reply->url();
 
@@ -277,7 +257,7 @@ void QQBouchot::requestFinishedSlot(QNetworkReply *reply)
 	reply->deleteLater();
 }
 
-void QQBouchot::parseBackend(const QByteArray &data)
+void QQBouchot::parseBackend(const QByteArray & data)
 {
 	QXmlSimpleReader xmlReader;
 	QXmlInputSource xmlSource;
@@ -291,16 +271,6 @@ void QQBouchot::parseBackend(const QByteArray &data)
 	xmlReader.parse(&xmlSource);
 }
 
-void QQBouchot::insertNewPost(QQPost &newPost)
-{
-	QQPost * tmpNewPost = new QQPost(newPost);
-	tmpNewPost->setParent( this );
-
-	m_newPostHistory.prepend( tmpNewPost );
-
-}
-
-
 void QQBouchot::parsingFinished()
 {
 	if( m_newPostHistory.size() > 0 )
@@ -313,24 +283,27 @@ void QQBouchot::parsingFinished()
 	}
 }
 
-void QQBouchot::checkGroupModified(const QString &oldGroupName)
+void QQBouchot::insertNewPost(QQPost &newPost)
 {
-	if(m_bSettings.group() != oldGroupName)
-		emit groupChanged(this, oldGroupName);
+	QQPost * tmpNewPost = new QQPost(newPost);
+	tmpNewPost->setParent( this );
+
+	m_newPostHistory.prepend( tmpNewPost );
+
 }
 
 /////////////////////////
 // Static
 /////////////////////////
 
-QQBouchot::QQBouchotSettings QQBouchot::getBouchotDef(const QString &bouchotName)
+QQBouchot::QQBouchotSettings QQBouchot::getBouchotDef(const QString & nameBouchot)
 {
 
 	QQBouchot::QQBouchotSettings settings;
 
 	int i = 0;
 	for(; i < bouchotsDefSize; i++)
-		if(QString::compare(bouchotName, QLatin1String(bouchotsDef[i].name)) == 0)
+		if(QString::compare(nameBouchot, QLatin1String(bouchotsDef[i].name)) == 0)
 			break;
 
 	if(i < bouchotsDefSize)
@@ -358,32 +331,3 @@ QStringList QQBouchot::getBouchotDefNameList()
 	return res;
 }
 
-QHash<QString, QQBouchot *> QQBouchot::s_hashBouchots;
-
-QQBouchot * QQBouchot::bouchot(const QString &bouchotName)
-{
-	QQBouchot * ret = NULL;
-	if(s_hashBouchots.contains(bouchotName))
-		ret = s_hashBouchots.value(bouchotName);
-
-	return ret;
-}
-
-QList<QQBouchot *> QQBouchot::listBouchots()
-{
-	return s_hashBouchots.values();
-}
-
-QList<QQBouchot *> QQBouchot::listBouchotsGroup(const QString &groupName)
-{
-	QHashIterator<QString, QQBouchot *> i(s_hashBouchots);
-	QQBouchot *bouchot;
-	QList<QQBouchot *> res;
-
-	while (i.hasNext()) {
-		bouchot = i.next().value();
-		if(bouchot->settings().group() == groupName)
-			res.append(bouchot);
-	}
-	return res;
-}

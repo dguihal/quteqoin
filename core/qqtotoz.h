@@ -27,8 +27,6 @@ public:
 	void setData(QByteArray array) { m_totozData = array; m_wasmodfied = true; }
 	QStringList getTags() { return m_tags; }
 	bool isNSFW() { return m_isNSFW; }
-	void setCacheExpireDate(const QDateTime &cacheExpireDate) { m_cacheExpireDate = cacheExpireDate; }
-	bool isCacheExpired();
 
 	void save();
 
@@ -51,7 +49,7 @@ private:
 	QByteArray m_totozData;
 	QStringList m_tags;
 	bool m_isNSFW;
-	QDateTime m_cacheExpireDate;
+	QDateTime m_expireDate;
 
 	bool m_wasmodfied;
 };

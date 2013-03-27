@@ -136,7 +136,7 @@
           <string/>
          </property>
          <property name="icon">
-          <iconset resource="../rc/quteqoin_img.qrc">
+          <iconset resource="../rc/tribunesDef.qrc">
            <normaloff>:/img/delete-icon.png</normaloff>:/img/delete-icon.png</iconset>
          </property>
         </widget>
@@ -148,7 +148,7 @@
   </widget>
  </widget>
  <resources>
-  <include location="../rc/quteqoin_img.qrc"/>
+  <include location="../rc/tribunesDef.qrc"/>
  </resources>
  <connections/>
 </ui>

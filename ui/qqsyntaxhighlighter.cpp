@@ -15,10 +15,11 @@
 #include <QTextCursor>
 #include <QWidget>
 
-QQSyntaxHighlighter::QQSyntaxHighlighter(QTextDocument * parent) :
+QQSyntaxHighlighter::QQSyntaxHighlighter(QQSettings * settings, QTextDocument * parent) :
 	QSyntaxHighlighter(parent)
 {
 	m_notifWindow = NULL;
+	m_settings = settings;
 }
 
 QQSyntaxHighlighter::~QQSyntaxHighlighter()
@@ -112,7 +113,7 @@ void QQSyntaxHighlighter::highlightNorloge(const QString & text)
 
 void QQSyntaxHighlighter::linkNorlogeRef(QQNorlogeRef & nRef)
 {
-	QQBouchot * bouchot = QQBouchot::bouchot(nRef.dstBouchot());
+	QQBouchot * bouchot = m_settings->bouchot(nRef.dstBouchot());
 	if(bouchot == NULL)
 		return;
 

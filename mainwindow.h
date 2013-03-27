@@ -25,27 +25,25 @@ public:
 
 public slots:
 	void displayOptions();
-	void doPostMessage(const QString &bouchot, const QString &message);
+	void doPostMessage(const QString & bouchot, const QString & message);
 	void doTriggerMiniPalmi();
 	void doTriggerMaxiPalmi();
-	void totozManagerVisibilityChanged(bool visible);
 
 protected:
-	virtual void closeEvent(QCloseEvent *event);
-	virtual void keyPressEvent(QKeyEvent *event);
+	virtual void closeEvent(QCloseEvent * event);
+	virtual void keyPressEvent(QKeyEvent * event);
 
-protected slots:
-	void bouchotDestroyed(QQBouchot *bouchot);
-	void bouchotGroupChanged(QQBouchot *bouchot, QString oldGroupName);
-	void initBouchot(QQBouchot *bouchot);
+public slots:
+	void totozManagerVisibilityChanged(bool visible);
 
 private:
-	void initBouchots();
+	void initBouchot(QQBouchot * bouchot);
 
-	Ui::MainWindow *m_ui;
-	QQPalmipede *m_palmi;
-	QQPinipede *m_pini;
-	QQTotozManager *m_totozManager;
+	Ui::MainWindow * m_ui;
+	QQPalmipede * m_palmi;
+	QQPinipede * m_pini;
+	QQSettings * m_settings;
+	QQTotozManager * m_totozManager;
 };
 
 #endif // MAINWINDOW_H

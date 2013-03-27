@@ -1,11 +1,11 @@
-#include "mainwindow.h"
-#include "core/qqsettingsparams.h"
-
 #include <QtGui/QApplication>
 #include <QtGui/QDesktopServices>
 #include <QtCore/QDateTime>
 #include <QtCore/QDir>
 #include <QtCore/QSettings>
+#include "mainwindow.h"
+
+#define MAX_FILE_AGE_DAYS 60 //60j
 
 void purgeCache()
 {
@@ -14,10 +14,11 @@ void purgeCache()
 	QFileInfoList fileInfoList = dirCache.entryInfoList();
 	for (int i = 0; i < fileInfoList.size(); ++i)
 	{
-		if(fileInfoList.at(i).lastModified().daysTo(now) >  MAX_CACHE_AGE_DAYS)
+		if(fileInfoList.at(i).lastModified().daysTo(now) >  MAX_FILE_AGE_DAYS)
 			QFile(fileInfoList.at(i).filePath()).remove();
 	}
 }
+		
 
 int main(int argc, char *argv[])
 {

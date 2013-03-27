@@ -37,11 +37,7 @@ SOURCES += main.cpp\
 	ui/qqtotozmanager.cpp \
 	core/totozmanager/qqtmrequester.cpp \
 	ui/qqtotozviewer.cpp \
-	xml/totozmanager/qqtmxmlparser.cpp \
-    ui/qqsettingsmanager.cpp \
-    ui/settingsmanager/qqtotozsettings.cpp \
-    ui/settingsmanager/qqgeneralsettings.cpp \
-    ui/settingsmanager/qqboardssettings.cpp
+	xml/totozmanager/qqtmxmlparser.cpp
 
 HEADERS  += mainwindow.h \
 	core/qqsettings.h \
@@ -67,26 +63,16 @@ HEADERS  += mainwindow.h \
 	ui/qqtotozmanager.h \
 	core/totozmanager/qqtmrequester.h \
 	ui/qqtotozviewer.h \
-	xml/totozmanager/qqtmxmlparser.h \
-    ui/qqsettingsmanager.h \
-    ui/settingsmanager/qqgeneralsettings.h \
-    ui/settingsmanager/qqboardssettings.h \
-    ui/settingsmanager/qqtotozsettings.h \
-    core/qqsettingsparams.h
+	xml/totozmanager/qqtmxmlparser.h
 
 FORMS    += mainwindow.ui \
 	ui/qqpalmipede.ui \
 	ui/qqbouchotsettingsdialog.ui \
 	ui/qqsettingsdialog.ui \
 	ui/qqproxyauthdialog.ui \
-	ui/qqtotozmanager.ui \
-    ui/qqsettingsmanager.ui \
-    ui/settingsmanager/qqboardssettings.ui \
-    ui/settingsmanager/qqgeneralsettings.ui \
-    ui/settingsmanager/qqtotozsettings.ui
+	ui/qqtotozmanager.ui
 
 OTHER_FILES +=
 
 RESOURCES += \
-    rc/quteqoin_img.qrc \
-    rc/quteqoin_defs.qrc
+	rc/tribunesDef.qrc

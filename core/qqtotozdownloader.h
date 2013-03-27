@@ -17,8 +17,8 @@ class QQTotozDownloader : public QQNetworkAccessor
 	Q_OBJECT
 
 public:
-	explicit QQTotozDownloader(QObject * parent) : QQNetworkAccessor(parent) {}
-	~QQTotozDownloader() {}
+	explicit QQTotozDownloader(QQSettings * settings) :
+		QQNetworkAccessor(settings) {}
 
 signals:
 

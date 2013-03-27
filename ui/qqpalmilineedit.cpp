@@ -12,14 +12,14 @@ QQPalmiLineEdit::QQPalmiLineEdit(QWidget *parent) :
 {
 }
 
-void QQPalmiLineEdit::changeColor(const QColor &newColor)
+void QQPalmiLineEdit::changeColor(const QColor& newColor)
 {
 	QPalette p = palette();
 	p.setColor(QPalette::Base, newColor);
 	setPalette(p);
 }
 
-void QQPalmiLineEdit::insertSurroundText(const QString &bTag, const QString &eTag)
+void QQPalmiLineEdit::insertSurroundText(const QString & bTag, const QString & eTag)
 {
 	if(hasSelectedText())
 	{
@@ -41,7 +41,7 @@ void QQPalmiLineEdit::insertSurroundText(const QString &bTag, const QString &eTa
 	}
 }
 
-void QQPalmiLineEdit::insertReplaceText(const QString &tag)
+void QQPalmiLineEdit::insertReplaceText(const QString & tag)
 {
 	if(hasSelectedText())
 	{
@@ -56,10 +56,11 @@ void QQPalmiLineEdit::insertReplaceText(const QString &tag)
 	{
 		insert(tag);
 		setFocus(Qt::OtherFocusReason);
+		//setCursorPosition(cursorPosition() + tag.length());
 	}
 }
 
-void QQPalmiLineEdit::keyPressEvent(QKeyEvent *e)
+void QQPalmiLineEdit::keyPressEvent(QKeyEvent * e)
 {
 	bool eventManaged = false;
 	if(e->modifiers() == Qt::AltModifier)
@@ -135,7 +136,7 @@ void QQPalmiLineEdit::completeTotoz()
 	}
 }
 
-void QQPalmiLineEdit::focusInEvent(QFocusEvent *e)
+void QQPalmiLineEdit::focusInEvent(QFocusEvent * e)
 {
 	Q_UNUSED(e);
 	updateTotozCompleter();

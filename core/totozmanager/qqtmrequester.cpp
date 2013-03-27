@@ -8,9 +8,10 @@
 #include <QXmlSimpleReader>
 #include <QXmlInputSource>
 
-QQTMRequester::QQTMRequester(QObject * parent) :
-	QQNetworkAccessor(parent)
+QQTMRequester::QQTMRequester(QObject * parent, QQSettings * settings) :
+	QQNetworkAccessor(parent, settings)
 {
+	m_settings = settings;
 	m_currKey.clear();
 	m_netReply = NULL;
 
@@ -67,7 +68,7 @@ void QQTMRequester::searchTotoz(const QString & key, int offset)
 	QQSettings settings;
 
 	QString searchPattern = settings.value(SETTINGS_TOTOZ_SERVER_QUERY_PATTERN,
-										   DEFAULT_TOTOZ_SERVER_QUERY_PATTERN).toString();
+										   DEFAULT_TOTOZ_SERVER_QUERY_SEARCH).toString();
 	searchPattern.replace("%t", key.toAscii().toPercentEncoding());
 	searchPattern.replace("%o", QString::number(offset));
 

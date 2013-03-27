@@ -26,14 +26,15 @@
 #include <QTabBar>
 #include <QVBoxLayout>
 
-QQPinipede::QQPinipede(QWidget * parent) :
+QQPinipede::QQPinipede(QQSettings * settings, QWidget * parent) :
 	QTabWidget(parent)
 {
 	this->tabBar()->hide();
 
 	m_totozManager = NULL;
 
-	m_totozDownloader = new QQTotozDownloader(this);
+	m_settings = settings;
+	m_totozDownloader = new QQTotozDownloader(m_settings);
 	m_tBrowserHighlighted = NULL;
 
 	m_hiddenPostViewerLabelSSheet = QString::fromAscii("border: 2px solid black; border-radius: 4px;");
@@ -73,7 +74,7 @@ void QQPinipede::addPiniTab(const QString & groupName)
 
 	m_textBrowserHash.insert(groupName, textBrowser);
 	//textBrowser->document() devient le proprietaire du highlighter
-	QQSyntaxHighlighter * highlighter = new QQSyntaxHighlighter(textBrowser->document());
+	QQSyntaxHighlighter * highlighter = new QQSyntaxHighlighter(m_settings, textBrowser->document());
 	highlighter->setNotificationWindow(window());
 	connect(highlighter, SIGNAL(totozRequired(QString &)),
 			m_totozDownloader, SLOT(fetchTotoz(QString &)));
@@ -168,11 +169,10 @@ void QQPinipede::purgePinitabHistory(const QString & groupName)
 	if (textBrowser == NULL || destlistPosts == NULL)
 		return;
 
-	QQSettings settings;
-	int maxHistorySize = settings.value(SETTINGS_GENERAL_MAX_HISTLEN, DEFAULT_GENERAL_MAX_HISTLEN).toInt();
+	unsigned int maxHistorySize = m_settings->maxHistoryLength();
 
 	// L'historique est plus petit que le max, pas besoin d'aller plus loin
-	if(destlistPosts->size() <= maxHistorySize)
+	if(destlistPosts->size() <= (int) maxHistorySize)
 		return;
 
 	// Purge de la table d'affichage
@@ -196,7 +196,7 @@ void QQPinipede::purgePinitabHistory(const QString & groupName)
 	while (i.hasNext())
 	{
 		i.next();
-		QQBouchot * bouchot = QQBouchot::bouchot(i.key());
+		QQBouchot * bouchot = m_settings->bouchot(i.key());
 		QApplication::postEvent(
 					bouchot,
 					new QQPurgeBouchotHistoEvent(
@@ -317,8 +317,7 @@ void QQPinipede::newPostsAvailable(QString groupName)
 
 	QList<QQPost *> newPosts;
 
-	QList<QQBouchot *> listBouchots = QQBouchot::listBouchotsGroup(groupName);
-	QListIterator<QQBouchot *> i(listBouchots);
+	QListIterator<QQBouchot *> i(m_settings->listBouchots(groupName));
 	while(i.hasNext())
 		newPosts.append(i.next()->takeNewPosts());
 
@@ -326,10 +325,8 @@ void QQPinipede::newPostsAvailable(QString groupName)
 	if(newPosts.size() == 0)
 		return;
 
-	QQSettings settings;
-	int maxHistorySize = settings.value(SETTINGS_GENERAL_MAX_HISTLEN, DEFAULT_GENERAL_MAX_HISTLEN).toInt();
 	//Il ne sert a rien d'insérer plus que de posts que le max de l'historique
-	while(newPosts.size() > maxHistorySize)
+	while(newPosts.size() > (int) m_settings->maxHistoryLength())
 		newPosts.removeFirst();
 
 	// Tri necessaire puisqu'on a potentiellement melange les posts de plusieurs tribunes
@@ -489,7 +486,7 @@ void QQPinipede::norlogeRefHovered(QQNorlogeRef norlogeRef)
 {
 	qDebug() << "QQPinipede::norlogeRefHovered, datetimepart=" << norlogeRef.dstNorloge() << ", destbouchot=" << norlogeRef.dstBouchot();
 
-	QQBouchot * bouchot = QQBouchot::bouchot(norlogeRef.dstBouchot());
+	QQBouchot * bouchot = m_settings->bouchot(norlogeRef.dstBouchot());
 
 	if(bouchot == NULL)
 	{
@@ -580,8 +577,6 @@ void QQPinipede::unHighlight()
 		return;
 
 	qDebug() << "QQPinipede::unHighlight, m_tBrowserHighlighted not NULL";
-
-	m_hiddenPostViewerLabel->hide();
 
 	QTextCursor cursor( m_tBrowserHighlighted->document() );
 	QQSyntaxHighlighter * highlighter = m_tBrowserHighlighted->document()->findChildren<QQSyntaxHighlighter *>().at(0);

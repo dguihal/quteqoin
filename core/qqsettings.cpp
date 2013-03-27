@@ -2,110 +2,291 @@
 
 #include "core/qqbouchot.h"
 #include "ui/qqpinipede.h"
+#include "ui/qqproxyauthdialog.h"
 
+#include <QAuthenticator>
 #include <QtDebug>
 #include <QFile>
 #include <QList>
 #include <QMessageBox>
+#include <QString>
+#include <QStringList>
+#include <QApplication>
 
+#define BOUCHOTS_SPLIT_CHAR ';'
+#define DEFAULT_MAX_HIST_LEN 500
+#define DEFAULT_UA "quteqoin/0.42"
+#define DEFAULT_TOTOZ_SERVER_ALLOW_SEARCH 1
 #define DEFAULT_TOTOZ_MODE QQSettings::Bald_Mode
+#define DEFAULT_TOTOZ_QUERY_PATTERN "search.xml?terms=%t&offset=%o"
+#define DEFAULT_PALMI_MINI "0"
 
 QQSettings::QQSettings(QObject * parent) :
 	QSettings(parent)
 {
+
+	m_palmiMini = DEFAULT_PALMI_MINI;
+	m_maxHistoryLength = DEFAULT_MAX_HIST_LEN;
+
+	m_totozMode = DEFAULT_TOTOZ_MODE;
+
+	readSettings();
 }
 
 QQSettings::~QQSettings()
 {
 }
 
-QStringList QQSettings::listBouchots()
+QString QQSettings::defaultUA()
 {
-	QString bouchots = value(SETTINGS_LIST_BOUCHOTS, "").toString();
-	return bouchots.split(QChar::fromAscii(BOUCHOTS_SPLIT_CHAR),
-						  QString::SkipEmptyParts);
+	return m_defaultUA.size() == 0 ?
+				QString::fromUtf8(DEFAULT_UA) :
+				m_defaultUA;
 }
 
-void QQSettings::removeBouchot(const QString &name)
+QQBouchot * QQSettings::bouchot(QString bouchotName)
 {
-	beginGroup(QString::fromAscii("bouchot"));
-	beginGroup(name);
-
-	remove(SETTINGS_BOUCHOT_COLOR);
-	remove(SETTINGS_BOUCHOT_ALIASES);
-	remove(SETTINGS_BOUCHOT_REFRESH);
-	remove(SETTINGS_BOUCHOT_LOGIN);
-	remove(SETTINGS_BOUCHOT_COOKIES);
-	remove(SETTINGS_BOUCHOT_UA);
-	remove(SETTINGS_BOUCHOT_BACKENDURL);
-	remove(SETTINGS_BOUCHOT_POSTURL);
-	remove(SETTINGS_BOUCHOT_POSTDATA);
-	remove(SETTINGS_BOUCHOT_GROUP);
-	remove(SETTINGS_BOUCHOT_SLIPTYPE);
-
-	endGroup();
-	endGroup();
-
-	QStringList listBouchotsNames = listBouchots();
-	listBouchotsNames.removeAll(name);
-	setValue(SETTINGS_LIST_BOUCHOTS, QVariant(listBouchotsNames.join(QChar::fromAscii(BOUCHOTS_SPLIT_CHAR))));
+	for(int i = 0; i < m_listBouchots.size(); i++)
+		if(m_listBouchots.at(i)->name() == bouchotName ||
+		   m_listBouchots.at(i)->settings().containsAlias(bouchotName))
+			return m_listBouchots.at(i);
+	return NULL;
 }
 
-void QQSettings::saveBouchot(const QString &name, const QQBouchot::QQBouchotSettings &bouchotSettings)
+QList<QQBouchot *> QQSettings::listBouchots(QString group)
 {
-	beginGroup(QString::fromAscii("bouchot"));
-	beginGroup(name);
+	QList<QQBouchot *> rep;
 
-	setValue(SETTINGS_BOUCHOT_COLOR, bouchotSettings.colorToString());
-	setValue(SETTINGS_BOUCHOT_ALIASES, bouchotSettings.aliasesToString());
-	setValue(SETTINGS_BOUCHOT_REFRESH, bouchotSettings.refreshToString());
-	setValue(SETTINGS_BOUCHOT_LOGIN, bouchotSettings.login());
-	setValue(SETTINGS_BOUCHOT_COOKIES, bouchotSettings.cookie());
-	setValue(SETTINGS_BOUCHOT_UA, bouchotSettings.ua());
-	setValue(SETTINGS_BOUCHOT_BACKENDURL, bouchotSettings.backendUrl());
-	setValue(SETTINGS_BOUCHOT_POSTURL, bouchotSettings.postUrl());
-	setValue(SETTINGS_BOUCHOT_POSTDATA, bouchotSettings.postData());
-	setValue(SETTINGS_BOUCHOT_GROUP, bouchotSettings.group());
-	setValue(SETTINGS_BOUCHOT_SLIPTYPE, bouchotSettings.slipType());
-
-	endGroup();
-	endGroup();
-
-	QStringList listBouchotsNames = listBouchots();
-	if(! listBouchotsNames.contains(name, Qt::CaseInsensitive))
-		listBouchotsNames.append(name);
-	setValue(SETTINGS_LIST_BOUCHOTS, QVariant(listBouchotsNames.join(QChar::fromAscii(BOUCHOTS_SPLIT_CHAR))));
+	QListIterator<QQBouchot *> i(m_listBouchots);
+	while (i.hasNext())
+	{
+		QQBouchot * b = i.next();
+		if(b->settings().group() == group)
+			rep.append(b);
+	}
+	return rep;
 }
 
-QQBouchot * QQSettings::loadBouchot(const QString &name)
+void QQSettings::removeBouchot(QQBouchot * bouchot)
 {
-	QQBouchot::QQBouchotSettings newBouchotSettings;
+	if( bouchot != NULL)
+	{
+		m_listBouchots.removeOne(bouchot);
+		delete bouchot;
+	}
+}
+
+void QQSettings::removeBouchot(const QString bouchotName)
+{
+	removeBouchot(this->bouchot(bouchotName));
+}
+
+void QQSettings::startBouchots()
+{
+	for(int i = 0; i < m_listBouchots.size(); i++)
+		m_listBouchots[i]->startRefresh();
+}
+
+void QQSettings::startBouchot(QString &nomBouchot)
+{
+	for(int i = 0; i < m_listBouchots.size(); i++)
+	{
+		if(m_listBouchots[i]->name() == nomBouchot)
+		{
+			m_listBouchots[i]->startRefresh();
+			break;
+		}
+	}
+}
+
+void QQSettings::stopBouchots()
+{
+	for(int i = 0; i < m_listBouchots.size(); i++)
+		m_listBouchots[i]->stopRefresh();
+}
+
+void QQSettings::stopBouchot(QString &nomBouchot)
+{
+	for(int i = 0; i < m_listBouchots.size(); i++)
+	{
+		if(m_listBouchots[i]->name() == nomBouchot)
+		{
+			m_listBouchots[i]->stopRefresh();
+			break;
+		}
+	}
+}
+
+QList<QString> QQSettings::listTabs()
+{
+	QList<QString> rep;
+	for(int i = 0; i < m_listBouchots.size(); i++)
+		if(!rep.contains(m_listBouchots[i]->settings().group()))
+			rep.append(m_listBouchots[i]->settings().group());
+
+	qDebug() << "QQSettings::getListTabs : " << rep;
+	return rep;
+}
+
+bool QQSettings::readSettings()
+{
+	setMaxHistoryLength(value("max_hist_len",
+							   QVariant(DEFAULT_MAX_HIST_LEN))
+						.toInt());
+
+	setDefaultUA(value("default_ua")
+				 .toString());
+
+	setPalmiMinimized(value("palmi_minimized",
+							 QVariant(DEFAULT_PALMI_MINI))
+					  .toBool());
+
+	setTotozMode((QQSettings::TotozMode) value("totoz_mode",
+						QVariant(DEFAULT_TOTOZ_MODE))
+				 .toInt());
+
+	QString bouchots = value("bouchots", "").toString();
+	QStringList bouchotsSplit = bouchots.split(
+									QChar::fromAscii(BOUCHOTS_SPLIT_CHAR),
+									QString::SkipEmptyParts);
 
 	beginGroup(QString::fromAscii("bouchot"));
-	beginGroup(name);
+	for(int i = 0; i < bouchotsSplit.size(); i++)
+	{
+		QQBouchot *newBouchot = new QQBouchot(bouchotsSplit[i], this);
 
-	// Pas d'url de backend , pas de bouchot
-	if(! contains(SETTINGS_BOUCHOT_BACKENDURL))
-		return NULL;
+		QQBouchot::QQBouchotSettings newBouchotSettings = newBouchot->settings();
 
-	newBouchotSettings.setColorFromString(value(SETTINGS_BOUCHOT_COLOR, "").toString());
-	newBouchotSettings.setAliasesFromString(value(SETTINGS_BOUCHOT_ALIASES, "").toString());
-	newBouchotSettings.setRefresh(value(SETTINGS_BOUCHOT_REFRESH, "").toInt());
-	newBouchotSettings.setLogin(value(SETTINGS_BOUCHOT_LOGIN, "").toString());
-	newBouchotSettings.setCookie(value(SETTINGS_BOUCHOT_COOKIES, "").toString());
-	newBouchotSettings.setUa(value(SETTINGS_BOUCHOT_UA, "").toString());
-	newBouchotSettings.setBackendUrl(value(SETTINGS_BOUCHOT_BACKENDURL, "").toString());
-	newBouchotSettings.setPostUrl(value(SETTINGS_BOUCHOT_POSTURL, "").toString());
-	newBouchotSettings.setPostData(value(SETTINGS_BOUCHOT_POSTDATA, "").toString());
-	newBouchotSettings.setGroup(value(SETTINGS_BOUCHOT_GROUP, "").toString());
-	newBouchotSettings.setSlipType((QQBouchot::TypeSlip) value(SETTINGS_BOUCHOT_SLIPTYPE, "").toInt());
+		beginGroup(newBouchot->name());
 
-	endGroup(); //beginGroup(name);
-	endGroup(); //beginGroup(QString::fromAscii("bouchot"));
+		newBouchotSettings.setColorFromString(
+					value(QString::fromAscii("color"), "").toString());
+		newBouchotSettings.setAliasesFromString(
+					value(QString::fromAscii("aliases"), "").toString());
+		newBouchotSettings.setRefresh(
+					value(QString::fromAscii("refresh"), "").toInt());
+		//A modifier pour la gestion des multis
+		newBouchotSettings.setLogin(
+					value(QString::fromAscii("login"), "").toString());
+		newBouchotSettings.setCookie(
+					value(QString::fromAscii("cookies"), "").toString());
+		//
+		newBouchotSettings.setUa(
+					value(QString::fromAscii("ua"), "").toString());
+		newBouchotSettings.setBackendUrl(
+					value(QString::fromAscii("backendUrl"), "").toString());
+		newBouchotSettings.setPostUrl(
+					value(QString::fromAscii("postUrl"), "").toString());
+		newBouchotSettings.setPostData(
+					value(QString::fromAscii("postData"), "").toString());
+		newBouchotSettings.setGroup(
+					value(QString::fromAscii("group"), "").toString());
+		newBouchotSettings.setSlipType(
+					(QQBouchot::TypeSlip) value(QString::fromAscii("slipType"), "").toInt());
 
+		endGroup();
 
-	QQBouchot *newBouchot = new QQBouchot(name, NULL);
-	newBouchot->setSettings(newBouchotSettings);
+		newBouchot->setSettings(newBouchotSettings);
 
-	return newBouchot;
+		m_listBouchots.append(newBouchot);
+	}
+	endGroup();
+
+	return true;
+}
+
+bool QQSettings::saveSettings()
+{
+	setValue(QString::fromAscii("max_hist_len"),
+					  QVariant(m_maxHistoryLength));
+	setValue(QString::fromAscii("default_ua"),
+					  QVariant(m_defaultUA));
+	setValue(QString::fromAscii("palmi_minimized"),
+					  QVariant(m_palmiMini));
+	setValue(QString::fromAscii("totoz_mode"),
+					  QVariant(m_totozMode));
+
+	QStringList bouchotNameList;
+
+	beginGroup(QString::fromAscii("bouchot"));
+	for(int i = 0; i < m_listBouchots.size(); i++)
+	{
+		QQBouchot *bouchot = m_listBouchots[i];
+
+		QQBouchot::QQBouchotSettings bouchotSettings = bouchot->settings();
+
+		beginGroup(bouchot->name());
+		setValue(QString::fromAscii("color"),
+						  QVariant(bouchotSettings.colorToString()));
+		setValue(QString::fromAscii("aliases"),
+						  QVariant(bouchotSettings.aliasesToString()));
+		setValue(QString::fromAscii("refresh"),
+						  QVariant(bouchotSettings.refreshToString()));
+		//A modifier pour la gestion des multis
+		setValue(QString::fromAscii("login"),
+						  QVariant(bouchotSettings.login()));
+		setValue(QString::fromAscii("cookies"),
+						  QVariant(bouchotSettings.cookie()));
+		//
+		setValue(QString::fromAscii("ua"),
+						  QVariant(bouchotSettings.ua()));
+		setValue(QString::fromAscii("backendUrl"),
+						  QVariant(bouchotSettings.backendUrl()));
+		setValue(QString::fromAscii("postUrl"),
+						  QVariant(bouchotSettings.postUrl()));
+		setValue(QString::fromAscii("postData"),
+						  QVariant(bouchotSettings.postData()));
+		setValue(QString::fromAscii("group"),
+						  QVariant(bouchotSettings.group()));
+		setValue(QString::fromAscii("slipType"),
+						  QVariant(bouchotSettings.slipType()));
+
+		endGroup();
+		bouchotNameList<<bouchot->name();
+
+	}
+	endGroup();
+	setValue("bouchots", QVariant(bouchotNameList.join(QChar::fromAscii(BOUCHOTS_SPLIT_CHAR))));
+	//qDebug() << settings.fileName();
+
+	sync();
+	return true;
+}
+
+void QQSettings::proxyAuthenticationRequired(const QNetworkProxy & proxy, QAuthenticator * authenticator)
+{
+	// Pour éviter le warning
+	(void) proxy;
+
+	qDebug() << "QQSettings::proxyAuthenticationRequired";
+	//Premier echec
+	if(m_proxyUser.size() != 0 &&
+	   authenticator->user() != m_proxyUser)
+	{
+		authenticator->setUser(m_proxyUser);
+		authenticator->setPassword(m_proxyPasswd);
+	}
+	else // Echec ulterieur, ou pas de conf proxy, on redemande
+	{
+		if(m_proxyPopupMutex.tryLock())
+		{
+			QQProxyAuthDialog * proxyDialog = new QQProxyAuthDialog();
+			proxyDialog->setLogin(m_proxyUser);
+			proxyDialog->setPasswd(m_proxyPasswd);
+			if(proxyDialog->exec() == QDialog::Accepted)
+			{
+				m_proxyUser = proxyDialog->login();
+				m_proxyPasswd = proxyDialog->passwd();
+
+				authenticator->setUser(m_proxyUser);
+				authenticator->setPassword(m_proxyPasswd);
+			}
+			m_proxyPopupMutex.unlock();
+			startBouchots();
+		}
+		else
+		{
+			QApplication::processEvents();
+		}
+	}
 }

@@ -2,6 +2,7 @@
 #define QQSYNTAXHIGHLIGHTER_H
 
 #include <core/qqnorlogeref.h>
+#include <core/qqsettings.h>
 #include <core/qqtotoz.h>
 
 #include <QList>
@@ -18,7 +19,7 @@ public:
 
 	enum blockState { NOT_HIGHLIGHTED = 0x00, NORMAL = 0x01, NORLOGE_HIGHLIGHTED = 0x02, FULL_HIGHLIGHTED = 0x04 };
 
-	QQSyntaxHighlighter(QTextDocument * parent = 0);
+	QQSyntaxHighlighter(QQSettings * settings, QTextDocument * parent = 0);
 	~QQSyntaxHighlighter();
 
 	bool highlightSelection(QTextCursor &selection, QQMessageBlockUserData *userData);
@@ -49,6 +50,7 @@ private:
 
 	QQNorlogeRef m_nRef;
 	QWidget * m_notifWindow;
+	QQSettings * m_settings;
 };
 
 #endif // QQSYNTAXHIGHLIGHTER_H

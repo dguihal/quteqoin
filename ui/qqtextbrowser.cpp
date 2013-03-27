@@ -2,7 +2,6 @@
 
 #include "core/qqbouchot.h"
 #include "core/qqpost.h"
-#include "core/qqsettings.h"
 #include "ui/qqmessageblockuserdata.h"
 
 #include <QtDebug>
@@ -30,8 +29,6 @@ QQTextBrowser::QQTextBrowser(QString groupName, QQPinipede *parent) :
 	setFrameStyle(QFrame::NoFrame);
 	setReadOnly(true);
 	setOpenExternalLinks(true);
-	//setContextMenuPolicy(Qt::CustomContextMenu);
-
 	m_groupName = groupName;
 	m_highlightAsked = false;
 	m_mouseClick = false;
@@ -181,7 +178,7 @@ void QQTextBrowser::mouseMoveEvent(QMouseEvent * event)
 	//qDebug() << "####################################";
 	//qDebug() << "QQTextBrowser::mouseMoveEvent x=" << event->x() << ",y=" << event->y();
 	//qDebug() << "####################################";
-	QTextBrowser::mouseMoveEvent(event);
+	QTextEdit::mouseMoveEvent(event);
 
 	QString httpAnchor = anchorAt(event->pos());
 	if(! m_mouseClick)
@@ -277,20 +274,6 @@ void QQTextBrowser::showTotoz(QString & totozId)
 	}
 }
 
-void QQTextBrowser::webSearchActiontriggered()
-{
-	QQSettings settings;
-	QString webSearchUrl = settings.value(SETTINGS_GENERAL_WEBSEARCH_URL, DEFAULT_GENERAL_WEBSEARCH_URL).toString();
-	QTextCursor cursor = textCursor();
-	QString selection = cursor.selectedText();
-
-	if(! selection.isEmpty())
-	{
-		webSearchUrl.replace("%s", QUrl::toPercentEncoding(selection));
-		QDesktopServices::openUrl(QUrl::fromEncoded(webSearchUrl.toAscii()));
-	}
-}
-
 void QQTextBrowser::hideTotoz()
 {
 	if(m_displayedTotozId.length() > 0)
@@ -306,7 +289,7 @@ void QQTextBrowser::hideTotoz()
  */
 void QQTextBrowser::leaveEvent(QEvent * event)
 {
-	QTextBrowser::leaveEvent(event);
+	QTextEdit::leaveEvent(event);
 
 	// On masque les élements d'affichage dynamiques
 	unHighlightNorloge();
@@ -321,7 +304,7 @@ void QQTextBrowser::mousePressEvent(QMouseEvent * event)
 	// positionnement du flag de detection de debut du clic
 	m_mouseClick = true;
 
-	QTextBrowser::mousePressEvent(event);
+	QTextEdit::mousePressEvent(event);
 
 	if(event->button() == Qt::LeftButton)
 		viewport()->setCursor(Qt::IBeamCursor);
@@ -329,7 +312,7 @@ void QQTextBrowser::mousePressEvent(QMouseEvent * event)
 
 void QQTextBrowser::mouseReleaseEvent(QMouseEvent * event)
 {
-	QTextBrowser::mouseReleaseEvent(event);
+	QTextEdit::mouseReleaseEvent(event);
 
 	m_mouseClick = false;
 
@@ -406,7 +389,7 @@ void QQTextBrowser::mouseReleaseEvent(QMouseEvent * event)
 
 void QQTextBrowser::paintEvent(QPaintEvent * event)
 {
-	QTextBrowser::paintEvent(event);
+	QTextEdit::paintEvent(event);
 
 	// Pour le bigorno
 	QPainter bigornoPainter(viewport());
@@ -462,7 +445,7 @@ void QQTextBrowser::resizeEvent(QResizeEvent * event)
 {
 	QScrollBar * vScrollBar = verticalScrollBar();
 	bool isMax = (vScrollBar->sliderPosition() == vScrollBar->maximum());
-	QTextBrowser::resizeEvent(event);
+	QTextEdit::resizeEvent(event);
 	if(isMax)
 		vScrollBar->triggerAction(QAbstractSlider::SliderToMaximum);
 
@@ -473,7 +456,7 @@ void QQTextBrowser::resizeEvent(QResizeEvent * event)
 void QQTextBrowser::wheelEvent(QWheelEvent * event)
 {
 	if(! (event->modifiers() && Qt::ControlModifier != 0))
-		QTextBrowser::wheelEvent(event);
+		QTextEdit::wheelEvent(event);
 }
 
 void QQTextBrowser::contextMenuEvent(QContextMenuEvent * ev)
@@ -485,17 +468,5 @@ void QQTextBrowser::contextMenuEvent(QContextMenuEvent * ev)
 		ev->accept();
 	}
 	else
-	{
-		QPoint evPos = ev->pos();
-		evPos.setX(evPos.x() + horizontalScrollBar()->value());
-		evPos.setY(evPos.y() + verticalScrollBar()->value());
-		QMenu *menu = createStandardContextMenu(evPos);
-		QTextCursor cursor = textCursor();
-		if(cursor.hasSelection())
-		{
-			QAction *action = menu->addAction(tr("&Search on web"));
-			connect(action, SIGNAL(triggered()), this, SLOT(webSearchActiontriggered()));
-		}
-		menu->exec(QCursor::pos());
-	}
+		QTextEdit::contextMenuEvent(ev);
 }
