@@ -24,7 +24,7 @@
      <x>0</x>
      <y>0</y>
      <width>600</width>
-     <height>18</height>
+     <height>19</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -38,22 +38,24 @@
     <property name="title">
      <string>&amp;Display</string>
     </property>
-    <widget class="QMenu" name="menuPalmipede">
+    <widget class="QMenu" name="menuPinipede">
      <property name="title">
-      <string>Palmipède</string>
-     </property>
-     <addaction name="actionEtendu"/>
-     <addaction name="actionMinimal"/>
-    </widget>
-    <widget class="QMenu" name="menuPinip_de">
-     <property name="title">
-      <string>Pinipède</string>
+      <string>Pinipede</string>
      </property>
      <addaction name="actionTabul"/>
      <addaction name="actionEn_ligne"/>
     </widget>
+    <widget class="QMenu" name="menuPalmipede">
+     <property name="title">
+      <string>Palmipede</string>
+     </property>
+     <addaction name="actionPalmiExt"/>
+     <addaction name="actionPalmiMini"/>
+     <addaction name="separator"/>
+     <addaction name="actionPalmiHidden"/>
+    </widget>
     <addaction name="menuPalmipede"/>
-    <addaction name="menuPinip_de"/>
+    <addaction name="menuPinipede"/>
    </widget>
    <widget class="QMenu" name="toolsMenu">
     <property name="title">
@@ -104,7 +106,7 @@
     <string>Enregistrer parametres</string>
    </property>
   </action>
-  <action name="actionEtendu">
+  <action name="actionPalmiExt">
    <property name="checkable">
     <bool>true</bool>
    </property>
@@ -115,12 +117,23 @@
     <string>Etendu</string>
    </property>
   </action>
-  <action name="actionMinimal">
+  <action name="actionPalmiMini">
    <property name="checkable">
     <bool>true</bool>
    </property>
    <property name="text">
     <string>Minimal</string>
+   </property>
+  </action>
+  <action name="actionPalmiHidden">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Hidden</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+P</string>
    </property>
   </action>
   <action name="actionTabul">

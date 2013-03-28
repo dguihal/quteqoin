@@ -113,7 +113,6 @@ void QQPalmiLineEdit::keyPressEvent(QKeyEvent *e)
 void QQPalmiLineEdit::completeTotoz()
 {
 	QString txt = text().left(cursorPosition());
-	qDebug() << txt << cursorPosition();
 	int pos = txt.lastIndexOf("[:");
 	if(pos >= 0)
 	{

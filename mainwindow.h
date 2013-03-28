@@ -26,8 +26,10 @@ public:
 public slots:
 	void displayOptions();
 	void doPostMessage(const QString &bouchot, const QString &message);
-	void doTriggerMiniPalmi();
+	void doTriggerHiddenPalmi();
 	void doTriggerMaxiPalmi();
+	void doTriggerMiniPalmi();
+	void palmiVisibilityChanged(bool visible);
 	void totozManagerVisibilityChanged(bool visible);
 
 protected:
