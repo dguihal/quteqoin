@@ -25,14 +25,15 @@ MainWindow::MainWindow(QWidget *parent) :
 	QIcon icon = QIcon(QString::fromAscii(":/img/rubber_duck_yellow.svg"));
 	setWindowIcon(icon);
 
-	m_pini = new QQPinipede(this);
-	setCentralWidget(m_pini);
-
+	// Setup du palmi
 	m_palmi = new QQPalmipede(this);
 	m_palmi->setAllowedAreas(Qt::TopDockWidgetArea |
 							 Qt::BottomDockWidgetArea);
+	connect(m_palmi, SIGNAL(postMessage(QString,QString)), this, SLOT(doPostMessage(QString,QString)));
+	connect(m_palmi, SIGNAL(visibilityChanged(bool)), this, SLOT(palmiVisibilityChanged(bool)));
 	addDockWidget(Qt::BottomDockWidgetArea, m_palmi, Qt::Horizontal);
 
+	// Setup du totoz manager
 	m_totozManager = new QQTotozManager(this);
 	m_totozManager->setAllowedAreas(Qt::LeftDockWidgetArea |
 									Qt::RightDockWidgetArea);
@@ -41,33 +42,36 @@ MainWindow::MainWindow(QWidget *parent) :
 	m_totozManager->setVisible(false);
 	addDockWidget(Qt::RightDockWidgetArea, m_totozManager, Qt::Vertical);
 
-	QAction * actionTotozManager = m_totozManager->toggleViewAction();
+	QAction *actionTotozManager = m_totozManager->toggleViewAction();
+	actionTotozManager->setShortcut(Qt::ControlModifier + Qt::Key_T);
 	m_ui->toolsMenu->addAction(actionTotozManager);
 
+	// Setup du pini
+	m_pini = new QQPinipede(this);
 	m_pini->setTotozManager(m_totozManager);
 	connect(m_pini, SIGNAL(insertTextPalmi(QString, QString)), m_palmi, SLOT(insertReplaceText(QString, QString)));
+	setCentralWidget(m_pini);
 
-	connect(m_palmi, SIGNAL(postMessage(QString,QString)), this, SLOT(doPostMessage(QString,QString)));
 	connect(m_ui->actionQuit, SIGNAL(triggered()), this, SLOT(close()));
-	connect(m_ui->actionEtendu, SIGNAL(triggered()), this, SLOT(doTriggerMaxiPalmi()));
-	connect(m_ui->actionMinimal, SIGNAL(triggered()), this, SLOT(doTriggerMiniPalmi()));
+	connect(m_ui->actionPalmiExt, SIGNAL(triggered()), this, SLOT(doTriggerMaxiPalmi()));
+	connect(m_ui->actionPalmiMini, SIGNAL(triggered()), this, SLOT(doTriggerMiniPalmi()));
+	connect(m_ui->actionPalmiHidden, SIGNAL(triggered()), this, SLOT(doTriggerHiddenPalmi()));
 	connect(m_ui->actionOptions, SIGNAL(triggered()), this, SLOT(displayOptions()));
 
 	QQSettings settings;
 	if(settings.value(SETTINGS_PALMI_MINI, DEFAULT_PALMI_MINI).toBool())
-		this->m_ui->actionMinimal->trigger();
+		this->m_ui->actionPalmiMini->trigger();
 	else
-		this->m_ui->actionEtendu->trigger();
+		this->m_ui->actionPalmiExt->trigger();
 
 	if(settings.contains(SETTINGS_MAINWINDOW_GEOMETRY))
 		restoreGeometry(settings.value(SETTINGS_MAINWINDOW_GEOMETRY).toByteArray());
 	if(settings.contains(SETTINGS_MAINWINDOW_STATE))
 		restoreState(settings.value(SETTINGS_MAINWINDOW_STATE).toByteArray());
 
-	//Special euro<
-	// s'assurer que le palmi est visible
-	m_palmi->setVisible(true);
-	m_palmi->setFocus(Qt::OtherFocusReason);
+	// Envoyer le focus par defaut sur le palmi s'il est visible
+	if(m_palmi->isVisible())
+		m_palmi->setFocus(Qt::OtherFocusReason);
 
 	initBouchots();
 }
@@ -91,9 +95,9 @@ void MainWindow::displayOptions()
 		bouchots.at(i)->startRefresh();
 }
 
-void MainWindow::doPostMessage(const QString & bouchot, const QString & message)
+void MainWindow::doPostMessage(const QString &bouchot, const QString &message)
 {
-	QQBouchot * bouchotDest = QQBouchot::bouchot(bouchot);
+	QQBouchot *bouchotDest = QQBouchot::bouchot(bouchot);
 
 	if( bouchotDest != NULL)
 		bouchotDest->postMessage(message);
@@ -101,35 +105,51 @@ void MainWindow::doPostMessage(const QString & bouchot, const QString & message)
 	// Bouchot non trouvé ???
 }
 
-void MainWindow::doTriggerMiniPalmi()
+void MainWindow::doTriggerHiddenPalmi()
 {
-	m_ui->actionEtendu->setChecked(false);
-	m_ui->actionMinimal->setChecked(true);
-
-	QQSettings settings;
-	settings.setValue(SETTINGS_PALMI_MINI, true);
-	m_palmi->setMinimal(true);
+	m_palmi->setVisible(! m_palmi->isVisible());
 }
 
 void MainWindow::doTriggerMaxiPalmi()
 {
-	m_ui->actionEtendu->setChecked(true);
-	m_ui->actionMinimal->setChecked(false);
+	m_ui->actionPalmiExt->setChecked(true);
+	m_ui->actionPalmiMini->setChecked(false);
 
 	QQSettings settings;
 	settings.setValue(SETTINGS_PALMI_MINI, false);
 	m_palmi->setMinimal(false);
 }
 
+void MainWindow::doTriggerMiniPalmi()
+{
+	m_ui->actionPalmiExt->setChecked(false);
+	m_ui->actionPalmiMini->setChecked(true);
+
+	QQSettings settings;
+	settings.setValue(SETTINGS_PALMI_MINI, true);
+	m_palmi->setMinimal(true);
+}
+
+void MainWindow::palmiVisibilityChanged(bool visible)
+{
+	m_ui->actionPalmiHidden->setChecked(! visible);
+	if(visible)
+		m_palmi->setFocus();
+	else
+		m_pini->setFocus();
+}
+
 void MainWindow::totozManagerVisibilityChanged(bool visible)
 {
 	if(visible)
 		m_totozManager->setFocus();
-	else
+	else if(m_palmi->isVisible())
 		m_palmi->setFocus();
+	else
+		m_pini->setFocus();
 }
 
-void MainWindow::closeEvent(QCloseEvent * event)
+void MainWindow::closeEvent(QCloseEvent *event)
 {
 	QQSettings settings;
 	settings.setValue(SETTINGS_MAINWINDOW_GEOMETRY, saveGeometry());
@@ -138,30 +158,22 @@ void MainWindow::closeEvent(QCloseEvent * event)
 	QMainWindow::closeEvent(event);
 }
 
-void MainWindow::keyPressEvent(QKeyEvent * event)
+void MainWindow::keyPressEvent(QKeyEvent *event)
 {
 	bool processed = false;
 
-	switch (event->key())
+	switch(event->key())
 	{
 	case Qt::Key_F5:
 	{
 		QList<QQBouchot *> bouchots = QQBouchot::listBouchots();
 		for(int i = 0; i < bouchots.size(); i++)
 		{
-			QQBouchot * bouchot = bouchots.at(i);
+			QQBouchot *bouchot = bouchots.at(i);
 			bouchot->stopRefresh();
 			bouchot->startRefresh();
 		}
-		break;
-	}
-	case Qt::Key_T:
-	{
-		if(event->modifiers() == Qt::ControlModifier)
-		{
-			m_totozManager->setVisible(! m_totozManager->isVisible());
-			processed = true;
-		}
+		processed = true;
 		break;
 	}
 	default :
@@ -221,7 +233,7 @@ void MainWindow::initBouchots()
 	QQSettings settings;
 
 	QStringList list = settings.listBouchots();
-	QQBouchot * bouchot = NULL;
+	QQBouchot *bouchot = NULL;
 	for(int i = 0; i < list.size(); i++)
 	{
 		bouchot = settings.loadBouchot(list.at(i));
