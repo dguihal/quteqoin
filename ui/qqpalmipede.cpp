@@ -16,6 +16,7 @@ QQPalmipede::QQPalmipede(QWidget *parent) :
 {
 	setObjectName(PALMIPEDE_OBJECT_NAME);
 	m_minimal = false;
+	m_wasVisible = false;
 
 	ui->setupUi(this);
 
@@ -73,6 +74,12 @@ void QQPalmipede::removeBouchot(const QString &oldBouchot)
 	}
 }
 
+void QQPalmipede::setVisible(bool visible)
+{
+	QDockWidget::setVisible(visible);
+	m_wasVisible = visible;
+}
+
 void QQPalmipede::insertReplaceText(const QString &bouchot, const QString &tag)
 {
 	int wasPostLineEditEmpty = ui->postLineEdit->text().isEmpty();
@@ -96,6 +103,15 @@ void QQPalmipede::insertReplaceText(const QString &tag)
 {
 	QString t_tag = tag;
 	ui->postLineEdit->insertReplaceText(t_tag);
+
+	// Warning : le show va appeler le setVisible(bool),
+	//    il faut donc sauver l'état antérieur avant
+	bool wasVisible = isVisible();
+	if(! isVisible())
+		show();
+
+	m_wasVisible = wasVisible;
+
 	setFocus();
 }
 
@@ -228,6 +244,9 @@ void QQPalmipede::postPushButtonClicked()
 
 	//envisager de garder un histo des derniers posts "Au cas ou"
 	ui->postLineEdit->clear();
+
+	if(! m_wasVisible)
+		hide();
 }
 
 void QQPalmipede::insertBlam()

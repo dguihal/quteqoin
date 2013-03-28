@@ -33,6 +33,7 @@ signals:
 public slots:
 	void insertReplaceText(const QString &bouchot, const QString &tag);
 	void insertReplaceText(const QString &tag);
+	virtual void setVisible(bool visible);
 
 protected:
 	virtual void focusInEvent(QFocusEvent * event);
@@ -46,6 +47,7 @@ private:
 	QString m_oldBouchot;
 
 	bool m_minimal;
+	bool m_wasVisible;
 
 	int palmiTextSelectionStart;
 	QString palmiSelectedText;
