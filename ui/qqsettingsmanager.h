@@ -27,6 +27,7 @@ public:
 
 signals:
 	void bouchotCreated(QQBouchot *);
+	void totozSearchEnabledChanged(bool);
 
 protected slots:
 	virtual void accept();

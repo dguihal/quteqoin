@@ -3,6 +3,8 @@
 
 #define MAX_CACHE_AGE_DAYS 60
 
+#define SETTINGS_TOTOZ_PRESETS_PATH ":/totoz"
+
 // MAIN WINDOW
 #define SETTINGS_MAINWINDOW_STATE "mainwindow_state"
 #define SETTINGS_MAINWINDOW_GEOMETRY "mainwindow_geometry"
@@ -29,8 +31,11 @@
 #define SETTINGS_TOTOZ_SERVER_BASE_IMG "totoz_server_base_img"
 #define DEFAULT_TOTOZ_SERVER_BASE_IMG "img"
 
+#define SETTINGS_TOTOZ_SERVER_NAME_SUFFIX "totoz_server_name_suffix"
+#define DEFAULT_TOTOZ_SERVER_NAME_SUFFIX ""
+
 #define SETTINGS_TOTOZ_SERVER_ALLOW_SEARCH "totoz_serveur_allow_search"
-#define DEFAULT_TOTOZ_SERVER_ALLOW_SEARCH 1
+#define DEFAULT_TOTOZ_SERVER_ALLOW_SEARCH true
 
 #define SETTINGS_TOTOZ_SERVER_QUERY_PATTERN "totoz_query_pattern"
 #define DEFAULT_TOTOZ_SERVER_QUERY_PATTERN "search.xml?terms=%t&offset=%o"

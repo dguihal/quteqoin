@@ -37,19 +37,17 @@ QQTotozManager::QQTotozManager(QWidget *parent) :
 	m_totozDownloader = new QQTotozDownloader(this);
 
 	ui->setupUi(this);
-	bool totozSearchEnabled = settings.value(SETTINGS_TOTOZ_SERVER_ALLOW_SEARCH, DEFAULT_TOTOZ_SERVER_ALLOW_SEARCH).toBool();
-	if(totozSearchEnabled)
-		ui->qqTMTabWidget->setCurrentIndex(TAB_SEARCH_INDEX);
-	else
-		ui->qqTMTabWidget->removeTab(TAB_SEARCH_INDEX);
+	m_totozServerSearchWidget = ui->qqTMTabWidget->widget(TAB_SEARCH_INDEX);
+
+	this->layout()->setContentsMargins(1, 1, 1, 1);
+	ui->qqTMTabWidget->widget(TAB_BOOKMARKS_INDEX)->layout()->setContentsMargins(0, 1, 0, 1);
+	ui->qqTMTabWidget->widget(TAB_SEARCH_INDEX)->layout()->setContentsMargins(0, 1, 0, 1);
+
+	totozSearchEnabled(settings.value(SETTINGS_TOTOZ_SERVER_ALLOW_SEARCH, DEFAULT_TOTOZ_SERVER_ALLOW_SEARCH).toBool());
 
 	ui->cancelSearchButton->hide();
 	connect(ui->cancelSearchButton, SIGNAL(clicked()), this, SLOT(totozSearchCanceled()));
 
-	this->layout()->setContentsMargins(1, 1, 1, 1);
-	ui->qqTMTabWidget->widget(TAB_BOOKMARKS_INDEX)->layout()->setContentsMargins(0, 1, 0, 1);
-	if(totozSearchEnabled)
-		ui->qqTMTabWidget->widget(TAB_SEARCH_INDEX)->layout()->setContentsMargins(0, 1, 0, 1);
 
 	ui->serverScrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 	ui->bookmarkScrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -159,7 +157,18 @@ void QQTotozManager::totozSearchCanceled()
 	setCursor(QCursor(Qt::ArrowCursor));
 	ui->searchLineEdit->setCursor(QCursor(Qt::ArrowCursor));
 	ui->searchLineEdit->setStyleSheet("");
+}
 
+void QQTotozManager::totozSearchEnabled(bool enabled)
+{
+	if(enabled)
+	{
+		if(ui->qqTMTabWidget->count() == 1)
+			ui->qqTMTabWidget->addTab(m_totozServerSearchWidget, tr("Server"));
+		ui->qqTMTabWidget->setCurrentIndex(TAB_SEARCH_INDEX);
+	}
+	else if(ui->qqTMTabWidget->count() > 1)
+			ui->qqTMTabWidget->removeTab(TAB_SEARCH_INDEX);
 }
 
 void QQTotozManager::focusInEvent(QFocusEvent * event)

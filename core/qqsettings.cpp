@@ -51,6 +51,50 @@ void QQSettings::removeBouchot(const QString &name)
 	setValue(SETTINGS_LIST_BOUCHOTS, QVariant(listBouchotsNames.join(QChar::fromAscii(BOUCHOTS_SPLIT_CHAR))));
 }
 
+
+QStringList QQSettings::listTotozSrvPresets()
+{
+	QDir dir(SETTINGS_TOTOZ_PRESETS_PATH);
+	return dir.entryList();
+}
+
+QQTotozSrvPreset QQSettings::getTotozSrvPreset(QString totozSrvPreset, bool labelOnly)
+{
+	QFile file(QString::fromAscii(SETTINGS_TOTOZ_PRESETS_PATH) + "/" + totozSrvPreset);
+	QQTotozSrvPreset preset;
+
+	if(!file.open(QIODevice::ReadOnly | QIODevice::Text))
+		return preset;
+
+	while (!file.atEnd())
+	{
+		QString line = QString::fromUtf8(file.readLine()).trimmed();
+		int pos = line.indexOf('=');
+		QString key = line.left(pos);
+		QString value = line.right(line.length() - (pos + 1));
+
+		if(key == "label")
+		{
+			preset.label = value;
+			if(labelOnly)
+				break;
+		}
+		else if(key == "url")
+			preset.url = value;
+		else if(key == "base_img_dir")
+			preset.baseImgDir = value;
+		else if(key == "img_suffix")
+			preset.imgSuffix = value;
+		else if(key == "search_pattern")
+			preset.searchPattern = value;
+		else if(key == "info_pattern")
+			preset.infoPattern = value;
+		else
+			qWarning() << "Unknow totoz Server preset key :" << key;
+	}
+	return preset;
+}
+
 void QQSettings::saveBouchot(const QString &name, const QQBouchot::QQBouchotSettings &bouchotSettings)
 {
 	beginGroup(QString::fromAscii("bouchot"));
