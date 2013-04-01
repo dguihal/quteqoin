@@ -1,6 +1,6 @@
 label=Hardware.fr (Safe, pre-moderated)
 url=http://forum-images.hardware.fr
-base_img_dir=/images/perso
+base_img_dir=images/perso
 img_suffix=.gif
 search_pattern=
 info_pattern=

@@ -88,6 +88,7 @@ void MainWindow::displayOptions()
 
 	QQSettingsManager settingsManager(this);
 	connect(&settingsManager, SIGNAL(bouchotCreated(QQBouchot*)), this, SLOT(initBouchot(QQBouchot*)));
+	connect(&settingsManager, SIGNAL(totozSearchEnabledChanged(bool)), m_totozManager, SLOT(totozSearchEnabled(bool)));
 	settingsManager.exec();
 
 	bouchots = QQBouchot::listBouchots();

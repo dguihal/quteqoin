@@ -1,20 +1,35 @@
 #include "qqtotozsettings.h"
 #include "ui_qqtotozsettings.h"
 
+#include "core/qqsettings.h"
+
 QQTotozSettings::QQTotozSettings(QWidget *parent) :
 	QWidget(parent),
 	ui(new Ui::QQTotozSettings)
 {
 	ui->setupUi(this);
 
+	QQSettings settings;
+	ui->presetCB->clear();
+	QStringList srvPresets = settings.listTotozSrvPresets();
+	for(int i = 0; i < srvPresets.length(); i++)
+	{
+		QString label = settings.getTotozSrvPreset(srvPresets.at(i), true).label;
+		ui->presetCB->insertItem(0, label, srvPresets.at(i));
+	}
+
 	connect(ui->srvTotozLineEdit, SIGNAL(textChanged(QString)),
 			this, SLOT(totozServerURLChanged(QString)));
 	connect(ui->srvTotozBaseImgLineEdit, SIGNAL(textChanged(QString)),
 			this, SLOT(totozBaseImgUrlChanged(QString)));
+	connect(ui->srvNameSuffixlineEdit, SIGNAL(textChanged(QString)),
+			this, SLOT(totozNameSuffixChanged(QString)));
 	connect(ui->srvAllowSearch, SIGNAL(stateChanged(int)),
 			this, SLOT(totozAllowSearchChanged(int)));
 	connect(ui->srvTotozQueryPatternLineEdit, SIGNAL(textChanged(QString)),
 			this, SLOT(totozQueryPatternChanged(QString)));
+	connect(ui->presetCB, SIGNAL(activated(int)),
+			this, SLOT(loadTotozSrvPreset(int)));
 	connect(ui->totozModeComboBox, SIGNAL(currentIndexChanged(QString)),
 			this, SLOT(totozVisualModeChanged(QString)));
 }
@@ -24,7 +39,6 @@ QQTotozSettings::~QQTotozSettings()
 	delete ui;
 }
 
-//void QQTotozSettings::TotozPresetChanged(QFont &font);
 
 //PROPERTY TotozServerURL
 void QQTotozSettings::setTotozServerURL(const QString &totozServerURL)
@@ -42,6 +56,7 @@ void QQTotozSettings::totozServerURLChanged(const QString &)
 	m_totozServerURL = ui->srvTotozLineEdit->text();
 }
 
+
 //PROPERTY TotozBaseImgUrl
 void QQTotozSettings::setTotozBaseImgUrl(const QString &totozBaseImgUrl)
 {
@@ -58,10 +73,29 @@ void QQTotozSettings::totozBaseImgUrlChanged(const QString &)
 	m_totozBaseImgUrl = ui->srvTotozBaseImgLineEdit->text();
 }
 
+
+//PROPERTY TotozNameSuffix
+void QQTotozSettings::setTotozNameSuffix(const QString &totozNameSuffix)
+{
+	ui->srvNameSuffixlineEdit->setText(totozNameSuffix);
+}
+
+QString QQTotozSettings::totozNameSuffix()
+{
+	return m_totozNameSuffix;
+}
+
+void QQTotozSettings::totozNameSuffixChanged(const QString &)
+{
+	m_totozNameSuffix = ui->srvNameSuffixlineEdit->text();
+}
+
+
 //PROPERTY TotozBaseAllowSearch
 void QQTotozSettings::setTotozAllowSearch(const bool &totozAllowSearch)
 {
 	ui->srvAllowSearch->setChecked(totozAllowSearch);
+	totozAllowSearchChanged(ui->srvAllowSearch->checkState());
 }
 
 bool QQTotozSettings::totozAllowSearch()
@@ -71,19 +105,37 @@ bool QQTotozSettings::totozAllowSearch()
 
 void QQTotozSettings::totozAllowSearchChanged(int)
 {
-	m_totozAllowSearch = (ui->srvAllowSearch->checkState() != Qt::Unchecked);
+	Qt::CheckState state = ui->srvAllowSearch->checkState();
+	if(state == Qt::Checked)
+	{
+		m_totozAllowSearch = true;
+		ui->srvTotozQueryPatternLineEdit->setReadOnly(false);
+		ui->srvTotozQueryPatternLineEdit->setText(m_totozQueryPattern);
+	}
+	else
+	{
+		m_totozAllowSearch = false;
+		ui->srvTotozQueryPatternLineEdit->setReadOnly(true);
+		ui->srvTotozQueryPatternLineEdit->clear();
+	}
 }
 
 
 //PROPERTY TotozQueryPattern
 void QQTotozSettings::setTotozQueryPattern(const QString &totozQueryPattern)
 {
-	ui->srvTotozQueryPatternLineEdit->setText(totozQueryPattern);
+	if(ui->srvAllowSearch->checkState() == Qt::Checked)
+		ui->srvTotozQueryPatternLineEdit->setText(totozQueryPattern);
+	else
+		m_totozQueryPattern = totozQueryPattern;
 }
 
 QString QQTotozSettings::totozQueryPattern()
 {
-	return m_totozQueryPattern;
+	if(ui->srvAllowSearch->checkState() == Qt::Checked)
+		return m_totozQueryPattern;
+	else
+		return "";
 }
 
 void QQTotozSettings::totozQueryPatternChanged(const QString &)
@@ -117,3 +169,18 @@ void QQTotozSettings::totozVisualModeChanged(const QString &)
 	m_totozVisualMode = ui->totozModeComboBox->currentText();
 }
 
+
+// Totoz Server Preset
+void QQTotozSettings::loadTotozSrvPreset(int index)
+{
+	QQSettings settings;
+	QString presetName = ui->presetCB->itemData(index).toString();
+
+	QQTotozSrvPreset preset = settings.getTotozSrvPreset(presetName, false);
+
+	ui->srvTotozLineEdit->setText(preset.url);
+	ui->srvTotozBaseImgLineEdit->setText(preset.baseImgDir);
+	ui->srvNameSuffixlineEdit->setText(preset.imgSuffix);
+	ui->srvAllowSearch->setChecked(! preset.searchPattern.isEmpty());
+	ui->srvTotozQueryPatternLineEdit->setText(preset.searchPattern);
+}

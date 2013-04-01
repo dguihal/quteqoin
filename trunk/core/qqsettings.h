@@ -15,6 +15,16 @@ class QAuthenticator;
 class QSettings;
 class QString;
 
+struct QQTotozSrvPreset
+{
+	QString label;
+	QString url;
+	QString baseImgDir;
+	QString imgSuffix;
+	QString searchPattern;
+	QString infoPattern;
+};
+
 class QQSettings : public QSettings
 {
 	Q_OBJECT
@@ -28,6 +38,9 @@ public:
 	void saveBouchot(const QString &name, const QQBouchot::QQBouchotSettings &bouchotSettings);
 	QQBouchot * loadBouchot(const QString &name);
 	void removeBouchot(const QString &name);
+
+	QStringList listTotozSrvPresets();
+	QQTotozSrvPreset getTotozSrvPreset(QString totozSrvPreset, bool labelOnly = false);
 
 	QStringList listBouchots();
 	QStringList listTabs();

@@ -19,10 +19,13 @@ void QQTotozDownloader::fetchTotoz(QString & totozId)
 	if(totoz.isCacheExpired())
 	{
 		QQSettings settings;
+		QString totozIdSuffix = settings.value(SETTINGS_TOTOZ_SERVER_NAME_SUFFIX, DEFAULT_TOTOZ_SERVER_NAME_SUFFIX).toString();
 		QString queryUrl = settings.value(SETTINGS_TOTOZ_SERVER_URL, DEFAULT_TOTOZ_SERVER_URL).toString();
-		queryUrl.append("/").append(
-					settings.value(SETTINGS_TOTOZ_SERVER_BASE_IMG, DEFAULT_TOTOZ_SERVER_BASE_IMG).toString());
-		queryUrl.append("/").append(totozId);
+		queryUrl.append("/")
+				.append(settings.value(SETTINGS_TOTOZ_SERVER_BASE_IMG, DEFAULT_TOTOZ_SERVER_BASE_IMG).toString())
+				.append("/")
+				.append(totozId)
+				.append(totozIdSuffix);
 		QUrl url(queryUrl);
 
 		QNetworkRequest request(url);

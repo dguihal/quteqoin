@@ -10,10 +10,11 @@ namespace Ui {
 class QQTotozManager;
 }
 
-class QScrollArea;
 class QQSettings;
 class QQTotozDownloader;
 class QQTMRequester;
+
+class QScrollArea;
 
 class QQTotozManager : public QDockWidget
 {
@@ -28,6 +29,7 @@ public slots:
 	void searchTotoz();
 	void totozSearchFinished();
 	void totozSearchCanceled();
+	void totozSearchEnabled(bool enabled);
 
 signals:
 	void totozClicked(QString anchor);
@@ -46,8 +48,9 @@ private:
 
 	Ui::QQTotozManager *ui;
 
-	QQTMRequester * m_requester;
-	QQTotozDownloader * m_totozDownloader;
+	QQTMRequester *m_requester;
+	QQTotozDownloader *m_totozDownloader;
+	QWidget *m_totozServerSearchWidget;
 };
 
 #endif // QQTOTOZMANAGER_H

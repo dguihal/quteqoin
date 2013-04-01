@@ -154,6 +154,9 @@ void QQSettingsManager::initTotozSettings()
 	QString totozServerBaseImg = settings.value(SETTINGS_TOTOZ_SERVER_BASE_IMG, DEFAULT_TOTOZ_SERVER_BASE_IMG).toString();
 	m_totozSettingsW->setTotozBaseImgUrl(totozServerBaseImg);
 
+	QString totozServerNameSuffix = settings.value(SETTINGS_TOTOZ_SERVER_NAME_SUFFIX, DEFAULT_TOTOZ_SERVER_NAME_SUFFIX).toString();
+	m_totozSettingsW->setTotozNameSuffix(totozServerNameSuffix);
+
 	bool totozServerAllowSearch = settings.value(SETTINGS_TOTOZ_SERVER_ALLOW_SEARCH,  DEFAULT_TOTOZ_SERVER_ALLOW_SEARCH).toBool();
 	m_totozSettingsW->setTotozAllowSearch(totozServerAllowSearch);
 
@@ -181,11 +184,18 @@ void QQSettingsManager::saveTotozSettings()
 	else
 		settings.setValue(SETTINGS_TOTOZ_SERVER_BASE_IMG, totozServerBaseImg);
 
+	QString totozServerNameSuffix = m_totozSettingsW->totozNameSuffix();
+	if(totozServerNameSuffix.size() == 0 || totozServerNameSuffix == DEFAULT_TOTOZ_SERVER_NAME_SUFFIX)
+		settings.remove(SETTINGS_TOTOZ_SERVER_NAME_SUFFIX);
+	else
+		settings.setValue(SETTINGS_TOTOZ_SERVER_NAME_SUFFIX, totozServerNameSuffix);
+
 	bool totozServerAllowSearch = m_totozSettingsW->totozAllowSearch();
+	emit totozSearchEnabledChanged(totozServerAllowSearch);
 	if(totozServerAllowSearch == DEFAULT_TOTOZ_SERVER_ALLOW_SEARCH)
 		settings.remove(SETTINGS_TOTOZ_SERVER_ALLOW_SEARCH);
 	else
-		settings.setValue(SETTINGS_TOTOZ_SERVER_ALLOW_SEARCH, totozServerAllowSearch);
+		settings.setValue(SETTINGS_TOTOZ_SERVER_ALLOW_SEARCH, QVariant(totozServerAllowSearch));
 
 	QString totozServerQueryPattern = m_totozSettingsW->totozQueryPattern();
 	if(totozServerQueryPattern.size() == 0 || totozServerQueryPattern == DEFAULT_TOTOZ_SERVER_QUERY_PATTERN)
