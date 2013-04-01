@@ -247,7 +247,7 @@ void QQBouchot::requestFinishedSlot(QNetworkReply *reply)
 	//QVariant statusCodeV = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute);
 
 	qDebug() << QDateTime::currentDateTime().currentMSecsSinceEpoch() << " : "
-		<< "QQBouchot::requestFinishedSlot url=" << reply->url();
+			 << "QQBouchot::requestFinishedSlot url=" << reply->url();
 
 	if(reply->error() != QNetworkReply::NoError)
 	{
@@ -365,6 +365,19 @@ QQBouchot * QQBouchot::bouchot(const QString &bouchotName)
 	QQBouchot * ret = NULL;
 	if(s_hashBouchots.contains(bouchotName))
 		ret = s_hashBouchots.value(bouchotName);
+	else
+	{
+		QList<QQBouchot *> bouchots = listBouchots();
+		for(int i = 0; i < bouchots.length(); i++)
+		{
+			QQBouchot * bouchot = bouchots.at(i);
+			if(bouchots.at(i)->settings().aliases().contains(bouchotName))
+			{
+				ret = bouchot;
+				break;
+			}
+		}
+	}
 
 	return ret;
 }
