@@ -13,4 +13,4 @@ Current features includes :
   * A totoz manager
   * A graphical configuration tool for easily managing your quteqoni
 
-Here is the TODO
+Here is the [TODO]
