@@ -12,3 +12,5 @@ Current features includes :
   * A feature complete palmi
   * A totoz manager
   * A graphical configuration tool for easily managing your quteqoni
+
+Here is the TODO
