@@ -54,7 +54,7 @@ public slots:
 	void norlogeClicked(QString srcBouchot, QQNorloge norloge);
 	void norlogeRefClicked(QString srcBouchot, QQNorlogeRef nRef);
 	void norlogeRefHovered(QQNorlogeRef norlogeRef);
-	void unHighlight();
+	void unHighlight(QQTextBrowser *tBrowser);
 	void showTotozViewer(QString &totozId);
 	void hideTotozViewer();
 	void loginClicked(QString bouchot, QString login);
@@ -73,7 +73,6 @@ private:
 
 	QQTotozDownloader * m_totozDownloader;
 	QQTotozManager * m_totozManager;
-	QQTextBrowser * m_tBrowserHighlighted;
 	QQTotozViewer * m_totozViewer;
 	QLabel * m_hiddenPostViewerLabel;
 	QBuffer m_totozData;

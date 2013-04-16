@@ -33,7 +33,7 @@ QQTextBrowser::QQTextBrowser(QString groupName, QQPinipede *parent) :
 	//setContextMenuPolicy(Qt::CustomContextMenu);
 
 	m_groupName = groupName;
-	m_highlightAsked = false;
+	m_highlighted = false;
 	m_mouseClick = false;
 
 	QTextDocument * doc = document();
@@ -178,22 +178,15 @@ void QQTextBrowser::updateNotifArea(int)
 
 void QQTextBrowser::highlightNorloge(QQNorlogeRef nRef)
 {
-	if(! (m_highlightedNRef == nRef))
-	{
-		qDebug() << "QQTextBrowser::mouseMoveEvent norlogeRefHovered : nRef.getOrigNRef() = " << nRef.getOrigNRef();
+	if(m_highlighted)
 		unHighlightNorloge();
-		m_highlightedNRef = nRef;
-		emit norlogeRefHovered(nRef);
-	}
+	emit norlogeRefHovered(nRef);
 }
 
 void QQTextBrowser::unHighlightNorloge()
 {
-	if(m_highlightedNRef.isValid())
-	{
-		m_highlightedNRef = QQNorlogeRef();
-		emit unHighlight();
-	}
+	m_highlighted = false;
+	emit unHighlight(this);
 }
 
 void QQTextBrowser::showTotoz(QString & totozId)
