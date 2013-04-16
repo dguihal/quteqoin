@@ -27,7 +27,8 @@ public slots:
 	void updateNotifArea(int);
 
 signals:
-	void norlogeClicked(QString bouchot, QQNorloge norloge);
+	void norlogeClicked(QString srcBouchot, QQNorloge norloge);
+	void norlogeRefClicked(QString srcBouchot, QQNorlogeRef nRef);
 	void norlogeRefHovered(QQNorlogeRef norloge);
 	void unHighlight();
 	void displayTotoz(QString &totozId);

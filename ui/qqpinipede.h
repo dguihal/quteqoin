@@ -51,7 +51,8 @@ public:
 	void purgePinitabHistory(const QString &groupName);
 
 public slots:
-	void norlogeClicked(QString bouchot, QQNorloge norloge);
+	void norlogeClicked(QString srcBouchot, QQNorloge norloge);
+	void norlogeRefClicked(QString srcBouchot, QQNorlogeRef nRef);
 	void norlogeRefHovered(QQNorlogeRef norlogeRef);
 	void unHighlight();
 	void showTotozViewer(QString &totozId);
