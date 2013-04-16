@@ -79,6 +79,7 @@ void QQPinipede::addPiniTab(const QString & groupName)
 			m_totozDownloader, SLOT(fetchTotoz(QString &)));
 
 	connect(textBrowser, SIGNAL(norlogeClicked(QString, QQNorloge)), this, SLOT(norlogeClicked(QString, QQNorloge)));
+	connect(textBrowser, SIGNAL(norlogeRefClicked(QString, QQNorlogeRef)), this, SLOT(norlogeRefClicked(QString, QQNorlogeRef)));
 	connect(textBrowser, SIGNAL(loginClicked(QString, QString)), this, SLOT(loginClicked(QString, QString)));
 	connect(textBrowser, SIGNAL(norlogeRefHovered(QQNorlogeRef)), this, SLOT(norlogeRefHovered(QQNorlogeRef)));
 	connect(textBrowser, SIGNAL(unHighlight()), this, SLOT(unHighlight()));
@@ -474,10 +475,34 @@ unsigned int QQPinipede::insertPostToList(QList<QQPost *> *listPosts, QQPost *po
 	return listPosts->size() - 1;
 }
 
-
-void QQPinipede::norlogeClicked(QString bouchot, QQNorloge norloge)
+void QQPinipede::norlogeClicked(QString srcBouchot, QQNorloge norloge)
 {
-	emit insertTextPalmi(bouchot, norloge.toStringPalmi() + QString::fromAscii(" "));
+	emit insertTextPalmi(srcBouchot, norloge.toStringPalmi() + QString::fromAscii(" "));
+}
+
+void QQPinipede::norlogeRefClicked(QString srcBouchot, QQNorlogeRef nRef)
+{
+	QQBouchot *srcQQBouchot = QQBouchot::bouchot(srcBouchot);
+	QQBouchot *dstQQBouchot = QQBouchot::bouchot(nRef.dstBouchot());
+
+	QQTextBrowser *textBrowser = m_textBrowserHash.value(dstQQBouchot->settings().group());
+	if(dstQQBouchot->settings().group() != srcQQBouchot->settings().group())
+	{
+		setCurrentIndex(indexOf(textBrowser));
+	}
+
+	QTextCursor cursor(textBrowser->document()->lastBlock());
+	bool found = false;
+	do
+	{
+		QQMessageBlockUserData * userData = (QQMessageBlockUserData *) (cursor.block().userData());
+		if(nRef.matchesPost(userData->post()))
+		{
+			found = true;
+			textBrowser->setTextCursor(cursor);
+			textBrowser->ensureCursorVisible();
+		}
+	} while((! found) && cursor.movePosition(QTextCursor::PreviousBlock));
 }
 
 void QQPinipede::loginClicked(QString bouchot, QString login)

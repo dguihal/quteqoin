@@ -176,6 +176,72 @@ void QQTextBrowser::updateNotifArea(int)
 	m_notifArea->update();
 }
 
+void QQTextBrowser::highlightNorloge(QQNorlogeRef nRef)
+{
+	if(! (m_highlightedNRef == nRef))
+	{
+		qDebug() << "QQTextBrowser::mouseMoveEvent norlogeRefHovered : nRef.getOrigNRef() = " << nRef.getOrigNRef();
+		unHighlightNorloge();
+		m_highlightedNRef = nRef;
+		emit norlogeRefHovered(nRef);
+	}
+}
+
+void QQTextBrowser::unHighlightNorloge()
+{
+	if(m_highlightedNRef.isValid())
+	{
+		m_highlightedNRef = QQNorlogeRef();
+		emit unHighlight();
+	}
+}
+
+void QQTextBrowser::showTotoz(QString & totozId)
+{
+	if(totozId != m_displayedTotozId)
+	{
+		m_displayedTotozId = totozId;
+		emit displayTotoz(totozId);
+	}
+}
+
+void QQTextBrowser::webSearchActiontriggered()
+{
+	QQSettings settings;
+	QString webSearchUrl = settings.value(SETTINGS_GENERAL_WEBSEARCH_URL, DEFAULT_GENERAL_WEBSEARCH_URL).toString();
+	QTextCursor cursor = textCursor();
+	QString selection = cursor.selectedText();
+
+	if(! selection.isEmpty())
+	{
+		webSearchUrl.replace("%s", QUrl::toPercentEncoding(selection));
+		QDesktopServices::openUrl(QUrl::fromEncoded(webSearchUrl.toAscii()));
+	}
+}
+
+void QQTextBrowser::hideTotoz()
+{
+	if(m_displayedTotozId.length() > 0)
+	{
+		m_displayedTotozId.clear();
+		emit concealTotoz();
+	}
+}
+
+/*
+ * Recuperation de d'un evenement lorsque la souris quitte la
+ *surface de l'afficheur.
+ */
+void QQTextBrowser::leaveEvent(QEvent * event)
+{
+	QTextBrowser::leaveEvent(event);
+
+	// On masque les élements d'affichage dynamiques
+	unHighlightNorloge();
+	QToolTip::hideText();
+	hideTotoz();
+}
+
 void QQTextBrowser::mouseMoveEvent(QMouseEvent * event)
 {
 	//qDebug() << "####################################";
@@ -248,72 +314,6 @@ void QQTextBrowser::mouseMoveEvent(QMouseEvent * event)
 	}
 }
 
-void QQTextBrowser::highlightNorloge(QQNorlogeRef nRef)
-{
-	if(! (m_highlightedNRef == nRef))
-	{
-		qDebug() << "QQTextBrowser::mouseMoveEvent norlogeRefHovered : nRef.getOrigNRef() = " << nRef.getOrigNRef();
-		unHighlightNorloge();
-		m_highlightedNRef = nRef;
-		emit norlogeRefHovered(nRef);
-	}
-}
-
-void QQTextBrowser::unHighlightNorloge()
-{
-	if(m_highlightedNRef.isValid())
-	{
-		m_highlightedNRef = QQNorlogeRef();
-		emit unHighlight();
-	}
-}
-
-void QQTextBrowser::showTotoz(QString & totozId)
-{
-	if(totozId != m_displayedTotozId)
-	{
-		m_displayedTotozId = totozId;
-		emit displayTotoz(totozId);
-	}
-}
-
-void QQTextBrowser::webSearchActiontriggered()
-{
-	QQSettings settings;
-	QString webSearchUrl = settings.value(SETTINGS_GENERAL_WEBSEARCH_URL, DEFAULT_GENERAL_WEBSEARCH_URL).toString();
-	QTextCursor cursor = textCursor();
-	QString selection = cursor.selectedText();
-
-	if(! selection.isEmpty())
-	{
-		webSearchUrl.replace("%s", QUrl::toPercentEncoding(selection));
-		QDesktopServices::openUrl(QUrl::fromEncoded(webSearchUrl.toAscii()));
-	}
-}
-
-void QQTextBrowser::hideTotoz()
-{
-	if(m_displayedTotozId.length() > 0)
-	{
-		m_displayedTotozId.clear();
-		emit concealTotoz();
-	}
-}
-
-/*
- * Recuperation de d'un evenement lorsque la souris quitte la
- *surface de l'afficheur.
- */
-void QQTextBrowser::leaveEvent(QEvent * event)
-{
-	QTextBrowser::leaveEvent(event);
-
-	// On masque les élements d'affichage dynamiques
-	unHighlightNorloge();
-	QToolTip::hideText();
-	hideTotoz();
-}
-
 void QQTextBrowser::mousePressEvent(QMouseEvent * event)
 {
 	// Stockage de la postion
@@ -377,17 +377,19 @@ void QQTextBrowser::mouseReleaseEvent(QMouseEvent * event)
 	if(blockData != NULL)
 	{
 		QQPost * post = blockData->post();
+		Q_ASSERT(post != NULL);
+
+		// Clic sur Norloge
 		if(blockData->isIndexInZRange(cursor.positionInBlock(),
 									  QQMessageBlockUserData::NORLOGE))
 		{
-			Q_ASSERT(blockData->post() != NULL);
-
 			QQNorloge norloge(post->bouchot()->name(),
 							  post->norloge());
 			if(post->isNorlogeMultiple())
 				norloge.setNorlogeIndex(post->norlogeIndex());
 			emit norlogeClicked(post->bouchot()->name(), norloge);
 		}
+		// Clic sur Login/UA
 		else if(blockData->isIndexInZRange(cursor.positionInBlock(),
 										   QQMessageBlockUserData::LOGINUA))
 		{
@@ -400,6 +402,14 @@ void QQTextBrowser::mouseReleaseEvent(QMouseEvent * event)
 			}
 			else
 				emit loginClicked(post->bouchot()->name(), login);
+		}
+		// Clic sur Norloge dans Message (NorlogeRef)
+		else if(blockData->isIndexInZRange(cursor.positionInBlock(),
+										   QQMessageBlockUserData::MESSAGE))
+		{
+			QQNorlogeRef nRef = blockData->norlogeRefForIndex(cursor.positionInBlock());
+			if(nRef.isValid())
+				emit norlogeRefClicked(post->bouchot()->name(), nRef);
 		}
 	}
 }
