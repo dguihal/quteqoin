@@ -488,6 +488,7 @@ void QQPinipede::norlogeRefClicked(QString srcBouchot, QQNorlogeRef nRef)
 	unHighlight(textBrowser);
 
 	textBrowser = m_textBrowserHash.value(dstQQBouchot->settings().group());
+	int oldIndex = currentIndex();
 	if(dstQQBouchot->settings().group() != srcQQBouchot->settings().group())
 	{
 		setCurrentIndex(indexOf(textBrowser));
@@ -507,6 +508,10 @@ void QQPinipede::norlogeRefClicked(QString srcBouchot, QQNorlogeRef nRef)
 			norlogeRefHovered(nRef);
 		}
 	} while((! found) && cursor.movePosition(QTextCursor::PreviousBlock));
+
+	// Si non trouve, aucune raison de changer de tab
+	if(! found)
+		setCurrentIndex(oldIndex);
 }
 
 void QQPinipede::loginClicked(QString bouchot, QString login)
