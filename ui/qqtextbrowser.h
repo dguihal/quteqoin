@@ -23,6 +23,9 @@ public:
 	int timeUAAreaWidth() { return m_timeUAAreaWidthPx; }
 	void notifAreaPaintEvent(QPaintEvent *event);
 
+	void setHighlighted(bool highlighted = true) { m_highlighted = highlighted; }
+	bool isHighlighted() { return m_highlighted; }
+
 public slots:
 	void updateNotifArea(int);
 
@@ -30,7 +33,7 @@ signals:
 	void norlogeClicked(QString srcBouchot, QQNorloge norloge);
 	void norlogeRefClicked(QString srcBouchot, QQNorlogeRef nRef);
 	void norlogeRefHovered(QQNorlogeRef norloge);
-	void unHighlight();
+	void unHighlight(QQTextBrowser *);
 	void displayTotoz(QString &totozId);
 	void concealTotoz();
 	void displayTotozContextMenu(QPoint &pos);
@@ -75,8 +78,7 @@ private:
 
 	int m_timeUAAreaWidthPx;
 
-	bool m_highlightAsked;
-	QQNorlogeRef m_highlightedNRef;
+	bool m_highlighted;
 	QString m_displayedTotozId;
 
 	QString m_groupName;

@@ -34,7 +34,6 @@ QQPinipede::QQPinipede(QWidget * parent) :
 	m_totozManager = NULL;
 
 	m_totozDownloader = new QQTotozDownloader(this);
-	m_tBrowserHighlighted = NULL;
 
 	m_hiddenPostViewerLabelSSheet = QString::fromAscii("border: 2px solid black; border-radius: 4px;");
 	m_hiddenPostViewerLabel = new QLabel(this);
@@ -82,7 +81,7 @@ void QQPinipede::addPiniTab(const QString & groupName)
 	connect(textBrowser, SIGNAL(norlogeRefClicked(QString, QQNorlogeRef)), this, SLOT(norlogeRefClicked(QString, QQNorlogeRef)));
 	connect(textBrowser, SIGNAL(loginClicked(QString, QString)), this, SLOT(loginClicked(QString, QString)));
 	connect(textBrowser, SIGNAL(norlogeRefHovered(QQNorlogeRef)), this, SLOT(norlogeRefHovered(QQNorlogeRef)));
-	connect(textBrowser, SIGNAL(unHighlight()), this, SLOT(unHighlight()));
+	connect(textBrowser, SIGNAL(unHighlight(QQTextBrowser *)), this, SLOT(unHighlight(QQTextBrowser *)));
 	connect(textBrowser, SIGNAL(displayTotoz(QString &)), this, SLOT(showTotozViewer(QString &)));
 	connect(textBrowser, SIGNAL(concealTotoz()), this, SLOT(hideTotozViewer()));
 	connect(textBrowser, SIGNAL(newPostsAcknowledged(QString)), this, SLOT(newPostsAcknowledged(QString)));
@@ -485,7 +484,10 @@ void QQPinipede::norlogeRefClicked(QString srcBouchot, QQNorlogeRef nRef)
 	QQBouchot *srcQQBouchot = QQBouchot::bouchot(srcBouchot);
 	QQBouchot *dstQQBouchot = QQBouchot::bouchot(nRef.dstBouchot());
 
-	QQTextBrowser *textBrowser = m_textBrowserHash.value(dstQQBouchot->settings().group());
+	QQTextBrowser *textBrowser = m_textBrowserHash.value(srcQQBouchot->settings().group());
+	unHighlight(textBrowser);
+
+	textBrowser = m_textBrowserHash.value(dstQQBouchot->settings().group());
 	if(dstQQBouchot->settings().group() != srcQQBouchot->settings().group())
 	{
 		setCurrentIndex(indexOf(textBrowser));
@@ -501,6 +503,8 @@ void QQPinipede::norlogeRefClicked(QString srcBouchot, QQNorlogeRef nRef)
 			found = true;
 			textBrowser->setTextCursor(cursor);
 			textBrowser->ensureCursorVisible();
+
+			norlogeRefHovered(nRef);
 		}
 	} while((! found) && cursor.movePosition(QTextCursor::PreviousBlock));
 }
@@ -526,12 +530,12 @@ void QQPinipede::norlogeRefHovered(QQNorlogeRef norlogeRef)
 
 	bool highlightSuccess = false;
 
-	if(m_tBrowserHighlighted != NULL)
-		unHighlight();
+	if(textBrowser->isHighlighted())
+		unHighlight(textBrowser);
 
 	if(textBrowser->isVisible())
 	{
-		m_tBrowserHighlighted = textBrowser;
+		textBrowser->setHighlighted();
 		QQSyntaxHighlighter * highlighter = textBrowser->document()->findChildren<QQSyntaxHighlighter *>().at(0);
 		highlighter->setNorlogeRefToHighlight(norlogeRef);
 
@@ -549,7 +553,7 @@ void QQPinipede::norlogeRefHovered(QQNorlogeRef norlogeRef)
 				  cursor.blockNumber() <= endBlockPos );
 	}
 
-	if( ! highlightSuccess )
+	if(! highlightSuccess)
 	{
 		QTextCursor cursor(textBrowser->document());
 
@@ -595,21 +599,22 @@ void QQPinipede::norlogeRefHovered(QQNorlogeRef norlogeRef)
 	}
 }
 
-void QQPinipede::unHighlight()
+void QQPinipede::unHighlight(QQTextBrowser *tBrowser)
 {
 	//qDebug() << "QQPinipede::unHighlight";
 
 	m_hiddenPostViewerLabel->hide();
 
-	if(m_tBrowserHighlighted == NULL)
+	if(tBrowser == NULL)
 		return;
 
 	qDebug() << "QQPinipede::unHighlight, m_tBrowserHighlighted not NULL";
+	tBrowser->setHighlighted(false);
 
 	m_hiddenPostViewerLabel->hide();
 
-	QTextCursor cursor( m_tBrowserHighlighted->document() );
-	QQSyntaxHighlighter * highlighter = m_tBrowserHighlighted->document()->findChildren<QQSyntaxHighlighter *>().at(0);
+	QTextCursor cursor(tBrowser->document());
+	QQSyntaxHighlighter * highlighter = tBrowser->document()->findChildren<QQSyntaxHighlighter *>().at(0);
 	highlighter->setNorlogeRefToHighlight(QQNorlogeRef());
 
 	do
@@ -618,8 +623,6 @@ void QQPinipede::unHighlight()
 			highlighter->rehighlightBlock(cursor.block());
 
 	} while ( cursor.movePosition( QTextCursor::NextBlock ) );
-
-	m_tBrowserHighlighted = NULL;
 }
 
 void QQPinipede::showTotozViewer(QString & totozId)
