@@ -518,39 +518,46 @@ void QQPinipede::norlogeRefHovered(QQNorlogeRef norlogeRef)
 {
 	qDebug() << "QQPinipede::norlogeRefHovered, datetimepart=" << norlogeRef.dstNorloge() << ", destbouchot=" << norlogeRef.dstBouchot();
 
-	QQBouchot * bouchot = QQBouchot::bouchot(norlogeRef.dstBouchot());
+	QStringList groups;
 
-	if(bouchot == NULL)
-	{
-		qCritical() << "QQPinipede::norlogeRefHovered m_settings->bouchot(dstBouchot) a retourne NULL";
-		return;
-	}
+	// Src
+	QQBouchot * bouchot = QQBouchot::bouchot(norlogeRef.srcBouchot());
+	Q_ASSERT(bouchot != NULL);
+	groups.append(bouchot->settings().group());
 
-	QQTextBrowser* textBrowser = m_textBrowserHash.value(bouchot->settings().group());
+	// Dest
+	bouchot = QQBouchot::bouchot(norlogeRef.dstBouchot());
+	if(bouchot != NULL && !groups.contains(bouchot->settings().group()))
+		groups.append(bouchot->settings().group());
 
 	bool highlightSuccess = false;
-
-	if(textBrowser->isHighlighted())
-		unHighlight(textBrowser);
-
-	if(textBrowser->isVisible())
+	QQTextBrowser *textBrowser = NULL;
+	for(int i = 0; i < groups.count(); i++)
 	{
-		textBrowser->setHighlighted();
-		QQSyntaxHighlighter * highlighter = textBrowser->document()->findChildren<QQSyntaxHighlighter *>().at(0);
-		highlighter->setNorlogeRefToHighlight(norlogeRef);
+		textBrowser = m_textBrowserHash.value(groups.at(i));
 
-		// Get the cursor position near the top left corner of the current viewport.
-		QTextCursor cursor = textBrowser->cursorForPosition(QPoint(0, 0));
-		// Get the cursor position near the bottom left corner of the current viewport.
-		int endBlockPos = (textBrowser->cursorForPosition(QPoint(textBrowser->viewport()->width(), textBrowser->viewport()->height()))).blockNumber();
+		if(textBrowser->isHighlighted())
+			unHighlight(textBrowser);
 
-		do
+		if(textBrowser->isVisible())
 		{
-			highlighter->rehighlightBlock(cursor.block());
-			if(cursor.block().userState() & QQSyntaxHighlighter::FULL_HIGHLIGHTED)
-				highlightSuccess = true;
-		} while ( cursor.movePosition(QTextCursor::NextBlock) &&
-				  cursor.blockNumber() <= endBlockPos );
+			textBrowser->setHighlighted();
+			QQSyntaxHighlighter * highlighter = textBrowser->document()->findChildren<QQSyntaxHighlighter *>().at(0);
+			highlighter->setNorlogeRefToHighlight(norlogeRef);
+
+			// Get the cursor position near the top left corner of the current viewport.
+			QTextCursor cursor = textBrowser->cursorForPosition(QPoint(0, 0));
+			// Get the cursor position near the bottom left corner of the current viewport.
+			int endBlockPos = (textBrowser->cursorForPosition(QPoint(textBrowser->viewport()->width(), textBrowser->viewport()->height()))).blockNumber();
+
+			do
+			{
+				highlighter->rehighlightBlock(cursor.block());
+				if(cursor.block().userState() & QQSyntaxHighlighter::FULL_HIGHLIGHTED)
+					highlightSuccess = true;
+			} while ( cursor.movePosition(QTextCursor::NextBlock) &&
+					  cursor.blockNumber() <= endBlockPos );
+		}
 	}
 
 	if(! highlightSuccess)
@@ -605,10 +612,9 @@ void QQPinipede::unHighlight(QQTextBrowser *tBrowser)
 
 	m_hiddenPostViewerLabel->hide();
 
-	if(tBrowser == NULL)
+	if(tBrowser == NULL || ! tBrowser->isHighlighted())
 		return;
 
-	qDebug() << "QQPinipede::unHighlight, m_tBrowserHighlighted not NULL";
 	tBrowser->setHighlighted(false);
 
 	m_hiddenPostViewerLabel->hide();

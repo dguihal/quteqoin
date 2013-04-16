@@ -185,8 +185,8 @@ void QQTextBrowser::highlightNorloge(QQNorlogeRef nRef)
 
 void QQTextBrowser::unHighlightNorloge()
 {
-	m_highlighted = false;
 	emit unHighlight(this);
+	m_highlighted = false;
 }
 
 void QQTextBrowser::showTotoz(QString & totozId)
