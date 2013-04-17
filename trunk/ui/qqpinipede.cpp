@@ -488,30 +488,31 @@ void QQPinipede::norlogeRefClicked(QString srcBouchot, QQNorlogeRef nRef)
 	unHighlight(textBrowser);
 
 	textBrowser = m_textBrowserHash.value(dstQQBouchot->settings().group());
-	int oldIndex = currentIndex();
-	if(dstQQBouchot->settings().group() != srcQQBouchot->settings().group())
-	{
-		setCurrentIndex(indexOf(textBrowser));
-	}
 
 	QTextCursor cursor(textBrowser->document()->lastBlock());
 	bool found = false;
 	do
 	{
 		QQMessageBlockUserData * userData = (QQMessageBlockUserData *) (cursor.block().userData());
-		if(nRef.matchesPost(userData->post()))
-		{
-			found = true;
-			textBrowser->setTextCursor(cursor);
-			textBrowser->ensureCursorVisible();
 
-			norlogeRefHovered(nRef);
-		}
-	} while((! found) && cursor.movePosition(QTextCursor::PreviousBlock));
+		if(nRef.matchesPost(userData->post()))
+			found = true;
+		else if(found == true) // remonte jusqu'au premier post correspondant en cas de multiple
+			break;
+	} while(cursor.movePosition(QTextCursor::PreviousBlock));
 
 	// Si non trouve, aucune raison de changer de tab
-	if(! found)
-		setCurrentIndex(oldIndex);
+	if(found)
+	{
+		if(dstQQBouchot->settings().group() != srcQQBouchot->settings().group())
+			setCurrentIndex(indexOf(textBrowser));
+
+		cursor.movePosition(QTextCursor::NextBlock); //Puisqu'on est allé un bloc trop haut
+		textBrowser->setTextCursor(cursor);
+		textBrowser->ensureCursorVisible();
+
+		norlogeRefHovered(nRef);
+	}
 }
 
 void QQPinipede::loginClicked(QString bouchot, QString login)
