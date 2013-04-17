@@ -90,3 +90,10 @@ OTHER_FILES +=
 RESOURCES += \
     rc/quteqoin_img.qrc \
     rc/quteqoin_defs.qrc
+
+unix {
+FILESTOCOPY = quteqoin
+INSTRULE.path = $$PREFIX/bin
+INSTRULE.files = $$FILESTOCOPY
+INSTALLS += INSTRULE
+}
