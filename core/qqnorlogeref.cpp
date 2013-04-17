@@ -55,7 +55,6 @@ QQNorlogeRef::QQNorlogeRef(const QString &bouchot, const QString &dateh, const Q
 
 		if(timeSplit.size() > 0)
 		{
-			m_hasSec = true;
 			QString sec = timeSplit.takeFirst();
 			m_dateSecondPart = sec.left(2);
 			sec.remove(0, 2);
@@ -74,6 +73,8 @@ QQNorlogeRef::QQNorlogeRef(const QString &bouchot, const QString &dateh, const Q
 				}
 			}
 		}
+		else
+			m_hasSec = false;
 		//gestion du :1
 		if(timeSplit.size() > 0)
 				m_norlogeIndex = timeSplit.takeFirst().toInt();
@@ -151,6 +152,11 @@ bool QQNorlogeRef::matchesPost(QQPost * post)
 		{
 			QString postN = post->norloge();
 			QString dstN = dstNorloge();
+
+			//Suppression des secondes pour verif en cas de norloge raccourcie
+			if(! m_hasSec)
+				postN = postN.left(postN.length() - 2);
+
 			if(postN.endsWith(dstN))
 			{
 				//qDebug() << "QNorlogeRef::matchesPost : " << m_norlogeIndex << ", " << post->norlogeIndex();
