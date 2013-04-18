@@ -1,6 +1,8 @@
 #include "qqgeneralsettings.h"
 #include "ui_qqgeneralsettings.h"
 
+#include <QtDebug>
+
 QQGeneralSettings::QQGeneralSettings(QWidget *parent) :
 	QWidget(parent),
 	ui(new Ui::QQGeneralSettings)
@@ -12,6 +14,8 @@ QQGeneralSettings::QQGeneralSettings(QWidget *parent) :
 
 	connect(ui->fontFamComboB, SIGNAL(currentFontChanged(const QFont &)),
 			this, SLOT(fontChanged(const QFont &)));
+	connect(ui->fontSizeComboB, SIGNAL(activated(int)),
+			this, SLOT(fontSizeChanged(int)));
 	connect(ui->maxHistLineEdit, SIGNAL(textChanged(const QString &)),
 			this, SLOT(maxHistorySizeChanged(const QString &)));
 	connect(ui->defaultUALlineEdit, SIGNAL(textChanged(const QString &)),
@@ -19,10 +23,9 @@ QQGeneralSettings::QQGeneralSettings(QWidget *parent) :
 	connect(ui->defaultLoginLineEdit, SIGNAL(textChanged(const QString &)),
 			this, SLOT(defaultLoginChanged(const QString &)));
 
-	QFont currentFont;
-	ui->fontFamComboB->setCurrentFont(currentFont);
-	fontChanged(currentFont);
-
+	m_defaultFont = QFont();
+	ui->fontFamComboB->setCurrentFont(m_defaultFont);
+	fontChanged(m_defaultFont);
 
 }
 
@@ -31,24 +34,48 @@ QQGeneralSettings::~QQGeneralSettings()
 	delete ui;
 }
 
+//PROPERTY DefaultFont
+void QQGeneralSettings::setDefaultFont(const QFont &font)
+{
+	m_defaultFont = font;
+	ui->fontFamComboB->setCurrentFont(m_defaultFont);
+	fontChanged(m_defaultFont);
+}
+
+QFont QQGeneralSettings::defaultFont()
+{
+	return m_defaultFont;
+}
+
 void QQGeneralSettings::fontChanged(const QFont &font)
 {
 	QFontDatabase fDB;
 
 	QList<int> listSizes = fDB.pointSizes(font.family(), font.styleName());
 
-	QString value = ui->fontSizeComboB->currentText();
-	if(value.size() == 0)
-		value = QString::number(font.pointSize());
+	int fontSize = m_defaultFont.pointSize();
+	if(! listSizes.contains(fontSize))
+		fontSize = font.pointSize();
+	QString fontSizeStr = QString::number(fontSize);
 
 	ui->fontSizeComboB->clear();
 	for(int i = 0; i < listSizes.size(); i++)
 		ui->fontSizeComboB->addItem(QString::number(listSizes.at(i)));
 
-	int index = ui->fontSizeComboB->findText(value);
+	int index = ui->fontSizeComboB->findText(fontSizeStr);
 	if(index >= 0)
 		ui->fontSizeComboB->setCurrentIndex(index);
 
+	m_defaultFont = font;
+	m_defaultFont.setPointSize(fontSize);
+}
+
+void QQGeneralSettings::fontSizeChanged(int index)
+{
+	Q_UNUSED(index);
+	QString fontSizeStr = ui->fontSizeComboB->currentText();
+
+	m_defaultFont.setPointSize(fontSizeStr.toInt());
 }
 
 //PROPERTY MaxHistorySize

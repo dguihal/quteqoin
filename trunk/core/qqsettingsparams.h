@@ -22,6 +22,9 @@
 #define SETTINGS_GENERAL_WEBSEARCH_URL "default_websearch_url"
 #define DEFAULT_GENERAL_WEBSEARCH_URL "http://www.google.fr/search?q=%s&ie=utf-8&oe=utf-8"
 
+#define SETTINGS_GENERAL_DEFAULT_FONT "default_font"
+#define DEFAULT_GENERAL_DEFAULT_FONT QFont()
+
 // TOTOZ
 #define SETTINGS_TOTOZ_BOOKMARKLIST "totoz_bookmarklist"
 
