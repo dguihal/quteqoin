@@ -27,6 +27,8 @@
 QQTextBrowser::QQTextBrowser(QString groupName, QQPinipede *parent) :
 	QTextBrowser(parent)
 {
+	QQSettings settings;
+
 	setFrameStyle(QFrame::NoFrame);
 	setReadOnly(true);
 	setOpenExternalLinks(true);
@@ -39,7 +41,7 @@ QQTextBrowser::QQTextBrowser(QString groupName, QQPinipede *parent) :
 	QTextDocument * doc = document();
 	doc->setUndoRedoEnabled(false);
 	doc->setDocumentMargin(0);
-	doc->setDefaultFont(font());
+	doc->setDefaultFont(qvariant_cast<QFont>(settings.value(SETTINGS_GENERAL_DEFAULT_FONT, DEFAULT_GENERAL_DEFAULT_FONT)));
 
 	QTextOption opt = doc->defaultTextOption();
 	opt.setWrapMode(QTextOption::WrapAtWordBoundaryOrAnywhere);

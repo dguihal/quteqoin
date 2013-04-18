@@ -113,6 +113,9 @@ void QQSettingsManager::initGeneralSettings()
 
 	QString defaultWebSearchUrl = settings.value(SETTINGS_GENERAL_WEBSEARCH_URL, DEFAULT_GENERAL_WEBSEARCH_URL).toString();
 	m_generalSettingsW->setDefaultWebSearchUrl(defaultWebSearchUrl);
+
+	QFont defaultFont = qvariant_cast<QFont>(settings.value(SETTINGS_GENERAL_DEFAULT_FONT, DEFAULT_GENERAL_DEFAULT_FONT));
+	m_generalSettingsW->setDefaultFont(defaultFont);
 }
 
 void QQSettingsManager::saveGeneralSettings()
@@ -142,6 +145,12 @@ void QQSettingsManager::saveGeneralSettings()
 		settings.remove(SETTINGS_GENERAL_WEBSEARCH_URL);
 	else
 		settings.setValue(SETTINGS_GENERAL_WEBSEARCH_URL, defaultWebSearchUrl);
+
+	QFont defaultFont = m_generalSettingsW->defaultFont();
+	if(defaultFont == DEFAULT_GENERAL_DEFAULT_FONT)
+		settings.remove(SETTINGS_GENERAL_DEFAULT_FONT);
+	else
+		settings.setValue(SETTINGS_GENERAL_DEFAULT_FONT, defaultFont);
 }
 
 void QQSettingsManager::initTotozSettings()
