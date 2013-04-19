@@ -41,15 +41,18 @@ QQTextBrowser::QQTextBrowser(QString groupName, QQPinipede *parent) :
 	QTextDocument * doc = document();
 	doc->setUndoRedoEnabled(false);
 	doc->setDocumentMargin(0);
-	doc->setDefaultFont(qvariant_cast<QFont>(settings.value(SETTINGS_GENERAL_DEFAULT_FONT, DEFAULT_GENERAL_DEFAULT_FONT)));
+	QFont docFont;
+	docFont.fromString(settings.value(SETTINGS_GENERAL_DEFAULT_FONT, DEFAULT_GENERAL_DEFAULT_FONT).toString());
+	doc->setDefaultFont(docFont);
 
 	QTextOption opt = doc->defaultTextOption();
 	opt.setWrapMode(QTextOption::WrapAtWordBoundaryOrAnywhere);
 	opt.setAlignment(Qt::AlignLeft);
 
 	QList<QTextOption::Tab> listTabs;
-	m_timeUAAreaWidthPx = QFontMetrics(document()->defaultFont()).width('a') * TIME_UA_AREA_WIDTH_CHAR;
-	int tabPosPx = QFontMetrics(font()).width('a') * (TIME_UA_AREA_WIDTH_CHAR + 1); // + margin
+	int baseWidth = QFontMetrics(docFont).width('a');
+	m_timeUAAreaWidthPx = baseWidth * TIME_UA_AREA_WIDTH_CHAR;
+	int tabPosPx = baseWidth * (TIME_UA_AREA_WIDTH_CHAR + 1); // + margin
 	QTextOption::Tab tab(tabPosPx, QTextOption::DelimiterTab, '\t');
 	listTabs << tab;
 
