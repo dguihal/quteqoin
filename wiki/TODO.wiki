@@ -12,7 +12,7 @@ If you have other (good ?) ideas please fill an issue.
  * Remote url content preview : For images and / or complete websites
  * Personalized keyboard shortcuts
  * More integration with totoz.eu (bookmarks ?)
- * clear totoz search on hide and/or on lineedit clear
+ * Clear totoz search on hide and/or on lineedit clear
  * ...
 
 [Bugs]
