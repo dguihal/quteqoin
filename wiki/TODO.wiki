@@ -9,11 +9,12 @@ If you have other (good ?) ideas please fill an issue.
 = Details =
 
 [Features]
-* Remote url content preview : For images and / or complete websites
-* Personalized keyboard shortcuts
-* More integration with totoz.eu (bookmarks ?)
-* ...
+ * Remote url content preview : For images and / or complete websites
+ * Personalized keyboard shortcuts
+ * More integration with totoz.eu (bookmarks ?)
+ * clear totoz search on hide and/or on lineedit clear
+ * ...
 
 [Bugs]
-* Highlight norloge in case of cross-tab (currently only preview is printed)
-* ...
+ * Highlight norloge in case of cross-tab (currently only preview is printed)
+ * ...
