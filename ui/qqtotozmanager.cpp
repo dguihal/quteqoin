@@ -16,6 +16,8 @@
 #define TAB_BOOKMARKS_INDEX 0
 #define TAB_SEARCH_INDEX 1
 
+#define MIN_TOTOZ_SEARCH_LEN 3
+
 #define TOTOZMANAGER_OBJECT_NAME "QQTotozManager"
 
 #define TOTOZMANAGER_TITLE	"Totoz Manager"
@@ -56,7 +58,7 @@ QQTotozManager::QQTotozManager(QWidget *parent) :
 
 	connect(ui->qqTMTabWidget, SIGNAL(currentChanged(int)), this, SLOT(tabChanged(int)));
 	connect(ui->searchLineEdit, SIGNAL(returnPressed()), this, SLOT(searchTotoz()));
-	connect(ui->searchLineEdit, SIGNAL(textChanged(QString)), this, SLOT(searchBookmarks(QString)));
+	connect(ui->searchLineEdit, SIGNAL(textChanged(QString)), this, SLOT(handleSearchTextChanged(QString)));
 
 	ui->dockWidgetContents->setMaximumWidth(ui->qqTMTabWidget->width());
 
@@ -69,22 +71,19 @@ QQTotozManager::~QQTotozManager()
 
 void QQTotozManager::tabChanged(int tabIndex)
 {
-	ui->qqTMTabWidget->currentWidget()->layout()->setContentsMargins(1, 1, 2, 1);
-	if(tabIndex == TAB_SEARCH_INDEX)
-	{
-		ui->searchLineEdit->setFocus();
-	}
+//	ui->qqTMTabWidget->currentWidget()->layout()->setContentsMargins(1, 1, 2, 1);
+	Q_UNUSED(tabIndex);
+
+	handleSearchTextChanged(ui->searchLineEdit->text());
+
+	ui->searchLineEdit->setFocus();
 }
 
 void QQTotozManager::searchTotoz()
 {
 	QString searchStr = ui->searchLineEdit->text();
 
-	if(ui->qqTMTabWidget->currentIndex() == TAB_BOOKMARKS_INDEX)
-	{
-		searchBookmarks(ui->searchLineEdit->text());
-	}
-	else if(ui->qqTMTabWidget->currentIndex() == TAB_SEARCH_INDEX && searchStr.length() >= 3)
+	if(ui->qqTMTabWidget->currentIndex() == TAB_SEARCH_INDEX && searchStr.length() >= MIN_TOTOZ_SEARCH_LEN)
 	{
 		ui->cancelSearchButton->show();
 
@@ -171,33 +170,52 @@ void QQTotozManager::totozSearchEnabled(bool enabled)
 			ui->qqTMTabWidget->removeTab(TAB_SEARCH_INDEX);
 }
 
+void QQTotozManager::closeEvent(QCloseEvent * event)
+{
+	ui->searchLineEdit->clear();
+	QDockWidget::closeEvent(event);
+}
+
 void QQTotozManager::focusInEvent(QFocusEvent * event)
 {
 	QDockWidget::focusInEvent(event);
 	ui->searchLineEdit->setFocus();
 }
 
-void QQTotozManager::searchBookmarks(QString text)
+void QQTotozManager::handleSearchTextChanged(QString text)
 {
-	QStringList matchingTotozIds;
-	QQSettings settings;
-	if(settings.contains(SETTINGS_TOTOZ_BOOKMARKLIST))
+	if(text.size() < MIN_TOTOZ_SEARCH_LEN)
 	{
-		QStringList totozIds = settings.value(SETTINGS_TOTOZ_BOOKMARKLIST).toStringList();
-		if(text.size() == 0)
-			matchingTotozIds << totozIds;
-		else
-		{
-			for(int i = 0; i < totozIds.size(); i++)
-			{
-				QString totozId = totozIds.at(i);
-				if(totozId.contains(text, Qt::CaseInsensitive))
-					matchingTotozIds.append(totozId);
-			}
-		}
+		QWidget * oldWidget = ui->serverScrollArea->takeWidget();
+		QWidget * emptyWidget = new QWidget();
+		ui->serverScrollArea->setWidget(emptyWidget);
+		ui->serverScrollAreaContents = emptyWidget;
+
+		oldWidget->deleteLater();
 	}
 
-	createViewer(ui->bookmarkScrollArea, matchingTotozIds, QQTotoz::REMOVE);
+	if(ui->qqTMTabWidget->currentIndex() == TAB_BOOKMARKS_INDEX)
+	{
+		QStringList matchingTotozIds;
+		QQSettings settings;
+		if(settings.contains(SETTINGS_TOTOZ_BOOKMARKLIST))
+		{
+			QStringList totozIds = settings.value(SETTINGS_TOTOZ_BOOKMARKLIST).toStringList();
+			if(text.size() == 0)
+				matchingTotozIds << totozIds;
+			else
+			{
+				for(int i = 0; i < totozIds.size(); i++)
+				{
+					QString totozId = totozIds.at(i);
+					if(totozId.contains(text, Qt::CaseInsensitive))
+						matchingTotozIds.append(totozId);
+				}
+			}
+		}
+
+		createViewer(ui->bookmarkScrollArea, matchingTotozIds, QQTotoz::REMOVE);
+	}
 }
 
 void QQTotozManager::totozSelected(QString anchor)

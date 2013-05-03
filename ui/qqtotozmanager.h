@@ -35,12 +35,13 @@ signals:
 	void totozClicked(QString anchor);
 
 protected:
+	virtual void closeEvent(QCloseEvent * event);
 	virtual void focusInEvent(QFocusEvent *event);
 
 protected slots:
 	void totozSelected(QString anchor);
 	void totozBookmarkDo(QString anchor, QQTotoz::TotozBookmarkAction action);
-	void searchBookmarks(QString text);
+	void handleSearchTextChanged(QString text);
 
 private:
 	void fillBookmarks();
