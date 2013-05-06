@@ -1,0 +1,19 @@
+1/Extract sources
+svn checkout http://quteqoin.googlecode.com/svn/trunk/ quteqoin-read-only
+#Remember your svn revision
+
+2/prepare packaging
+pushd quteqoin-read-only
+cp -R dists/Debian debian
+#Set correct svn version
+vi debian/changelog
+popd
+tar jcvf quteqoin_0.0(svnrev).orig.tar.gz quteqoin-read-only
+
+3/build package
+pushd quteqoin-read-only
+dpkg-buildpackage -us -uc
+popd
+
+4/Enjoy your new .deb file
+
