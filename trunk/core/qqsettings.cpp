@@ -6,6 +6,7 @@
 #include <QtDebug>
 #include <QFile>
 #include <QList>
+#include <QPair>
 #include <QMessageBox>
 
 #define DEFAULT_TOTOZ_MODE QQSettings::Bald_Mode
@@ -13,17 +14,15 @@
 QQSettings::QQSettings(QObject * parent) :
 	QSettings(parent)
 {
+	fillStaticPalmiShortcuts();
+	if(! contains(SETTINGS_PALMI_SHORCUTS))
+		m_userPalmiShortcuts = defaultUserPalmiShortcuts();
+	else
+		m_userPalmiShortcuts = savedUserPalmiShortcuts();
 }
 
 QQSettings::~QQSettings()
 {
-}
-
-QStringList QQSettings::listBouchots()
-{
-	QString bouchots = value(SETTINGS_LIST_BOUCHOTS, "").toString();
-	return bouchots.split(QChar::fromAscii(BOUCHOTS_SPLIT_CHAR),
-						  QString::SkipEmptyParts);
 }
 
 void QQSettings::removeBouchot(const QString &name)
@@ -50,7 +49,6 @@ void QQSettings::removeBouchot(const QString &name)
 	listBouchotsNames.removeAll(name);
 	setValue(SETTINGS_LIST_BOUCHOTS, QVariant(listBouchotsNames.join(QChar::fromAscii(BOUCHOTS_SPLIT_CHAR))));
 }
-
 
 QStringList QQSettings::listTotozSrvPresets()
 {
@@ -152,4 +150,64 @@ QQBouchot * QQSettings::loadBouchot(const QString &name)
 	newBouchot->setSettings(newBouchotSettings);
 
 	return newBouchot;
+}
+
+QStringList QQSettings::listBouchots()
+{
+	QString bouchots = value(SETTINGS_LIST_BOUCHOTS, "").toString();
+	return bouchots.split(QChar::fromAscii(BOUCHOTS_SPLIT_CHAR),
+						  QString::SkipEmptyParts);
+}
+
+void QQSettings::setUserPalmiShorcuts(QList< QPair<QChar, QString> > userPalmiShortcuts)
+{
+	m_userPalmiShortcuts = userPalmiShortcuts;
+	if(userPalmiShortcuts != defaultUserPalmiShortcuts())
+	{
+		QStringList listShortcuts;
+		for(int i = 0; i < m_userPalmiShortcuts.size(); i++)
+		{
+			QPair<QChar, QString> shortcut = m_userPalmiShortcuts.at(i);
+			listShortcuts.append(QString(shortcut.first).append(shortcut.second));
+		}
+		setValue(SETTINGS_PALMI_SHORCUTS, listShortcuts);
+	}
+	else
+		remove(SETTINGS_PALMI_SHORCUTS);
+}
+
+void QQSettings::fillStaticPalmiShortcuts()
+{
+	m_staticPalmiShortcuts.append(qMakePair(QChar('b'), QString("<b>%s</b>")));
+	m_staticPalmiShortcuts.append(qMakePair(QChar('i'), QString("<i>%s</i>")));
+	m_staticPalmiShortcuts.append(qMakePair(QChar('m'), QString("====> <b>Moment %s</b> <====")));
+	m_staticPalmiShortcuts.append(qMakePair(QChar('o'), QString("_o/* <b>BLAM</b>! ")));
+	m_staticPalmiShortcuts.append(qMakePair(QChar('p'), QString("_o/* <b>paf!</b> ")));
+	m_staticPalmiShortcuts.append(qMakePair(QChar('s'), QString("<s>%s</s>")));
+	m_staticPalmiShortcuts.append(qMakePair(QChar('u'), QString("<u>%s</u>")));
+}
+
+QList< QPair<QChar, QString> > QQSettings::defaultUserPalmiShortcuts() const
+{
+	QList< QPair<QChar, QString> > shortcuts;
+	shortcuts.append(qMakePair(QChar('j'), QString("\\o/")));
+	shortcuts.append(qMakePair(QChar('k'), QString("/o\\")));
+	return shortcuts;
+}
+
+QList< QPair<QChar, QString> > QQSettings::savedUserPalmiShortcuts() const
+{
+	QList< QPair<QChar, QString> > res;
+
+	QStringList listShortcuts = value(SETTINGS_PALMI_SHORCUTS, QStringList()).toStringList();
+
+	for(int i = 0; i < listShortcuts.size(); i++)
+	{
+		QString val = listShortcuts.at(i);
+		QChar key = val.at(0);
+		QString str = val.remove(0, 1);
+		res.append(qMakePair(key, str));
+	}
+
+	return res;
 }

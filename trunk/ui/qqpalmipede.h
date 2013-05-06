@@ -55,15 +55,8 @@ private:
 	QString m_windowTitle;
 
 private slots:
-	void boldClicked();
-	void italicClicked();
-	void underlineClicked();
-	void strikeClicked();
-	void momentClicked();
 	void blamPafActivated(const QString & text);
 	void bouchotSelectorActivated(int index);
-	void insertBlam();
-	void insertPaf();
 	void postPushButtonClicked();
 };
 

@@ -7,9 +7,10 @@
 #include <QSet>
 #include <QString>
 
-class QQGeneralSettings;
-class QQTotozSettings;
 class QQBoardsSettings;
+class QQGeneralSettings;
+class QQPalmiSettings;
+class QQTotozSettings;
 
 class QListWidgetItem;
 
@@ -34,18 +35,21 @@ protected slots:
 	void configItemChanged();
 
 private:
-	void initGeneralSettings();
-	void saveGeneralSettings();
-	void initTotozSettings();
-	void saveTotozSettings();
 	void initBoardsSettings();
 	void saveBoardsSettings();
+	void initGeneralSettings();
+	void saveGeneralSettings();
+	void initPalmiSettings();
+	void savePalmiSettings();
+	void initTotozSettings();
+	void saveTotozSettings();
 
 	Ui::QQSettingsManager *ui;
 
-	QQGeneralSettings * m_generalSettingsW;
-	QQTotozSettings * m_totozSettingsW;
-	QQBoardsSettings * m_boardsSettingsW;
+	QQBoardsSettings *m_boardsSettingsW;
+	QQGeneralSettings *m_generalSettingsW;
+	QQPalmiSettings *m_palmiSettingsW;
+	QQTotozSettings *m_totozSettingsW;
 };
 
 #endif // QQSETTINGSMANAGER_H
