@@ -50,7 +50,6 @@ QQTotozManager::QQTotozManager(QWidget *parent) :
 	ui->cancelSearchButton->hide();
 	connect(ui->cancelSearchButton, SIGNAL(clicked()), this, SLOT(totozSearchCanceled()));
 
-
 	ui->serverScrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 	ui->bookmarkScrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 	ui->serverScrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);

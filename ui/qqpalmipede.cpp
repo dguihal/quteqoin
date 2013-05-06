@@ -21,15 +21,15 @@ QQPalmipede::QQPalmipede(QWidget *parent) :
 	ui->setupUi(this);
 
 	connect(ui->boldButton, SIGNAL(clicked()),
-			this, SLOT(boldClicked()));
+			ui->postLineEdit, SLOT(bold()));
 	connect(ui->italicButton, SIGNAL(clicked()),
-			this, SLOT(italicClicked()));
+			ui->postLineEdit, SLOT(italic()));
 	connect(ui->underlineButton, SIGNAL(clicked()),
-			this, SLOT(underlineClicked()));
+			ui->postLineEdit, SLOT(underline()));
 	connect(ui->strikeButton, SIGNAL(clicked()),
-			this, SLOT(strikeClicked()));
+			ui->postLineEdit, SLOT(strike()));
 	connect(ui->momentButton, SIGNAL(clicked()),
-			this, SLOT(momentClicked()));
+			ui->postLineEdit, SLOT(moment()));
 	connect(ui->blamPafComboBox, SIGNAL(activated(QString)),
 			this, SLOT(blamPafActivated(QString)));
 	connect(ui->boardSelectorComboBox, SIGNAL(activated(int)),
@@ -102,7 +102,7 @@ void QQPalmipede::insertReplaceText(const QString &bouchot, const QString &tag)
 void QQPalmipede::insertReplaceText(const QString &tag)
 {
 	QString t_tag = tag;
-	ui->postLineEdit->insertReplaceText(t_tag);
+	ui->postLineEdit->insertText(t_tag);
 
 	// Warning : le show va appeler le setVisible(bool),
 	//    il faut donc sauver l'état antérieur avant
@@ -175,43 +175,12 @@ void QQPalmipede::setMinimal(bool minimal)
 	ui->dockWidgetContents->setMaximumHeight(height);
 }
 
-
-void QQPalmipede::boldClicked()
-{
-	ui->postLineEdit->
-			insertSurroundText(QString::fromAscii("<b>"), QString::fromAscii("</b>"));
-}
-
-void QQPalmipede::italicClicked()
-{
-	ui->postLineEdit->
-			insertSurroundText(QString::fromAscii("<i>"), QString::fromAscii("</i>"));
-}
-
-void QQPalmipede::underlineClicked()
-{
-	ui->postLineEdit->
-			insertSurroundText(QString::fromAscii("<u>"), QString::fromAscii("</u>"));
-}
-
-void QQPalmipede::strikeClicked()
-{
-	ui->postLineEdit->
-			insertSurroundText(QString::fromAscii("<s>"), QString::fromAscii("</s>"));
-}
-
-void QQPalmipede::momentClicked()
-{
-	ui->postLineEdit->
-			insertSurroundText(QString::fromAscii("====> <b>Moment "), QString::fromAscii("</b> <===="));
-}
-
 void QQPalmipede::blamPafActivated(const QString & text)
 {
 	if(text.contains(QString::fromAscii("paf"), Qt::CaseInsensitive))
-		insertPaf();
+		ui->postLineEdit->paf();
 	else if(text.contains(QString::fromAscii("BLAM"), Qt::CaseInsensitive))
-		insertBlam();
+		ui->postLineEdit->blam();
 	else
 		qDebug()<<"QQPalmipede::momentClicked : index non reconnu : " << text;
 }
@@ -247,16 +216,4 @@ void QQPalmipede::postPushButtonClicked()
 
 	if(! m_wasVisible)
 		hide();
-}
-
-void QQPalmipede::insertBlam()
-{
-	ui->postLineEdit->insertReplaceText(QString::fromAscii("_o/* <b>BLAM</b>! "));
-	qDebug()<<"QQPalmipede::insertBlam";
-}
-
-void QQPalmipede::insertPaf()
-{
-	ui->postLineEdit->insertReplaceText(QString::fromAscii("_o/* <b>paf!</b> "));
-	qDebug()<<"QQPalmipede::insertPaf";
 }

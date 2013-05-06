@@ -43,7 +43,19 @@ public:
 	QQTotozSrvPreset getTotozSrvPreset(QString totozSrvPreset, bool labelOnly = false);
 
 	QStringList listBouchots();
-	QStringList listTabs();
+
+	QList< QPair<QChar, QString> > palmiShorcuts() const { return m_staticPalmiShortcuts + m_userPalmiShortcuts; }
+	QList< QPair<QChar, QString> > staticPalmiShorcuts() const { return m_staticPalmiShortcuts; }
+	void setUserPalmiShorcuts(QList< QPair<QChar, QString> > userPalmiShortcuts);
+	QList< QPair<QChar, QString> > userPalmiShorcuts() const { return m_userPalmiShortcuts; }
+
+private:
+	void fillStaticPalmiShortcuts();
+	QList< QPair<QChar, QString> > defaultUserPalmiShortcuts() const;
+	QList< QPair<QChar, QString> > savedUserPalmiShortcuts() const;
+
+	QList< QPair<QChar, QString> > m_staticPalmiShortcuts;
+	QList< QPair<QChar, QString> > m_userPalmiShortcuts;
 };
 
 #endif // QQSETTINGS_H

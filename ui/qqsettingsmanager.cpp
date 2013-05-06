@@ -2,15 +2,17 @@
 #include "ui_qqsettingsmanager.h"
 
 #include "core/qqsettings.h"
-#include "ui/settingsmanager/qqgeneralsettings.h"
-#include "ui/settingsmanager/qqtotozsettings.h"
 #include "ui/settingsmanager/qqboardssettings.h"
+#include "ui/settingsmanager/qqgeneralsettings.h"
+#include "ui/settingsmanager/qqpalmisettings.h"
+#include "ui/settingsmanager/qqtotozsettings.h"
 
 #include <QtDebug>
 
 #define ITEM_GENERAL_TYPE (QListWidgetItem::UserType)
 #define ITEM_TOTOZ_TYPE (QListWidgetItem::UserType + 1)
 #define ITEM_BOARDS_TYPE (QListWidgetItem::UserType + 2)
+#define ITEM_PALMI_TYPE (QListWidgetItem::UserType + 3)
 
 QQSettingsManager::QQSettingsManager(QWidget *parent) :
 	QDialog(parent),
@@ -28,7 +30,7 @@ QQSettingsManager::QQSettingsManager(QWidget *parent) :
 				new QListWidgetItem(QIcon(":/img/general-icon.png"), tr("General"),
 									listSettingsTheme, ITEM_GENERAL_TYPE)
 				);
-	m_generalSettingsW = new QQGeneralSettings();
+	m_generalSettingsW = new QQGeneralSettings(this);
 	initGeneralSettings();
 	m_generalSettingsW->hide();
 	layout->addWidget(m_generalSettingsW);
@@ -37,7 +39,7 @@ QQSettingsManager::QQSettingsManager(QWidget *parent) :
 				new QListWidgetItem(QIcon(":/img/totoz-icon.jpeg"), tr("Totoz"),
 									listSettingsTheme, ITEM_TOTOZ_TYPE)
 				);
-	m_totozSettingsW = new QQTotozSettings();
+	m_totozSettingsW = new QQTotozSettings(this);
 	initTotozSettings();
 	m_totozSettingsW->hide();
 	layout->addWidget(m_totozSettingsW);
@@ -46,10 +48,19 @@ QQSettingsManager::QQSettingsManager(QWidget *parent) :
 				new QListWidgetItem(QIcon(":/img/board-icon.png"), tr("Boards"),
 									listSettingsTheme, ITEM_BOARDS_TYPE)
 				);
-	m_boardsSettingsW = new QQBoardsSettings();
+	m_boardsSettingsW = new QQBoardsSettings(this);
 	initBoardsSettings();
 	m_boardsSettingsW->hide();
 	layout->addWidget(m_boardsSettingsW);
+
+	listSettingsTheme->addItem(
+				new QListWidgetItem(QIcon(":/img/palmi-icon.png"), tr("Palmipede"),
+									listSettingsTheme, ITEM_PALMI_TYPE)
+				);
+	m_palmiSettingsW = new QQPalmiSettings(this);
+	initPalmiSettings();
+	m_palmiSettingsW->hide();
+	layout->addWidget(m_palmiSettingsW);
 
 	listSettingsTheme->setMaximumWidth(listSettingsTheme->sizeHintForColumn(0) + 15);
 	connect(listSettingsTheme, SIGNAL(itemSelectionChanged()),
@@ -66,9 +77,10 @@ QQSettingsManager::~QQSettingsManager()
 
 void QQSettingsManager::accept()
 {
+	saveBoardsSettings();
 	saveGeneralSettings();
 	saveTotozSettings();
-	saveBoardsSettings();
+	savePalmiSettings();
 
 	QDialog::accept();
 }
@@ -82,6 +94,7 @@ void QQSettingsManager::configItemChanged()
 	m_generalSettingsW->hide();
 	m_totozSettingsW->hide();
 	m_boardsSettingsW->hide();
+	m_palmiSettingsW->hide();
 	switch(item->type())
 	{
 	case ITEM_GENERAL_TYPE:
@@ -93,8 +106,66 @@ void QQSettingsManager::configItemChanged()
 	case ITEM_BOARDS_TYPE:
 		m_boardsSettingsW->show();
 		break;
+	case ITEM_PALMI_TYPE:
+		m_palmiSettingsW->show();
+		break;
 	default:
 		qWarning() << "Unknown type : " << item->type() << ", ignoring";
+	}
+}
+
+void QQSettingsManager::initBoardsSettings()
+{
+	QMap<QString, QQBouchot::QQBouchotSettings> mapBouchotSettings;
+
+	//Les bouchots existant
+	QList<QQBouchot *> listBouchots = QQBouchot::listBouchots();
+	QQBouchot *bouchot = NULL;
+	for(int i = 0; i < listBouchots.size(); i++)
+	{
+		bouchot = listBouchots.at(i);
+		mapBouchotSettings.insert(bouchot->name(), bouchot->settings());
+	}
+	m_boardsSettingsW->setBouchots(mapBouchotSettings);
+}
+
+void QQSettingsManager::saveBoardsSettings()
+{
+	QQSettings settings;
+
+	QQBouchot *bouchot = NULL;
+
+	// Les bouchots supprimes
+	QStringList lstOldBouchots = m_boardsSettingsW->getOldBouchots();
+	for(int i = 0; i < lstOldBouchots.size(); i++)
+	{
+		settings.removeBouchot(lstOldBouchots.at(i));
+		bouchot = QQBouchot::bouchot(lstOldBouchots.at(i));
+		if(bouchot != NULL)
+			delete bouchot;
+	}
+
+	// Les bouchots modifies
+	QMap<QString, QQBouchot::QQBouchotSettings> mBouchots = m_boardsSettingsW->getModifBouchots();
+	QList<QString> bouchotNames = mBouchots.keys();
+	for(int i = 0; i < bouchotNames.size(); i++)
+	{
+		QString bouchotName = bouchotNames.at(i);
+		bouchot = QQBouchot::bouchot(bouchotName);
+		if(bouchot != NULL)
+		{
+			bouchot->setSettings(mBouchots.value(bouchotName));
+			settings.saveBouchot(bouchotName, mBouchots.value(bouchotName));
+		}
+	}
+	// Les bouchots ajoutes
+	mBouchots = m_boardsSettingsW->getNewBouchots();
+	bouchotNames = mBouchots.keys();
+	for(int i = 0; i < bouchotNames.size(); i++)
+	{
+		QString bouchotName = bouchotNames.at(i);
+		settings.saveBouchot(bouchotName, mBouchots.value(bouchotName));
+		emit bouchotCreated(settings.loadBouchot(bouchotName));
 	}
 }
 
@@ -152,6 +223,21 @@ void QQSettingsManager::saveGeneralSettings()
 		settings.remove(SETTINGS_GENERAL_DEFAULT_FONT);
 	else
 		settings.setValue(SETTINGS_GENERAL_DEFAULT_FONT, defaultFont);
+}
+
+void QQSettingsManager::initPalmiSettings()
+{
+	QQSettings settings;
+
+	m_palmiSettingsW->setStaticShortcuts(settings.staticPalmiShorcuts());
+	m_palmiSettingsW->setUserShortcuts(settings.userPalmiShorcuts());
+}
+
+void QQSettingsManager::savePalmiSettings()
+{
+	QQSettings settings;
+
+	settings.setUserPalmiShorcuts(m_palmiSettingsW->getUserShortcuts());
 }
 
 void QQSettingsManager::initTotozSettings()
@@ -218,59 +304,4 @@ void QQSettingsManager::saveTotozSettings()
 		settings.remove(SETTINGS_TOTOZ_VISUAL_MODE);
 	else
 		settings.setValue(SETTINGS_TOTOZ_VISUAL_MODE, totozServerVisualMode);
-}
-
-void QQSettingsManager::initBoardsSettings()
-{
-	QMap<QString, QQBouchot::QQBouchotSettings> mapBouchotSettings;
-
-	//Les bouchots existant
-	QList<QQBouchot *> listBouchots = QQBouchot::listBouchots();
-	QQBouchot *bouchot = NULL;
-	for(int i = 0; i < listBouchots.size(); i++)
-	{
-		bouchot = listBouchots.at(i);
-		mapBouchotSettings.insert(bouchot->name(), bouchot->settings());
-	}
-	m_boardsSettingsW->setBouchots(mapBouchotSettings);
-}
-
-void QQSettingsManager::saveBoardsSettings()
-{
-	QQSettings settings;
-
-	QQBouchot *bouchot = NULL;
-
-	// Les bouchots supprimes
-	QStringList lstOldBouchots = m_boardsSettingsW->getOldBouchots();
-	for(int i = 0; i < lstOldBouchots.size(); i++)
-	{
-		settings.removeBouchot(lstOldBouchots.at(i));
-		bouchot = QQBouchot::bouchot(lstOldBouchots.at(i));
-		if(bouchot != NULL)
-			delete bouchot;
-	}
-
-	// Les bouchots modifies
-	QMap<QString, QQBouchot::QQBouchotSettings> mBouchots = m_boardsSettingsW->getModifBouchots();
-	QList<QString> bouchotNames = mBouchots.keys();
-	for(int i = 0; i < bouchotNames.size(); i++)
-	{
-		QString bouchotName = bouchotNames.at(i);
-		bouchot = QQBouchot::bouchot(bouchotName);
-		if(bouchot != NULL)
-		{
-			bouchot->setSettings(mBouchots.value(bouchotName));
-			settings.saveBouchot(bouchotName, mBouchots.value(bouchotName));
-		}
-	}
-	// Les bouchots ajoutes
-	mBouchots = m_boardsSettingsW->getNewBouchots();
-	bouchotNames = mBouchots.keys();
-	for(int i = 0; i < bouchotNames.size(); i++)
-	{
-		QString bouchotName = bouchotNames.at(i);
-		settings.saveBouchot(bouchotName, mBouchots.value(bouchotName));
-		emit bouchotCreated(settings.loadBouchot(bouchotName));
-	}
 }

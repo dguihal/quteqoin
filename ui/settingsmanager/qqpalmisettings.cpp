@@ -1,0 +1,41 @@
+#include "qqpalmisettings.h"
+#include "ui_qqpalmisettings.h"
+
+#include <QtDebug>
+#include <QPushButton>
+
+QQPalmiSettings::QQPalmiSettings(QWidget *parent) :
+	QWidget(parent),
+	ui(new Ui::QQPalmiSettings)
+{
+	ui->setupUi(this);
+}
+
+QQPalmiSettings::~QQPalmiSettings()
+{
+	delete ui;
+}
+
+void QQPalmiSettings::setStaticShortcuts(QList< QPair<QChar, QString> > list)
+{
+	for(int i = 0; i < list.size(); i++)
+	{
+		ui->shortcutsTable->appendStaticRow(list.at(i).first, list.at(i).second);
+	}
+	ui->shortcutsTable->resizeColumnsToContents();
+}
+
+QList<QPair<QChar, QString> > QQPalmiSettings::getUserShortcuts()
+{
+	return ui->shortcutsTable->getUserShotcuts();
+}
+
+void QQPalmiSettings::setUserShortcuts(QList<QPair<QChar, QString> > list)
+{
+	for(int i = 0; i < list.size(); i++)
+	{
+		ui->shortcutsTable->appendUserRow(list.at(i).first, list.at(i).second);
+	}
+	ui->shortcutsTable->resizeColumnsToContents();
+	ui->shortcutsTable->initLastLine();
+}

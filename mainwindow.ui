@@ -24,19 +24,19 @@
      <x>0</x>
      <y>0</y>
      <width>600</width>
-     <height>19</height>
+     <height>18</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
     <property name="title">
-     <string>&amp;File</string>
+     <string>File</string>
     </property>
     <addaction name="separator"/>
     <addaction name="actionQuit"/>
    </widget>
    <widget class="QMenu" name="displayMenu">
     <property name="title">
-     <string>&amp;Display</string>
+     <string>Display</string>
     </property>
     <widget class="QMenu" name="menuPinipede">
      <property name="title">
@@ -59,7 +59,7 @@
    </widget>
    <widget class="QMenu" name="toolsMenu">
     <property name="title">
-     <string>&amp;Tools</string>
+     <string>Tools</string>
     </property>
     <addaction name="actionOptions"/>
    </widget>

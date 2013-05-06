@@ -17,8 +17,15 @@ signals:
 
 public slots:
 	void changeColor(const QColor &newColor);
-	void insertSurroundText(const QString &bTag, const QString &eTag);
-	void insertReplaceText(const QString & tag);
+	void insertText(const QString &str);
+
+	void blam();
+	void bold();
+	void italic();
+	void paf();
+	void moment();
+	void strike();
+	void underline();
 
 protected:
 	virtual void keyPressEvent(QKeyEvent *e);

@@ -38,10 +38,12 @@ SOURCES += main.cpp\
 	core/totozmanager/qqtmrequester.cpp \
 	ui/qqtotozviewer.cpp \
 	xml/totozmanager/qqtmxmlparser.cpp \
-    ui/qqsettingsmanager.cpp \
-    ui/settingsmanager/qqtotozsettings.cpp \
-    ui/settingsmanager/qqgeneralsettings.cpp \
-    ui/settingsmanager/qqboardssettings.cpp
+	ui/qqsettingsmanager.cpp \
+	ui/settingsmanager/qqtotozsettings.cpp \
+	ui/settingsmanager/qqgeneralsettings.cpp \
+	ui/settingsmanager/qqpalmisettings.cpp \
+	ui/settingsmanager/qqboardssettings.cpp \
+    ui/settingsmanager/qqpalmisettingstablewidget.cpp
 
 HEADERS  += mainwindow.h \
 	core/qqsettings.h \
@@ -68,11 +70,13 @@ HEADERS  += mainwindow.h \
 	core/totozmanager/qqtmrequester.h \
 	ui/qqtotozviewer.h \
 	xml/totozmanager/qqtmxmlparser.h \
-    ui/qqsettingsmanager.h \
-    ui/settingsmanager/qqgeneralsettings.h \
-    ui/settingsmanager/qqboardssettings.h \
-    ui/settingsmanager/qqtotozsettings.h \
-    core/qqsettingsparams.h
+	core/qqsettingsparams.h \
+	ui/qqsettingsmanager.h \
+	ui/settingsmanager/qqgeneralsettings.h \
+	ui/settingsmanager/qqboardssettings.h \
+	ui/settingsmanager/qqpalmisettings.h \
+	ui/settingsmanager/qqtotozsettings.h \
+    ui/settingsmanager/qqpalmisettingstablewidget.h
 
 FORMS    += mainwindow.ui \
 	ui/qqpalmipede.ui \
@@ -83,6 +87,7 @@ FORMS    += mainwindow.ui \
     ui/qqsettingsmanager.ui \
     ui/settingsmanager/qqboardssettings.ui \
     ui/settingsmanager/qqgeneralsettings.ui \
+    ui/settingsmanager/qqpalmisettings.ui \
     ui/settingsmanager/qqtotozsettings.ui
 
 OTHER_FILES +=
