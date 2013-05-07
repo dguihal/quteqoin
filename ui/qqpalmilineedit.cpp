@@ -22,9 +22,20 @@ void QQPalmiLineEdit::changeColor(const QColor &newColor)
 void QQPalmiLineEdit::insertText(const QString &str)
 {
 	QString newStr = str;
+
+	int moveCursorCount = 0;
 	if(str.contains("%s"))
-		newStr.replace("%s", selectedText());
+	{
+		QString selection = selectedText();
+		newStr.replace("%s", selection);
+
+		if(selection.length() == 0)
+			moveCursorCount = str.length() - (str.indexOf("%s") + 2);
+	}
 	insert(newStr);
+
+	if(moveCursorCount > 0)
+		cursorBackward(false, moveCursorCount);
 }
 
 void QQPalmiLineEdit::blam()
