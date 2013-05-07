@@ -6,6 +6,12 @@
 #include <QMouseEvent>
 #include <QPushButton>
 
+#define BTN_COLUMN 0
+#define SHORTCUT_COLUMN 1
+#define TEXT_COLUMN 2
+
+#define BTN_PIXMAP_MAX_WIDTH 24
+
 /////////////////////////////////////////////////////////////////////////////////////////////
 /// QQKeyboardShortcutItemDelegate
 /////////////////////////////////////////////////////////////////////////////////////////////
@@ -15,38 +21,46 @@ QQKeyboardShortcutItemDelegate::QQKeyboardShortcutItemDelegate(QObject *parent)
 {
 }
 
-QItemEditorFactory *QQKeyboardShortcutItemDelegate::itemEditorFactory() const
-{
-	//qDebug() << "QQKeyboardShortcutItemDelegate::itemEditorFactory";
-	return NULL;
-}
-
 QWidget *QQKeyboardShortcutItemDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
-	Q_UNUSED(option);
-	Q_UNUSED(index);
-
 	//qDebug() << "QQKeyboardShortcutItemDelegate::createEditor :" << parent << ", " << option << ", " << index;
 
-	QLineEdit *lineEdit = new QLineEdit(parent);
-	lineEdit->setMaxLength(1);
-	lineEdit->setInputMask("<X");
-	connect(lineEdit, SIGNAL(textEdited(QString)), this, SLOT(handleEditorTextEdited(QString)));
+	if (index.column() == SHORTCUT_COLUMN)
+	{
+		QLineEdit *lineEdit = new QLineEdit(parent);
+		lineEdit->setMaxLength(1);
+		lineEdit->setInputMask("<X");
+		connect(lineEdit, SIGNAL(textEdited(QString)), this, SLOT(handleEditorTextEdited(QString)));
 
-	return lineEdit;
+		return lineEdit;
+	}
+	else
+		return QStyledItemDelegate::createEditor(parent, option, index);
+}
+
+void QQKeyboardShortcutItemDelegate::setEditorData(QWidget *editor, const QModelIndex &index) const
+{
+	if (index.column() == SHORTCUT_COLUMN)
+	{
+		QLineEdit *lineEdit = qobject_cast<QLineEdit *>(editor);
+		lineEdit->setText(index.data(Qt::EditRole).toString().left(1));
+	} else {
+		QStyledItemDelegate::setEditorData(editor, index);
+	}
 }
 
 void QQKeyboardShortcutItemDelegate::setModelData(QWidget *editor, QAbstractItemModel *model, const QModelIndex &index) const
 {
-	Q_UNUSED(index);
+	if (index.column() == SHORTCUT_COLUMN)
+	{
+		QLineEdit *lineEdit = qobject_cast<QLineEdit *>(editor);
+		QString key = lineEdit->text();
 
-	qDebug() << "QQKeyboardShortcutItemDelegate::setModelData :" << editor << ", " << model << ", " << index;
-
-	QLineEdit *lineEdit = qobject_cast<QLineEdit *>(editor);
-	QString key = lineEdit->text();
-
-	if(key.length() > 0)
-		model->setData(index, QString(key), Qt::EditRole);
+		if(key.length() > 0)
+			model->setData(index, QString(key), Qt::EditRole);
+	}
+	else
+		QStyledItemDelegate::setModelData(editor, model, index);
 }
 
 void QQKeyboardShortcutItemDelegate::handleEditorTextEdited(const QString &text)
@@ -73,8 +87,12 @@ void QQKeyboardShortcutDataItem::setData(int role, const QVariant &value)
 	   value.canConvert<QString>())
 	{
 		QString oldEditRoleData = m_editRoleData;
-		m_editRoleData = value.toString();
-		QString longStr = QString("Alt+").append(m_editRoleData);
+		m_editRoleData = value.toString().left(1);
+		QString longStr = QString("Alt+");
+		if(m_editRoleData == QString(" "))
+			longStr.append("Space");
+		else
+			longStr.append(m_editRoleData);
 		QTableWidgetItem::setData(Qt::DisplayRole, longStr);
 		QTableWidgetItem::setData(Qt::ToolTipRole, longStr);
 
@@ -107,7 +125,7 @@ QQPalmiSettingsTableWidget::QQPalmiSettingsTableWidget(QWidget *parent) :
 	m_mmapKeys.clear();
 
 	m_kbshortcutDelegate = new QQKeyboardShortcutItemDelegate(this);
-	setItemDelegateForColumn(1, m_kbshortcutDelegate);
+	setItemDelegate(m_kbshortcutDelegate);
 }
 
 QQPalmiSettingsTableWidget::~QQPalmiSettingsTableWidget()
@@ -118,12 +136,11 @@ QQPalmiSettingsTableWidget::~QQPalmiSettingsTableWidget()
 void QQPalmiSettingsTableWidget::appendStaticRow(QChar key, QString value)
 {
 	int currRow = rowCount();
-	int colIndex = 0;
 
 	insertRow(currRow);
 
 	// 1st Col
-	setCellWidget(currRow, colIndex++, new QWidget(this));
+	setCellWidget(currRow, BTN_COLUMN, new QWidget(this));
 
 	// 2nd Col
 	QQKeyboardShortcutDataItem *kbSItem = new QQKeyboardShortcutDataItem();
@@ -134,7 +151,7 @@ void QQPalmiSettingsTableWidget::appendStaticRow(QChar key, QString value)
 				& ~Qt::ItemIsEnabled
 				& ~Qt::ItemIsTristate);
 	m_mmapKeys.insert(key, kbSItem);
-	setItem(currRow, colIndex++, kbSItem);
+	setItem(currRow, SHORTCUT_COLUMN, kbSItem);
 
 	// 3nd Col
 	QTableWidgetItem *item = new QTableWidgetItem();
@@ -144,24 +161,22 @@ void QQPalmiSettingsTableWidget::appendStaticRow(QChar key, QString value)
 				item->flags()
 				& ~Qt::ItemIsEnabled
 				& ~Qt::ItemIsTristate);
-	setItem(currRow, colIndex++, item);
+	setItem(currRow, TEXT_COLUMN, item);
 }
 
 void QQPalmiSettingsTableWidget::appendUserRow(QChar key, QString value)
 {
 	int currRow = appendEmptyUserRow();
-	int colIndex = 0;
 
 	// 1st Col
 	// Nothing to do
-	colIndex++;
 
 	// 2nd Col
-	QTableWidgetItem *twItem = item(currRow, colIndex++);
+	QTableWidgetItem *twItem = item(currRow, SHORTCUT_COLUMN);
 	twItem->setData(Qt::EditRole, QString(key));
 
 	// 3nd Col
-	twItem = item(currRow, colIndex++);
+	twItem = item(currRow, TEXT_COLUMN);
 	twItem->setData(Qt::DisplayRole, value);
 	twItem->setData(Qt::ToolTipRole, value);
 }
@@ -173,12 +188,12 @@ QList< QPair<QChar, QString> > QQPalmiSettingsTableWidget::getUserShotcuts() con
 	QTableWidgetItem *twItem = NULL;
 	for(int i = 0; i < rowCount(); i++)
 	{
-		twItem = item(i, 1);
+		twItem = item(i, SHORTCUT_COLUMN);
 		if(twItem != NULL && twItem->flags() & Qt::ItemIsEnabled)
 		{
 			QChar key = twItem->data(Qt::EditRole).toString().at(0);
 			if(! listKeys.contains(key))
-				rep.append(qMakePair(key, item(i, 2)->data(Qt::EditRole).toString()));
+				rep.append(qMakePair(key, item(i, TEXT_COLUMN)->data(Qt::EditRole).toString()));
 		}
 	}
 	return rep;
@@ -193,21 +208,20 @@ int QQPalmiSettingsTableWidget::appendEmptyUserRow()
 {
 	int currRow = m_hasLastLine ? rowCount() - 1 : rowCount();
 
-	if(currRow > 0 && item(currRow - 1, 1)->text().size() == 0)
+	if(currRow > 0 && item(currRow - 1, SHORTCUT_COLUMN)->text().size() == 0)
 		return currRow - 1;
 
-	int colIndex = 0;
 	QPushButton *rowDelBtn;
 	QPixmap delPixmap(":/img/delete-icon.png");
-	QPixmap scaledDelPixmap = delPixmap.scaledToWidth(24);
+	QPixmap scaledDelPixmap = delPixmap.scaledToWidth(BTN_PIXMAP_MAX_WIDTH);
 
 	insertRow(currRow);
 
 	// 1st Col
 	rowDelBtn = new QPushButton(QIcon(scaledDelPixmap), "", this);
-	rowDelBtn->setMaximumWidth(24);
+	rowDelBtn->setMaximumWidth(BTN_PIXMAP_MAX_WIDTH);
 	connect(rowDelBtn, SIGNAL(clicked()), this, SLOT(handleRemoveRowClicked()));
-	setCellWidget(currRow, colIndex++, rowDelBtn);
+	setCellWidget(currRow, BTN_COLUMN, rowDelBtn);
 
 	// 2nd Col
 	QQKeyboardShortcutDataItem *kbSItem = new QQKeyboardShortcutDataItem();
@@ -222,7 +236,7 @@ int QQPalmiSettingsTableWidget::appendEmptyUserRow()
 				kbSItem->flags()
 				& ~Qt::ItemIsTristate
 				& ~Qt::ItemIsUserCheckable);
-	setItem(currRow, colIndex++, kbSItem);
+	setItem(currRow, SHORTCUT_COLUMN, kbSItem);
 
 	// 3nd Col
 	QTableWidgetItem *twItem = new QTableWidgetItem("");
@@ -236,7 +250,7 @@ int QQPalmiSettingsTableWidget::appendEmptyUserRow()
 				twItem->flags()
 				& ~Qt::ItemIsTristate
 				& ~Qt::ItemIsUserCheckable);
-	setItem(currRow, colIndex++, twItem);
+	setItem(currRow, TEXT_COLUMN, twItem);
 
 	return currRow;
 }
@@ -248,10 +262,10 @@ void QQPalmiSettingsTableWidget::handleRemoveRowClicked()
 	QTableWidgetItem *twItem = NULL;
 	for(int i = 0; i < rowCount(); i++)
 	{
-		QWidget *widget = cellWidget(i, 0);
+		QWidget *widget = cellWidget(i, BTN_COLUMN);
 		if(widget->underMouse())
 		{
-			twItem = item(i, 1);
+			twItem = item(i, SHORTCUT_COLUMN);
 			key = twItem->data(Qt::EditRole).toString().at(0);
 			//Needs to hide row before remove, otherwise we have widget refressh issue
 			setRowHidden(i, true);
@@ -285,7 +299,6 @@ void QQPalmiSettingsTableWidget::keyChanged(QChar oldKey, QChar newKey, QTableWi
 		}
 	}
 
-
 	if(m_mmapKeys.contains(newKey))
 	{
 		item->setForeground(Qt::red);
@@ -309,18 +322,17 @@ void QQPalmiSettingsTableWidget::keyChanged(QChar oldKey, QChar newKey, QTableWi
 void QQPalmiSettingsTableWidget::createLastLine()
 {
 	int currRow = rowCount();
-	int colIndex = 0;
 	QPixmap addPixmap(":/img/add-icon.png");
-	QPixmap scaledAddPixmap = addPixmap.scaledToWidth(24);
+	QPixmap scaledAddPixmap = addPixmap.scaledToWidth(BTN_PIXMAP_MAX_WIDTH);
 
 	insertRow(currRow);
 
 	QPushButton *rowAddBtn = new QPushButton(QIcon(scaledAddPixmap), "", this);
 	connect(rowAddBtn, SIGNAL(clicked()), this, SLOT(appendEmptyUserRow()));
-	rowAddBtn->setMaximumWidth(24);
-	setCellWidget(currRow, colIndex++, rowAddBtn);
-	setCellWidget(currRow, colIndex++, new QWidget(this));
-	setCellWidget(currRow, colIndex++, new QWidget(this));
+	rowAddBtn->setMaximumWidth(BTN_PIXMAP_MAX_WIDTH);
+	setCellWidget(currRow, BTN_COLUMN, rowAddBtn);
+	setCellWidget(currRow, SHORTCUT_COLUMN, new QWidget(this));
+	setCellWidget(currRow, TEXT_COLUMN, new QWidget(this));
 
 	m_hasLastLine = true;
 }
