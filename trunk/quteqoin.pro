@@ -19,7 +19,6 @@ SOURCES += main.cpp\
 	core/qqpost.cpp \
 	ui/qqpalmipede.cpp \
 	ui/qqpinipede.cpp \
-	ui/qqbouchotsettingsdialog.cpp \
 	ui/qqsettingsdialog.cpp \
 	ui/qqtextbrowser.cpp \
 	xml/qqxmlparser.cpp \
@@ -43,7 +42,8 @@ SOURCES += main.cpp\
 	ui/settingsmanager/qqgeneralsettings.cpp \
 	ui/settingsmanager/qqpalmisettings.cpp \
 	ui/settingsmanager/qqboardssettings.cpp \
-    ui/settingsmanager/qqpalmisettingstablewidget.cpp
+	ui/settingsmanager/qqbouchotsettingsdialog.cpp \
+	ui/settingsmanager/qqpalmisettingstablewidget.cpp
 
 HEADERS  += mainwindow.h \
 	core/qqsettings.h \
@@ -51,7 +51,6 @@ HEADERS  += mainwindow.h \
 	core/qqpost.h \
 	ui/qqpalmipede.h \
 	ui/qqpinipede.h \
-	ui/qqbouchotsettingsdialog.h \
 	ui/qqsettingsdialog.h \
 	ui/qqtextbrowser.h \
 	xml/qqxmlparser.h \
@@ -76,19 +75,20 @@ HEADERS  += mainwindow.h \
 	ui/settingsmanager/qqboardssettings.h \
 	ui/settingsmanager/qqpalmisettings.h \
 	ui/settingsmanager/qqtotozsettings.h \
-    ui/settingsmanager/qqpalmisettingstablewidget.h
+	ui/settingsmanager/qqbouchotsettingsdialog.h \
+	ui/settingsmanager/qqpalmisettingstablewidget.h
 
 FORMS    += mainwindow.ui \
 	ui/qqpalmipede.ui \
-	ui/qqbouchotsettingsdialog.ui \
 	ui/qqsettingsdialog.ui \
 	ui/qqproxyauthdialog.ui \
 	ui/qqtotozmanager.ui \
-    ui/qqsettingsmanager.ui \
-    ui/settingsmanager/qqboardssettings.ui \
-    ui/settingsmanager/qqgeneralsettings.ui \
-    ui/settingsmanager/qqpalmisettings.ui \
-    ui/settingsmanager/qqtotozsettings.ui
+	ui/qqsettingsmanager.ui \
+	ui/settingsmanager/qqboardssettings.ui \
+	ui/settingsmanager/qqbouchotsettingsdialog.ui \
+	ui/settingsmanager/qqgeneralsettings.ui \
+	ui/settingsmanager/qqpalmisettings.ui \
+	ui/settingsmanager/qqtotozsettings.ui
 
 OTHER_FILES +=
 
