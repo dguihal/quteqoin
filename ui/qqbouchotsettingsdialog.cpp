@@ -80,13 +80,12 @@ void QQBouchotSettingsDialog::usePresetPressed()
 	qDebug() << "QQBouchotSettingsDialog::usePresetPressed";
 
 	m_bouchotName = ui->presetComboBox->currentText();
+
 	m_bouchotSettings = QQBouchot::getBouchotDef(m_bouchotName);
 
-	ui->nameLineEdit->setText(m_bouchotName);
 	ui->colorLineEdit->setText(m_bouchotSettings.colorToString());
 	ui->aliasLineEdit->setText(m_bouchotSettings.aliasesToString());
 	ui->refreshRateLineEdit->setText(m_bouchotSettings.refreshToString());
-	ui->cookieLineEdit->setText(m_bouchotSettings.cookie());
 	ui->urlPostLineEdit->setText(m_bouchotSettings.postUrl());
 	ui->urlBackendLineEdit->setText(m_bouchotSettings.backendUrl());
 	ui->postDataLineEdit->setText(m_bouchotSettings.postData());
