@@ -1,25 +1,48 @@
 #ifndef QQPALMISETTINGSTABLEWIDGET_H
 #define QQPALMISETTINGSTABLEWIDGET_H
 
+#include <QLabel>
 #include <QMultiMap>
 #include <QSignalMapper>
 #include <QStyledItemDelegate>
 #include <QTableWidget>
 
+class QQKeyboardShortcutInput : public QWidget
+{
+	Q_OBJECT
+	Q_PROPERTY(QString m_shortcutKey READ shortcutKey WRITE setShortcutKey NOTIFY shortcutKeyChanged USER true)
+public:
+	QQKeyboardShortcutInput(QWidget *parent = 0);
+
+	QString shortcutKey() const { return m_shortcutKey; }
+	void setShortcutKey(const QString &shortcutKey);
+
+signals:
+	void shortcutKeyChanged();
+
+protected:
+	virtual void focusInEvent(QFocusEvent * event);
+	virtual void keyPressEvent(QKeyEvent *);
+
+protected slots:
+	void handleEditorTextEdited(const QString &text);
+
+private:
+	void setupUi();
+
+	QString m_shortcutKey;
+
+	QLabel *m_altLabel;
+	QLineEdit *m_lineEdit;
+};
+
 class QQKeyboardShortcutItemDelegate : public QStyledItemDelegate
 {
 	Q_OBJECT
 public:
-	QQKeyboardShortcutItemDelegate(QObject *parent = 0);
+	QQKeyboardShortcutItemDelegate(QObject *parent = 0) : QStyledItemDelegate(parent) {}
 
 	virtual QWidget *createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const;
-	virtual void setEditorData(QWidget *editor, const QModelIndex &index) const;
-	virtual void setModelData(QWidget *editor, QAbstractItemModel * model, const QModelIndex & index) const;
-
-protected slots:
-	void handleEditorTextEdited(const QString & text);
-
-private:
 };
 
 class QQKeyboardShortcutDataItem : public QTableWidgetItem
@@ -47,9 +70,9 @@ public:
 	explicit QQPalmiSettingsTableWidget(QWidget *parent = 0);
 	~QQPalmiSettingsTableWidget();
 
-	void appendStaticRow(QChar key, QString value);
+	void appendStaticRow(const QChar &key, const QString &value);
 	QList< QPair<QChar, QString> > getUserShotcuts() const;
-	void appendUserRow(QChar key, QString value);
+	void appendUserRow(const QChar &key, const QString &value);
 
 	void initLastLine();
 signals:
