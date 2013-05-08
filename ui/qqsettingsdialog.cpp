@@ -2,7 +2,7 @@
 #include "ui_qqsettingsdialog.h"
 
 #include "core/qqbouchot.h"
-#include "ui/qqbouchotsettingsdialog.h"
+#include "ui/settingsmanager/qqbouchotsettingsdialog.h"
 
 #include <QtDebug>
 #include <QStringListModel>

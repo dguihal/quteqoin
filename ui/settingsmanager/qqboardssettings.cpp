@@ -1,7 +1,7 @@
 #include "qqboardssettings.h"
 #include "ui_qqboardssettings.h"
 
-#include "ui/qqbouchotsettingsdialog.h"
+#include "ui/settingsmanager/qqbouchotsettingsdialog.h"
 
 #include <QtDebug>
 #include <QStringListModel>
