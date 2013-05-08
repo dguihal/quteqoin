@@ -42,7 +42,6 @@ void QQKeyboardShortcutInput::focusInEvent(QFocusEvent *event)
 
 void QQKeyboardShortcutInput::keyPressEvent(QKeyEvent *event)
 {
-	//m_lineEdit->keyPressEvent(event);
 	QCoreApplication::sendEvent(m_lineEdit, event);
 }
 
@@ -97,34 +96,6 @@ QWidget *QQKeyboardShortcutItemDelegate::createEditor(QWidget *parent, const QSt
 	else
 		return QStyledItemDelegate::createEditor(parent, option, index);
 }
-/*
-void QQKeyboardShortcutItemDelegate::setEditorData(QWidget *editor, const QModelIndex &index) const
-{
-	if (index.column() == SHORTCUT_COLUMN)
-	{
-		QQKeyboardShortcutInput *shortcutInput = qobject_cast<QQKeyboardShortcutInput *>(editor);
-		QString data = index.data(Qt::EditRole).toString();
-
-		if(data.length() > 0)
-			shortcutInput->setShortcutKey(data.at(0));
-	}
-	else
-		QStyledItemDelegate::setEditorData(editor, index);
-}
-void QQKeyboardShortcutItemDelegate::setModelData(QWidget *editor, QAbstractItemModel *model, const QModelIndex &index) const
-{
-	if (index.column() == SHORTCUT_COLUMN)
-	{
-		QQKeyboardShortcutInput *shortcutInput = qobject_cast<QQKeyboardShortcutInput *>(editor);
-		QChar key = shortcutInput->shortcutKey().at(0);
-
-		if(! key.isNull())
-			model->setData(index, QString(key), Qt::EditRole);
-	}
-	else
-		QStyledItemDelegate::setModelData(editor, model, index);
-}
-*/
 
 /////////////////////////////////////////////////////////////////////////////////////////////
 /// QQKeyboardShortcutDataItem
@@ -151,10 +122,6 @@ void QQKeyboardShortcutDataItem::setData(int role, const QVariant &value)
 			(qobject_cast<QQPalmiSettingsTableWidget *>(tableWidget()))->keyChanged(QChar(), m_editRoleData.at(0), this);
 		else
 			(qobject_cast<QQPalmiSettingsTableWidget *>(tableWidget()))->keyChanged(oldEditRoleData.at(0), m_editRoleData.at(0), this);
-/*
-		if (QAbstractTableModel *model = (tableWidget() ? qobject_cast<QAbstractTableModel*>(tableWidget()->model()) : 0))
-			model->itemChanged(this);
-*/
 	}
 	else
 		QTableWidgetItem::setData(role, value);
