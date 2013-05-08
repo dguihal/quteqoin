@@ -1,7 +1,9 @@
 #include "qqpalmisettingstablewidget.h"
 
 #include <QtDebug>
+#include <QCoreApplication>
 #include <QKeyEvent>
+#include <QHBoxLayout>
 #include <QLineEdit>
 #include <QMouseEvent>
 #include <QPushButton>
@@ -10,16 +12,77 @@
 #define SHORTCUT_COLUMN 1
 #define TEXT_COLUMN 2
 
+#define SHORTCUT_PREFIX "Alt+"
+
 #define BTN_PIXMAP_MAX_WIDTH 24
+
+/////////////////////////////////////////////////////////////////////////////////////////////
+/// QQKeyboardShortcutInput
+/////////////////////////////////////////////////////////////////////////////////////////////
+///
+QQKeyboardShortcutInput::QQKeyboardShortcutInput(QWidget *parent) :
+	QWidget(parent)
+{
+	setupUi();
+}
+
+void QQKeyboardShortcutInput::setShortcutKey(const QString &shortcutKey)
+{
+	m_shortcutKey = shortcutKey;
+	m_lineEdit->setText(m_shortcutKey);
+
+	m_lineEdit->cursorBackward(false, 1);
+	m_lineEdit->cursorForward(true, 1);
+}
+
+void QQKeyboardShortcutInput::focusInEvent(QFocusEvent *event)
+{
+	m_lineEdit->setFocus(event->reason());
+}
+
+void QQKeyboardShortcutInput::keyPressEvent(QKeyEvent *event)
+{
+	//m_lineEdit->keyPressEvent(event);
+	QCoreApplication::sendEvent(m_lineEdit, event);
+}
+
+void QQKeyboardShortcutInput::setupUi()
+{
+	setAutoFillBackground(true);
+
+	QLayout *hLayout = new QHBoxLayout(this);
+	hLayout->setMargin(0);
+	hLayout->setSpacing(0);
+
+	m_altLabel = new QLabel(SHORTCUT_PREFIX);
+	m_altLabel->setAlignment(Qt::AlignCenter);
+	m_altLabel->setFont(font());
+	m_altLabel->setMargin(3);
+
+	hLayout->addWidget(m_altLabel);
+
+	m_lineEdit = new QLineEdit();
+	m_lineEdit->setMaxLength(1);
+	m_lineEdit->setFont(font());
+	QRegExpValidator *reVal = new QRegExpValidator(QRegExp("[^A-Z]"), this);
+	m_lineEdit->setValidator(reVal);
+	connect(m_lineEdit, SIGNAL(textEdited(QString)), this, SLOT(handleEditorTextEdited(QString)));
+
+	hLayout->addWidget(m_lineEdit);
+}
+
+void QQKeyboardShortcutInput::handleEditorTextEdited(const QString &text)
+{
+	m_shortcutKey = text.size() > 0 ? text.at(0) : QChar();
+
+	m_lineEdit->cursorBackward(false, 1);
+	m_lineEdit->cursorForward(true, 1);
+}
 
 /////////////////////////////////////////////////////////////////////////////////////////////
 /// QQKeyboardShortcutItemDelegate
 /////////////////////////////////////////////////////////////////////////////////////////////
-
-QQKeyboardShortcutItemDelegate::QQKeyboardShortcutItemDelegate(QObject *parent)
-	: QStyledItemDelegate(parent)
-{
-}
+///
 
 QWidget *QQKeyboardShortcutItemDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
@@ -27,53 +90,41 @@ QWidget *QQKeyboardShortcutItemDelegate::createEditor(QWidget *parent, const QSt
 
 	if (index.column() == SHORTCUT_COLUMN)
 	{
-		QLineEdit *lineEdit = new QLineEdit(parent);
-		lineEdit->setMaxLength(1);
-		lineEdit->setInputMask("<X");
-		connect(lineEdit, SIGNAL(textEdited(QString)), this, SLOT(handleEditorTextEdited(QString)));
-
-		return lineEdit;
+		QQKeyboardShortcutInput *shortcutInput = new QQKeyboardShortcutInput(parent);
+		shortcutInput->setFont(option.font);
+		return shortcutInput;
 	}
 	else
 		return QStyledItemDelegate::createEditor(parent, option, index);
 }
-
+/*
 void QQKeyboardShortcutItemDelegate::setEditorData(QWidget *editor, const QModelIndex &index) const
 {
 	if (index.column() == SHORTCUT_COLUMN)
 	{
-		QLineEdit *lineEdit = qobject_cast<QLineEdit *>(editor);
-		lineEdit->setText(index.data(Qt::EditRole).toString().left(1));
-	} else {
-		QStyledItemDelegate::setEditorData(editor, index);
-	}
-}
+		QQKeyboardShortcutInput *shortcutInput = qobject_cast<QQKeyboardShortcutInput *>(editor);
+		QString data = index.data(Qt::EditRole).toString();
 
+		if(data.length() > 0)
+			shortcutInput->setShortcutKey(data.at(0));
+	}
+	else
+		QStyledItemDelegate::setEditorData(editor, index);
+}
 void QQKeyboardShortcutItemDelegate::setModelData(QWidget *editor, QAbstractItemModel *model, const QModelIndex &index) const
 {
 	if (index.column() == SHORTCUT_COLUMN)
 	{
-		QLineEdit *lineEdit = qobject_cast<QLineEdit *>(editor);
-		QString key = lineEdit->text();
+		QQKeyboardShortcutInput *shortcutInput = qobject_cast<QQKeyboardShortcutInput *>(editor);
+		QChar key = shortcutInput->shortcutKey().at(0);
 
-		if(key.length() > 0)
+		if(! key.isNull())
 			model->setData(index, QString(key), Qt::EditRole);
 	}
 	else
 		QStyledItemDelegate::setModelData(editor, model, index);
 }
-
-void QQKeyboardShortcutItemDelegate::handleEditorTextEdited(const QString &text)
-{
-	Q_UNUSED(text);
-
-	//qDebug() << "QQKeyboardShortcutItemDelegate::handleEditorTextEdited :" << text;
-
-	QLineEdit *lineEdit = qobject_cast<QLineEdit *>(sender());
-
-	lineEdit->cursorBackward(false, 1);
-	lineEdit->cursorForward(true, 1);
-}
+*/
 
 /////////////////////////////////////////////////////////////////////////////////////////////
 /// QQKeyboardShortcutDataItem
@@ -88,7 +139,7 @@ void QQKeyboardShortcutDataItem::setData(int role, const QVariant &value)
 	{
 		QString oldEditRoleData = m_editRoleData;
 		m_editRoleData = value.toString().left(1);
-		QString longStr = QString("Alt+");
+		QString longStr = QString(SHORTCUT_PREFIX);
 		if(m_editRoleData == QString(" "))
 			longStr.append("Space");
 		else
@@ -100,6 +151,10 @@ void QQKeyboardShortcutDataItem::setData(int role, const QVariant &value)
 			(qobject_cast<QQPalmiSettingsTableWidget *>(tableWidget()))->keyChanged(QChar(), m_editRoleData.at(0), this);
 		else
 			(qobject_cast<QQPalmiSettingsTableWidget *>(tableWidget()))->keyChanged(oldEditRoleData.at(0), m_editRoleData.at(0), this);
+/*
+		if (QAbstractTableModel *model = (tableWidget() ? qobject_cast<QAbstractTableModel*>(tableWidget()->model()) : 0))
+			model->itemChanged(this);
+*/
 	}
 	else
 		QTableWidgetItem::setData(role, value);
@@ -133,7 +188,7 @@ QQPalmiSettingsTableWidget::~QQPalmiSettingsTableWidget()
 	delete m_kbshortcutDelegate;
 }
 
-void QQPalmiSettingsTableWidget::appendStaticRow(QChar key, QString value)
+void QQPalmiSettingsTableWidget::appendStaticRow(const QChar &key, const QString &value)
 {
 	int currRow = rowCount();
 
@@ -144,8 +199,8 @@ void QQPalmiSettingsTableWidget::appendStaticRow(QChar key, QString value)
 
 	// 2nd Col
 	QQKeyboardShortcutDataItem *kbSItem = new QQKeyboardShortcutDataItem();
-	kbSItem->setData(Qt::DisplayRole, QString("Alt+").append(key));
-	kbSItem->setData(Qt::ToolTipRole, QString("Alt+").append(key));
+	kbSItem->setData(Qt::DisplayRole, QString(SHORTCUT_PREFIX).append(key));
+	kbSItem->setData(Qt::ToolTipRole, QString(SHORTCUT_PREFIX).append(key));
 	kbSItem->setFlags(
 				kbSItem->flags()
 				& ~Qt::ItemIsEnabled
@@ -164,7 +219,7 @@ void QQPalmiSettingsTableWidget::appendStaticRow(QChar key, QString value)
 	setItem(currRow, TEXT_COLUMN, item);
 }
 
-void QQPalmiSettingsTableWidget::appendUserRow(QChar key, QString value)
+void QQPalmiSettingsTableWidget::appendUserRow(const QChar &key, const QString &value)
 {
 	int currRow = appendEmptyUserRow();
 
