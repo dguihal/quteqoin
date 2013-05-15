@@ -83,6 +83,7 @@ void QQBouchotSettingsDialog::usePresetPressed()
 
 	m_bouchotSettings = QQBouchot::getBouchotDef(m_bouchotName);
 
+	ui->nameLineEdit->setText(m_bouchotName);
 	ui->colorLineEdit->setText(m_bouchotSettings.colorToString());
 	ui->aliasLineEdit->setText(m_bouchotSettings.aliasesToString());
 	ui->refreshRateLineEdit->setText(m_bouchotSettings.refreshToString());
