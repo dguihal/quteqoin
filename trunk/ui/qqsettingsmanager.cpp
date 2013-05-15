@@ -54,7 +54,7 @@ QQSettingsManager::QQSettingsManager(QWidget *parent) :
 	layout->addWidget(m_boardsSettingsW);
 
 	listSettingsTheme->addItem(
-				new QListWidgetItem(QIcon(":/img/palmi-icon.png"), tr("Palmipede"),
+				new QListWidgetItem(QIcon(":/img/palmipede-icon.png"), tr("Palmipede"),
 									listSettingsTheme, ITEM_PALMI_TYPE)
 				);
 	m_palmiSettingsW = new QQPalmiSettings(this);
