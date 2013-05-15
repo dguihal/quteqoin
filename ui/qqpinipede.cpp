@@ -87,7 +87,7 @@ void QQPinipede::addPiniTab(const QString & groupName)
 	connect(textBrowser, SIGNAL(newPostsAcknowledged(QString)), this, SLOT(newPostsAcknowledged(QString)));
 	connect(textBrowser, SIGNAL(displayTotozContextMenu(QPoint &)), m_totozViewer, SLOT(displayContextMenu(QPoint &)));
 
-	if (this->count() > 1)
+	if(this->count() > 1)
 		this->tabBar()->show();
 }
 
@@ -107,7 +107,7 @@ void QQPinipede::removePiniTab(const QString &name)
 
 	m_listPostsTabMap.remove(name);
 
-	if (this->count() < 2)
+	if(this->count() < 2)
 		this->tabBar()->hide();
 }
 
@@ -119,8 +119,9 @@ void QQPinipede::purgePiniTab(const QString &groupName, const QString &bouchotNa
 void QQPinipede::purgePinitab(const QString &groupName, const QString &bouchotName, unsigned int max)
 {
 	QQTextBrowser *textBrowser = m_textBrowserHash.value(groupName);
+	QList<QQPost *> *destListPosts = m_listPostsTabMap[groupName];
 
-	if (textBrowser == NULL)
+	if(textBrowser == NULL)
 		return;
 
 	unsigned int count = 0;
@@ -128,6 +129,8 @@ void QQPinipede::purgePinitab(const QString &groupName, const QString &bouchotNa
 	bool moveOK = true;
 	QTextCursor cursor(textBrowser->document());
 	cursor.beginEditBlock();
+	int destListPostsIndex = 0;
+	QQPost *post = NULL;
 	do
 	{
 		qDebug() << "QQPinipede::purgePiniTab block num=" << cursor.block().blockNumber()
@@ -136,7 +139,8 @@ void QQPinipede::purgePinitab(const QString &groupName, const QString &bouchotNa
 		QQMessageBlockUserData * userData = (QQMessageBlockUserData *) (cursor.block().userData());
 		qDebug() << "QQPinipede::purgePiniTab userData->post()->bouchot()->name()=" << userData->post()->bouchot()->name()
 				 << ", bouchotName=" << bouchotName;
-		if ( userData->post()->bouchot()->name() == bouchotName )
+		post = userData->post();
+		if(post->bouchot()->name() == bouchotName)
 		{
 			moveOK = cursor.movePosition(QTextCursor::NextBlock, QTextCursor::KeepAnchor);
 			//Ce cas represente le dernier block
@@ -150,7 +154,17 @@ void QQPinipede::purgePinitab(const QString &groupName, const QString &bouchotNa
 				moveOK = cursor.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
 			}
 			cursor.removeSelectedText();
-			if (count >= max)
+
+			for(; destListPostsIndex < destListPosts->size(); destListPostsIndex ++)
+			{
+				if(destListPosts->at(destListPostsIndex) == post)
+				{
+					destListPosts->removeAt(destListPostsIndex);
+						break;
+				}
+			}
+
+			if(count >= max)
 				break;
 		}
 		else
@@ -165,7 +179,7 @@ void QQPinipede::purgePinitabHistory(const QString & groupName)
 	QQTextBrowser *textBrowser = m_textBrowserHash.value(groupName);
 	QList<QQPost *> *destlistPosts = m_listPostsTabMap[groupName];
 
-	if (textBrowser == NULL || destlistPosts == NULL)
+	if(textBrowser == NULL || destlistPosts == NULL)
 		return;
 
 	QQSettings settings;
@@ -193,7 +207,7 @@ void QQPinipede::purgePinitabHistory(const QString & groupName)
 
 	// Purge de l'historique interne des bouchots
 	QHashIterator<QString, QString> i(maxIdRemoved);
-	while (i.hasNext())
+	while(i.hasNext())
 	{
 		i.next();
 		QQBouchot * bouchot = QQBouchot::bouchot(i.key());
@@ -259,13 +273,13 @@ void QQPinipede::printPostAtCursor(QTextCursor & cursor, QQPost * post)
 
 	QQMessageBlockUserData::ZoneRange rangeLoginUA;
 	rangeLoginUA.begin = cursor.positionInBlock();
-	if( post->login().size() != 0 )
+	if(post->login().size() != 0)
 	{
 		loginUaFormat.setForeground(QColor("#553333"));
 
 		txt = post->login();
 	}
-	else if( post->UA().size() != 0 )
+	else if(post->UA().size() != 0)
 	{
 		loginUaFormat.setFontItalic(true);
 		loginUaFormat.setForeground(QColor("#883333"));
@@ -343,9 +357,9 @@ void QQPinipede::newPostsAvailable(QString groupName)
 	QTextCursor cursor(doc);
 	cursor.beginEditBlock();
 
-	bool wasAtEnd = ( textBrowser->verticalScrollBar()->sliderPosition() == textBrowser->verticalScrollBar()->maximum() );
+	bool wasAtEnd = (textBrowser->verticalScrollBar()->sliderPosition() == textBrowser->verticalScrollBar()->maximum());
 	// Recuperation de l'historique des posts (ou creation si absent)
-	QList<QQPost *> * destlistPosts = NULL;
+	QList<QQPost *> *destlistPosts = NULL;
 	if(! m_listPostsTabMap.contains(groupName))
 	{
 		// Cas du pini vide, il contient déjà un bloc vide, on
@@ -368,7 +382,7 @@ void QQPinipede::newPostsAvailable(QString groupName)
 	{
 		QQPost * newPost = newPosts.at(newPostsIndex);
 
-		insertIndex = insertPostToList( destlistPosts, newPost, baseInsertIndex );
+		insertIndex = insertPostToList(destlistPosts, newPost, baseInsertIndex);
 
 		if(newPost == destlistPosts->last()) //insertion a la fin
 			break;
@@ -377,7 +391,7 @@ void QQPinipede::newPostsAvailable(QString groupName)
 		if(insertIndex == 0)
 		{
 			//Necessite de le copier car il sera supprime par le nouveau userData de la premiere ligne
-			QQMessageBlockUserData * uData = new QQMessageBlockUserData( * ((QQMessageBlockUserData *) cursor.block().userData()));
+			QQMessageBlockUserData * uData = new QQMessageBlockUserData(* ((QQMessageBlockUserData *) cursor.block().userData()));
 			cursor.insertBlock();
 			cursor.block().setUserData(uData);
 			cursor.movePosition(QTextCursor::PreviousBlock);
@@ -385,7 +399,7 @@ void QQPinipede::newPostsAvailable(QString groupName)
 		}
 		else
 		{
-			cursor.movePosition(QTextCursor::NextBlock, QTextCursor::MoveAnchor, ( insertIndex - baseInsertIndex ) - 1);
+			cursor.movePosition(QTextCursor::NextBlock, QTextCursor::MoveAnchor, (insertIndex - baseInsertIndex) - 1);
 			cursor.movePosition(QTextCursor::EndOfBlock);
 			cursor.insertBlock();
 			printPostAtCursor(cursor, newPost);
@@ -450,12 +464,12 @@ unsigned int QQPinipede::insertPostToList(QList<QQPost *> *listPosts, QQPost *po
 {
 	// qDebug() << QDateTime::currentDateTime().currentMSecsSinceEpoch() << " : "
 	//		 << "QQPinipede::insertPostToList, indexStart=" << indexStart;
-	for( int i = indexStart; i < listPosts->size(); i++ )
+	for(int i = indexStart; i < listPosts->size(); i++)
 	{
 		// qDebug() << QDateTime::currentDateTime().currentMSecsSinceEpoch() << " : "
 		//		 << "QQPinipede::insertPostToList, listPosts->at(i)->norloge()=" << listPosts->at(i)->norloge()
 		//		 << ", post->norloge()=" << post->norloge();
-		if(listPosts->at(i)->norloge().toLongLong() > post->norloge().toLongLong() )
+		if(listPosts->at(i)->norloge().toLongLong() > post->norloge().toLongLong())
 		{
 			// qDebug() << QDateTime::currentDateTime().currentMSecsSinceEpoch() << " : "
 			//		 << "QQPinipede::insertPostToList, listPosts->insert i=" << i;
@@ -564,8 +578,8 @@ void QQPinipede::norlogeRefHovered(QQNorlogeRef norlogeRef)
 				highlighter->rehighlightBlock(cursor.block());
 				if(cursor.block().userState() & QQSyntaxHighlighter::FULL_HIGHLIGHTED)
 					highlightSuccess = true;
-			} while ( cursor.movePosition(QTextCursor::NextBlock) &&
-					  cursor.blockNumber() <= endBlockPos );
+			} while(cursor.movePosition(QTextCursor::NextBlock) &&
+					  cursor.blockNumber() <= endBlockPos);
 		}
 	}
 
@@ -597,11 +611,11 @@ void QQPinipede::norlogeRefHovered(QQNorlogeRef norlogeRef)
 				destCursor.insertFragment(fragment);
 			}
 
-		} while ( cursor.movePosition(QTextCursor::NextBlock) );
+		} while(cursor.movePosition(QTextCursor::NextBlock));
 
 		destCursor.endEditBlock();
 
-		if( destDocument.toPlainText().length() > 0)
+		if(destDocument.toPlainText().length() > 0)
 		{
 			m_hiddenPostViewerLabel->setFixedWidth(this->currentWidget()->width());
 			QString styleSheet = m_hiddenPostViewerLabelSSheet;
@@ -637,7 +651,7 @@ void QQPinipede::unHighlight(QQTextBrowser *tBrowser)
 		if(cursor.block().userState() & (QQSyntaxHighlighter::NORLOGE_HIGHLIGHTED | QQSyntaxHighlighter::FULL_HIGHLIGHTED))
 			highlighter->rehighlightBlock(cursor.block());
 
-	} while ( cursor.movePosition( QTextCursor::NextBlock ) );
+	} while(cursor.movePosition(QTextCursor::NextBlock));
 }
 
 void QQPinipede::showTotozViewer(QString & totozId)
