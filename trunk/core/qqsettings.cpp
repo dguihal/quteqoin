@@ -159,6 +159,14 @@ QStringList QQSettings::listBouchots()
 						  QString::SkipEmptyParts);
 }
 
+void QQSettings::setValueWithDefault(const QString &key, const QVariant &value, const QVariant &defaultValue)
+{
+	if(value == defaultValue)
+		remove(key);
+	else
+		setValue(key, value);
+}
+
 void QQSettings::setUserPalmiShorcuts(QList< QPair<QChar, QString> > userPalmiShortcuts)
 {
 	m_userPalmiShortcuts = userPalmiShortcuts;
