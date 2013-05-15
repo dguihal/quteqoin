@@ -484,6 +484,9 @@ void QQPinipede::norlogeRefClicked(QString srcBouchot, QQNorlogeRef nRef)
 	QQBouchot *srcQQBouchot = QQBouchot::bouchot(srcBouchot);
 	QQBouchot *dstQQBouchot = QQBouchot::bouchot(nRef.dstBouchot());
 
+	if(dstQQBouchot == NULL)
+		return;
+
 	QQTextBrowser *textBrowser = m_textBrowserHash.value(srcQQBouchot->settings().group());
 	unHighlight(textBrowser);
 
