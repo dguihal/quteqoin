@@ -8,7 +8,7 @@ cp -R dists/Debian debian
 #Set correct svn version
 vi debian/changelog
 popd
-tar jcvf quteqoin_0.0(svnrev).orig.tar.gz quteqoin-read-only
+tar zcvf quteqoin_0.0(svnrev).orig.tar.gz quteqoin-read-only
 
 3/build package
 pushd quteqoin-read-only
