@@ -39,3 +39,24 @@ void QQPalmiSettings::setUserShortcuts(QList<QPair<QChar, QString> > list)
 	ui->shortcutsTable->resizeColumnsToContents();
 	ui->shortcutsTable->initLastLine();
 }
+
+bool QQPalmiSettings::isPalmiHidden() const
+{
+	return ui->dmHiddenCB->isChecked();
+}
+
+void QQPalmiSettings::setPalmiHidden(const bool &isPalmiHidden)
+{
+	ui->dmHiddenCB->setChecked(isPalmiHidden);
+}
+
+bool QQPalmiSettings::isPalmiMinimized() const
+{
+	return ui->dmMinimizedRB->isChecked();
+}
+
+void QQPalmiSettings::setPalmiMinimized(const bool &isPalmiMini)
+{
+	ui->dmExtendedRB->setChecked(! isPalmiMini);
+	ui->dmMinimizedRB->setChecked(isPalmiMini);
+}

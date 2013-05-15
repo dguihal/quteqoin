@@ -55,19 +55,22 @@ MainWindow::MainWindow(QWidget *parent) :
 	connect(m_ui->actionQuit, SIGNAL(triggered()), this, SLOT(close()));
 	connect(m_ui->actionPalmiExt, SIGNAL(triggered()), this, SLOT(doTriggerMaxiPalmi()));
 	connect(m_ui->actionPalmiMini, SIGNAL(triggered()), this, SLOT(doTriggerMiniPalmi()));
-	connect(m_ui->actionPalmiHidden, SIGNAL(triggered()), this, SLOT(doTriggerHiddenPalmi()));
+	connect(m_ui->actionPalmiHidden, SIGNAL(triggered(bool)), this, SLOT(doTriggerHiddenPalmi(bool)));
 	connect(m_ui->actionOptions, SIGNAL(triggered()), this, SLOT(displayOptions()));
 
 	QQSettings settings;
-	if(settings.value(SETTINGS_PALMI_MINI, DEFAULT_PALMI_MINI).toBool())
-		this->m_ui->actionPalmiMini->trigger();
-	else
-		this->m_ui->actionPalmiExt->trigger();
-
 	if(settings.contains(SETTINGS_MAINWINDOW_GEOMETRY))
 		restoreGeometry(settings.value(SETTINGS_MAINWINDOW_GEOMETRY).toByteArray());
 	if(settings.contains(SETTINGS_MAINWINDOW_STATE))
 		restoreState(settings.value(SETTINGS_MAINWINDOW_STATE).toByteArray());
+
+	if(settings.value(SETTINGS_PALMI_MINI, DEFAULT_PALMI_MINI).toBool())
+		m_ui->actionPalmiMini->trigger();
+	else
+		m_ui->actionPalmiExt->trigger();
+
+	if(settings.value(SETTINGS_PALMI_HIDDEN, DEFAULT_PALMI_HIDDEN).toBool())
+		m_ui->actionPalmiHidden->trigger();
 
 	// Envoyer le focus par defaut sur le palmi s'il est visible
 	if(m_palmi->isVisible())
@@ -88,6 +91,9 @@ void MainWindow::displayOptions()
 
 	QQSettingsManager settingsManager(this);
 	connect(&settingsManager, SIGNAL(bouchotCreated(QQBouchot*)), this, SLOT(initBouchot(QQBouchot*)));
+	connect(&settingsManager, SIGNAL(minimizePalmi()), this, SLOT(doTriggerMiniPalmi()));
+	connect(&settingsManager, SIGNAL(maximizePalmi()), this, SLOT(doTriggerMaxiPalmi()));
+	connect(&settingsManager, SIGNAL(hidePalmi(bool)), this, SLOT(doTriggerHiddenPalmi(bool)));
 	connect(&settingsManager, SIGNAL(totozSearchEnabledChanged(bool)), m_totozManager, SLOT(totozSearchEnabled(bool)));
 	settingsManager.exec();
 
@@ -106,29 +112,35 @@ void MainWindow::doPostMessage(const QString &bouchot, const QString &message)
 	// Bouchot non trouvé ???
 }
 
-void MainWindow::doTriggerHiddenPalmi()
+void MainWindow::doTriggerHiddenPalmi(bool checked)
 {
-	m_palmi->setVisible(! m_palmi->isVisible());
+	m_ui->actionPalmiHidden->setChecked(checked);
+	m_palmi->setHidden(checked);
+
+	QQSettings settings;
+	settings.setValueWithDefault(SETTINGS_PALMI_HIDDEN, checked, DEFAULT_PALMI_HIDDEN);
+
 }
 
 void MainWindow::doTriggerMaxiPalmi()
 {
-	m_ui->actionPalmiExt->setChecked(true);
-	m_ui->actionPalmiMini->setChecked(false);
-
-	QQSettings settings;
-	settings.setValue(SETTINGS_PALMI_MINI, false);
-	m_palmi->setMinimal(false);
+	minimizePalmi(false);
 }
 
 void MainWindow::doTriggerMiniPalmi()
 {
-	m_ui->actionPalmiExt->setChecked(false);
-	m_ui->actionPalmiMini->setChecked(true);
+	minimizePalmi(true);
+}
+
+void MainWindow::minimizePalmi(bool isPalmiMini)
+{
+	m_ui->actionPalmiExt->setChecked(! isPalmiMini);
+	m_ui->actionPalmiMini->setChecked(isPalmiMini);
 
 	QQSettings settings;
-	settings.setValue(SETTINGS_PALMI_MINI, true);
-	m_palmi->setMinimal(true);
+	settings.setValueWithDefault(SETTINGS_PALMI_MINI, isPalmiMini, DEFAULT_PALMI_MINI);
+
+	m_palmi->setMinimal(isPalmiMini);
 }
 
 void MainWindow::palmiVisibilityChanged(bool visible)

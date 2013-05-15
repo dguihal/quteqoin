@@ -69,7 +69,9 @@
 
 // PALMI
 #define SETTINGS_PALMI_MINI "palmi_minimized"
-#define DEFAULT_PALMI_MINI "0"
+#define DEFAULT_PALMI_MINI false
+#define SETTINGS_PALMI_HIDDEN "palmi_hidden"
+#define DEFAULT_PALMI_HIDDEN false
 #define SETTINGS_PALMI_SHORCUTS "palmi_shortcuts"
 #define SETTINGS_PALMI_SHORTCUTS_MIN_KEY Qt::Key_Space
 #define SETTINGS_PALMI_SHORTCUTS_MAX_KEY Qt::Key_AsciiTilde

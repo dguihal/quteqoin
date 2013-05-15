@@ -103,7 +103,7 @@ QWidget *QQKeyboardShortcutItemDelegate::createEditor(QWidget *parent, const QSt
 
 void QQKeyboardShortcutDataItem::setData(int role, const QVariant &value)
 {
-	qDebug() << "QQKeyboardShortcutDataItem::setData : role =" << role << ", value =" << value;
+	//qDebug() << "QQKeyboardShortcutDataItem::setData : role =" << role << ", value =" << value;
 
 	if(role == Qt::EditRole &&
 	   value.canConvert<QString>())

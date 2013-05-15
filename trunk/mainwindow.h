@@ -26,7 +26,7 @@ public:
 public slots:
 	void displayOptions();
 	void doPostMessage(const QString &bouchot, const QString &message);
-	void doTriggerHiddenPalmi();
+	void doTriggerHiddenPalmi(bool checked = false);
 	void doTriggerMaxiPalmi();
 	void doTriggerMiniPalmi();
 	void palmiVisibilityChanged(bool visible);
@@ -43,6 +43,7 @@ protected slots:
 
 private:
 	void initBouchots();
+	void minimizePalmi(bool isPalmiMini);
 
 	Ui::MainWindow *m_ui;
 	QQPalmipede *m_palmi;

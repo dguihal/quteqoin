@@ -19,8 +19,16 @@ public:
 	~QQPalmiSettings();
 
 	void setStaticShortcuts(QList<QPair<QChar, QString> > list);
-	void setUserShortcuts(QList<QPair<QChar, QString> > list);
+
 	QList<QPair<QChar, QString> > getUserShortcuts();
+	void setUserShortcuts(QList<QPair<QChar, QString> > list);
+
+
+	bool isPalmiHidden() const;
+	void setPalmiHidden(const bool &isPalmiHidden);
+
+	bool isPalmiMinimized() const;
+	void setPalmiMinimized(const bool &isPalmiMini);
 
 protected slots:
 

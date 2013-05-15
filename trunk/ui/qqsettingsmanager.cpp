@@ -229,15 +229,48 @@ void QQSettingsManager::initPalmiSettings()
 {
 	QQSettings settings;
 
+	//Palmi shortcuts
 	m_palmiSettingsW->setStaticShortcuts(settings.staticPalmiShorcuts());
 	m_palmiSettingsW->setUserShortcuts(settings.userPalmiShorcuts());
+
+	//Palmi mini/maxi
+	bool isPalmiMini = settings.value(SETTINGS_PALMI_MINI, DEFAULT_PALMI_MINI).toBool();
+	m_palmiSettingsW->setPalmiMinimized(isPalmiMini);
+
+	//Palmi hidden
+	bool isPalmiHidden = settings.value(SETTINGS_PALMI_HIDDEN, DEFAULT_PALMI_HIDDEN).toBool();
+	m_palmiSettingsW->setPalmiHidden(isPalmiHidden);
 }
 
 void QQSettingsManager::savePalmiSettings()
 {
 	QQSettings settings;
 
+	//Palmi shortcuts
 	settings.setUserPalmiShorcuts(m_palmiSettingsW->getUserShortcuts());
+
+	//Palmi mini/maxi
+	bool isPalmiMini = m_palmiSettingsW->isPalmiMinimized();
+	bool oldStatus = settings.value(SETTINGS_PALMI_MINI, DEFAULT_PALMI_MINI).toBool();
+
+	settings.setValueWithDefault(SETTINGS_PALMI_MINI, isPalmiMini, DEFAULT_PALMI_MINI);
+
+	if(isPalmiMini != oldStatus)
+	{
+		if(isPalmiMini == true)
+			emit minimizePalmi();
+		else
+			emit maximizePalmi();
+	}
+
+	//Palmi hidden
+	bool isPalmiHidden = m_palmiSettingsW->isPalmiHidden();
+	bool oldVisibility = settings.value(SETTINGS_PALMI_HIDDEN, DEFAULT_PALMI_HIDDEN).toBool();
+
+	settings.setValueWithDefault(SETTINGS_PALMI_HIDDEN, isPalmiMini, DEFAULT_PALMI_HIDDEN);
+
+	if(isPalmiHidden != oldVisibility)
+		emit hidePalmi(isPalmiHidden);
 }
 
 void QQSettingsManager::initTotozSettings()
