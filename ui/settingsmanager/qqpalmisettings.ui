@@ -33,14 +33,14 @@
      </property>
      <layout class="QVBoxLayout" name="verticalLayout">
       <item>
-       <widget class="QRadioButton" name="radioButton">
+       <widget class="QRadioButton" name="dmExtendedRB">
         <property name="text">
          <string>Extended</string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QRadioButton" name="radioButton_2">
+       <widget class="QRadioButton" name="dmMinimizedRB">
         <property name="text">
          <string>Minimized</string>
         </property>
@@ -54,7 +54,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QCheckBox" name="checkBox">
+       <widget class="QCheckBox" name="dmHiddenCB">
         <property name="text">
          <string>Hidden</string>
         </property>

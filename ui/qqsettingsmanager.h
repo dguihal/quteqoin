@@ -29,6 +29,9 @@ public:
 signals:
 	void bouchotCreated(QQBouchot *);
 	void totozSearchEnabledChanged(bool);
+	void minimizePalmi();
+	void maximizePalmi();
+	void hidePalmi(bool hide = false);
 
 protected slots:
 	virtual void accept();
