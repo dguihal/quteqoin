@@ -658,6 +658,10 @@ void QQPinipede::showTotozViewer(QString & totozId)
 {
 	hideTotozViewer();
 
+	QQSettings settings;
+	if(settings.value(SETTINGS_TOTOZ_VISUAL_MODE, DEFAULT_TOTOZ_VISUAL_MODE).toString() == TOTOZ_VISUAL_MODE_DISABLED)
+		return;
+
 	m_totozViewer->setTotozId(totozId);
 	m_totozViewer->setParent(currentWidget());
 
