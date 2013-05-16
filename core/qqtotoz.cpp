@@ -125,7 +125,11 @@ void QQTotoz::load()
 			break;
 		case QXmlStreamReader::Characters:
 			if(xml.isCDATA())
+#if(QT_VERSION >= QT_VERSION_CHECK(4, 8, 0))
 				m_totozData = QByteArray::fromBase64(xml.text().toAscii());
+#else
+				m_totozData = QByteArray::fromBase64(xml.text().toString().toAscii());
+#endif
 			else
 				qDebug() << "QQTotoz::load unknown Characters :" << xml.text();
 			break;

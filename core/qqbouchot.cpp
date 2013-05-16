@@ -115,8 +115,6 @@ void QQBouchot::setSettings(const QQBouchotSettings &newSettings)
 
 void QQBouchot::startRefresh()
 {
-	qDebug() << QDateTime::currentDateTime().currentMSecsSinceEpoch() << " : "
-			 << "QQBouchot::startRefresh";
 	if(m_bSettings.refresh() <= 0)
 		return;
 
@@ -129,8 +127,6 @@ void QQBouchot::startRefresh()
 
 void QQBouchot::stopRefresh()
 {
-	qDebug() << QDateTime::currentDateTime().currentMSecsSinceEpoch() << " : "
-			 << "QQBouchot::stopRefresh";
 	timer.disconnect();
 	timer.stop();
 }
@@ -205,8 +201,7 @@ void QQBouchot::fetchBackend()
 		url.replace(QString::fromAscii("%i"), lastId);
 	}
 
-	qDebug() << QDateTime::currentDateTime().currentMSecsSinceEpoch() << " : "
-			 << "QQBouchot::fetchBackend url=" << url;
+	qDebug() << "QQBouchot::fetchBackend url=" << url;
 
 	QNetworkRequest request(QUrl::fromUserInput(url));
 	request.setAttribute(QNetworkRequest::User, QQBouchot::BackendRequest);
@@ -246,13 +241,11 @@ void QQBouchot::requestFinishedSlot(QNetworkReply *reply)
 	// Recuperation du Statut HTTP
 	//QVariant statusCodeV = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute);
 
-	qDebug() << QDateTime::currentDateTime().currentMSecsSinceEpoch() << " : "
-			 << "QQBouchot::requestFinishedSlot url=" << reply->url();
+	qDebug() << "QQBouchot::requestFinishedSlot url=" << reply->url();
 
 	if(reply->error() != QNetworkReply::NoError)
 	{
-		qWarning() << QDateTime::currentDateTime().currentMSecsSinceEpoch()
-				   << " : QQBouchot::requestFinishedSlot, error : " << reply->error()
+		qWarning() << "QQBouchot::requestFinishedSlot, error : " << reply->error()
 				   << ", msg : " << reply->errorString();
 		//stopRefresh();
 	}
@@ -305,8 +298,6 @@ void QQBouchot::parsingFinished()
 {
 	if( m_newPostHistory.size() > 0 )
 	{
-		//qDebug() << QDateTime::currentDateTime().currentMSecsSinceEpoch() << " : "
-		//		 << "QQBouchot::parsingFinished, newPostsInserted emis";
 		m_history.append(m_newPostHistory);
 		m_lastId = m_xmlParser->maxId();
 		emit newPostsAvailable(m_bSettings.group());

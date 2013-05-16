@@ -53,7 +53,15 @@ QQTextBrowser::QQTextBrowser(QString groupName, QQPinipede *parent) :
 	int baseWidth = QFontMetrics(docFont).width('a');
 	m_timeUAAreaWidthPx = baseWidth * TIME_UA_AREA_WIDTH_CHAR;
 	int tabPosPx = baseWidth * (TIME_UA_AREA_WIDTH_CHAR + 1); // + margin
+
+#if(QT_VERSION >= QT_VERSION_CHECK(4, 7, 0))
 	QTextOption::Tab tab(tabPosPx, QTextOption::DelimiterTab, '\t');
+#else
+	QTextOption::Tab tab;
+	tab.position  = tabPosPx;
+	tab.type      = QTextOption::DelimiterTab;
+	tab.delimiter =  '\t';
+#endif
 	listTabs << tab;
 
 	opt.setTabs(listTabs);
@@ -264,8 +272,12 @@ void QQTextBrowser::mouseMoveEvent(QMouseEvent * event)
 	if(blockData != NULL)
 	{
 		//Zone message
-		if(blockData->isIndexInZRange(cursor.positionInBlock(),
-									  QQMessageBlockUserData::MESSAGE))
+		#if(QT_VERSION >= QT_VERSION_CHECK(4, 7, 0))
+			int posInBlock =  cursor.positionInBlock();
+		#else
+			int posInBlock =  cursor.position() - cursor.block().position();
+		#endif
+		if(blockData->isIndexInZRange(posInBlock, QQMessageBlockUserData::MESSAGE))
 		{
 			//Est-on au dessus d'une url
 			// Ouverture l'url si on est au dessus d'un lien
@@ -278,22 +290,21 @@ void QQTextBrowser::mouseMoveEvent(QMouseEvent * event)
 				QToolTip::hideText();
 
 			//Est-on au dessus d'une norloge
-			QQNorlogeRef nRef = blockData->norlogeRefForIndex(cursor.positionInBlock());
+			QQNorlogeRef nRef = blockData->norlogeRefForIndex(posInBlock);
 			if(nRef.isValid())
 				highlightNorloge(nRef);
 			else // Il faut unhilighter puisqu'on ne survole pas de norloge
 				unHighlightNorloge();
 
 			//Gestion des Totoz
-			QString totozId = blockData->totozIdForIndex(cursor.positionInBlock());
+			QString totozId = blockData->totozIdForIndex(posInBlock);
 			if(totozId.length() > 0)
 				showTotoz(totozId);
 			else //il faut cacher l'affichage du Totoz puisqu'on n'en survole pas
 				hideTotoz();
 
 		}
-		else if(blockData->isIndexInZRange(cursor.positionInBlock(),
-										   QQMessageBlockUserData::NORLOGE))
+		else if(blockData->isIndexInZRange(posInBlock, QQMessageBlockUserData::NORLOGE))
 		{
 			QToolTip::hideText();
 			QPointer<QQPost> post = blockData->post();
@@ -378,8 +389,13 @@ void QQTextBrowser::mouseReleaseEvent(QMouseEvent * event)
 		Q_ASSERT(post != NULL);
 
 		// Clic sur Norloge
-		if(blockData->isIndexInZRange(cursor.positionInBlock(),
-									  QQMessageBlockUserData::NORLOGE))
+		//Zone message
+		#if(QT_VERSION >= QT_VERSION_CHECK(4, 7, 0))
+			int posInBlock =  cursor.positionInBlock();
+		#else
+			int posInBlock =  cursor.position() - cursor.block().position();
+		#endif
+		if(blockData->isIndexInZRange(posInBlock, QQMessageBlockUserData::NORLOGE))
 		{
 			QQNorloge norloge(post->bouchot()->name(),
 							  post->norloge());
@@ -388,8 +404,7 @@ void QQTextBrowser::mouseReleaseEvent(QMouseEvent * event)
 			emit norlogeClicked(post->bouchot()->name(), norloge);
 		}
 		// Clic sur Login/UA
-		else if(blockData->isIndexInZRange(cursor.positionInBlock(),
-										   QQMessageBlockUserData::LOGINUA))
+		else if(blockData->isIndexInZRange(posInBlock, QQMessageBlockUserData::LOGINUA))
 		{
 			QString login = post->login();
 			if(login.size() == 0)
@@ -402,10 +417,9 @@ void QQTextBrowser::mouseReleaseEvent(QMouseEvent * event)
 				emit loginClicked(post->bouchot()->name(), login);
 		}
 		// Clic sur Norloge dans Message (NorlogeRef)
-		else if(blockData->isIndexInZRange(cursor.positionInBlock(),
-										   QQMessageBlockUserData::MESSAGE))
+		else if(blockData->isIndexInZRange(posInBlock, QQMessageBlockUserData::MESSAGE))
 		{
-			QQNorlogeRef nRef = blockData->norlogeRefForIndex(cursor.positionInBlock());
+			QQNorlogeRef nRef = blockData->norlogeRefForIndex(posInBlock);
 			if(nRef.isValid())
 				emit norlogeRefClicked(post->bouchot()->name(), nRef);
 		}
