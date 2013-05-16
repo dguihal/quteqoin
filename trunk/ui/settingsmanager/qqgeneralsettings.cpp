@@ -51,7 +51,7 @@ void QQGeneralSettings::fontChanged(const QFont &font)
 {
 	QFontDatabase fDB;
 
-	QList<int> listSizes = fDB.pointSizes(font.family(), font.styleName());
+	QList<int> listSizes = fDB.pointSizes(font.family(), fDB.styleString(font));
 
 	int fontSize = m_defaultFont.pointSize();
 	if(! listSizes.contains(fontSize))

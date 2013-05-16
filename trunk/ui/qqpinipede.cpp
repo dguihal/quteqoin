@@ -251,9 +251,17 @@ void QQPinipede::printPostAtCursor(QTextCursor & cursor, QQPost * post)
 	QString txt = post->norlogeFormatee();
 
 	QQMessageBlockUserData::ZoneRange rangeNorloge;
+#if(QT_VERSION >= QT_VERSION_CHECK(4, 7, 0))
 	rangeNorloge.begin = cursor.positionInBlock();
+#else
+	rangeNorloge.begin = cursor.position() - cursor.block().position();
+#endif
 	cursor.insertText(txt, norlogeFormat);
+#if(QT_VERSION >= QT_VERSION_CHECK(4, 7, 0))
 	rangeNorloge.end = cursor.positionInBlock();
+#else
+	rangeNorloge.end = cursor.position() - cursor.block().position();
+#endif
 	data->setZRange(QQMessageBlockUserData::NORLOGE, rangeNorloge);
 
 	QFontMetrics fm = QFontMetrics(norlogeFormat.font());
@@ -272,7 +280,11 @@ void QQPinipede::printPostAtCursor(QTextCursor & cursor, QQPost * post)
 	loginUaFormat.setToolTip(post->UA());
 
 	QQMessageBlockUserData::ZoneRange rangeLoginUA;
+#if(QT_VERSION >= QT_VERSION_CHECK(4, 7, 0))
 	rangeLoginUA.begin = cursor.positionInBlock();
+#else
+	rangeLoginUA.begin = cursor.position() - cursor.block().position();
+#endif
 	if(post->login().size() != 0)
 	{
 		loginUaFormat.setForeground(QColor("#553333"));
@@ -301,17 +313,29 @@ void QQPinipede::printPostAtCursor(QTextCursor & cursor, QQPost * post)
 
 	cursor.insertText(txt, loginUaFormat);
 
+#if(QT_VERSION >= QT_VERSION_CHECK(4, 7, 0))
 	rangeLoginUA.end = cursor.positionInBlock();
+#else
+	rangeLoginUA.end = cursor.position() - cursor.block().position();
+#endif
 
 	data->setZRange(QQMessageBlockUserData::LOGINUA, rangeLoginUA);
 
 	//message
 
 	QQMessageBlockUserData::ZoneRange rangeMsg;
+#if(QT_VERSION >= QT_VERSION_CHECK(4, 7, 0))
 	rangeMsg.begin = cursor.positionInBlock();
+#else
+	rangeMsg.begin = cursor.position() - cursor.block().position();
+#endif
 	cursor.setCharFormat(defaultFormat);
 	cursor.insertHtml(post->message());
+#if(QT_VERSION >= QT_VERSION_CHECK(4, 7, 0))
 	rangeMsg.end = cursor.positionInBlock();
+#else
+	rangeMsg.end = cursor.position() - cursor.block().position();
+#endif
 	data->setZRange(QQMessageBlockUserData::MESSAGE, rangeMsg);
 	block.setUserData(data);
 
@@ -321,8 +345,7 @@ void QQPinipede::printPostAtCursor(QTextCursor & cursor, QQPost * post)
 
 void QQPinipede::newPostsAvailable(QString groupName)
 {
-	qDebug() << QDateTime::currentDateTime().currentMSecsSinceEpoch() << " : "
-			 << "QQPinipede::newPostsAvailable from : " << groupName;
+	qDebug() << "QQPinipede::newPostsAvailable from : " << groupName;
 
 	//On est obligé de locker pour éviter la pagaille dans le pini.
 	// un locking plus fin pourrait être obtenu en implémentant un lock par groupe
@@ -462,17 +485,10 @@ void QQPinipede::newPostsAcknowledged(QString groupName)
 
 unsigned int QQPinipede::insertPostToList(QList<QQPost *> *listPosts, QQPost *post, unsigned int indexStart)
 {
-	// qDebug() << QDateTime::currentDateTime().currentMSecsSinceEpoch() << " : "
-	//		 << "QQPinipede::insertPostToList, indexStart=" << indexStart;
 	for(int i = indexStart; i < listPosts->size(); i++)
 	{
-		// qDebug() << QDateTime::currentDateTime().currentMSecsSinceEpoch() << " : "
-		//		 << "QQPinipede::insertPostToList, listPosts->at(i)->norloge()=" << listPosts->at(i)->norloge()
-		//		 << ", post->norloge()=" << post->norloge();
 		if(listPosts->at(i)->norloge().toLongLong() > post->norloge().toLongLong())
 		{
-			// qDebug() << QDateTime::currentDateTime().currentMSecsSinceEpoch() << " : "
-			//		 << "QQPinipede::insertPostToList, listPosts->insert i=" << i;
 			listPosts->insert(i, post);
 			return i;
 		}
