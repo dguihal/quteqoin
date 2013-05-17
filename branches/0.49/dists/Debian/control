@@ -1,0 +1,15 @@
+Source: quteqoin
+Section: web
+Priority: extra
+Maintainer: Xavier Claude <claude.xavier@gmail.com>
+Build-Depends: debhelper (>= 8.0.0), cdbs, libqt4-dev
+Standards-Version: 3.9.3
+Homepage: http://code.google.com/p/quteqoin/
+#Vcs-Git: git://git.debian.org/collab-maint/quteqoin.git
+#Vcs-Browser: http://git.debian.org/?p=collab-maint/quteqoin.git;a=summary
+
+Package: quteqoin
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: <insert up to 60 chars description>
+ <insert long description, indented with spaces>
