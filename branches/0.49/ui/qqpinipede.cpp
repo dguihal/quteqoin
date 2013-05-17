@@ -361,8 +361,10 @@ void QQPinipede::newPostsAvailable(QString groupName)
 
 	// Au cas ou on serait deja passe avant (cas du signal multiple)
 	if(newPosts.size() == 0)
+	{
+		newPostsAvailableMutex.unlock();
 		return;
-
+	}
 	QQSettings settings;
 	int maxHistorySize = settings.value(SETTINGS_GENERAL_MAX_HISTLEN, DEFAULT_GENERAL_MAX_HISTLEN).toInt();
 	//Il ne sert a rien d'insérer plus que de posts que le max de l'historique
