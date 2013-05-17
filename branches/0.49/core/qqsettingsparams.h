@@ -14,7 +14,7 @@
 #define DEFAULT_GENERAL_MAX_HISTLEN 500
 
 #define SETTINGS_GENERAL_DEFAULT_UA "default_ua"
-#define DEFAULT_GENERAL_DEFAULT_UA "quteqoin crash edition"
+#define DEFAULT_GENERAL_DEFAULT_UA "quteqoin/0.49"
 
 #define SETTINGS_GENERAL_DEFAULT_LOGIN "default_login"
 #define DEFAULT_GENERAL_DEFAULT_LOGIN ""
