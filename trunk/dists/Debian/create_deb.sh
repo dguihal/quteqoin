@@ -30,5 +30,6 @@ cd ${src_base_dir}
 dpkg-buildpackage -us -uc
 
 #4/echo result
+rm -rf debian
 cd ..
 echo "Your package is available in ${PWD}"
