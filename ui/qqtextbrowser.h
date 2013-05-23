@@ -11,6 +11,7 @@
 
 class QQMessageBlockUserData;
 class QNetworkReply;
+class QQPiniUrlHelper;
 
 class QQTextBrowser : public QTextBrowser
 {
@@ -29,7 +30,6 @@ public:
 
 public slots:
 	void updateNotifArea(int);
-	void replyFinished(QNetworkReply *reply);
 
 signals:
 	void norlogeClicked(QString srcBouchot, QQNorloge norloge);
@@ -54,6 +54,7 @@ protected:
 
 protected slots:
 	void webSearchActiontriggered();
+	void handleContentTypeAvailable(QUrl &url,QString &contentType);
 
 private:
 	void hideTotoz();
@@ -74,6 +75,8 @@ private:
 		QQTextBrowser *m_qqtb;
 	};
 	QWidget *m_notifArea;
+
+	QQPiniUrlHelper *m_urlHelper;
 
 	bool m_mouseClick;
 	QPoint m_lastPoint;

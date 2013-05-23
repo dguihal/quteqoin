@@ -1,6 +1,7 @@
 #include "qqtextbrowser.h"
 
 #include "core/qqbouchot.h"
+#include "core/qqpiniurlhelper.h"
 #include "core/qqpost.h"
 #include "core/qqsettings.h"
 #include "ui/qqmessageblockuserdata.h"
@@ -38,6 +39,8 @@ QQTextBrowser::QQTextBrowser(QString groupName, QQPinipede *parent) :
 	m_groupName = groupName;
 	m_highlighted = false;
 	m_mouseClick = false;
+	m_urlHelper = new QQPiniUrlHelper(this);
+	connect(m_urlHelper, SIGNAL(contentTypeAvailable(QUrl&,QString&)), this, SLOT(handleContentTypeAvailable(QUrl&,QString&)));
 
 	QTextDocument * doc = document();
 	doc->setUndoRedoEnabled(false);
@@ -189,21 +192,6 @@ void QQTextBrowser::updateNotifArea(int)
 	m_notifArea->update();
 }
 
-void QQTextBrowser::replyFinished(QNetworkReply *reply)
-{
-	QFontMetrics fm(QToolTip::font());
-	QCursor cursor;
-	QString text = fm.elidedText(reply->url().toString(), Qt::ElideMiddle, 500);
-	if(reply->error() == QNetworkReply::NoError)
-		text.append(" (").append(reply->header(QNetworkRequest::ContentTypeHeader).toString()).append(")");
-	else
-	{
-		qDebug() << reply->errorString();
-		text.append(tr(" (Unknown)"));
-	}
-	QToolTip::showText(cursor.pos(), text, this);
-}
-
 void QQTextBrowser::highlightNorloge(QQNorlogeRef nRef)
 {
 	if(m_highlighted)
@@ -223,6 +211,27 @@ void QQTextBrowser::showTotoz(QString & totozId)
 	{
 		m_displayedTotozId = totozId;
 		emit displayTotoz(totozId);
+	}
+}
+
+void QQTextBrowser::handleContentTypeAvailable(QUrl &url, QString &contentType)
+{
+	if(QToolTip::isVisible())
+	{
+		QString ttText = QToolTip::text();
+		QString compUrl;
+
+		int indexElide = ttText.indexOf(QString::fromUtf8("\u2026")); //…
+		if(indexElide >= 0)
+			compUrl = ttText.left(indexElide);
+		else
+			compUrl = ttText;
+
+		if(url.toString().startsWith(compUrl))
+		{
+			ttText.append(" (").append(contentType).append(")");
+			QToolTip::showText(QCursor::pos(), ttText, this);
+		}
 	}
 }
 
@@ -298,10 +307,13 @@ void QQTextBrowser::mouseMoveEvent(QMouseEvent * event)
 			// Ouverture l'url si on est au dessus d'un lien
 			if(httpAnchor.length() > 0)
 			{
-				QNetworkAccessManager *manager = new QNetworkAccessManager(this);
-				connect(manager, SIGNAL(finished(QNetworkReply*)),
-						this, SLOT(replyFinished(QNetworkReply*)));
-				manager->head(QNetworkRequest(QUrl(httpAnchor)));
+				if(! QToolTip::isVisible())
+				{
+					QFontMetrics fm(QToolTip::font());
+					QToolTip::showText(event->globalPos(), fm.elidedText(httpAnchor, Qt::ElideMiddle, 500), this);
+
+					m_urlHelper->getContentType(QUrl(httpAnchor));
+				}
 			}
 			else
 				QToolTip::hideText();

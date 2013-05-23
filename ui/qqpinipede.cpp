@@ -357,11 +357,19 @@ void QQPinipede::newPostsAvailable(QString groupName)
 	QList<QQBouchot *> listBouchots = QQBouchot::listBouchotsGroup(groupName);
 	QListIterator<QQBouchot *> i(listBouchots);
 	while(i.hasNext())
-		newPosts.append(i.next()->takeNewPosts());
+	{
+		QQBouchot *b = i.next();
+		QList<QQPost *> newBouchotPosts = b->takeNewPosts();
+		if(newBouchotPosts.size() > 0)
+			newPosts.append(newBouchotPosts);
+	}
 
 	// Au cas ou on serait deja passe avant (cas du signal multiple)
 	if(newPosts.size() == 0)
+	{
+		newPostsAvailableMutex.unlock();
 		return;
+	}
 
 	QQSettings settings;
 	int maxHistorySize = settings.value(SETTINGS_GENERAL_MAX_HISTLEN, DEFAULT_GENERAL_MAX_HISTLEN).toInt();
