@@ -11,6 +11,7 @@
 #include <QFontMetrics>
 #include <QMenu>
 #include <QMouseEvent>
+#include <QNetworkReply>
 #include <QPainter>
 #include <QScrollBar>
 #include <QTextBlock>
@@ -183,10 +184,24 @@ void QQTextBrowser::notifAreaPaintEvent(QPaintEvent * event)
 	}
 }
 
-
 void QQTextBrowser::updateNotifArea(int)
 {
 	m_notifArea->update();
+}
+
+void QQTextBrowser::replyFinished(QNetworkReply *reply)
+{
+	QFontMetrics fm(QToolTip::font());
+	QCursor cursor;
+	QString text = fm.elidedText(reply->url().toString(), Qt::ElideMiddle, 500);
+	if(reply->error() == QNetworkReply::NoError)
+		text.append(" (").append(reply->header(QNetworkRequest::ContentTypeHeader).toString()).append(")");
+	else
+	{
+		qDebug() << reply->errorString();
+		text.append(tr(" (Unknown)"));
+	}
+	QToolTip::showText(cursor.pos(), text, this);
 }
 
 void QQTextBrowser::highlightNorloge(QQNorlogeRef nRef)
@@ -283,8 +298,10 @@ void QQTextBrowser::mouseMoveEvent(QMouseEvent * event)
 			// Ouverture l'url si on est au dessus d'un lien
 			if(httpAnchor.length() > 0)
 			{
-				QFontMetrics fm(QToolTip::font());
-				QToolTip::showText(event->globalPos(), fm.elidedText(httpAnchor, Qt::ElideRight, 400), this);
+				QNetworkAccessManager *manager = new QNetworkAccessManager(this);
+				connect(manager, SIGNAL(finished(QNetworkReply*)),
+						this, SLOT(replyFinished(QNetworkReply*)));
+				manager->head(QNetworkRequest(QUrl(httpAnchor)));
 			}
 			else
 				QToolTip::hideText();

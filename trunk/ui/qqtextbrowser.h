@@ -10,6 +10,7 @@
 #include <QPoint>
 
 class QQMessageBlockUserData;
+class QNetworkReply;
 
 class QQTextBrowser : public QTextBrowser
 {
@@ -28,6 +29,7 @@ public:
 
 public slots:
 	void updateNotifArea(int);
+	void replyFinished(QNetworkReply *reply);
 
 signals:
 	void norlogeClicked(QString srcBouchot, QQNorloge norloge);
