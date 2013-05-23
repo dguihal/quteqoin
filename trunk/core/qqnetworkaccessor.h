@@ -27,6 +27,7 @@ protected slots:
 
 protected:
 	QNetworkReply * httpGet(const QNetworkRequest & request);
+	QNetworkReply * httpHead(const QNetworkRequest & request);
 	QNetworkReply * httpPost(const QNetworkRequest & request,
 													 const QByteArray & postData);
 

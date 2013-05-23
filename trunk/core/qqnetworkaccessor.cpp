@@ -1,9 +1,9 @@
 #include "qqnetworkaccessor.h"
 #include "ui/qqproxyauthdialog.h"
 
+#include <QtDebug>
 #include <QApplication>
 #include <QAuthenticator>
-#include <QDebug>
 #include <QNetworkProxyFactory>
 
 QQNetworkAccessor::QQNetworkAccessor(QObject * parent) :
@@ -155,6 +155,11 @@ void QQNetworkAccessor::proxyAuthenticationRequired(const QNetworkProxy & proxy,
 QNetworkReply * QQNetworkAccessor::httpGet(const QNetworkRequest & request)
 {
 	return m_qnam->get(request);
+}
+
+QNetworkReply * QQNetworkAccessor::httpHead(const QNetworkRequest & request)
+{
+	return m_qnam->head(request);
 }
 
 QNetworkReply * QQNetworkAccessor::httpPost(const QNetworkRequest & request, const QByteArray &postData)
