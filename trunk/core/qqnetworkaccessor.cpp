@@ -3,6 +3,7 @@
 
 #include <QApplication>
 #include <QAuthenticator>
+#include <QDebug>
 #include <QNetworkProxyFactory>
 
 QQNetworkAccessor::QQNetworkAccessor(QObject * parent) :

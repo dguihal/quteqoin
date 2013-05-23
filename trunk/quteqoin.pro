@@ -9,9 +9,6 @@ QT += core gui network xml
 TARGET = quteqoin
 TEMPLATE = app
 
-#Pour activer stdout sur la console windows
-#CONFIG += console
-
 SOURCES += main.cpp\
 	mainwindow.cpp \
 	core/qqsettings.cpp \
@@ -96,9 +93,17 @@ RESOURCES += \
     rc/quteqoin_img.qrc \
     rc/quteqoin_defs.qrc
 
+QMAKE_CXXFLAGS_RELEASE += -DQT_NO_DEBUG_OUTPUT
+
 unix {
-FILESTOCOPY = quteqoin
-INSTRULE.path = $$PREFIX/bin
-INSTRULE.files = $$FILESTOCOPY
-INSTALLS += INSTRULE
+	FILESTOCOPY = quteqoin
+	INSTRULE.path = $$PREFIX/bin
+	INSTRULE.files = $$FILESTOCOPY
+	INSTALLS += INSTRULE
 }
+
+win32:debug {
+	CONFIG += console
+}
+
+
