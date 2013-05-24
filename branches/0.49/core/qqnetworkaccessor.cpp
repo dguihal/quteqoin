@@ -1,6 +1,7 @@
 #include "qqnetworkaccessor.h"
 #include "ui/qqproxyauthdialog.h"
 
+#include <QtDebug>
 #include <QApplication>
 #include <QAuthenticator>
 #include <QNetworkProxyFactory>
