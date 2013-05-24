@@ -157,11 +157,6 @@ QNetworkReply * QQNetworkAccessor::httpGet(const QNetworkRequest & request)
 	return m_qnam->get(request);
 }
 
-QNetworkReply * QQNetworkAccessor::httpHead(const QNetworkRequest & request)
-{
-	return m_qnam->head(request);
-}
-
 QNetworkReply * QQNetworkAccessor::httpPost(const QNetworkRequest & request, const QByteArray &postData)
 {
 	return m_qnam->post(request, postData);

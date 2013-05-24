@@ -1,7 +1,6 @@
 #include "qqtextbrowser.h"
 
 #include "core/qqbouchot.h"
-#include "core/qqpiniurlhelper.h"
 #include "core/qqpost.h"
 #include "core/qqsettings.h"
 #include "ui/qqmessageblockuserdata.h"
@@ -12,7 +11,6 @@
 #include <QFontMetrics>
 #include <QMenu>
 #include <QMouseEvent>
-#include <QNetworkReply>
 #include <QPainter>
 #include <QScrollBar>
 #include <QTextBlock>
@@ -39,8 +37,6 @@ QQTextBrowser::QQTextBrowser(QString groupName, QQPinipede *parent) :
 	m_groupName = groupName;
 	m_highlighted = false;
 	m_mouseClick = false;
-	m_urlHelper = new QQPiniUrlHelper(this);
-	connect(m_urlHelper, SIGNAL(contentTypeAvailable(QUrl&,QString&)), this, SLOT(handleContentTypeAvailable(QUrl&,QString&)));
 
 	QTextDocument * doc = document();
 	doc->setUndoRedoEnabled(false);
@@ -187,6 +183,7 @@ void QQTextBrowser::notifAreaPaintEvent(QPaintEvent * event)
 	}
 }
 
+
 void QQTextBrowser::updateNotifArea(int)
 {
 	m_notifArea->update();
@@ -211,27 +208,6 @@ void QQTextBrowser::showTotoz(QString & totozId)
 	{
 		m_displayedTotozId = totozId;
 		emit displayTotoz(totozId);
-	}
-}
-
-void QQTextBrowser::handleContentTypeAvailable(QUrl &url, QString &contentType)
-{
-	if(QToolTip::isVisible())
-	{
-		QString ttText = QToolTip::text();
-		QString compUrl;
-
-		int indexElide = ttText.indexOf(QString::fromUtf8("\u2026")); //…
-		if(indexElide >= 0)
-			compUrl = ttText.left(indexElide);
-		else
-			compUrl = ttText;
-
-		if(url.toString().startsWith(compUrl))
-		{
-			ttText.append(" (").append(contentType).append(")");
-			QToolTip::showText(QCursor::pos(), ttText, this);
-		}
 	}
 }
 
@@ -307,13 +283,8 @@ void QQTextBrowser::mouseMoveEvent(QMouseEvent * event)
 			// Ouverture l'url si on est au dessus d'un lien
 			if(httpAnchor.length() > 0)
 			{
-				if(! QToolTip::isVisible())
-				{
-					QFontMetrics fm(QToolTip::font());
-					QToolTip::showText(event->globalPos(), fm.elidedText(httpAnchor, Qt::ElideMiddle, 500), this);
-
-					m_urlHelper->getContentType(QUrl(httpAnchor));
-				}
+				QFontMetrics fm(QToolTip::font());
+				QToolTip::showText(event->globalPos(), fm.elidedText(httpAnchor, Qt::ElideRight, 400), this);
 			}
 			else
 				QToolTip::hideText();

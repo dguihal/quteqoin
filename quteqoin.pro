@@ -40,8 +40,7 @@ SOURCES += main.cpp\
 	ui/settingsmanager/qqpalmisettings.cpp \
 	ui/settingsmanager/qqboardssettings.cpp \
 	ui/settingsmanager/qqbouchotsettingsdialog.cpp \
-	ui/settingsmanager/qqpalmisettingstablewidget.cpp \
-	core/qqpiniurlhelper.cpp
+	ui/settingsmanager/qqpalmisettingstablewidget.cpp
 
 HEADERS  += mainwindow.h \
 	core/qqsettings.h \
@@ -74,8 +73,7 @@ HEADERS  += mainwindow.h \
 	ui/settingsmanager/qqpalmisettings.h \
 	ui/settingsmanager/qqtotozsettings.h \
 	ui/settingsmanager/qqbouchotsettingsdialog.h \
-	ui/settingsmanager/qqpalmisettingstablewidget.h \
-	core/qqpiniurlhelper.h
+	ui/settingsmanager/qqpalmisettingstablewidget.h
 
 FORMS    += mainwindow.ui \
 	ui/qqpalmipede.ui \
