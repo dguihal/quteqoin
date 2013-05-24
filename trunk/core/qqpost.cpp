@@ -13,38 +13,39 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301, USA.
  */
-#include "qqpost.h"
-#include "qqbouchot.h"
+
+#include "core/qqbouchot.h"
+#include "core/qqpost.h"
+#include "core/qqsettings.h"
 
 #include <QtDebug>
+
 //
 QQPost::QQPost(QQBouchot * parent)
 	: QObject(parent)
 {
-	this->m_login = QString();
-	this->m_norloge = QString();
-	this->m_id = QString();
-	this->m_ua = QString();
-	this->m_message = QString();
-	this->m_norlogeIndex = 1;
-	this->m_isNorlogeMultiple = false;
+	reset();
 }
+
 //
 QQPost::QQPost( const QQPost& post )
 	: QObject( )
 {
-	this->m_login = post.m_login;
-	this->m_norloge = post.m_norloge;
-	this->m_id = post.m_id;
-	this->m_ua = post.m_ua;
-	this->m_message = post.m_message;
-	this->m_norlogeIndex = post.m_norlogeIndex;
-	this->m_isNorlogeMultiple = post.m_isNorlogeMultiple;;
+	m_login = post.m_login;
+	m_norloge = post.m_norloge;
+	m_id = post.m_id;
+	m_ua = post.m_ua;
+	m_message = post.m_message;
+	m_norlogeIndex = post.m_norlogeIndex;
+	m_isNorlogeMultiple = post.m_isNorlogeMultiple;
+	m_isSelfPost = post.m_isSelfPost;
 }
+
 //
 QQPost::~QQPost()
 {
 }
+
 //
 QString QQPost::toText()
 {
@@ -58,14 +59,43 @@ QString QQPost::toText()
 
 bool QQPost::isSelfPost()
 {
-	QQBouchot::QQBouchotSettings bouchotSettings = bouchot()->settings();
-
-	if(bouchotSettings.login().size() != 0 && QString::compare(bouchotSettings.login(), m_login, Qt::CaseSensitive) == 0)
+	if(m_isSelfPost == True)
 		return true;
+	else if(m_isSelfPost == False)
+		return false;
+	else // Unknown
+	{
+		QQBouchot::QQBouchotSettings bouchotSettings = bouchot()->settings();
+		QQSettings settings;
 
-	if(bouchotSettings.ua().size() != 0 && QString::compare(bouchotSettings.ua(), m_ua, Qt::CaseSensitive) == 0)
-		return true;
+		if(m_login.size() > 0)
+		{
+			QString login = bouchotSettings.login();
+			if(login.size() == 0)
+				login = settings.value(SETTINGS_GENERAL_DEFAULT_LOGIN, SETTINGS_GENERAL_DEFAULT_LOGIN).toString();
 
+			if(m_login.compare(login, Qt::CaseSensitive) == 0)
+			{
+				m_isSelfPost = True;
+				return true;
+			}
+		}
+		else if(m_ua.size() > 0)
+		{
+			QString ua = bouchotSettings.ua();
+			if(ua.size() == 0)
+				ua = settings.value(SETTINGS_GENERAL_DEFAULT_UA, SETTINGS_GENERAL_DEFAULT_UA).toString();
+
+			if(m_ua.compare(ua, Qt::CaseSensitive) == 0)
+			{
+				m_isSelfPost = True;
+				return true;
+			}
+		}
+
+		if(m_isSelfPost == Unknown)
+			m_isSelfPost = False;
+	}
 	return false;
 }
 
@@ -95,22 +125,22 @@ QString QQPost::norlogeFormatee()
 //
 bool QQPost::equal(QQPost &b)
 {
-	return (b.m_id == this->m_id); // comparaison bouchots
+	return (b.m_id == m_id); // comparaison bouchots
 }
 
 //
 bool QQPost::operator== (QQPost &b)
 {
-	return this->equal(b);
+	return equal(b);
 }
 
 //
 bool QQPost::operator< (QQPost &b)
 {
-	if(this->bouchot()->name() == b.bouchot()->name())
-		return this->m_id.toInt() < b.m_id.toInt();
+	if(bouchot()->name() == b.bouchot()->name())
+		return m_id.toInt() < b.m_id.toInt();
 	else
-		return this->m_norloge < b.m_norloge;
+		return m_norloge < b.m_norloge;
 }
 
 void QQPost::reset()
@@ -120,6 +150,9 @@ void QQPost::reset()
 	m_ua.clear();
 	m_message.clear();
 	m_id.clear();
+	m_norlogeIndex = 1;
+	m_isNorlogeMultiple = false;
+	m_isSelfPost = Unknown;
 }
 
 bool postComp(QQPost *left, QQPost *right)
