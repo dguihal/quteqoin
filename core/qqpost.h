@@ -82,8 +82,11 @@ public:
 	void reset();
 
 private:
+	enum IsSelfPost { False = 0, True = 1, Unknown = 2 };
+
 	QString m_norloge;
 	bool m_isNorlogeMultiple;
+	IsSelfPost m_isSelfPost;
 	int m_norlogeIndex;
 	QString m_login;
 	QString m_ua;
