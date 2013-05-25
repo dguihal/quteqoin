@@ -8,6 +8,8 @@
 #include <QObject>
 #include <QPointer>
 
+class QAbstractNetworkCache;
+
 class QQNetworkAccessor : public QObject
 {
 	Q_OBJECT
@@ -30,12 +32,12 @@ protected:
 	QNetworkReply * httpHead(const QNetworkRequest & request);
 	QNetworkReply * httpPost(const QNetworkRequest & request,
 													 const QByteArray & postData);
+	void setNetCacheManager(QAbstractNetworkCache *networkCache) { m_qnam->setCache(networkCache); }
 
 private:
 	QNetworkAccessManager * createQNAM();
 
 	QPointer<QNetworkAccessManager> m_qnam;
-
 	// Gestion du proxy
 	static QMutex m_proxyPopupMutex;
 	static QString m_proxyUser;
