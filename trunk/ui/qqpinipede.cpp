@@ -330,7 +330,19 @@ void QQPinipede::printPostAtCursor(QTextCursor & cursor, QQPost * post)
 	rangeMsg.begin = cursor.position() - cursor.block().position();
 #endif
 	cursor.setCharFormat(defaultFormat);
-	cursor.insertHtml(post->message());
+
+	QRegExp reg("(<a [^>]*href=\"https?://"
+		"(?:(?:[\\w-\\.])+\\.)*"
+		"([\\w-]+)\\."
+		"\\w+"
+		"[^\"]*\"[^>]*>)"
+		"[^<]*"
+		"(</a>)",
+			Qt::CaseInsensitive,
+			QRegExp::RegExp2);
+	QString message = post->message();
+	message.replace(reg, "\\1[\\2]\\3");
+	cursor.insertHtml(message);
 #if(QT_VERSION >= QT_VERSION_CHECK(4, 7, 0))
 	rangeMsg.end = cursor.positionInBlock();
 #else
