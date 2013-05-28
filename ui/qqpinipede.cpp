@@ -333,10 +333,10 @@ void QQPinipede::printPostAtCursor(QTextCursor & cursor, QQPost * post)
 
 	QRegExp reg("(<a [^>]*href=\"https?://"
 		"(?:(?:[\\w-\\.])+\\.)*"
-		"([\\w-]+)\\."
-		"\\w+"
+		"([\\w-]{3,})\\."
+		"(?:[\\.\\w-]+)"
 		"[^\"]*\"[^>]*>)"
-		"[^<]*"
+		"\\[url\\]"
 		"(</a>)",
 			Qt::CaseInsensitive,
 			QRegExp::RegExp2);
