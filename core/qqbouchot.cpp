@@ -29,7 +29,7 @@ typedef struct bouchotDef
 
 //Définition des bouchots préconfigurés
 // tiré d'olcc by Chrisix
-int bouchotsDefSize = 7;
+int bouchotsDefSize = 10;
 bouchotDefStruct bouchotsDef[] =
 {
 	{ "dlfp", "http://linuxfr.org/board/index.xml", "http://linuxfr.org/board", "board[message]=%m",
@@ -45,7 +45,13 @@ bouchotDefStruct bouchotsDef[] =
 	{ "moules", "http://moules.org/board/backend", "http://moules.org/board/add", "message=%m",
 	  "#ffe3c9", "", "", QQBouchot::SlipTagsEncoded },
 	{ "hadoken", "http://hadoken.free.fr/board/remote.php", "http://hadoken.free.fr/board/post.php", "message=%m",
-	  "#77aadd", "axel,waf", "", QQBouchot::SlipTagsEncoded }
+	  "#77aadd", "axel,waf", "", QQBouchot::SlipTagsEncoded },
+	{ "gabuzomeu", "http://gabuzomeu.fr/tribune.xml", "http://gabuzomeu.fr/tribune/post", "message=%m",
+	  "#aaffbb", "", "", QQBouchot::SlipTagsRaw },
+	{ "see", "http://tout.essaye.sauf.ca/tribune.xml", "http://tout.essaye.sauf.ca/tribune/post", "message=%m",
+	  "#ffd0d0", "schee,seeschloss", "", QQBouchot::SlipTagsRaw },
+	{ "devnewton", "http://devnewton.bci.im/fr/chat/xml", "http://devnewton.bci.im/fr/chat/post", "message=%m",
+	  "#666666", "", "", QQBouchot::SlipTagsRaw }
 }
 ;
 
