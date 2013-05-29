@@ -67,9 +67,9 @@ QQBouchot::QQBouchot(const QString &name, QObject *parent) :
 
 QQBouchot::~QQBouchot()
 {
+	QQBouchot::s_hashBouchots.remove(m_name);
 	emit destroyed(this);
 	delete m_xmlParser;
-	QQBouchot::s_hashBouchots.remove(m_name);
 }
 
 void QQBouchot::postMessage(const QString &message)
