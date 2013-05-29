@@ -29,7 +29,7 @@ typedef struct bouchotDef
 
 //Définition des bouchots préconfigurés
 // tiré d'olcc by Chrisix
-int bouchotsDefSize = 6;
+int bouchotsDefSize = 7;
 bouchotDefStruct bouchotsDef[] =
 {
 	{ "dlfp", "http://linuxfr.org/board/index.xml", "http://linuxfr.org/board", "board[message]=%m",
@@ -43,7 +43,9 @@ bouchotDefStruct bouchotsDef[] =
 	{ "shoop", "http://dax.sveetch.net/tribune/remote.xml?last=%i", "http://dax.sveetch.net/tribune/post.xml", "content=%m",
 	  "#ededdb", "sveetch,dax", "shoop_sessionid=", QQBouchot::SlipTagsEncoded },
 	{ "moules", "http://moules.org/board/backend", "http://moules.org/board/add", "message=%m",
-	  "#ffe3c9", "", "", QQBouchot::SlipTagsEncoded }
+	  "#ffe3c9", "", "", QQBouchot::SlipTagsEncoded },
+	{ "hadoken", "http://hadoken.free.fr/board/remote.php", "http://hadoken.free.fr/board/post.php", "message=%m",
+	  "#77aadd", "axel,waf", "", QQBouchot::SlipTagsEncoded }
 }
 ;
 
