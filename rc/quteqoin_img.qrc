@@ -11,5 +11,6 @@
         <file>board-icon.png</file>
         <file>general-icon.png</file>
         <file>palmipede-icon.png</file>
+        <file>filter-icon.png</file>
     </qresource>
 </RCC>

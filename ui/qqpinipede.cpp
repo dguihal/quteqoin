@@ -46,7 +46,9 @@ QQPinipede::QQPinipede(QWidget * parent) :
 	m_hiddenPostViewerLabel->setScaledContents(true);
 	m_hiddenPostViewerLabel->hide();
 
-	m_listMessageTransformFilters.append(new QQPiniUrlHelper(this));
+	QQSettings settings;
+	if(settings.value(SETTINGS_FILTER_SMART_URL_TRANSFORMER, DEFAULT_FILTER_SMART_URL_TRANSFORMER).toBool())
+		m_listMessageTransformFilters.append(new QQPiniUrlHelper(this));
 
 	m_totozViewer = new QQTotozViewer("", this);
 	m_totozViewer->hide();

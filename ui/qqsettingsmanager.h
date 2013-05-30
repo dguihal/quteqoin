@@ -8,6 +8,7 @@
 #include <QString>
 
 class QQBoardsSettings;
+class QQFilterSettings;
 class QQGeneralSettings;
 class QQPalmiSettings;
 class QQTotozSettings;
@@ -40,6 +41,8 @@ protected slots:
 private:
 	void initBoardsSettings();
 	void saveBoardsSettings();
+	void initFilterSettings();
+	void saveFilterSettings();
 	void initGeneralSettings();
 	void saveGeneralSettings();
 	void initPalmiSettings();
@@ -50,6 +53,7 @@ private:
 	Ui::QQSettingsManager *ui;
 
 	QQBoardsSettings *m_boardsSettingsW;
+	QQFilterSettings *m_filterSettingsW;
 	QQGeneralSettings *m_generalSettingsW;
 	QQPalmiSettings *m_palmiSettingsW;
 	QQTotozSettings *m_totozSettingsW;

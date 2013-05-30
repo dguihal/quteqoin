@@ -54,7 +54,7 @@ protected:
 
 protected slots:
 	void webSearchActiontriggered();
-	void handleContentTypeAvailable(QUrl &url,QString &contentType);
+	void handleContentTypeAvailable(QUrl &url, QString &contentType);
 
 private:
 	void hideTotoz();
