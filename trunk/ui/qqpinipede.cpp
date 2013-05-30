@@ -2,6 +2,7 @@
 
 #include "mainwindow.h"
 #include "core/qqbouchot.h"
+#include "core/qqpiniurlhelper.h"
 #include "core/qqpurgebouchothistoevent.h"
 #include "core/qqtotozdownloader.h"
 #include "ui/qqmessageblockuserdata.h"
@@ -45,6 +46,8 @@ QQPinipede::QQPinipede(QWidget * parent) :
 	m_hiddenPostViewerLabel->setScaledContents(true);
 	m_hiddenPostViewerLabel->hide();
 
+	m_listMessageTransformFilters.append(new QQPiniUrlHelper(this));
+
 	m_totozViewer = new QQTotozViewer("", this);
 	m_totozViewer->hide();
 	m_totozViewer->setAttribute(Qt::WA_TransparentForMouseEvents);
@@ -57,9 +60,14 @@ QQPinipede::QQPinipede(QWidget * parent) :
 QQPinipede::~QQPinipede()
 {
 	delete m_totozDownloader;
+
 	QList<QString> listTabs = m_listPostsTabMap.keys();
-	for(int i = 0; i < listTabs.size(); i++)
-		delete m_listPostsTabMap.take(listTabs.at(i));
+	QString tab;
+	foreach(tab, listTabs)
+	{
+		for(int i = 0; i < listTabs.size(); i++)
+			delete m_listPostsTabMap.take(tab);
+	}
 }
 
 void QQPinipede::addPiniTab(const QString & groupName)
@@ -174,6 +182,10 @@ void QQPinipede::purgePinitab(const QString &groupName, const QString &bouchotNa
 	cursor.endEditBlock();
 }
 
+//////////////////////////////////////////////////////////////
+/// \brief QQPinipede::purgePinitabHistory
+/// \param groupName
+///
 void QQPinipede::purgePinitabHistory(const QString & groupName)
 {
 	QQTextBrowser *textBrowser = m_textBrowserHash.value(groupName);
@@ -222,8 +234,454 @@ void QQPinipede::purgePinitabHistory(const QString & groupName)
 
 }
 
-void QQPinipede::printPostAtCursor(QTextCursor & cursor, QQPost * post)
+//////////////////////////////////////////////////////////////
+/// \brief QQPinipede::newPostsAvailable
+/// \param groupName
+///
+void QQPinipede::newPostsAvailable(QString groupName)
 {
+	qDebug() << "QQPinipede::newPostsAvailable from : " << groupName;
+
+	//On est obligé de locker pour éviter la pagaille dans le pini.
+	// un locking plus fin pourrait être obtenu en implémentant un lock par groupe
+	while(! newPostsAvailableMutex.tryLock(1000))
+		qWarning() << "newPostsAvailable " << groupName << "tryLock timeout";
+
+	QList<QQPost *> newPosts;
+
+	QList<QQBouchot *> listBouchots = QQBouchot::listBouchotsGroup(groupName);
+	QListIterator<QQBouchot *> i(listBouchots);
+	while(i.hasNext())
+	{
+		QQBouchot *b = i.next();
+		QList<QQPost *> newBouchotPosts = b->takeNewPosts();
+		if(newBouchotPosts.size() > 0)
+			newPosts.append(newBouchotPosts);
+	}
+
+	// Au cas ou on serait deja passe avant (cas du signal multiple)
+	if(newPosts.size() == 0)
+	{
+		newPostsAvailableMutex.unlock();
+		return;
+	}
+
+	QQSettings settings;
+	int maxHistorySize = settings.value(SETTINGS_GENERAL_MAX_HISTLEN, DEFAULT_GENERAL_MAX_HISTLEN).toInt();
+	//Il ne sert a rien d'insérer plus que de posts que le max de l'historique
+	while(newPosts.size() > maxHistorySize)
+		newPosts.removeFirst();
+
+	// Tri necessaire puisqu'on a potentiellement melange les posts de plusieurs tribunes
+	qSort(newPosts.begin(), newPosts.end(), postComp);
+
+	QQTextBrowser * textBrowser = m_textBrowserHash.value(groupName);
+	//On signale via la forme de la souris qu'un traitement est en cours
+	textBrowser->viewport()->setCursor(Qt::BusyCursor);
+	QTextDocument * doc = textBrowser->document();
+
+	QTextCursor cursor(doc);
+	cursor.beginEditBlock();
+
+	bool wasAtEnd = (textBrowser->verticalScrollBar()->sliderPosition() == textBrowser->verticalScrollBar()->maximum());
+	bool postWasPrinted = true;
+	// Recuperation de l'historique des posts (ou creation si absent)
+	QList<QQPost *> *destlistPosts = NULL;
+	if(! m_listPostsTabMap.contains(groupName))
+	{
+		// Cas du pini vide, il contient déjà un bloc vide, on
+		//  a juste a afficher le premier post;
+		QQPost * firstPost = newPosts.takeFirst();
+		destlistPosts = new QList<QQPost *>();
+		destlistPosts->append(firstPost);
+		m_listPostsTabMap.insert(groupName, destlistPosts);
+		postWasPrinted = printPostAtCursor(cursor, firstPost);
+
+		// Si le pini était vide on scrolle forcément vers le dernier post
+		wasAtEnd = true;
+	}
+	else
+		destlistPosts = m_listPostsTabMap[groupName];
+
+	int newPostsIndex = 0, baseInsertIndex = 0, insertIndex = 0;
+	// Tant qu'il reste des posts a afficher
+	while(newPostsIndex < newPosts.size())
+	{
+		QQPost * newPost = newPosts.at(newPostsIndex);
+
+		insertIndex = insertPostToList(destlistPosts, newPost, baseInsertIndex);
+
+		if(newPost == destlistPosts->last()) //insertion a la fin
+			break;
+
+		//Deplacement vers la nouvelle ligne
+		if(insertIndex == 0)
+		{
+			//Necessite de le copier car il sera supprime par le nouveau userData de la premiere ligne
+			QQMessageBlockUserData * uData = new QQMessageBlockUserData(* ((QQMessageBlockUserData *) cursor.block().userData()));
+			cursor.insertBlock();
+			cursor.block().setUserData(uData);
+			cursor.movePosition(QTextCursor::PreviousBlock);
+			postWasPrinted = printPostAtCursor(cursor, newPost);
+		}
+		else
+		{
+			cursor.movePosition(QTextCursor::NextBlock, QTextCursor::MoveAnchor, (insertIndex - baseInsertIndex) - 1);
+			cursor.movePosition(QTextCursor::EndOfBlock);
+			cursor.insertBlock();
+			postWasPrinted = printPostAtCursor(cursor, newPost);
+		}
+
+		newPostsIndex++;
+		baseInsertIndex = insertIndex;
+	}
+
+	//Insertion a la fin
+	if(newPostsIndex < newPosts.size())
+	{
+		//Le premier item a deja ete insere dans la liste destlistPosts dans la boucle while au dessus
+		//on a juste a l'afficher
+		cursor.movePosition(QTextCursor::End);
+		cursor.insertBlock();
+		postWasPrinted = printPostAtCursor(cursor, newPosts.at(newPostsIndex++));
+
+		while(newPostsIndex < newPosts.size())
+		{
+			// Gestion de l'index de norloge multiple
+			if(newPosts.at(newPostsIndex)->norloge().toLongLong() == destlistPosts->last()->norloge().toLongLong() &&
+			   newPosts.at(newPostsIndex)->bouchot()->name().compare(destlistPosts->last()->bouchot()->name()) == 0)
+			{
+				destlistPosts->last()->setNorlogeMultiple(true);
+				newPosts.at(newPostsIndex)->setNorlogeIndex(destlistPosts->last()->norlogeIndex() + 1);
+			}
+
+			destlistPosts->append(newPosts.at(newPostsIndex));
+			cursor.insertBlock();
+			postWasPrinted = printPostAtCursor(cursor, newPosts.at(newPostsIndex++));
+		}
+	}
+
+	cursor.endEditBlock();
+
+	// Purge des anciens messages
+	purgePinitabHistory(groupName);
+
+	if(wasAtEnd)
+		textBrowser->verticalScrollBar()->triggerAction(QAbstractSlider::SliderToMaximum);
+
+	//Remise en place de l'ancienne forme du pointeur
+	textBrowser->viewport()->setCursor(Qt::ArrowCursor);
+
+	//Signalement de nouveaux posts dans le nom du Tab
+	QString tabName = groupName;
+	tabName.append(" (*)");
+	setTabText(indexOf(textBrowser), tabName);
+
+	newPostsAvailableMutex.unlock();
+}
+
+//////////////////////////////////////////////////////////////
+/// \brief QQPinipede::newPostsAcknowledged
+/// \param groupName
+///
+void QQPinipede::newPostsAcknowledged(QString groupName)
+{
+	QQTextBrowser * textBrowser = m_textBrowserHash.value(groupName);
+	setTabText(indexOf(textBrowser), groupName);
+}
+
+//////////////////////////////////////////////////////////////
+/// \brief QQPinipede::norlogeClicked
+/// \param srcBouchot
+/// \param norloge
+///
+void QQPinipede::norlogeClicked(QString srcBouchot, QQNorloge norloge)
+{
+	emit insertTextPalmi(srcBouchot, norloge.toStringPalmi() + QString::fromAscii(" "));
+}
+
+//////////////////////////////////////////////////////////////
+/// \brief QQPinipede::norlogeRefClicked
+/// \param srcBouchot
+/// \param nRef
+///
+void QQPinipede::norlogeRefClicked(QString srcBouchot, QQNorlogeRef nRef)
+{
+	QQBouchot *srcQQBouchot = QQBouchot::bouchot(srcBouchot);
+	QQBouchot *dstQQBouchot = QQBouchot::bouchot(nRef.dstBouchot());
+
+	if(dstQQBouchot == NULL)
+		return;
+
+	QQTextBrowser *textBrowser = m_textBrowserHash.value(srcQQBouchot->settings().group());
+	unHighlight(textBrowser);
+
+	textBrowser = m_textBrowserHash.value(dstQQBouchot->settings().group());
+
+	QTextCursor cursor(textBrowser->document()->lastBlock());
+	bool found = false;
+	do
+	{
+		QQMessageBlockUserData * userData = (QQMessageBlockUserData *) (cursor.block().userData());
+
+		if(nRef.matchesPost(userData->post()))
+			found = true;
+		else if(found == true) // remonte jusqu'au premier post correspondant en cas de multiple
+			break;
+	} while(cursor.movePosition(QTextCursor::PreviousBlock));
+
+	// Si non trouve, aucune raison de changer de tab
+	if(found)
+	{
+		if(dstQQBouchot->settings().group() != srcQQBouchot->settings().group())
+			setCurrentIndex(indexOf(textBrowser));
+
+		cursor.movePosition(QTextCursor::NextBlock); //Puisqu'on est allé un bloc trop haut
+		textBrowser->setTextCursor(cursor);
+		textBrowser->ensureCursorVisible();
+
+		norlogeRefHovered(nRef);
+	}
+}
+
+//////////////////////////////////////////////////////////////
+/// \brief QQPinipede::loginClicked
+/// \param bouchot
+/// \param login
+///
+void QQPinipede::loginClicked(QString bouchot, QString login)
+{
+	emit insertTextPalmi(bouchot, login + QString::fromAscii("< "));
+}
+
+//////////////////////////////////////////////////////////////
+/// \brief QQPinipede::norlogeRefHovered
+/// \param norlogeRef
+///
+void QQPinipede::norlogeRefHovered(QQNorlogeRef norlogeRef)
+{
+	qDebug() << "QQPinipede::norlogeRefHovered, datetimepart=" << norlogeRef.dstNorloge() << ", destbouchot=" << norlogeRef.dstBouchot();
+
+	QStringList groups;
+
+	// Src
+	QQBouchot * bouchot = QQBouchot::bouchot(norlogeRef.srcBouchot());
+	Q_ASSERT(bouchot != NULL);
+	groups.append(bouchot->settings().group());
+
+	// Dest
+	bouchot = QQBouchot::bouchot(norlogeRef.dstBouchot());
+	if(bouchot != NULL && !groups.contains(bouchot->settings().group()))
+		groups.append(bouchot->settings().group());
+
+	bool highlightSuccess = false;
+	QQTextBrowser *textBrowser = NULL;
+	for(int i = 0; i < groups.count(); i++)
+	{
+		textBrowser = m_textBrowserHash.value(groups.at(i));
+
+		if(textBrowser->isHighlighted())
+			unHighlight(textBrowser);
+
+		if(textBrowser->isVisible())
+		{
+			textBrowser->setHighlighted();
+			QQSyntaxHighlighter * highlighter = textBrowser->document()->findChildren<QQSyntaxHighlighter *>().at(0);
+			highlighter->setNorlogeRefToHighlight(norlogeRef);
+
+			// Get the cursor position near the top left corner of the current viewport.
+			QTextCursor cursor = textBrowser->cursorForPosition(QPoint(0, 0));
+			// Get the cursor position near the bottom left corner of the current viewport.
+			int endBlockPos = (textBrowser->cursorForPosition(QPoint(textBrowser->viewport()->width(), textBrowser->viewport()->height()))).blockNumber();
+
+			do
+			{
+				highlighter->rehighlightBlock(cursor.block());
+				if(cursor.block().userState() & QQSyntaxHighlighter::FULL_HIGHLIGHTED)
+					highlightSuccess = true;
+			} while(cursor.movePosition(QTextCursor::NextBlock) &&
+					  cursor.blockNumber() <= endBlockPos);
+		}
+	}
+
+	if(! highlightSuccess)
+	{
+		QTextCursor cursor(textBrowser->document());
+
+		QTextDocument destDocument;
+		QTextCursor destCursor(& destDocument);
+		destCursor.atStart();
+
+		destCursor.beginEditBlock();
+		do
+		{
+			// qDebug() << "QQPinipede::norlogeRefHovered cursor.blockNumber()=" << cursor.blockNumber()
+			//		 << ", mainTable->rows()=" << mainTable->rows()
+			//		 << ", mainTable->columns()=" << mainTable->columns();
+			if(cursor.block().userState() == QQSyntaxHighlighter::NOT_HIGHLIGHTED)
+				continue;
+			QQMessageBlockUserData * userData = (QQMessageBlockUserData *) (cursor.block().userData());
+
+			if(norlogeRef.matchesPost(userData->post()))
+			{
+				qDebug() << "QQPinipede::norlogeRefHovered cursor.blockNumber()=" << cursor.blockNumber();
+				cursor.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
+				QTextDocumentFragment fragment = cursor.selection();
+				if(! destCursor.atBlockStart())
+					destCursor.insertBlock();
+				destCursor.insertFragment(fragment);
+			}
+
+		} while(cursor.movePosition(QTextCursor::NextBlock));
+
+		destCursor.endEditBlock();
+
+		if(destDocument.toPlainText().length() > 0)
+		{
+			m_hiddenPostViewerLabel->setFixedWidth(this->currentWidget()->width());
+			QString styleSheet = m_hiddenPostViewerLabelSSheet;
+			styleSheet.append("background-color: ")
+					.append(bouchot->settings().colorLight().name())
+					.append(";");
+			m_hiddenPostViewerLabel->setStyleSheet(styleSheet);
+			m_hiddenPostViewerLabel->setText(destDocument.toHtml());
+			m_hiddenPostViewerLabel->show();
+		}
+	}
+}
+
+//////////////////////////////////////////////////////////////
+/// \brief QQPinipede::unHighlight
+/// \param tBrowser
+///
+void QQPinipede::unHighlight(QQTextBrowser *tBrowser)
+{
+	//qDebug() << "QQPinipede::unHighlight";
+
+	m_hiddenPostViewerLabel->hide();
+
+	if(tBrowser == NULL || ! tBrowser->isHighlighted())
+		return;
+
+	tBrowser->setHighlighted(false);
+
+	m_hiddenPostViewerLabel->hide();
+
+	QTextCursor cursor(tBrowser->document());
+	QQSyntaxHighlighter * highlighter = tBrowser->document()->findChildren<QQSyntaxHighlighter *>().at(0);
+	highlighter->setNorlogeRefToHighlight(QQNorlogeRef());
+
+	do
+	{
+		if(cursor.block().userState() & (QQSyntaxHighlighter::NORLOGE_HIGHLIGHTED | QQSyntaxHighlighter::FULL_HIGHLIGHTED))
+			highlighter->rehighlightBlock(cursor.block());
+
+	} while(cursor.movePosition(QTextCursor::NextBlock));
+}
+
+//////////////////////////////////////////////////////////////
+/// \brief QQPinipede::showTotozViewer
+/// \param totozId
+///
+void QQPinipede::showTotozViewer(QString & totozId)
+{
+	hideTotozViewer();
+
+	QQSettings settings;
+	if(settings.value(SETTINGS_TOTOZ_VISUAL_MODE, DEFAULT_TOTOZ_VISUAL_MODE).toString() == TOTOZ_VISUAL_MODE_DISABLED)
+		return;
+
+	m_totozViewer->setTotozId(totozId);
+	m_totozViewer->setParent(currentWidget());
+
+	QPoint totozViewerPos = currentWidget()->mapFromGlobal(QCursor::pos());
+	QSize viewerSize = currentWidget()->size();
+	if(totozViewerPos.x() > (viewerSize.width() / 2))
+		totozViewerPos.setX(totozViewerPos.x() - m_totozViewer->width());
+	else
+		totozViewerPos.setX(totozViewerPos.x());
+	if(totozViewerPos.y() > (viewerSize.height() / 2))
+		totozViewerPos.setY(totozViewerPos.y() - m_totozViewer->height());
+	else
+		totozViewerPos.setY(totozViewerPos.y());
+	m_totozViewer->move(totozViewerPos);
+
+	m_totozViewer->show();
+}
+
+//////////////////////////////////////////////////////////////
+/// \brief QQPinipede::hideTotozViewer
+///
+void QQPinipede::hideTotozViewer()
+{
+	m_totozViewer->hide();
+	m_totozViewer->setParent(this);
+}
+
+//////////////////////////////////////////////////////////////
+/// \brief QQPinipede::getPostForGroup
+/// \param groupName
+/// \param numPost
+/// \return
+///
+QQPost * QQPinipede::getPostForGroup(QString &groupName, int numPost)
+{
+	if(m_listPostsTabMap.contains(groupName))
+	{
+		QList<QQPost *> *listPosts = m_listPostsTabMap[groupName];
+		if(listPosts->size() > numPost)
+			return listPosts->at(numPost);
+	}
+
+	return NULL;
+}
+
+//////////////////////////////////////////////////////////////
+/// \brief QQPinipede::setTotozManager
+/// \param ttManager
+///
+void QQPinipede::setTotozManager(QQTotozManager * ttManager)
+{
+	if(m_totozManager != NULL)
+		disconnect(m_totozManager);
+
+	m_totozManager = ttManager;
+
+	if(m_totozManager != NULL)
+		connect(m_totozViewer, SIGNAL(totozBookmarkAct(QString,QQTotoz::TotozBookmarkAction)),
+				m_totozManager, SLOT(totozBookmarkDo(QString,QQTotoz::TotozBookmarkAction)));
+}
+
+//////////////////////////////////////////////////////////////
+/// \brief QQPinipede::contextMenuEvent
+/// \param ev
+///
+void QQPinipede::contextMenuEvent(QContextMenuEvent * ev)
+{
+	if(m_totozViewer->isVisible())
+	{
+		QApplication::sendEvent(m_totozViewer, ev);
+		ev->accept();
+	}
+	else
+		QTabWidget::contextMenuEvent(ev);
+}
+
+/*************************************************************
+ * Private
+ *************************************************************/
+
+//////////////////////////////////////////////////////////////
+/// \brief QQPinipede::printPostAtCursor
+/// \param cursor
+/// \param post
+/// \return
+///
+bool QQPinipede::printPostAtCursor(QTextCursor & cursor, QQPost * post)
+{
+	if(! applyPostDisplayFilters(post))
+		return false;
+
 	QTextBlock block = cursor.block();
 	QQTextBrowser * browser = m_textBrowserHash.value(post->bouchot()->settings().group());
 
@@ -331,17 +789,9 @@ void QQPinipede::printPostAtCursor(QTextCursor & cursor, QQPost * post)
 #endif
 	cursor.setCharFormat(defaultFormat);
 
-	QRegExp reg("(<a [^>]*href=\"https?://"
-		"(?:(?:[\\w-\\.])+\\.)*"
-		"([\\w-]{3,})\\."
-		"(?:[\\.\\w-]+)"
-		"[^\"]*\"[^>]*>)"
-		"\\[url\\]"
-		"(</a>)",
-			Qt::CaseInsensitive,
-			QRegExp::RegExp2);
-	QString message = post->message();
-	message.replace(reg, "\\1[\\2]\\3");
+	// Application des filtres de transformation du message
+	QString message = applyMessageTransformFilters(post);
+
 	cursor.insertHtml(message);
 #if(QT_VERSION >= QT_VERSION_CHECK(4, 7, 0))
 	rangeMsg.end = cursor.positionInBlock();
@@ -351,158 +801,16 @@ void QQPinipede::printPostAtCursor(QTextCursor & cursor, QQPost * post)
 	data->setZRange(QQMessageBlockUserData::MESSAGE, rangeMsg);
 	block.setUserData(data);
 
-	if(block.userData() == NULL)
-		qCritical() << "uxam";
+	return true;
 }
 
-void QQPinipede::newPostsAvailable(QString groupName)
-{
-	qDebug() << "QQPinipede::newPostsAvailable from : " << groupName;
-
-	//On est obligé de locker pour éviter la pagaille dans le pini.
-	// un locking plus fin pourrait être obtenu en implémentant un lock par groupe
-	while(! newPostsAvailableMutex.tryLock(1000))
-		qWarning() << "newPostsAvailable " << groupName << "tryLock timeout";
-
-	QList<QQPost *> newPosts;
-
-	QList<QQBouchot *> listBouchots = QQBouchot::listBouchotsGroup(groupName);
-	QListIterator<QQBouchot *> i(listBouchots);
-	while(i.hasNext())
-	{
-		QQBouchot *b = i.next();
-		QList<QQPost *> newBouchotPosts = b->takeNewPosts();
-		if(newBouchotPosts.size() > 0)
-			newPosts.append(newBouchotPosts);
-	}
-
-	// Au cas ou on serait deja passe avant (cas du signal multiple)
-	if(newPosts.size() == 0)
-	{
-		newPostsAvailableMutex.unlock();
-		return;
-	}
-
-	QQSettings settings;
-	int maxHistorySize = settings.value(SETTINGS_GENERAL_MAX_HISTLEN, DEFAULT_GENERAL_MAX_HISTLEN).toInt();
-	//Il ne sert a rien d'insérer plus que de posts que le max de l'historique
-	while(newPosts.size() > maxHistorySize)
-		newPosts.removeFirst();
-
-	// Tri necessaire puisqu'on a potentiellement melange les posts de plusieurs tribunes
-	qSort(newPosts.begin(), newPosts.end(), postComp);
-
-	QQTextBrowser * textBrowser = m_textBrowserHash.value(groupName);
-	//On signale via la forme de la souris qu'un traitement est en cours
-	textBrowser->viewport()->setCursor(Qt::BusyCursor);
-	QTextDocument * doc = textBrowser->document();
-
-	QTextCursor cursor(doc);
-	cursor.beginEditBlock();
-
-	bool wasAtEnd = (textBrowser->verticalScrollBar()->sliderPosition() == textBrowser->verticalScrollBar()->maximum());
-	// Recuperation de l'historique des posts (ou creation si absent)
-	QList<QQPost *> *destlistPosts = NULL;
-	if(! m_listPostsTabMap.contains(groupName))
-	{
-		// Cas du pini vide, il contient déjà un bloc vide, on
-		//  a juste a afficher le premier post;
-		QQPost * firstPost = newPosts.takeFirst();
-		destlistPosts = new QList<QQPost *>();
-		destlistPosts->append(firstPost);
-		m_listPostsTabMap.insert(groupName, destlistPosts);
-		printPostAtCursor(cursor, firstPost);
-
-		// Si le pini était vide on scrolle forcément vers le dernier post
-		wasAtEnd = true;
-	}
-	else
-		destlistPosts = m_listPostsTabMap[groupName];
-
-	int newPostsIndex = 0, baseInsertIndex = 0, insertIndex = 0;
-	// Tant qu'il reste des posts a afficher
-	while(newPostsIndex < newPosts.size())
-	{
-		QQPost * newPost = newPosts.at(newPostsIndex);
-
-		insertIndex = insertPostToList(destlistPosts, newPost, baseInsertIndex);
-
-		if(newPost == destlistPosts->last()) //insertion a la fin
-			break;
-
-		//Deplacement vers la nouvelle ligne
-		if(insertIndex == 0)
-		{
-			//Necessite de le copier car il sera supprime par le nouveau userData de la premiere ligne
-			QQMessageBlockUserData * uData = new QQMessageBlockUserData(* ((QQMessageBlockUserData *) cursor.block().userData()));
-			cursor.insertBlock();
-			cursor.block().setUserData(uData);
-			cursor.movePosition(QTextCursor::PreviousBlock);
-			printPostAtCursor(cursor, newPost);
-		}
-		else
-		{
-			cursor.movePosition(QTextCursor::NextBlock, QTextCursor::MoveAnchor, (insertIndex - baseInsertIndex) - 1);
-			cursor.movePosition(QTextCursor::EndOfBlock);
-			cursor.insertBlock();
-			printPostAtCursor(cursor, newPost);
-		}
-
-		newPostsIndex++;
-		baseInsertIndex = insertIndex;
-	}
-
-	//Insertion a la fin
-	if(newPostsIndex < newPosts.size())
-	{
-		//Le premier item a deja ete insere dans la liste destlistPosts dans la boucle while au dessus
-		//on a juste a l'afficher
-		cursor.movePosition(QTextCursor::End);
-		cursor.insertBlock();
-		printPostAtCursor(cursor, newPosts.at(newPostsIndex++));
-
-		while(newPostsIndex < newPosts.size())
-		{
-			// Gestion de l'index de norloge multiple
-			if(newPosts.at(newPostsIndex)->norloge().toLongLong() == destlistPosts->last()->norloge().toLongLong() &&
-			   newPosts.at(newPostsIndex)->bouchot()->name().compare(destlistPosts->last()->bouchot()->name()) == 0)
-			{
-				destlistPosts->last()->setNorlogeMultiple(true);
-				newPosts.at(newPostsIndex)->setNorlogeIndex(destlistPosts->last()->norlogeIndex() + 1);
-			}
-
-			destlistPosts->append(newPosts.at(newPostsIndex));
-			cursor.insertBlock();
-			printPostAtCursor(cursor, newPosts.at(newPostsIndex++));
-		}
-	}
-
-	cursor.endEditBlock();
-
-	// Purge des anciens messages
-	purgePinitabHistory(groupName);
-
-	if(wasAtEnd)
-		textBrowser->verticalScrollBar()->triggerAction(QAbstractSlider::SliderToMaximum);
-
-	//Remise en place de l'ancienne forme du pointeur
-	textBrowser->viewport()->setCursor(Qt::ArrowCursor);
-
-	//Signalement de nouveaux posts dans le nom du Tab
-	QString tabName = groupName;
-	tabName.append(" (*)");
-	setTabText(indexOf(textBrowser), tabName);
-
-	newPostsAvailableMutex.unlock();
-
-}
-
-void QQPinipede::newPostsAcknowledged(QString groupName)
-{
-	QQTextBrowser * textBrowser = m_textBrowserHash.value(groupName);
-	setTabText(indexOf(textBrowser), groupName);
-}
-
+//////////////////////////////////////////////////////////////
+/// \brief QQPinipede::insertPostToList
+/// \param listPosts
+/// \param post
+/// \param indexStart
+/// \return
+///
 unsigned int QQPinipede::insertPostToList(QList<QQPost *> *listPosts, QQPost *post, unsigned int indexStart)
 {
 	for(int i = indexStart; i < listPosts->size(); i++)
@@ -524,235 +832,29 @@ unsigned int QQPinipede::insertPostToList(QList<QQPost *> *listPosts, QQPost *po
 	return listPosts->size() - 1;
 }
 
-void QQPinipede::norlogeClicked(QString srcBouchot, QQNorloge norloge)
+//////////////////////////////////////////////////////////////
+/// \brief QQPinipede::applyMessageTransformFilters
+/// \param post
+/// \return
+///
+QString QQPinipede::applyMessageTransformFilters(QQPost *post)
 {
-	emit insertTextPalmi(srcBouchot, norloge.toStringPalmi() + QString::fromAscii(" "));
+	QString message = post->message();
+
+	QQMessageTransformFilter *messageTransformFilter;
+	foreach(messageTransformFilter, m_listMessageTransformFilters)
+		messageTransformFilter->transformMessage(post, message);
+
+	return message;
 }
 
-void QQPinipede::norlogeRefClicked(QString srcBouchot, QQNorlogeRef nRef)
+//////////////////////////////////////////////////////////////
+/// \brief QQPinipede::applyPostDisplayFilters
+/// \param post
+/// \return
+///
+bool QQPinipede::applyPostDisplayFilters(QQPost *post)
 {
-	QQBouchot *srcQQBouchot = QQBouchot::bouchot(srcBouchot);
-	QQBouchot *dstQQBouchot = QQBouchot::bouchot(nRef.dstBouchot());
-
-	if(dstQQBouchot == NULL)
-		return;
-
-	QQTextBrowser *textBrowser = m_textBrowserHash.value(srcQQBouchot->settings().group());
-	unHighlight(textBrowser);
-
-	textBrowser = m_textBrowserHash.value(dstQQBouchot->settings().group());
-
-	QTextCursor cursor(textBrowser->document()->lastBlock());
-	bool found = false;
-	do
-	{
-		QQMessageBlockUserData * userData = (QQMessageBlockUserData *) (cursor.block().userData());
-
-		if(nRef.matchesPost(userData->post()))
-			found = true;
-		else if(found == true) // remonte jusqu'au premier post correspondant en cas de multiple
-			break;
-	} while(cursor.movePosition(QTextCursor::PreviousBlock));
-
-	// Si non trouve, aucune raison de changer de tab
-	if(found)
-	{
-		if(dstQQBouchot->settings().group() != srcQQBouchot->settings().group())
-			setCurrentIndex(indexOf(textBrowser));
-
-		cursor.movePosition(QTextCursor::NextBlock); //Puisqu'on est allé un bloc trop haut
-		textBrowser->setTextCursor(cursor);
-		textBrowser->ensureCursorVisible();
-
-		norlogeRefHovered(nRef);
-	}
-}
-
-void QQPinipede::loginClicked(QString bouchot, QString login)
-{
-	emit insertTextPalmi(bouchot, login + QString::fromAscii("< "));
-}
-
-void QQPinipede::norlogeRefHovered(QQNorlogeRef norlogeRef)
-{
-	qDebug() << "QQPinipede::norlogeRefHovered, datetimepart=" << norlogeRef.dstNorloge() << ", destbouchot=" << norlogeRef.dstBouchot();
-
-	QStringList groups;
-
-	// Src
-	QQBouchot * bouchot = QQBouchot::bouchot(norlogeRef.srcBouchot());
-	Q_ASSERT(bouchot != NULL);
-	groups.append(bouchot->settings().group());
-
-	// Dest
-	bouchot = QQBouchot::bouchot(norlogeRef.dstBouchot());
-	if(bouchot != NULL && !groups.contains(bouchot->settings().group()))
-		groups.append(bouchot->settings().group());
-
-	bool highlightSuccess = false;
-	QQTextBrowser *textBrowser = NULL;
-	for(int i = 0; i < groups.count(); i++)
-	{
-		textBrowser = m_textBrowserHash.value(groups.at(i));
-
-		if(textBrowser->isHighlighted())
-			unHighlight(textBrowser);
-
-		if(textBrowser->isVisible())
-		{
-			textBrowser->setHighlighted();
-			QQSyntaxHighlighter * highlighter = textBrowser->document()->findChildren<QQSyntaxHighlighter *>().at(0);
-			highlighter->setNorlogeRefToHighlight(norlogeRef);
-
-			// Get the cursor position near the top left corner of the current viewport.
-			QTextCursor cursor = textBrowser->cursorForPosition(QPoint(0, 0));
-			// Get the cursor position near the bottom left corner of the current viewport.
-			int endBlockPos = (textBrowser->cursorForPosition(QPoint(textBrowser->viewport()->width(), textBrowser->viewport()->height()))).blockNumber();
-
-			do
-			{
-				highlighter->rehighlightBlock(cursor.block());
-				if(cursor.block().userState() & QQSyntaxHighlighter::FULL_HIGHLIGHTED)
-					highlightSuccess = true;
-			} while(cursor.movePosition(QTextCursor::NextBlock) &&
-					  cursor.blockNumber() <= endBlockPos);
-		}
-	}
-
-	if(! highlightSuccess)
-	{
-		QTextCursor cursor(textBrowser->document());
-
-		QTextDocument destDocument;
-		QTextCursor destCursor(& destDocument);
-		destCursor.atStart();
-
-		destCursor.beginEditBlock();
-		do
-		{
-			// qDebug() << "QQPinipede::norlogeRefHovered cursor.blockNumber()=" << cursor.blockNumber()
-			//		 << ", mainTable->rows()=" << mainTable->rows()
-			//		 << ", mainTable->columns()=" << mainTable->columns();
-			if(cursor.block().userState() == QQSyntaxHighlighter::NOT_HIGHLIGHTED)
-				continue;
-			QQMessageBlockUserData * userData = (QQMessageBlockUserData *) (cursor.block().userData());
-
-			if(norlogeRef.matchesPost(userData->post()))
-			{
-				qDebug() << "QQPinipede::norlogeRefHovered cursor.blockNumber()=" << cursor.blockNumber();
-				cursor.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
-				QTextDocumentFragment fragment = cursor.selection();
-				if(! destCursor.atBlockStart())
-					destCursor.insertBlock();
-				destCursor.insertFragment(fragment);
-			}
-
-		} while(cursor.movePosition(QTextCursor::NextBlock));
-
-		destCursor.endEditBlock();
-
-		if(destDocument.toPlainText().length() > 0)
-		{
-			m_hiddenPostViewerLabel->setFixedWidth(this->currentWidget()->width());
-			QString styleSheet = m_hiddenPostViewerLabelSSheet;
-			styleSheet.append("background-color: ")
-					.append(bouchot->settings().colorLight().name())
-					.append(";");
-			m_hiddenPostViewerLabel->setStyleSheet(styleSheet);
-			m_hiddenPostViewerLabel->setText(destDocument.toHtml());
-			m_hiddenPostViewerLabel->show();
-		}
-	}
-}
-
-void QQPinipede::unHighlight(QQTextBrowser *tBrowser)
-{
-	//qDebug() << "QQPinipede::unHighlight";
-
-	m_hiddenPostViewerLabel->hide();
-
-	if(tBrowser == NULL || ! tBrowser->isHighlighted())
-		return;
-
-	tBrowser->setHighlighted(false);
-
-	m_hiddenPostViewerLabel->hide();
-
-	QTextCursor cursor(tBrowser->document());
-	QQSyntaxHighlighter * highlighter = tBrowser->document()->findChildren<QQSyntaxHighlighter *>().at(0);
-	highlighter->setNorlogeRefToHighlight(QQNorlogeRef());
-
-	do
-	{
-		if(cursor.block().userState() & (QQSyntaxHighlighter::NORLOGE_HIGHLIGHTED | QQSyntaxHighlighter::FULL_HIGHLIGHTED))
-			highlighter->rehighlightBlock(cursor.block());
-
-	} while(cursor.movePosition(QTextCursor::NextBlock));
-}
-
-void QQPinipede::showTotozViewer(QString & totozId)
-{
-	hideTotozViewer();
-
-	QQSettings settings;
-	if(settings.value(SETTINGS_TOTOZ_VISUAL_MODE, DEFAULT_TOTOZ_VISUAL_MODE).toString() == TOTOZ_VISUAL_MODE_DISABLED)
-		return;
-
-	m_totozViewer->setTotozId(totozId);
-	m_totozViewer->setParent(currentWidget());
-
-	QPoint totozViewerPos = currentWidget()->mapFromGlobal(QCursor::pos());
-	QSize viewerSize = currentWidget()->size();
-	if(totozViewerPos.x() > (viewerSize.width() / 2))
-		totozViewerPos.setX(totozViewerPos.x() - m_totozViewer->width());
-	else
-		totozViewerPos.setX(totozViewerPos.x());
-	if(totozViewerPos.y() > (viewerSize.height() / 2))
-		totozViewerPos.setY(totozViewerPos.y() - m_totozViewer->height());
-	else
-		totozViewerPos.setY(totozViewerPos.y());
-	m_totozViewer->move(totozViewerPos);
-
-	m_totozViewer->show();
-}
-
-void QQPinipede::hideTotozViewer()
-{
-	m_totozViewer->hide();
-	m_totozViewer->setParent(this);
-}
-
-QQPost * QQPinipede::getPostForGroup(QString &groupName, int numPost)
-{
-	if(m_listPostsTabMap.contains(groupName))
-	{
-		QList<QQPost *> *listPosts = m_listPostsTabMap[groupName];
-		if(listPosts->size() > numPost)
-			return listPosts->at(numPost);
-	}
-
-	return NULL;
-}
-
-void QQPinipede::setTotozManager(QQTotozManager * ttManager)
-{
-	if(m_totozManager != NULL)
-		disconnect(m_totozManager);
-
-	m_totozManager = ttManager;
-
-	if(m_totozManager != NULL)
-		connect(m_totozViewer, SIGNAL(totozBookmarkAct(QString,QQTotoz::TotozBookmarkAction)),
-				m_totozManager, SLOT(totozBookmarkDo(QString,QQTotoz::TotozBookmarkAction)));
-}
-
-void QQPinipede::contextMenuEvent(QContextMenuEvent * ev)
-{
-	if(m_totozViewer->isVisible())
-	{
-		QApplication::sendEvent(m_totozViewer, ev);
-		ev->accept();
-	}
-	else
-		QTabWidget::contextMenuEvent(ev);
+	Q_UNUSED(post)
+	return true;
 }
