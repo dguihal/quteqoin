@@ -2,7 +2,9 @@
 #include "ui_qqsettingsmanager.h"
 
 #include "core/qqsettings.h"
+#include "core/qqtypes.h"
 #include "ui/settingsmanager/qqboardssettings.h"
+#include "ui/settingsmanager/qqfiltersettings.h"
 #include "ui/settingsmanager/qqgeneralsettings.h"
 #include "ui/settingsmanager/qqpalmisettings.h"
 #include "ui/settingsmanager/qqtotozsettings.h"
@@ -13,6 +15,7 @@
 #define ITEM_TOTOZ_TYPE (QListWidgetItem::UserType + 1)
 #define ITEM_BOARDS_TYPE (QListWidgetItem::UserType + 2)
 #define ITEM_PALMI_TYPE (QListWidgetItem::UserType + 3)
+#define ITEM_FILTER_TYPE (QListWidgetItem::UserType + 4)
 
 QQSettingsManager::QQSettingsManager(QWidget *parent) :
 	QDialog(parent),
@@ -62,6 +65,15 @@ QQSettingsManager::QQSettingsManager(QWidget *parent) :
 	m_palmiSettingsW->hide();
 	layout->addWidget(m_palmiSettingsW);
 
+	listSettingsTheme->addItem(
+				new QListWidgetItem(QIcon(":/img/filter-icon.png"), tr("Filters"),
+									listSettingsTheme, ITEM_FILTER_TYPE)
+				);
+	m_filterSettingsW = new QQFilterSettings(this);
+	initFilterSettings();
+	m_filterSettingsW->hide();
+	layout->addWidget(m_filterSettingsW);
+
 	listSettingsTheme->setMaximumWidth(listSettingsTheme->sizeHintForColumn(0) + 15);
 	connect(listSettingsTheme, SIGNAL(itemSelectionChanged()),
 			this, SLOT(configItemChanged()));
@@ -78,6 +90,7 @@ QQSettingsManager::~QQSettingsManager()
 void QQSettingsManager::accept()
 {
 	saveBoardsSettings();
+	saveFilterSettings();
 	saveGeneralSettings();
 	saveTotozSettings();
 	savePalmiSettings();
@@ -92,6 +105,7 @@ void QQSettingsManager::configItemChanged()
 	ui->settingsThemeLabel->setText(item->text());
 
 	m_generalSettingsW->hide();
+	m_filterSettingsW->hide();
 	m_totozSettingsW->hide();
 	m_boardsSettingsW->hide();
 	m_palmiSettingsW->hide();
@@ -108,6 +122,9 @@ void QQSettingsManager::configItemChanged()
 		break;
 	case ITEM_PALMI_TYPE:
 		m_palmiSettingsW->show();
+		break;
+	case ITEM_FILTER_TYPE:
+		m_filterSettingsW->show();
 		break;
 	default:
 		qWarning() << "Unknown type : " << item->type() << ", ignoring";
@@ -167,6 +184,29 @@ void QQSettingsManager::saveBoardsSettings()
 		settings.saveBouchot(bouchotName, mBouchots.value(bouchotName));
 		emit bouchotCreated(settings.loadBouchot(bouchotName));
 	}
+}
+
+void QQSettingsManager::initFilterSettings()
+{
+	QQSettings settings;
+
+	bool enableUrlTransformer = settings.value(SETTINGS_FILTER_SMART_URL_TRANSFORMER,  DEFAULT_FILTER_SMART_URL_TRANSFORMER).toBool();
+	m_filterSettingsW->setSmartUrlEnabled(enableUrlTransformer);
+
+	QuteQoin::QQSmartUrlFilerTransformType smartUrlTransformerType = (QuteQoin::QQSmartUrlFilerTransformType) settings.value(SETTINGS_FILTER_SMART_URL_TRANSFORM_TYPE,  DEFAULT_FILTER_SMART_URL_TRANSFORM_TYPE).toInt();
+	m_filterSettingsW->setSmartUrlTransformerType(smartUrlTransformerType);
+}
+
+void QQSettingsManager::saveFilterSettings()
+{
+	QQSettings settings;
+
+	bool enableUrlTransformer = m_filterSettingsW->isSmartUrlEnabled();
+	settings.setValueWithDefault(SETTINGS_FILTER_SMART_URL_TRANSFORMER, enableUrlTransformer, DEFAULT_FILTER_SMART_URL_TRANSFORMER);
+
+	QuteQoin::QQSmartUrlFilerTransformType trType = m_filterSettingsW->smartUrlTransformerType();
+	settings.setValueWithDefault(SETTINGS_FILTER_SMART_URL_TRANSFORM_TYPE, trType, DEFAULT_FILTER_SMART_URL_TRANSFORM_TYPE);
+
 }
 
 void QQSettingsManager::initGeneralSettings()

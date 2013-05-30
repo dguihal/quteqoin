@@ -42,7 +42,8 @@ SOURCES += main.cpp\
 	ui/settingsmanager/qqbouchotsettingsdialog.cpp \
 	ui/settingsmanager/qqpalmisettingstablewidget.cpp \
 	core/qqpiniurlhelper.cpp \
-    core/qqmessagetransformfilter.cpp
+    core/qqmessagetransformfilter.cpp \
+    ui/settingsmanager/qqfiltersettings.cpp
 
 HEADERS  += mainwindow.h \
 	core/qqsettings.h \
@@ -77,7 +78,9 @@ HEADERS  += mainwindow.h \
 	ui/settingsmanager/qqbouchotsettingsdialog.h \
 	ui/settingsmanager/qqpalmisettingstablewidget.h \
 	core/qqpiniurlhelper.h \
-    core/qqmessagetransformfilter.h
+    core/qqmessagetransformfilter.h \
+    ui/settingsmanager/qqfiltersettings.h \
+    core/qqtypes.h
 
 FORMS    += mainwindow.ui \
 	ui/qqpalmipede.ui \
@@ -89,7 +92,8 @@ FORMS    += mainwindow.ui \
 	ui/settingsmanager/qqbouchotsettingsdialog.ui \
 	ui/settingsmanager/qqgeneralsettings.ui \
 	ui/settingsmanager/qqpalmisettings.ui \
-	ui/settingsmanager/qqtotozsettings.ui
+	ui/settingsmanager/qqtotozsettings.ui \
+    ui/settingsmanager/qqfiltersettings.ui
 
 OTHER_FILES +=
 
