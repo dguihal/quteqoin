@@ -3,17 +3,21 @@
 
 #include "qqnetworkaccessor.h"
 
+#include "core/qqmessagetransformfilter.h"
+
 #include <QList>
 #include <QUrl>
 #include <QString>
 
-class QQPiniUrlHelper : public QQNetworkAccessor
+class QQPiniUrlHelper : public QQNetworkAccessor, public QQMessageTransformFilter
 {
 	Q_OBJECT
 public:
 	explicit QQPiniUrlHelper(QObject *parent = 0);
 
 	void getContentType(const QUrl &url);
+
+	virtual void transformMessage(const QQPost *post, QString &message);
 
 signals:
 	void contentTypeAvailable(QUrl &url, QString &contentType);

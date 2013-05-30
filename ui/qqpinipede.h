@@ -23,6 +23,7 @@ class QTextCursor;
 class QQPost;
 class QQTotozDownloader;
 class QQTotozViewer;
+class QQMessageTransformFilter;
 
 class QLabel;
 class QMovie;
@@ -68,8 +69,10 @@ protected:
 	virtual void contextMenuEvent(QContextMenuEvent *ev);
 
 private:
-	void printPostAtCursor(QTextCursor &cursor, QQPost *post);
+	bool printPostAtCursor(QTextCursor &cursor, QQPost *post);
 	unsigned int insertPostToList(QList<QQPost *> *listPosts, QQPost *post, unsigned int indexStart);
+	QString applyMessageTransformFilters(QQPost *post);
+	bool applyPostDisplayFilters(QQPost *post);
 
 	QQTotozDownloader * m_totozDownloader;
 	QQTotozManager * m_totozManager;
@@ -80,6 +83,8 @@ private:
 
 	QHash<QString, QList<QQPost *> *> m_listPostsTabMap;
 	QHash<QString, QQTextBrowser *> m_textBrowserHash;
+
+	QList<QQMessageTransformFilter *> m_listMessageTransformFilters;
 
 	QMutex newPostsAvailableMutex;
 
