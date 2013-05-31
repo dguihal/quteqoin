@@ -1,7 +1,18 @@
 #include "qqpiniurlhelper.h"
 
+#include "core/qqtypes.h"
+#include "core/qqsettings.h"
+
 #include <QtDebug>
 #include <QStringList>
+
+#define URL_HOST_REGEXP "(<a [^>]*href=\"https?://((?:[\\w-\\.])+\\.)*([\\w-]{3,})(\\.[\\.\\w]+)[^\"]*\"[^>]*>)\\[(?:url|https?)\\](</a>)"
+					//                   <-                          URL                             ->
+					//                            <-                 HOST                          ->
+					//                            <-       SUB     -> <-  NAME  -><-      TLD      ->
+#define FULL_HOST_REPLACE "\\1[\\2\\3\\4]\\5"
+#define SHORT_HOST_REPLACE "\\1[\\3\\4]\\5"
+#define SHORTER_HOST_REPLACE "\\1[\\3]\\5"
 
 //////////////////////////////////////////////////////////////
 /// \brief QQPiniUrlHelper::QQPiniUrlHelper
@@ -11,6 +22,21 @@ QQPiniUrlHelper::QQPiniUrlHelper(QObject *parent) :
 	QQNetworkAccessor(parent), QQMessageTransformFilter()
 {
 	m_contentTypeReplies.clear();
+
+	QQSettings settings;
+	QuteQoin::QQSmartUrlFilerTransformType trType =
+				(QuteQoin::QQSmartUrlFilerTransformType) settings.value(SETTINGS_FILTER_SMART_URL_TRANSFORM_TYPE, DEFAULT_FILTER_SMART_URL_TRANSFORM_TYPE).toInt();
+	switch(trType)
+	{
+		case QuteQoin::Full:
+			m_urlPatternReplace = FULL_HOST_REPLACE;
+			break;
+		case QuteQoin::Short:
+			m_urlPatternReplace = SHORT_HOST_REPLACE;
+			break;
+		default:
+			m_urlPatternReplace = SHORTER_HOST_REPLACE;
+	}
 }
 
 //////////////////////////////////////////////////////////////
@@ -32,17 +58,11 @@ void QQPiniUrlHelper::transformMessage(const QQPost *post, QString &message)
 {
 	Q_UNUSED(post)
 
-	QRegExp reg("(<a [^>]*href=\"https?://"
-				"(?:(?:[\\w-\\.])+\\.)*"
-				"([\\w-]{3,})\\."
-				"(?:[\\.\\w-]+)"
-				"[^\"]*\"[^>]*>)"
-				"\\[url\\]"
-				"(</a>)",
+	QRegExp reg(URL_HOST_REGEXP,
 				Qt::CaseInsensitive,
 				QRegExp::RegExp2);
 
-	message.replace(reg, "\\1[\\2]\\3");
+	message.replace(reg, m_urlPatternReplace);
 
 }
 
