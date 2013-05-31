@@ -27,6 +27,8 @@ public slots:
 
 private:
 	QList<QNetworkReply *> m_contentTypeReplies;
+
+	QString m_urlPatternReplace;
 };
 
 #endif // QQPINIURLHELPER_H
