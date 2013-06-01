@@ -42,8 +42,8 @@ SOURCES += main.cpp\
 	ui/settingsmanager/qqbouchotsettingsdialog.cpp \
 	ui/settingsmanager/qqpalmisettingstablewidget.cpp \
 	core/qqpiniurlhelper.cpp \
-    core/qqmessagetransformfilter.cpp \
-    ui/settingsmanager/qqfiltersettings.cpp
+	core/qqmessagetransformfilter.cpp \
+	ui/settingsmanager/qqfiltersettings.cpp
 
 HEADERS  += mainwindow.h \
 	core/qqsettings.h \
@@ -78,11 +78,11 @@ HEADERS  += mainwindow.h \
 	ui/settingsmanager/qqbouchotsettingsdialog.h \
 	ui/settingsmanager/qqpalmisettingstablewidget.h \
 	core/qqpiniurlhelper.h \
-    core/qqmessagetransformfilter.h \
-    ui/settingsmanager/qqfiltersettings.h \
-    core/qqtypes.h
+	core/qqmessagetransformfilter.h \
+	ui/settingsmanager/qqfiltersettings.h \
+	core/qqtypes.h
 
-FORMS    += mainwindow.ui \
+FORMS += mainwindow.ui \
 	ui/qqpalmipede.ui \
 	ui/qqsettingsdialog.ui \
 	ui/qqproxyauthdialog.ui \
@@ -93,25 +93,34 @@ FORMS    += mainwindow.ui \
 	ui/settingsmanager/qqgeneralsettings.ui \
 	ui/settingsmanager/qqpalmisettings.ui \
 	ui/settingsmanager/qqtotozsettings.ui \
-    ui/settingsmanager/qqfiltersettings.ui
+	ui/settingsmanager/qqfiltersettings.ui
 
 OTHER_FILES +=
 
 RESOURCES += \
-    rc/quteqoin_img.qrc \
-    rc/quteqoin_defs.qrc
+	rc/quteqoin_img.qrc \
+	rc/quteqoin_defs.qrc
 
 QMAKE_CXXFLAGS_RELEASE += -DQT_NO_DEBUG_OUTPUT
 
 unix {
-	FILESTOCOPY = quteqoin
-	INSTRULE.path = $$PREFIX/bin
-	INSTRULE.files = $$FILESTOCOPY
-	INSTALLS += INSTRULE
+	target.path = /usr/local/bin
+	target.files = quteqoin
+
+	desktop.path = /usr/share/applications
+	desktop.files += quteqoin.desktop
+
+	icon.path = /usr/share/icons/hicolor/256x256/apps/
+	icon.files += QuteQoin-Icon.png
+
+	INSTALLS += target desktop icon
 }
 
-win32:debug {
-	CONFIG += console
+win32 {
+	RC_FILE = rc/quteqoin_win.rc
+	debug {
+		CONFIG += console
+	}
 }
 
 
