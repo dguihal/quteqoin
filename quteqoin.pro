@@ -104,13 +104,17 @@ RESOURCES += \
 QMAKE_CXXFLAGS_RELEASE += -DQT_NO_DEBUG_OUTPUT
 
 unix {
-	target.path = /usr/local/bin
+	isEmpty(PREFIX) {
+		 PREFIX = /usr/local
+	}
+
+	target.path = $$PREFIX/bin
 	target.files = quteqoin
 
-	desktop.path = /usr/share/applications
+	desktop.path = $$PREFIX/share/applications
 	desktop.files += quteqoin.desktop
 
-	icon.path = /usr/share/icons/hicolor/256x256/apps/
+	icon.path = $$PREFIX/share/icons/hicolor/256x256/apps/
 	icon.files += QuteQoin-Icon.png
 
 	INSTALLS += target desktop icon
