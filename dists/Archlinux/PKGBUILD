@@ -42,8 +42,8 @@ build() {
 	#
 	# BUILD HERE
 	#
-	qmake-qt4
-	make PREFIX=/usr
+	qmake-qt4 PREFIX=/usr
+	make
 }
 
 package() {
