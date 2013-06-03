@@ -217,10 +217,7 @@ void QQBouchot::fetchBackend()
 						 QNetworkRequest::AlwaysNetwork);
 
 	QQSettings settings;
-	request.setRawHeader(QString::fromAscii("User-Agent").toAscii(),
-						 settings.value(SETTINGS_GENERAL_DEFAULT_UA,
-										DEFAULT_GENERAL_DEFAULT_UA).toByteArray()
-						 );
+	request.setRawHeader(QString::fromAscii("User-Agent").toAscii(), QString(DEFAULT_GENERAL_DEFAULT_UA).toAscii());
 
 	if(m_bSettings.cookie().isEmpty() == false)
 		request.setRawHeader(QString::fromAscii("Cookie").toAscii(), m_bSettings.cookie().toAscii());
