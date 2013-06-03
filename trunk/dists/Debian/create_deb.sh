@@ -15,7 +15,7 @@ fi
 	
 
 #2/prepare packaging
-svn_ver=$(svnversion .)
+svn_ver=$(svnversion . | sed -e 's/[^0-9].*//')
 
 cp -R dists/Debian debian
 dch -v 0.0$svn_ver "plop" #create entry in the changelog
