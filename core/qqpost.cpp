@@ -84,7 +84,7 @@ bool QQPost::isSelfPost()
 		{
 			QString ua = bouchotSettings.ua();
 			if(ua.size() == 0)
-				ua = settings.value(SETTINGS_GENERAL_DEFAULT_UA, SETTINGS_GENERAL_DEFAULT_UA).toString();
+				ua = settings.value(SETTINGS_GENERAL_DEFAULT_UA, DEFAULT_GENERAL_DEFAULT_UA).toString();
 
 			if(m_ua.compare(ua, Qt::CaseSensitive) == 0)
 			{
