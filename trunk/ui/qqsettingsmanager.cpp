@@ -22,6 +22,7 @@ QQSettingsManager::QQSettingsManager(QWidget *parent) :
 	ui(new Ui::QQSettingsManager)
 {
 	ui->setupUi(this);
+	needPiniFullRepaint = false;
 	QListWidget *listSettingsTheme = ui->listSettingsTheme;
 
 	QLayout *layout = new QVBoxLayout();
@@ -94,6 +95,9 @@ void QQSettingsManager::accept()
 	saveGeneralSettings();
 	saveTotozSettings();
 	savePalmiSettings();
+
+	if(needPiniFullRepaint)
+		emit fullRepaint();
 
 	QDialog::accept();
 }
@@ -202,11 +206,10 @@ void QQSettingsManager::saveFilterSettings()
 	QQSettings settings;
 
 	bool enableUrlTransformer = m_filterSettingsW->isSmartUrlEnabled();
-	settings.setValueWithDefault(SETTINGS_FILTER_SMART_URL_TRANSFORMER, enableUrlTransformer, DEFAULT_FILTER_SMART_URL_TRANSFORMER);
+	needPiniFullRepaint |= settings.setValueWithDefault(SETTINGS_FILTER_SMART_URL_TRANSFORMER, enableUrlTransformer, DEFAULT_FILTER_SMART_URL_TRANSFORMER);
 
 	QuteQoin::QQSmartUrlFilerTransformType trType = m_filterSettingsW->smartUrlTransformerType();
-	settings.setValueWithDefault(SETTINGS_FILTER_SMART_URL_TRANSFORM_TYPE, trType, DEFAULT_FILTER_SMART_URL_TRANSFORM_TYPE);
-
+	needPiniFullRepaint |= settings.setValueWithDefault(SETTINGS_FILTER_SMART_URL_TRANSFORM_TYPE, trType, DEFAULT_FILTER_SMART_URL_TRANSFORM_TYPE);
 }
 
 void QQSettingsManager::initGeneralSettings()
@@ -235,34 +238,19 @@ void QQSettingsManager::saveGeneralSettings()
 	QQSettings settings;
 
 	QString historySize = m_generalSettingsW->maxHistorySize();
-	if(historySize.size() == 0 || historySize == QString::number(DEFAULT_GENERAL_MAX_HISTLEN))
-		settings.remove(SETTINGS_GENERAL_MAX_HISTLEN);
-	else
-		settings.setValue(SETTINGS_GENERAL_MAX_HISTLEN, historySize.toInt());
+	settings.setValueWithDefault(SETTINGS_GENERAL_MAX_HISTLEN, historySize, DEFAULT_GENERAL_MAX_HISTLEN);
 
 	QString defaultLogin = m_generalSettingsW->defaultLogin();
-	if(defaultLogin.size() == 0 || defaultLogin == DEFAULT_GENERAL_DEFAULT_LOGIN)
-		settings.remove(SETTINGS_GENERAL_DEFAULT_LOGIN);
-	else
-		settings.setValue(SETTINGS_GENERAL_DEFAULT_LOGIN, defaultLogin);
+	settings.setValueWithDefault(SETTINGS_GENERAL_DEFAULT_LOGIN, defaultLogin, DEFAULT_GENERAL_DEFAULT_LOGIN);
 
 	QString defaultUA = m_generalSettingsW->defaultUA();
-	if(defaultUA.size() == 0 || defaultUA == DEFAULT_GENERAL_DEFAULT_UA)
-		settings.remove(SETTINGS_GENERAL_DEFAULT_UA);
-	else
-		settings.setValue(SETTINGS_GENERAL_DEFAULT_UA, defaultUA);
+	settings.setValueWithDefault(SETTINGS_GENERAL_DEFAULT_UA, defaultUA, DEFAULT_GENERAL_DEFAULT_UA);
 
 	QString defaultWebSearchUrl = m_generalSettingsW->defaultWebSearchUrl();
-	if(defaultWebSearchUrl.size() == 0 || defaultWebSearchUrl == DEFAULT_GENERAL_WEBSEARCH_URL)
-		settings.remove(SETTINGS_GENERAL_WEBSEARCH_URL);
-	else
-		settings.setValue(SETTINGS_GENERAL_WEBSEARCH_URL, defaultWebSearchUrl);
+	settings.setValueWithDefault(SETTINGS_GENERAL_WEBSEARCH_URL, defaultWebSearchUrl, DEFAULT_GENERAL_WEBSEARCH_URL);
 
 	QString defaultFont = m_generalSettingsW->defaultFont().toString();
-	if(defaultFont == DEFAULT_GENERAL_DEFAULT_FONT)
-		settings.remove(SETTINGS_GENERAL_DEFAULT_FONT);
-	else
-		settings.setValue(SETTINGS_GENERAL_DEFAULT_FONT, defaultFont);
+	needPiniFullRepaint |= settings.setValueWithDefault(SETTINGS_GENERAL_DEFAULT_FONT, defaultFont, DEFAULT_GENERAL_DEFAULT_FONT);
 }
 
 void QQSettingsManager::initPalmiSettings()
@@ -342,39 +330,21 @@ void QQSettingsManager::saveTotozSettings()
 	QQSettings settings;
 
 	QString totozServerURL = m_totozSettingsW->totozServerURL();
-	if(totozServerURL.size() == 0 || totozServerURL == DEFAULT_TOTOZ_SERVER_URL)
-		settings.remove(SETTINGS_TOTOZ_SERVER_URL);
-	else
-		settings.setValue(SETTINGS_TOTOZ_SERVER_URL, totozServerURL);
+	settings.setValueWithDefault(SETTINGS_TOTOZ_SERVER_URL, totozServerURL, DEFAULT_TOTOZ_SERVER_URL);
 
 	QString totozServerBaseImg = m_totozSettingsW->totozBaseImgUrl();
-	if(totozServerBaseImg.size() == 0 || totozServerBaseImg == DEFAULT_TOTOZ_SERVER_BASE_IMG)
-		settings.remove(SETTINGS_TOTOZ_SERVER_BASE_IMG);
-	else
-		settings.setValue(SETTINGS_TOTOZ_SERVER_BASE_IMG, totozServerBaseImg);
+	settings.setValueWithDefault(SETTINGS_TOTOZ_SERVER_BASE_IMG, totozServerBaseImg, DEFAULT_TOTOZ_SERVER_BASE_IMG);
 
 	QString totozServerNameSuffix = m_totozSettingsW->totozNameSuffix();
-	if(totozServerNameSuffix.size() == 0 || totozServerNameSuffix == DEFAULT_TOTOZ_SERVER_NAME_SUFFIX)
-		settings.remove(SETTINGS_TOTOZ_SERVER_NAME_SUFFIX);
-	else
-		settings.setValue(SETTINGS_TOTOZ_SERVER_NAME_SUFFIX, totozServerNameSuffix);
+	settings.setValueWithDefault(SETTINGS_TOTOZ_SERVER_NAME_SUFFIX, totozServerNameSuffix, DEFAULT_TOTOZ_SERVER_NAME_SUFFIX);
 
 	bool totozServerAllowSearch = m_totozSettingsW->totozAllowSearch();
-	emit totozSearchEnabledChanged(totozServerAllowSearch);
-	if(totozServerAllowSearch == DEFAULT_TOTOZ_SERVER_ALLOW_SEARCH)
-		settings.remove(SETTINGS_TOTOZ_SERVER_ALLOW_SEARCH);
-	else
-		settings.setValue(SETTINGS_TOTOZ_SERVER_ALLOW_SEARCH, QVariant(totozServerAllowSearch));
+	if(settings.setValueWithDefault(SETTINGS_TOTOZ_SERVER_ALLOW_SEARCH, QVariant(totozServerAllowSearch), DEFAULT_TOTOZ_SERVER_ALLOW_SEARCH))
+		emit totozSearchEnabledChanged(totozServerAllowSearch);
 
 	QString totozServerQueryPattern = m_totozSettingsW->totozQueryPattern();
-	if(totozServerQueryPattern.size() == 0 || totozServerQueryPattern == DEFAULT_TOTOZ_SERVER_QUERY_PATTERN)
-		settings.remove(SETTINGS_TOTOZ_SERVER_QUERY_PATTERN);
-	else
-		settings.setValue(SETTINGS_TOTOZ_SERVER_QUERY_PATTERN, totozServerQueryPattern);
+	settings.setValueWithDefault(SETTINGS_TOTOZ_SERVER_QUERY_PATTERN, totozServerQueryPattern, DEFAULT_TOTOZ_SERVER_QUERY_PATTERN);
 
 	QString totozServerVisualMode = m_totozSettingsW->totozVisualMode();
-	if(totozServerVisualMode.size() == 0 || totozServerVisualMode == DEFAULT_TOTOZ_VISUAL_MODE)
-		settings.remove(SETTINGS_TOTOZ_VISUAL_MODE);
-	else
-		settings.setValue(SETTINGS_TOTOZ_VISUAL_MODE, totozServerVisualMode);
+	settings.setValueWithDefault(SETTINGS_TOTOZ_VISUAL_MODE, totozServerVisualMode, DEFAULT_TOTOZ_VISUAL_MODE);
 }

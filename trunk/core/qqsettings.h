@@ -49,7 +49,7 @@ public:
 	void setUserPalmiShorcuts(QList< QPair<QChar, QString> > userPalmiShortcuts);
 	QList< QPair<QChar, QString> > userPalmiShorcuts() const { return m_userPalmiShortcuts; }
 
-	void setValueWithDefault(const QString &key, const QVariant &value, const QVariant &defaultValue);
+	bool setValueWithDefault(const QString &key, const QVariant &newValue, const QVariant &defaultValue);
 
 private:
 	void fillStaticPalmiShortcuts();

@@ -33,6 +33,7 @@ signals:
 	void minimizePalmi();
 	void maximizePalmi();
 	void hidePalmi(bool hide = false);
+	void fullRepaint();
 
 protected slots:
 	virtual void accept();
@@ -57,6 +58,8 @@ private:
 	QQGeneralSettings *m_generalSettingsW;
 	QQPalmiSettings *m_palmiSettingsW;
 	QQTotozSettings *m_totozSettingsW;
+
+	bool needPiniFullRepaint;
 };
 
 #endif // QQSETTINGSMANAGER_H
