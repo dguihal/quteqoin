@@ -15,6 +15,17 @@
 #include <QTextCursor>
 #include <QWidget>
 
+//Uncomment to activate complementary color highlight
+//#define COLOR_COMPLEMENT
+
+#define HIGHLIGHT_COLOR "#FFE940"
+#define HIGHLIGHT_COLOR_S 200
+#define HIGHLIGHT_COLOR_V 200
+#define NORLOGE_COLOR "#0000DD"
+#define NORLOGE_REP_COLOR "#DD0000"
+#define DUCK_COLOR "#9933cc"
+#define TOTOZ_COLOR "#00AA11"
+
 QQSyntaxHighlighter::QQSyntaxHighlighter(QTextDocument * parent) :
 	QSyntaxHighlighter(parent)
 {
@@ -53,15 +64,26 @@ void QQSyntaxHighlighter::highlightBlockForNRef()
 		return;
 
 	QTextBlockFormat fmt = currentBlock().blockFormat();
-	fmt.setBackground(userData->post()->bouchot()->settings().colorLight());
+
+	QColor bgColor = userData->post()->bouchot()->settings().colorLight();
 
 	if(m_nRef.matchesPost(userData->post()))
 	{
-		fmt.setBackground(QColor("#FFE940"));
+#ifdef COLOR_COMPLEMENT
+		int h, s, v;
+		bgColor.getHsv(&h, &s, &v);
+		QColor highlightColor = QColor::fromHsv((h + 180) % 360, qMax(s, HIGHLIGHT_COLOR_S), qMax(v, HIGHLIGHT_COLOR_V));
+#else
+		QColor highlightColor = QColor(HIGHLIGHT_COLOR);
+#endif
+
+		fmt.setBackground(highlightColor);
 		int blockState = currentBlockState();
 		blockState |= QQSyntaxHighlighter::FULL_HIGHLIGHTED;
 		setCurrentBlockState(blockState);
 	}
+	else
+		fmt.setBackground(bgColor);
 
 	QTextCursor curs(currentBlock());
 	curs.beginEditBlock();
@@ -140,9 +162,9 @@ void QQSyntaxHighlighter::linkNorlogeRef(QQNorlogeRef & nRef)
 
 void QQSyntaxHighlighter::formatNRef(QQNorlogeRef & nRef)
 {
-	QColor highlightColor("#FFE940");
-	QColor printColor("#0000DD");
-	QColor repColor("#DD0000");
+	QColor highlightColor(HIGHLIGHT_COLOR);
+	QColor printColor(NORLOGE_COLOR);
+	QColor repColor(NORLOGE_REP_COLOR);
 
 	QTextCharFormat fmt = format(nRef.getPosInMessage());
 
@@ -156,6 +178,12 @@ void QQSyntaxHighlighter::formatNRef(QQNorlogeRef & nRef)
 
 	if(m_nRef.matchesNRef(nRef))
 	{
+#ifdef COLOR_COMPLEMENT
+		QColor bgColor = ((QQMessageBlockUserData *) currentBlockUserData())->post()->bouchot()->settings().colorLight();
+		int h, s, v;
+		bgColor.getHsv(&h, &s, &v);
+		highlightColor = QColor::fromHsv((h + 180) % 360, qMax(s, HIGHLIGHT_COLOR_S), qMax(v, HIGHLIGHT_COLOR_V));
+#endif
 		fmt.setBackground(highlightColor);
 		int blockState = currentBlockState();
 		blockState |= QQSyntaxHighlighter::NORLOGE_HIGHLIGHTED;
@@ -236,7 +264,7 @@ void QQSyntaxHighlighter::highlightDuck(const QString & text)
 
 void QQSyntaxHighlighter::formatDuck(int duckIndex, int duckStringLength)
 {
-	QColor color = QColor("#9933CC");
+	QColor color = QColor(DUCK_COLOR);
 	setFormat(duckIndex, duckStringLength, color);
 }
 
@@ -277,7 +305,7 @@ void QQSyntaxHighlighter::highlightTableVolante(const QString & text)
 
 void QQSyntaxHighlighter::formatTableV(int tableVIndex, int tableVStringLength)
 {
-	QColor color = QColor("#9933CC");
+	QColor color = QColor(DUCK_COLOR);
 	setFormat(tableVIndex, tableVStringLength, color);
 }
 
@@ -327,7 +355,7 @@ void QQSyntaxHighlighter::highlightTotoz(const QString & text)
 void QQSyntaxHighlighter::formatTotoz(int index, const QString & totozId)
 {
 	QTextCharFormat totozMessageFormat = format(index);
-	totozMessageFormat.setForeground(QColor("#00AA11"));
+	totozMessageFormat.setForeground(QColor(TOTOZ_COLOR));
 	totozMessageFormat.setFontWeight(QFont::Bold);
 
 	setFormat(index, totozId.length(), totozMessageFormat);
