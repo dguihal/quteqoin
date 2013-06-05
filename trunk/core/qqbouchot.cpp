@@ -14,6 +14,8 @@
 #include <QXmlSimpleReader>
 #include <QXmlInputSource>
 
+#define X_POST_ID_HEADER "X-Post-Id"
+
 int defaultRefreshRate = 30;
 typedef struct bouchotDef
 {
@@ -62,6 +64,7 @@ QQBouchot::QQBouchot(const QString &name, QObject *parent) :
 	m_bSettings.setRefresh(0);
 	m_history.clear();
 	m_newPostHistory.clear();
+	m_xPostIds.clear();
 	m_lastId=-1;
 
 	m_xmlParser = new QQXmlParser();
@@ -260,6 +263,9 @@ void QQBouchot::requestFinishedSlot(QNetworkReply *reply)
 		{
 		case QQBouchot::PostRequest:
 			//qDebug() << "QQBouchot::requestFinishedSlot post Request detected, refresh du backend ";
+			if(reply->hasRawHeader(X_POST_ID_HEADER))
+			   m_xPostIds.append(QString(reply->rawHeader(X_POST_ID_HEADER)));
+
 			fetchBackend();
 			break;
 
@@ -292,16 +298,22 @@ void QQBouchot::parseBackend(const QByteArray &data)
 void QQBouchot::insertNewPost(QQPost &newPost)
 {
 	QQPost * tmpNewPost = new QQPost(newPost);
-	tmpNewPost->setParent( this );
+	tmpNewPost->setParent(this);
 
-	m_newPostHistory.prepend( tmpNewPost );
+	QString postId = tmpNewPost->id();
+	if(m_xPostIds.contains(postId))
+	{
+	   tmpNewPost->setSelfPost();
+	   m_xPostIds.removeOne(postId);
+	}
 
+	m_newPostHistory.prepend(tmpNewPost);
 }
 
 
 void QQBouchot::parsingFinished()
 {
-	if( m_newPostHistory.size() > 0 )
+	if(m_newPostHistory.size() > 0)
 	{
 		m_history.append(m_newPostHistory);
 		m_lastId = m_xmlParser->maxId();
