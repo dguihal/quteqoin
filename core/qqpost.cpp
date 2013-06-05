@@ -57,6 +57,14 @@ QString QQPost::toText()
 	return tmp;
 }
 
+void QQPost::setSelfPost(bool selfPost)
+{
+	if(selfPost)
+		m_isSelfPost = True;
+	else
+		m_isSelfPost = False;
+}
+
 bool QQPost::isSelfPost()
 {
 	if(m_isSelfPost == True)

@@ -72,6 +72,7 @@ public:
 	//////////////////////////////////////////////////////////////////////////
 	QString toText();
 
+	void setSelfPost(bool selfPost = true);
 	bool isSelfPost();
 	bool isReponse();
 
