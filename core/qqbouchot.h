@@ -134,6 +134,7 @@ private:
 	void checkGroupModified(const QString &oldGroupName);
 
 	QList<QQPost *> m_history;
+	bool m_hasXPostId; //false = unknown
 	QList<QString> m_xPostIds;
 	int m_lastId;
 	QString m_name;

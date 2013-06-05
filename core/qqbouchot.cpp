@@ -64,6 +64,7 @@ QQBouchot::QQBouchot(const QString &name, QObject *parent) :
 	m_bSettings.setRefresh(0);
 	m_history.clear();
 	m_newPostHistory.clear();
+	m_hasXPostId = false; // unknown
 	m_xPostIds.clear();
 	m_lastId=-1;
 
@@ -264,7 +265,10 @@ void QQBouchot::requestFinishedSlot(QNetworkReply *reply)
 		case QQBouchot::PostRequest:
 			//qDebug() << "QQBouchot::requestFinishedSlot post Request detected, refresh du backend ";
 			if(reply->hasRawHeader(X_POST_ID_HEADER))
-			   m_xPostIds.append(QString(reply->rawHeader(X_POST_ID_HEADER)));
+			{
+				m_hasXPostId = true;
+				m_xPostIds.append(QString(reply->rawHeader(X_POST_ID_HEADER)));
+			}
 
 			fetchBackend();
 			break;
@@ -306,6 +310,11 @@ void QQBouchot::insertNewPost(QQPost &newPost)
 	   tmpNewPost->setSelfPost();
 	   m_xPostIds.removeOne(postId);
 	}
+	//Si la tribune gere le X-Post-Id mais que l'id du post ne fait pas
+	// partie de la liste alors il est d'une autre moule
+	else if(m_hasXPostId)
+		tmpNewPost->setSelfPost(false);
+
 
 	m_newPostHistory.prepend(tmpNewPost);
 }
