@@ -9,6 +9,12 @@ QT += core gui network xml
 TARGET = quteqoin
 TEMPLATE = app
 
+LIBS += ../lib/nanim/libnanim.a \
+	../ext/nanopb/libnanopb.a
+
+INCLUDEPATH += ../lib/nanim \
+	../ext/nanopb
+
 SOURCES += main.cpp\
 	mainwindow.cpp \
 	core/qqsettings.cpp \
@@ -43,7 +49,7 @@ SOURCES += main.cpp\
 	ui/settingsmanager/qqpalmisettingstablewidget.cpp \
 	core/qqpiniurlhelper.cpp \
 	core/qqmessagetransformfilter.cpp \
-	ui/settingsmanager/qqfiltersettings.cpp
+	ui/settingsmanager/qqfiltersettings.cpp \
 
 HEADERS  += mainwindow.h \
 	core/qqsettings.h \
@@ -80,7 +86,7 @@ HEADERS  += mainwindow.h \
 	core/qqpiniurlhelper.h \
 	core/qqmessagetransformfilter.h \
 	ui/settingsmanager/qqfiltersettings.h \
-	core/qqtypes.h
+	core/qqtypes.h \
 
 FORMS += mainwindow.ui \
 	ui/qqpalmipede.ui \
