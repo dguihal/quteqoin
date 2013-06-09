@@ -12,5 +12,6 @@
         <file>general-icon.png</file>
         <file>palmipede-icon.png</file>
         <file>filter-icon.png</file>
+        <file>palmi-clear.png</file>
     </qresource>
 </RCC>

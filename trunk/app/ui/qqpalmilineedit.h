@@ -6,6 +6,7 @@
 
 class QFocusEvent;
 class QKeyEvent;
+class QToolButton;
 
 class QQPalmiLineEdit : public QLineEdit
 {
@@ -30,12 +31,17 @@ public slots:
 protected:
 	virtual void keyPressEvent(QKeyEvent *e);
 	virtual void focusInEvent(QFocusEvent *e);
+	virtual void resizeEvent(QResizeEvent *e);
+
+private slots:
+	void updateCloseButton(const QString &text);
 
 private:
 	void updateTotozCompleter();
 	void completeTotoz();
 
 	QStringList m_listTotoz;
+	QToolButton *m_clearButton;
 };
 
 #endif // QQPALMILINEEDIT_H
