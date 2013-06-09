@@ -156,7 +156,10 @@ void QQPalmiLineEdit::keyPressEvent(QKeyEvent *e)
 	}
 	else if(e->modifiers() == Qt::NoModifier &&
 			key == Qt::Key_Escape)
+	{
 		clear();
+		eventManaged = true;
+	}
 
 	if(! eventManaged)
 	{
