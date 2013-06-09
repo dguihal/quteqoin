@@ -10,6 +10,8 @@ TARGET = nanim
 TEMPLATE = lib
 CONFIG += staticlib
 
-SOURCES += nanim.pb.cc
+INCLUDEPATH += ../../ext/nanopb
+
+SOURCES += nanim.pb.c
 
 HEADERS  += nanim.pb.h
