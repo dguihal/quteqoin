@@ -5,13 +5,39 @@
 
 #include <QtDebug>
 #include <QFocusEvent>
+#include <QFontMetrics>
 #include <QKeyEvent>
+#include <QToolButton>
+#include <QStyle>
 
+//////////////////////////////////////////////////////////////
+/// \brief QQPalmiLineEdit::QQPalmiLineEdit
+/// \param parent
+///
 QQPalmiLineEdit::QQPalmiLineEdit(QWidget *parent) :
 	QLineEdit(parent)
 {
+	m_clearButton = new QToolButton(this);
+	QFontMetrics fMetrics(font());
+	QPixmap pixmap = QPixmap(":/img/palmi-clear.png").scaledToHeight(fMetrics.height());
+	m_clearButton->setIcon(QIcon(pixmap));
+	m_clearButton->setIconSize(pixmap.size());
+	m_clearButton->setCursor(Qt::ArrowCursor);
+	m_clearButton->setStyleSheet("QToolButton { border: none; padding: 0px; }");
+	m_clearButton->hide();
+	connect(m_clearButton, SIGNAL(clicked()), this, SLOT(clear()));
+	connect(this, SIGNAL(textChanged(const QString&)), this, SLOT(updateCloseButton(const QString&)));
+	int frameWidth = style()->pixelMetric(QStyle::PM_DefaultFrameWidth);
+	setStyleSheet(QString("QLineEdit { padding-right: %1px; } ").arg(m_clearButton->sizeHint().width() + frameWidth + 1));
+	QSize msz = minimumSizeHint();
+	setMinimumSize(qMax(msz.width(), m_clearButton->sizeHint().height() + frameWidth * 2 + 2),
+				   qMax(msz.height(), m_clearButton->sizeHint().height() + frameWidth * 2 + 2));
 }
 
+//////////////////////////////////////////////////////////////
+/// \brief QQPalmiLineEdit::changeColor
+/// \param newColor
+///
 void QQPalmiLineEdit::changeColor(const QColor &newColor)
 {
 	QPalette p = palette();
@@ -19,6 +45,10 @@ void QQPalmiLineEdit::changeColor(const QColor &newColor)
 	setPalette(p);
 }
 
+//////////////////////////////////////////////////////////////
+/// \brief QQPalmiLineEdit::insertText
+/// \param str
+///
 void QQPalmiLineEdit::insertText(const QString &str)
 {
 	QString newStr = str;
@@ -38,41 +68,66 @@ void QQPalmiLineEdit::insertText(const QString &str)
 		cursorBackward(false, moveCursorCount);
 }
 
+//////////////////////////////////////////////////////////////
+/// \brief QQPalmiLineEdit::blam
+///
 void QQPalmiLineEdit::blam()
 {
 	insertText(QString::fromAscii("_o/* <b>BLAM</b>! "));
 }
 
+//////////////////////////////////////////////////////////////
+/// \brief QQPalmiLineEdit::bold
+///
 void QQPalmiLineEdit::bold()
 {
 	insertText(QString::fromAscii("<b>%s</b>"));
 }
 
+//////////////////////////////////////////////////////////////
+/// \brief QQPalmiLineEdit::italic
+///
 void QQPalmiLineEdit::italic()
 {
 	insertText(QString::fromAscii("<i>%s</i>"));
 }
 
+//////////////////////////////////////////////////////////////
+/// \brief QQPalmiLineEdit::paf
+///
 void QQPalmiLineEdit::paf()
 {
 	insertText(QString::fromAscii("_o/* <b>paf!</b> "));
 }
 
+//////////////////////////////////////////////////////////////
+/// \brief QQPalmiLineEdit::moment
+///
 void QQPalmiLineEdit::moment()
 {
 	insertText(QString::fromAscii("====> <b>Moment %s</b> <===="));
 }
 
+//////////////////////////////////////////////////////////////
+/// \brief QQPalmiLineEdit::strike
+///
 void QQPalmiLineEdit::strike()
 {
 	insertText(QString::fromAscii("<s>%s</s>"));
 }
 
+//////////////////////////////////////////////////////////////
+/// \brief QQPalmiLineEdit::underline
+///
 void QQPalmiLineEdit::underline()
 {
 	insertText(QString::fromAscii("<u>%s</u>"));
 }
 
+//////////////////////////////////////////////////////////////
+/// \brief QQPalmiLineEdit::keyPressEvent
+/// \param e
+///
 void QQPalmiLineEdit::keyPressEvent(QKeyEvent *e)
 {
 	QQSettings settings;
@@ -99,6 +154,9 @@ void QQPalmiLineEdit::keyPressEvent(QKeyEvent *e)
 			}
 		}
 	}
+	else if(e->modifiers() == Qt::NoModifier &&
+			key == Qt::Key_Escape)
+		clear();
 
 	if(! eventManaged)
 	{
@@ -109,6 +167,52 @@ void QQPalmiLineEdit::keyPressEvent(QKeyEvent *e)
 	}
 }
 
+//////////////////////////////////////////////////////////////
+/// \brief QQPalmiLineEdit::focusInEvent
+/// \param e
+///
+void QQPalmiLineEdit::focusInEvent(QFocusEvent *e)
+{
+	updateTotozCompleter();
+	QLineEdit::focusInEvent(e);
+}
+
+//////////////////////////////////////////////////////////////
+/// \brief resizeEvent
+/// \param event
+///
+void QQPalmiLineEdit::resizeEvent(QResizeEvent *event)
+{
+	QSize sz = m_clearButton->sizeHint();
+	int frameWidth = style()->pixelMetric(QStyle::PM_DefaultFrameWidth);
+	m_clearButton->move(rect().right() - frameWidth - sz.width(),
+					  (rect().bottom() + 1 - sz.height())/2);
+
+	QLineEdit::resizeEvent(event);
+}
+
+//////////////////////////////////////////////////////////////
+/// \brief LineEdit::updateCloseButton
+/// \param text
+///
+void QQPalmiLineEdit::updateCloseButton(const QString& text)
+{
+	m_clearButton->setVisible(!text.isEmpty());
+}
+
+//////////////////////////////////////////////////////////////
+/// \brief QQPalmiLineEdit::updateTotozCompleter
+///
+void QQPalmiLineEdit::updateTotozCompleter()
+{
+	QQSettings settings;
+	m_listTotoz = settings.value(SETTINGS_TOTOZ_BOOKMARKLIST).toStringList();
+	m_listTotoz.sort();
+}
+
+//////////////////////////////////////////////////////////////
+/// \brief QQPalmiLineEdit::completeTotoz
+///
 void QQPalmiLineEdit::completeTotoz()
 {
 	QString txt = text().left(cursorPosition());
@@ -131,18 +235,4 @@ void QQPalmiLineEdit::completeTotoz()
 			}
 		}
 	}
-}
-
-void QQPalmiLineEdit::focusInEvent(QFocusEvent *e)
-{
-	Q_UNUSED(e);
-	updateTotozCompleter();
-	QLineEdit::focusInEvent(e);
-}
-
-void QQPalmiLineEdit::updateTotozCompleter()
-{
-	QQSettings settings;
-	m_listTotoz = settings.value(SETTINGS_TOTOZ_BOOKMARKLIST).toStringList();
-	m_listTotoz.sort();
 }
