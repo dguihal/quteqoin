@@ -32,7 +32,6 @@ signals:
 	void totozSearchEnabledChanged(bool);
 	void minimizePalmi();
 	void maximizePalmi();
-	void hidePalmi(bool hide = false);
 	void fullRepaint();
 
 protected slots:

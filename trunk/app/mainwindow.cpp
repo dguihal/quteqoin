@@ -15,6 +15,7 @@
 #include <QLayout>
 #include <QSizePolicy>
 #include <QSpacerItem>
+#include <QToolButton>
 
 MainWindow::MainWindow(QWidget *parent) :
 	QMainWindow(parent),
@@ -33,30 +34,33 @@ MainWindow::MainWindow(QWidget *parent) :
 	connect(m_palmi, SIGNAL(visibilityChanged(bool)), this, SLOT(palmiVisibilityChanged(bool)));
 	addDockWidget(Qt::BottomDockWidgetArea, m_palmi, Qt::Horizontal);
 
+	QAction *actionPalmi = m_palmi->toggleViewAction();
+	actionPalmi->setShortcut(Qt::ControlModifier + Qt::Key_P);
+
 	// Setup du totoz manager
 	m_totozManager = new QQTotozManager(this);
 	m_totozManager->setAllowedAreas(Qt::LeftDockWidgetArea |
 									Qt::RightDockWidgetArea);
 	connect(m_totozManager, SIGNAL(totozClicked(QString)), m_palmi, SLOT(insertReplaceText(QString)));
 	connect(m_totozManager, SIGNAL(visibilityChanged(bool)), this, SLOT(totozManagerVisibilityChanged(bool)));
-	m_totozManager->setVisible(false);
 	addDockWidget(Qt::RightDockWidgetArea, m_totozManager, Qt::Vertical);
 
 	QAction *actionTotozManager = m_totozManager->toggleViewAction();
 	actionTotozManager->setShortcut(Qt::ControlModifier + Qt::Key_T);
-	m_ui->toolsMenu->addAction(actionTotozManager);
 
 	// Setup du pini
+	QToolButton *toolButton = new QToolButton();
+	toolButton->setIcon(QIcon(":/img/settings-icon.png"));
+	toolButton->addAction(actionPalmi);
+	toolButton->addAction(actionTotozManager);
+
+	connect(toolButton, SIGNAL(clicked()), this, SLOT(displayOptions()));
+
 	m_pini = new QQPinipede(this);
+	m_pini->setToolButton(toolButton);
 	m_pini->setTotozManager(m_totozManager);
 	connect(m_pini, SIGNAL(insertTextPalmi(QString, QString)), m_palmi, SLOT(insertReplaceText(QString, QString)));
 	setCentralWidget(m_pini);
-
-	connect(m_ui->actionQuit, SIGNAL(triggered()), this, SLOT(close()));
-	connect(m_ui->actionPalmiExt, SIGNAL(triggered()), this, SLOT(doTriggerMaxiPalmi()));
-	connect(m_ui->actionPalmiMini, SIGNAL(triggered()), this, SLOT(doTriggerMiniPalmi()));
-	connect(m_ui->actionPalmiHidden, SIGNAL(triggered(bool)), this, SLOT(doTriggerHiddenPalmi(bool)));
-	connect(m_ui->actionOptions, SIGNAL(triggered()), this, SLOT(displayOptions()));
 
 	QQSettings settings;
 	if(settings.contains(SETTINGS_MAINWINDOW_GEOMETRY))
@@ -65,12 +69,9 @@ MainWindow::MainWindow(QWidget *parent) :
 		restoreState(settings.value(SETTINGS_MAINWINDOW_STATE).toByteArray());
 
 	if(settings.value(SETTINGS_PALMI_MINI, DEFAULT_PALMI_MINI).toBool())
-		m_ui->actionPalmiMini->trigger();
+		doTriggerMiniPalmi();
 	else
-		m_ui->actionPalmiExt->trigger();
-
-	if(settings.value(SETTINGS_PALMI_HIDDEN, DEFAULT_PALMI_HIDDEN).toBool())
-		m_ui->actionPalmiHidden->trigger();
+		doTriggerMaxiPalmi();
 
 	// Envoyer le focus par defaut sur le palmi s'il est visible
 	if(m_palmi->isVisible())
@@ -93,7 +94,6 @@ void MainWindow::displayOptions()
 	connect(&settingsManager, SIGNAL(bouchotCreated(QQBouchot*)), this, SLOT(initBouchot(QQBouchot*)));
 	connect(&settingsManager, SIGNAL(minimizePalmi()), this, SLOT(doTriggerMiniPalmi()));
 	connect(&settingsManager, SIGNAL(maximizePalmi()), this, SLOT(doTriggerMaxiPalmi()));
-	connect(&settingsManager, SIGNAL(hidePalmi(bool)), this, SLOT(doTriggerHiddenPalmi(bool)));
 	connect(&settingsManager, SIGNAL(totozSearchEnabledChanged(bool)), m_totozManager, SLOT(totozSearchEnabled(bool)));
 	settingsManager.exec();
 
@@ -110,16 +110,6 @@ void MainWindow::doPostMessage(const QString &bouchot, const QString &message)
 		bouchotDest->postMessage(message);
 	//else
 	// Bouchot non trouvé ???
-}
-
-void MainWindow::doTriggerHiddenPalmi(bool checked)
-{
-	m_ui->actionPalmiHidden->setChecked(checked);
-	m_palmi->setHidden(checked);
-
-	QQSettings settings;
-	settings.setValueWithDefault(SETTINGS_PALMI_HIDDEN, checked, DEFAULT_PALMI_HIDDEN);
-
 }
 
 void MainWindow::doTriggerMaxiPalmi()

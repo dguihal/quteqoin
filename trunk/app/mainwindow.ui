@@ -18,55 +18,6 @@
     <normaloff>:/img/rubber_duck_yellow.svg</normaloff>:/img/rubber_duck_yellow.svg</iconset>
   </property>
   <widget class="QWidget" name="centralWidget"/>
-  <widget class="QMenuBar" name="menuBar">
-   <property name="geometry">
-    <rect>
-     <x>0</x>
-     <y>0</y>
-     <width>600</width>
-     <height>18</height>
-    </rect>
-   </property>
-   <widget class="QMenu" name="menuFile">
-    <property name="title">
-     <string>File</string>
-    </property>
-    <addaction name="separator"/>
-    <addaction name="actionQuit"/>
-   </widget>
-   <widget class="QMenu" name="displayMenu">
-    <property name="title">
-     <string>Display</string>
-    </property>
-    <widget class="QMenu" name="menuPinipede">
-     <property name="title">
-      <string>Pinipede</string>
-     </property>
-     <addaction name="actionTabul"/>
-     <addaction name="actionEn_ligne"/>
-    </widget>
-    <widget class="QMenu" name="menuPalmipede">
-     <property name="title">
-      <string>Palmipede</string>
-     </property>
-     <addaction name="actionPalmiExt"/>
-     <addaction name="actionPalmiMini"/>
-     <addaction name="separator"/>
-     <addaction name="actionPalmiHidden"/>
-    </widget>
-    <addaction name="menuPalmipede"/>
-    <addaction name="menuPinipede"/>
-   </widget>
-   <widget class="QMenu" name="toolsMenu">
-    <property name="title">
-     <string>Tools</string>
-    </property>
-    <addaction name="actionOptions"/>
-   </widget>
-   <addaction name="menuFile"/>
-   <addaction name="displayMenu"/>
-   <addaction name="toolsMenu"/>
-  </widget>
   <action name="actionTabbed">
    <property name="checkable">
     <bool>true</bool>
