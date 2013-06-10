@@ -20,18 +20,17 @@
 #include <QLabel>
 #include <QMovie>
 #include <QScrollBar>
+#include <QTabBar>
 #include <QTextDocument>
 #include <QTextDocumentFragment>
 #include <QTextFrame>
 #include <QTime>
-#include <QTabBar>
+#include <QToolButton>
 #include <QVBoxLayout>
 
 QQPinipede::QQPinipede(QWidget * parent) :
 	QTabWidget(parent)
 {
-	this->tabBar()->hide();
-
 	m_totozManager = NULL;
 
 	m_totozDownloader = new QQTotozDownloader(this);
@@ -56,7 +55,7 @@ QQPinipede::QQPinipede(QWidget * parent) :
 	m_totozViewer->setScaledContents(false);
 	m_totozViewer->setTotozDownloader(m_totozDownloader);
 	m_totozViewer->enableBookmarksAdd();
-	connect(m_totozViewer, SIGNAL(totozClicked(QString)), this, SLOT(totozClicked(QString)));
+	//connect(m_totozViewer, SIGNAL(totozClicked(QString)), this, SLOT(totozClicked(QString)));
 }
 
 QQPinipede::~QQPinipede()
@@ -70,6 +69,11 @@ QQPinipede::~QQPinipede()
 		for(int i = 0; i < listTabs.size(); i++)
 			delete m_listPostsTabMap.take(tab);
 	}
+}
+
+void QQPinipede::setToolButton(QToolButton *toolButton)
+{
+	setCornerWidget(toolButton, Qt::TopRightCorner);
 }
 
 void QQPinipede::addPiniTab(const QString & groupName)
@@ -96,9 +100,6 @@ void QQPinipede::addPiniTab(const QString & groupName)
 	connect(textBrowser, SIGNAL(concealTotoz()), this, SLOT(hideTotozViewer()));
 	connect(textBrowser, SIGNAL(newPostsAcknowledged(QString)), this, SLOT(newPostsAcknowledged(QString)));
 	connect(textBrowser, SIGNAL(displayTotozContextMenu(QPoint &)), m_totozViewer, SLOT(displayContextMenu(QPoint &)));
-
-	if(this->count() > 1)
-		this->tabBar()->show();
 }
 
 void QQPinipede::createPiniTabs(const QList<QString> &groups)
@@ -116,9 +117,6 @@ void QQPinipede::removePiniTab(const QString &name)
 	delete textBrowser;
 
 	m_listPostsTabMap.remove(name);
-
-	if(this->count() < 2)
-		this->tabBar()->hide();
 }
 
 void QQPinipede::purgePiniTab(const QString &groupName, const QString &bouchotName)

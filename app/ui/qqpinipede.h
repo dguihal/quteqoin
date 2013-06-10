@@ -29,6 +29,7 @@ class QLabel;
 class QMovie;
 class QTextBrowser;
 class QTextDocument;
+class QToolButton;
 
 class QQPinipede : public QTabWidget
 {
@@ -37,6 +38,8 @@ class QQPinipede : public QTabWidget
 public:
 	explicit QQPinipede(QWidget *parent = 0);
 	~QQPinipede();
+
+	void setToolButton(QToolButton *toolButton);
 
 	void addPiniTab(const QString &);
 	void createPiniTabs(const QList<QString> &groups);

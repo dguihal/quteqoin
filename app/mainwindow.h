@@ -26,7 +26,6 @@ public:
 public slots:
 	void displayOptions();
 	void doPostMessage(const QString &bouchot, const QString &message);
-	void doTriggerHiddenPalmi(bool checked = false);
 	void doTriggerMaxiPalmi();
 	void doTriggerMiniPalmi();
 	void palmiVisibilityChanged(bool visible);

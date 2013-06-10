@@ -23,10 +23,6 @@ public:
 	QList<QPair<QChar, QString> > getUserShortcuts();
 	void setUserShortcuts(QList<QPair<QChar, QString> > list);
 
-
-	bool isPalmiHidden() const;
-	void setPalmiHidden(const bool &isPalmiHidden);
-
 	bool isPalmiMinimized() const;
 	void setPalmiMinimized(const bool &isPalmiMini);
 

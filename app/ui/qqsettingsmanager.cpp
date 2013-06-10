@@ -264,10 +264,6 @@ void QQSettingsManager::initPalmiSettings()
 	//Palmi mini/maxi
 	bool isPalmiMini = settings.value(SETTINGS_PALMI_MINI, DEFAULT_PALMI_MINI).toBool();
 	m_palmiSettingsW->setPalmiMinimized(isPalmiMini);
-
-	//Palmi hidden
-	bool isPalmiHidden = settings.value(SETTINGS_PALMI_HIDDEN, DEFAULT_PALMI_HIDDEN).toBool();
-	m_palmiSettingsW->setPalmiHidden(isPalmiHidden);
 }
 
 void QQSettingsManager::savePalmiSettings()
@@ -290,15 +286,6 @@ void QQSettingsManager::savePalmiSettings()
 		else
 			emit maximizePalmi();
 	}
-
-	//Palmi hidden
-	bool isPalmiHidden = m_palmiSettingsW->isPalmiHidden();
-	bool oldVisibility = settings.value(SETTINGS_PALMI_HIDDEN, DEFAULT_PALMI_HIDDEN).toBool();
-
-	settings.setValueWithDefault(SETTINGS_PALMI_HIDDEN, isPalmiMini, DEFAULT_PALMI_HIDDEN);
-
-	if(isPalmiHidden != oldVisibility)
-		emit hidePalmi(isPalmiHidden);
 }
 
 void QQSettingsManager::initTotozSettings()

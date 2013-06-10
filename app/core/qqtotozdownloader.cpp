@@ -49,7 +49,7 @@ void QQTotozDownloader::requestFinishedSlot(QNetworkReply * reply)
 	if(!redirectedURL.isEmpty() &&
 	   redirectedURL != reply->url())
 	{
-		qDebug() << "QQTotozManager::requestFinishedSlot: Redirected to " << redirectedURL.toString();
+		qDebug() << "QQTotozDownloader::requestFinishedSlot: Redirected to " << redirectedURL.toString();
 		QNetworkRequest request(redirectedURL);
 		request.setAttribute(QNetworkRequest::CacheLoadControlAttribute,
 							 QNetworkRequest::PreferCache);
@@ -62,7 +62,7 @@ void QQTotozDownloader::requestFinishedSlot(QNetworkReply * reply)
 		// Recuperation du Statut HTTP
 		QVariant statusCodeV = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute);
 
-		qWarning() << "QQTotozManager::requestFinishedSlot, error : " << reply->errorString()
+		qWarning() << "QQTotozDownloader::requestFinishedSlot, error : " << reply->errorString()
 				   << "HTTP statusCode : " << statusCodeV.toString();
 		emit fetchTotozFinished(totozId, false);
 	} // Tout est OK on poursuit

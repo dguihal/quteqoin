@@ -20,6 +20,10 @@ QQPalmipede::QQPalmipede(QWidget *parent) :
 
 	ui->setupUi(this);
 
+	setFeatures(QDockWidget::DockWidgetClosable |
+				QDockWidget::DockWidgetMovable |
+				QDockWidget::DockWidgetFloatable);
+
 	connect(ui->boldButton, SIGNAL(clicked()),
 			ui->postLineEdit, SLOT(bold()));
 	connect(ui->italicButton, SIGNAL(clicked()),

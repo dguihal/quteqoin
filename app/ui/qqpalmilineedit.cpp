@@ -19,7 +19,7 @@ QQPalmiLineEdit::QQPalmiLineEdit(QWidget *parent) :
 {
 	m_clearButton = new QToolButton(this);
 	QFontMetrics fMetrics(font());
-	QPixmap pixmap = QPixmap(":/img/palmi-clear.png").scaledToHeight(fMetrics.height());
+	QPixmap pixmap = QPixmap(":/img/palmi-clear.png").scaledToHeight(fMetrics.height() + 1);
 	m_clearButton->setIcon(QIcon(pixmap));
 	m_clearButton->setIconSize(pixmap.size());
 	m_clearButton->setCursor(Qt::ArrowCursor);
@@ -29,9 +29,6 @@ QQPalmiLineEdit::QQPalmiLineEdit(QWidget *parent) :
 	connect(this, SIGNAL(textChanged(const QString&)), this, SLOT(updateCloseButton(const QString&)));
 	int frameWidth = style()->pixelMetric(QStyle::PM_DefaultFrameWidth);
 	setStyleSheet(QString("QLineEdit { padding-right: %1px; } ").arg(m_clearButton->sizeHint().width() + frameWidth + 1));
-	QSize msz = minimumSizeHint();
-	setMinimumSize(qMax(msz.width(), m_clearButton->sizeHint().height() + frameWidth * 2 + 2),
-				   qMax(msz.height(), m_clearButton->sizeHint().height() + frameWidth * 2 + 2));
 }
 
 //////////////////////////////////////////////////////////////
