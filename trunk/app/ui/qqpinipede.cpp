@@ -82,7 +82,7 @@ void QQPinipede::addPiniTab(const QString & groupName)
 		return;
 
 	QQTextBrowser * textBrowser = new QQTextBrowser(groupName, this);
-	this->addTab(textBrowser, groupName);
+	addTab(textBrowser, groupName);
 
 	m_textBrowserHash.insert(groupName, textBrowser);
 	//textBrowser->document() devient le proprietaire du highlighter
@@ -476,9 +476,9 @@ void QQPinipede::norlogeRefHovered(QQNorlogeRef norlogeRef)
 
 	bool highlightSuccess = false;
 	QQTextBrowser *textBrowser = NULL;
-	for(int i = 0; i < groups.count(); i++)
+	foreach (QString group, groups)
 	{
-		textBrowser = m_textBrowserHash.value(groups.at(i));
+		textBrowser = m_textBrowserHash.value(group);
 
 		if(textBrowser->isHighlighted())
 			unHighlight(textBrowser);
@@ -545,6 +545,7 @@ void QQPinipede::norlogeRefHovered(QQNorlogeRef norlogeRef)
 					.append(";");
 			m_hiddenPostViewerLabel->setStyleSheet(styleSheet);
 			m_hiddenPostViewerLabel->setText(destDocument.toHtml());
+			m_hiddenPostViewerLabel->move(mapFromGlobal(textBrowser->mapToGlobal(QPoint(0, 0))));
 			m_hiddenPostViewerLabel->show();
 		}
 	}
@@ -565,7 +566,7 @@ void QQPinipede::unHighlight(QQTextBrowser *tBrowser)
 
 	tBrowser->setHighlighted(false);
 
-	m_hiddenPostViewerLabel->hide();
+	//m_hiddenPostViewerLabel->hide();
 
 	QTextCursor cursor(tBrowser->document());
 	QQSyntaxHighlighter * highlighter = tBrowser->document()->findChildren<QQSyntaxHighlighter *>().at(0);
