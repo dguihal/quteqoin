@@ -1,6 +1,7 @@
 #include "qqpinipede.h"
 
 #include "mainwindow.h"
+#include "core/qqbackendupdatedevent.h"
 #include "core/qqbouchot.h"
 #include "core/qqpiniurlhelper.h"
 #include "core/qqpurgebouchothistoevent.h"
@@ -168,7 +169,7 @@ void QQPinipede::purgePinitab(const QString &groupName, const QString &bouchotNa
 				if(destListPosts->at(destListPostsIndex) == post)
 				{
 					destListPosts->removeAt(destListPostsIndex);
-						break;
+					break;
 				}
 			}
 
@@ -235,149 +236,22 @@ void QQPinipede::purgePinitabHistory(const QString & groupName)
 }
 
 //////////////////////////////////////////////////////////////
-/// \brief QQPinipede::newPostsAvailable
-/// \param groupName
+/// \brief QQPinipede::event
+/// \param e
+/// \return
 ///
-void QQPinipede::newPostsAvailable(QString groupName)
+bool QQPinipede::event(QEvent *e)
 {
-	qDebug() << "QQPinipede::newPostsAvailable from : " << groupName;
-
-	//On est obligé de locker pour éviter la pagaille dans le pini.
-	// un locking plus fin pourrait être obtenu en implémentant un lock par groupe
-	while(! newPostsAvailableMutex.tryLock(1000))
-		qWarning() << "newPostsAvailable " << groupName << "tryLock timeout";
-
-	QList<QQPost *> newPosts;
-
-	QList<QQBouchot *> listBouchots = QQBouchot::listBouchotsGroup(groupName);
-	QListIterator<QQBouchot *> i(listBouchots);
-	while(i.hasNext())
+	bool rep = true;
+	if(e->type() == QQBackendUpdatedEvent::BACKEND_UPDATED)
 	{
-		QQBouchot *b = i.next();
-		QList<QQPost *> newBouchotPosts = b->takeNewPosts();
-		if(newBouchotPosts.size() > 0)
-			newPosts.append(newBouchotPosts);
-	}
-
-	// Au cas ou on serait deja passe avant (cas du signal multiple)
-	if(newPosts.size() == 0)
-	{
-		newPostsAvailableMutex.unlock();
-		return;
-	}
-
-	QQSettings settings;
-	int maxHistorySize = settings.value(SETTINGS_GENERAL_MAX_HISTLEN, DEFAULT_GENERAL_MAX_HISTLEN).toInt();
-	//Il ne sert a rien d'insérer plus que de posts que le max de l'historique
-	while(newPosts.size() > maxHistorySize)
-		newPosts.removeFirst();
-
-	// Tri necessaire puisqu'on a potentiellement melange les posts de plusieurs tribunes
-	qSort(newPosts.begin(), newPosts.end(), postComp);
-
-	QQTextBrowser * textBrowser = m_textBrowserHash.value(groupName);
-	//On signale via la forme de la souris qu'un traitement est en cours
-	textBrowser->viewport()->setCursor(Qt::BusyCursor);
-	QTextDocument * doc = textBrowser->document();
-
-	QTextCursor cursor(doc);
-	cursor.beginEditBlock();
-
-	bool wasAtEnd = (textBrowser->verticalScrollBar()->sliderPosition() == textBrowser->verticalScrollBar()->maximum());
-	bool postWasPrinted = true;
-	// Recuperation de l'historique des posts (ou creation si absent)
-	QList<QQPost *> *destlistPosts = NULL;
-	if(! m_listPostsTabMap.contains(groupName))
-	{
-		// Cas du pini vide, il contient déjà un bloc vide, on
-		//  a juste a afficher le premier post;
-		QQPost * firstPost = newPosts.takeFirst();
-		destlistPosts = new QList<QQPost *>();
-		destlistPosts->append(firstPost);
-		m_listPostsTabMap.insert(groupName, destlistPosts);
-		postWasPrinted = printPostAtCursor(cursor, firstPost);
-
-		// Si le pini était vide on scrolle forcément vers le dernier post
-		wasAtEnd = true;
+		QString group = ((QQBackendUpdatedEvent *) e)->group();
+		newPostsAvailable(group);
 	}
 	else
-		destlistPosts = m_listPostsTabMap[groupName];
+		rep = QTabWidget::event(e);
 
-	int newPostsIndex = 0, baseInsertIndex = 0, insertIndex = 0;
-	// Tant qu'il reste des posts a afficher
-	while(newPostsIndex < newPosts.size())
-	{
-		QQPost * newPost = newPosts.at(newPostsIndex);
-
-		insertIndex = insertPostToList(destlistPosts, newPost, baseInsertIndex);
-
-		if(newPost == destlistPosts->last()) //insertion a la fin
-			break;
-
-		//Deplacement vers la nouvelle ligne
-		if(insertIndex == 0)
-		{
-			//Necessite de le copier car il sera supprime par le nouveau userData de la premiere ligne
-			QQMessageBlockUserData * uData = new QQMessageBlockUserData(* ((QQMessageBlockUserData *) cursor.block().userData()));
-			cursor.insertBlock();
-			cursor.block().setUserData(uData);
-			cursor.movePosition(QTextCursor::PreviousBlock);
-			postWasPrinted = printPostAtCursor(cursor, newPost);
-		}
-		else
-		{
-			cursor.movePosition(QTextCursor::NextBlock, QTextCursor::MoveAnchor, (insertIndex - baseInsertIndex) - 1);
-			cursor.movePosition(QTextCursor::EndOfBlock);
-			cursor.insertBlock();
-			postWasPrinted = printPostAtCursor(cursor, newPost);
-		}
-
-		newPostsIndex++;
-		baseInsertIndex = insertIndex;
-	}
-
-	//Insertion a la fin
-	if(newPostsIndex < newPosts.size())
-	{
-		//Le premier item a deja ete insere dans la liste destlistPosts dans la boucle while au dessus
-		//on a juste a l'afficher
-		cursor.movePosition(QTextCursor::End);
-		cursor.insertBlock();
-		postWasPrinted = printPostAtCursor(cursor, newPosts.at(newPostsIndex++));
-
-		while(newPostsIndex < newPosts.size())
-		{
-			// Gestion de l'index de norloge multiple
-			if(newPosts.at(newPostsIndex)->norloge().toLongLong() == destlistPosts->last()->norloge().toLongLong() &&
-			   newPosts.at(newPostsIndex)->bouchot()->name().compare(destlistPosts->last()->bouchot()->name()) == 0)
-			{
-				destlistPosts->last()->setNorlogeMultiple(true);
-				newPosts.at(newPostsIndex)->setNorlogeIndex(destlistPosts->last()->norlogeIndex() + 1);
-			}
-
-			destlistPosts->append(newPosts.at(newPostsIndex));
-			cursor.insertBlock();
-			postWasPrinted = printPostAtCursor(cursor, newPosts.at(newPostsIndex++));
-		}
-	}
-
-	cursor.endEditBlock();
-
-	// Purge des anciens messages
-	purgePinitabHistory(groupName);
-
-	if(wasAtEnd)
-		textBrowser->verticalScrollBar()->triggerAction(QAbstractSlider::SliderToMaximum);
-
-	//Remise en place de l'ancienne forme du pointeur
-	textBrowser->viewport()->setCursor(Qt::ArrowCursor);
-
-	//Signalement de nouveaux posts dans le nom du Tab
-	QString tabName = groupName;
-	tabName.append(" (*)");
-	setTabText(indexOf(textBrowser), tabName);
-
-	newPostsAvailableMutex.unlock();
+	return rep;
 }
 
 //////////////////////////////////////////////////////////////
@@ -500,7 +374,7 @@ void QQPinipede::norlogeRefHovered(QQNorlogeRef norlogeRef)
 				if(cursor.block().userState() & QQSyntaxHighlighter::FULL_HIGHLIGHTED)
 					highlightSuccess = true;
 			} while(cursor.movePosition(QTextCursor::NextBlock) &&
-					  cursor.blockNumber() <= endBlockPos);
+					cursor.blockNumber() <= endBlockPos);
 		}
 	}
 
@@ -673,6 +547,207 @@ void QQPinipede::contextMenuEvent(QContextMenuEvent * ev)
  *************************************************************/
 
 //////////////////////////////////////////////////////////////
+/// \brief QQPinipede::applyMessageTransformFilters
+/// \param post
+/// \return
+///
+QString QQPinipede::applyMessageTransformFilters(QQPost *post)
+{
+	QString message = post->message();
+
+	QQMessageTransformFilter *messageTransformFilter;
+	foreach(messageTransformFilter, m_listMessageTransformFilters)
+		messageTransformFilter->transformMessage(post, message);
+
+	return message;
+}
+
+//////////////////////////////////////////////////////////////
+/// \brief QQPinipede::applyPostDisplayFilters
+/// \param post
+/// \return
+///
+bool QQPinipede::applyPostDisplayFilters(QQPost *post)
+{
+	Q_UNUSED(post)
+	return true;
+}
+
+//////////////////////////////////////////////////////////////
+/// \brief QQPinipede::insertPostToList
+/// \param listPosts
+/// \param post
+/// \param indexStart
+/// \return
+///
+unsigned int QQPinipede::insertPostToList(QList<QQPost *> *listPosts, QQPost *post, unsigned int indexStart)
+{
+	for(int i = indexStart; i < listPosts->size(); i++)
+	{
+		if(listPosts->at(i)->norloge().toLongLong() > post->norloge().toLongLong())
+		{
+			listPosts->insert(i, post);
+			return i;
+		}
+		// Gestion de l'index de norloge multiple
+		else if(listPosts->at(i)->norloge().toLongLong() == post->norloge().toLongLong() &&
+				listPosts->at(i)->bouchot()->name().compare(post->bouchot()->name()) == 0)
+		{
+			listPosts->at(i)->setNorlogeMultiple(true);
+			post->setNorlogeIndex(listPosts->at(i)->norlogeIndex() + 1);
+		}
+	}
+	listPosts->append(post);
+	return listPosts->size() - 1;
+}
+
+//////////////////////////////////////////////////////////////
+/// \brief QQPinipede::newPostsAvailable
+/// \param groupName
+///
+void QQPinipede::newPostsAvailable(QString groupName)
+{
+	qDebug() << "QQPinipede::newPostsAvailable from : " << groupName;
+
+	//On est obligé de locker pour éviter la pagaille dans le pini.
+	// un locking plus fin pourrait être obtenu en implémentant un lock par groupe
+	while(! newPostsAvailableMutex.tryLock(1000))
+		qWarning() << "newPostsAvailable " << groupName << "tryLock timeout";
+
+	QList<QQPost *> newPosts;
+
+	foreach(QQBouchot *b, QQBouchot::listBouchotsGroup(groupName))
+	{
+		QList<QQPost *> newBouchotPosts = b->takeNewPosts();
+		if(newBouchotPosts.size() > 0)
+		{
+			qDebug() << "QQPinipede::newPostsAvailable, newPosts from :" << b->name();
+			newPosts.append(newBouchotPosts);
+		}
+	}
+
+	// Au cas ou on serait deja passe avant (cas du signal multiple)
+	if(newPosts.size() == 0)
+	{
+		newPostsAvailableMutex.unlock();
+		return;
+	}
+
+	QQSettings settings;
+	int maxHistorySize = settings.value(SETTINGS_GENERAL_MAX_HISTLEN, DEFAULT_GENERAL_MAX_HISTLEN).toInt();
+	//Il ne sert a rien d'insérer plus que de posts que le max de l'historique
+	while(newPosts.size() > maxHistorySize)
+		newPosts.removeFirst();
+
+	// Tri necessaire puisqu'on a potentiellement melange les posts de plusieurs tribunes
+	qSort(newPosts.begin(), newPosts.end(), postComp);
+
+	QQTextBrowser * textBrowser = m_textBrowserHash.value(groupName);
+	//On signale via la forme de la souris qu'un traitement est en cours
+	textBrowser->viewport()->setCursor(Qt::BusyCursor);
+	QTextDocument * doc = textBrowser->document();
+
+	QTextCursor cursor(doc);
+	cursor.beginEditBlock();
+
+	bool wasAtEnd = (textBrowser->verticalScrollBar()->sliderPosition() == textBrowser->verticalScrollBar()->maximum());
+	bool postWasPrinted = true;
+	// Recuperation de l'historique des posts (ou creation si absent)
+	QList<QQPost *> *destlistPosts = NULL;
+	if(! m_listPostsTabMap.contains(groupName))
+	{
+		// Cas du pini vide, il contient déjà un bloc vide, on
+		//  a juste a afficher le premier post;
+		QQPost * firstPost = newPosts.takeFirst();
+		destlistPosts = new QList<QQPost *>();
+		destlistPosts->append(firstPost);
+		m_listPostsTabMap.insert(groupName, destlistPosts);
+		postWasPrinted = printPostAtCursor(cursor, firstPost);
+
+		// Si le pini était vide on scrolle forcément vers le dernier post
+		wasAtEnd = true;
+	}
+	else
+		destlistPosts = m_listPostsTabMap[groupName];
+
+	int newPostsIndex = 0, baseInsertIndex = 0, insertIndex = 0;
+	// Tant qu'il reste des posts a afficher
+	while(newPostsIndex < newPosts.size())
+	{
+		QQPost * newPost = newPosts.at(newPostsIndex);
+
+		insertIndex = insertPostToList(destlistPosts, newPost, baseInsertIndex);
+
+		if(newPost == destlistPosts->last()) //insertion a la fin
+			break;
+
+		//Deplacement vers la nouvelle ligne
+		if(insertIndex == 0)
+		{
+			//Necessite de le copier car il sera supprime par le nouveau userData de la premiere ligne
+			QQMessageBlockUserData * uData = new QQMessageBlockUserData(* ((QQMessageBlockUserData *) cursor.block().userData()));
+			cursor.insertBlock();
+			cursor.block().setUserData(uData);
+			cursor.movePosition(QTextCursor::PreviousBlock);
+			postWasPrinted = printPostAtCursor(cursor, newPost);
+		}
+		else
+		{
+			cursor.movePosition(QTextCursor::NextBlock, QTextCursor::MoveAnchor, (insertIndex - baseInsertIndex) - 1);
+			cursor.movePosition(QTextCursor::EndOfBlock);
+			cursor.insertBlock();
+			postWasPrinted = printPostAtCursor(cursor, newPost);
+		}
+
+		newPostsIndex++;
+		baseInsertIndex = insertIndex;
+	}
+
+	//Insertion a la fin
+	if(newPostsIndex < newPosts.size())
+	{
+		//Le premier item a deja ete insere dans la liste destlistPosts dans la boucle while au dessus
+		//on a juste a l'afficher
+		cursor.movePosition(QTextCursor::End);
+		cursor.insertBlock();
+		postWasPrinted = printPostAtCursor(cursor, newPosts.at(newPostsIndex++));
+
+		while(newPostsIndex < newPosts.size())
+		{
+			// Gestion de l'index de norloge multiple
+			if(newPosts.at(newPostsIndex)->norloge().toLongLong() == destlistPosts->last()->norloge().toLongLong() &&
+			   newPosts.at(newPostsIndex)->bouchot()->name().compare(destlistPosts->last()->bouchot()->name()) == 0)
+			{
+				destlistPosts->last()->setNorlogeMultiple(true);
+				newPosts.at(newPostsIndex)->setNorlogeIndex(destlistPosts->last()->norlogeIndex() + 1);
+			}
+
+			destlistPosts->append(newPosts.at(newPostsIndex));
+			cursor.insertBlock();
+			postWasPrinted = printPostAtCursor(cursor, newPosts.at(newPostsIndex++));
+		}
+	}
+
+	cursor.endEditBlock();
+
+	// Purge des anciens messages
+	purgePinitabHistory(groupName);
+
+	if(wasAtEnd)
+		textBrowser->verticalScrollBar()->triggerAction(QAbstractSlider::SliderToMaximum);
+
+	//Remise en place de l'ancienne forme du pointeur
+	textBrowser->viewport()->setCursor(Qt::ArrowCursor);
+
+	//Signalement de nouveaux posts dans le nom du Tab
+	QString tabName = groupName;
+	tabName.append(" (*)");
+	setTabText(indexOf(textBrowser), tabName);
+
+	newPostsAvailableMutex.unlock();
+}
+
+//////////////////////////////////////////////////////////////
 /// \brief QQPinipede::printPostAtCursor
 /// \param cursor
 /// \param post
@@ -802,60 +877,5 @@ bool QQPinipede::printPostAtCursor(QTextCursor & cursor, QQPost * post)
 	data->setZRange(QQMessageBlockUserData::MESSAGE, rangeMsg);
 	block.setUserData(data);
 
-	return true;
-}
-
-//////////////////////////////////////////////////////////////
-/// \brief QQPinipede::insertPostToList
-/// \param listPosts
-/// \param post
-/// \param indexStart
-/// \return
-///
-unsigned int QQPinipede::insertPostToList(QList<QQPost *> *listPosts, QQPost *post, unsigned int indexStart)
-{
-	for(int i = indexStart; i < listPosts->size(); i++)
-	{
-		if(listPosts->at(i)->norloge().toLongLong() > post->norloge().toLongLong())
-		{
-			listPosts->insert(i, post);
-			return i;
-		}
-		// Gestion de l'index de norloge multiple
-		else if(listPosts->at(i)->norloge().toLongLong() == post->norloge().toLongLong() &&
-				listPosts->at(i)->bouchot()->name().compare(post->bouchot()->name()) == 0)
-		{
-			listPosts->at(i)->setNorlogeMultiple(true);
-			post->setNorlogeIndex(listPosts->at(i)->norlogeIndex() + 1);
-		}
-	}
-	listPosts->append(post);
-	return listPosts->size() - 1;
-}
-
-//////////////////////////////////////////////////////////////
-/// \brief QQPinipede::applyMessageTransformFilters
-/// \param post
-/// \return
-///
-QString QQPinipede::applyMessageTransformFilters(QQPost *post)
-{
-	QString message = post->message();
-
-	QQMessageTransformFilter *messageTransformFilter;
-	foreach(messageTransformFilter, m_listMessageTransformFilters)
-		messageTransformFilter->transformMessage(post, message);
-
-	return message;
-}
-
-//////////////////////////////////////////////////////////////
-/// \brief QQPinipede::applyPostDisplayFilters
-/// \param post
-/// \return
-///
-bool QQPinipede::applyPostDisplayFilters(QQPost *post)
-{
-	Q_UNUSED(post)
 	return true;
 }

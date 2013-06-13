@@ -1,9 +1,11 @@
 #include "qqbouchot.h"
 
-#include "core/qqsettings.h"
+#include "core/qqbackendupdatedevent.h"
 #include "core/qqpurgebouchothistoevent.h"
+#include "core/qqsettings.h"
 #include "xml/qqxmlparser.h"
 
+#include <QApplication>
 #include <QDateTime>
 #include <QtDebug>
 #include <QNetworkProxyFactory>
@@ -67,6 +69,7 @@ QQBouchot::QQBouchot(const QString &name, QObject *parent) :
 	m_hasXPostId = false; // unknown
 	m_xPostIds.clear();
 	m_lastId=-1;
+	m_piniWidget = NULL;
 
 	m_xmlParser = new QQXmlParser();
 	connect(m_xmlParser, SIGNAL(newPostReady(QQPost&)), this, SLOT(insertNewPost(QQPost&)));
@@ -326,7 +329,14 @@ void QQBouchot::parsingFinished()
 	{
 		m_history.append(m_newPostHistory);
 		m_lastId = m_xmlParser->maxId();
-		emit newPostsAvailable(m_bSettings.group());
+		QApplication::postEvent(
+					(QObject *) m_piniWidget,
+					new QQBackendUpdatedEvent(
+						QQBackendUpdatedEvent::BACKEND_UPDATED,
+						m_bSettings.group()
+						),
+					Qt::LowEventPriority
+					);
 	}
 }
 

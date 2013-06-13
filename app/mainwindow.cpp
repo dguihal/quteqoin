@@ -222,10 +222,10 @@ void MainWindow::initBouchot(QQBouchot *bouchot)
 		return;
 
 	bouchot->setParent(this);
+	bouchot->setPiniWidget(m_pini);
 	m_pini->addPiniTab(bouchot->settings().group());
 	m_palmi->addBouchot(bouchot->name(), bouchot->settings().colorLight());
 
-	connect(bouchot, SIGNAL(newPostsAvailable(QString)), m_pini, SLOT(newPostsAvailable(QString)));
 	connect(bouchot, SIGNAL(destroyed(QQBouchot*)), this, SLOT(bouchotDestroyed(QQBouchot *)));
 	connect(bouchot, SIGNAL(groupChanged(QQBouchot*,QString)), this, SLOT(bouchotGroupChanged(QQBouchot*,QString)));
 }

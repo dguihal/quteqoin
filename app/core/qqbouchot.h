@@ -107,6 +107,8 @@ public:
 	QList<QQPost *> getPostsHistory() {	return m_history; }
 	void setNewPostsFromHistory();
 
+	void setPiniWidget(QWidget *widget) { m_piniWidget = widget; }
+
 	virtual bool event(QEvent *e);
 
 	static QQBouchotSettings getBouchotDef(const QString &bouchotName);
@@ -119,7 +121,6 @@ public slots:
 	void slotSslErrors(const QList<QSslError> &errors);
 
 signals:
-	void newPostsAvailable(QString groupName);
 	void removed(QString name, QString groupName);
 	void destroyed(QQBouchot *bouchot);
 	void groupChanged(QQBouchot *bouchot, QString oldGroupName);
@@ -142,98 +143,11 @@ private:
 	QQBouchotSettings m_bSettings;
 	QTimer timer;
 
-	QQXmlParser * m_xmlParser;
+	QQXmlParser *m_xmlParser;
+
+	QWidget *m_piniWidget;
 
 	static QHash<QString, QQBouchot *> s_hashBouchots;
 };
 
-/*
-var see = new Board('see', false);
-see.getUrl = 'http://tout.essaye.sauf.ca/tribune.xml';
-see.postUrl = 'http://tout.essaye.sauf.ca/tribune/post';
-see.color = '#ffd0d0';
-see.alias = "schee,seeschloss";
-GlobalBoards['see'] = see;
-
-var moules = new Board('moules', false);
-moules.getUrl = 'http://moules.org/board/backend';
-moules.postUrl = 'http://moules.org/board/add';
-moules.color = '#ffe3c9';
-GlobalBoards['moules'] = moules;
-
-var bouchot = new Board('bouchot', false);
-bouchot.getUrl = 'http://bouchot.org/tribune/remote?last=%i';
-bouchot.postUrl = 'http://bouchot.org/tribune/post_coincoin';
-bouchot.postData = "missive=%m";
-bouchot.color = '#e9e9e9';
-GlobalBoards['bouchot'] = bouchot;
-
-var shoop = new Board('shoop', false);
-shoop.getUrl = 'http://dax.sveetch.net/tribune/remote.xml'; // ?last=%i inopÃ©rant pour le moment
-shoop.postUrl = 'http://dax.sveetch.net/tribune/post.xml';
-shoop.postData = "content=%m";
-shoop.alias = "sveetch,dax";
-shoop.color = '#EDEDDB';
-GlobalBoards['shoop'] = shoop;
-
-var tif = new Board('tifauv', false);
-tif.getUrl = 'http://tribune.tifauv.homeip.net/tribune/remote?last=%i';
-tif.postUrl = 'http://tribune.tifauv.homeip.net/tribune/post_coincoin';
-tif.postData = "missive=%m";
-tif.alias = "tif";
-tif.color = '#a9f9b9';
-GlobalBoards['tifauv'] = tif;
-
-var olo = new Board('olo', false);
-olo.getUrl = 'http://board.olivierl.org/remote.xml';
-olo.postUrl = 'http://board.olivierl.org/add.php';
-olo.color = '#80dafc';
-olo.alias = "olivierl";
-olo.slip = SLIP_TAGS_RAW;
-GlobalBoards['olo'] = olo;
-
-var ygllo = new Board('ygllo', false);
-ygllo.getUrl = 'http://ygllo.com/?q=tribune.xml';
-ygllo.postUrl = 'http://ygllo.com/?q=tribune/post';
-ygllo.color = '#eee887';
-ygllo.alias = "yg,llo,fdg";
-GlobalBoards['ygllo'] = ygllo;
-
-var kad = new Board('kadreg', false);
-kad.getUrl = 'http://kadreg.org/board/backend.php';
-kad.postUrl = 'http://kadreg.org/board/add.php';
-kad.color = '#dae6e6';
-kad.alias = "kad,rincevent";
-kad.slip = SLIP_TAGS_RAW;
-GlobalBoards['kadreg'] = kad;
-
-var dae = new Board('darkside', false);
-dae.getUrl = 'http://quadaemon.free.fr/remote.xml';
-dae.postUrl = 'http://quadaemon.free.fr/add.php';
-dae.color = '#daedae';
-dae.alias = "dae,daemon";
-dae.slip = SLIP_TAGS_RAW; // Protection temporaire
-GlobalBoards['darkside'] = dae;
-
-var axel = new Board('hadoken', false);
-axel.getUrl = 'http://hadoken.free.fr/board/remote.php';
-axel.postUrl = 'http://hadoken.free.fr/board/post.php';
-axel.color = '#77AADD';
-axel.alias = "axel,waf";
-GlobalBoards['hadoken'] = axel;
-
-var lo = new Board('comptoir', false);
-lo.getUrl = 'http://lordoric.free.fr/daBoard/remote.xml';
-lo.postUrl = 'http://lordoric.free.fr/daBoard/add.php';
-lo.color = '#dedede';
-lo.alias = "lo,lordoric";
-lo.slip = SLIP_TAGS_RAW; // Protection temporaire
-GlobalBoards['comptoir'] = lo;
-
-var gabu = new Board('gabuzomeu', false);
-gabu.getUrl = 'http://gabuzomeu.fr/tribune.xml';
-gabu.postUrl = 'http://gabuzomeu.fr/tribune/post';
-gabu.color = '#aaffbb';
-GlobalBoards['gabuzomeu'] = gabu;
-*/
 #endif // QQBOUCHOT_H
