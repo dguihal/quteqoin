@@ -3,7 +3,7 @@
 
 namespace QuteQoin
 {
-	enum QQSmartUrlFilerTransformType { Full, Short, Shorter };
+	enum QQSmartUrlFilerTransformType { Full = 0, Short, Shorter };
 }
 
 #endif // QQTYPES_H
