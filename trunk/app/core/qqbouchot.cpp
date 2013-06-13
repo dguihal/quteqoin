@@ -163,6 +163,8 @@ void QQBouchot::setNewPostsFromHistory()
 	}
 	while (--index >= 0)
 		m_newPostHistory.prepend(m_history.at(index));
+
+	askPiniUpdate();
 }
 
 bool QQBouchot::event(QEvent *e)
@@ -310,8 +312,8 @@ void QQBouchot::insertNewPost(QQPost &newPost)
 	QString postId = tmpNewPost->id();
 	if(m_xPostIds.contains(postId))
 	{
-	   tmpNewPost->setSelfPost();
-	   m_xPostIds.removeOne(postId);
+		tmpNewPost->setSelfPost();
+		m_xPostIds.removeOne(postId);
 	}
 	//Si la tribune gere le X-Post-Id mais que l'id du post ne fait pas
 	// partie de la liste alors il est d'une autre moule
@@ -329,14 +331,7 @@ void QQBouchot::parsingFinished()
 	{
 		m_history.append(m_newPostHistory);
 		m_lastId = m_xmlParser->maxId();
-		QApplication::postEvent(
-					(QObject *) m_piniWidget,
-					new QQBackendUpdatedEvent(
-						QQBackendUpdatedEvent::BACKEND_UPDATED,
-						m_bSettings.group()
-						),
-					Qt::LowEventPriority
-					);
+		askPiniUpdate();
 	}
 }
 
@@ -426,4 +421,16 @@ QList<QQBouchot *> QQBouchot::listBouchotsGroup(const QString &groupName)
 			res.append(bouchot);
 	}
 	return res;
+}
+
+void QQBouchot::askPiniUpdate()
+{
+	QApplication::postEvent(
+				(QObject *) m_piniWidget,
+				new QQBackendUpdatedEvent(
+					QQBackendUpdatedEvent::BACKEND_UPDATED,
+					m_bSettings.group()
+					),
+				Qt::LowEventPriority
+				);
 }

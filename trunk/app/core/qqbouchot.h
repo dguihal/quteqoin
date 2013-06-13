@@ -133,6 +133,7 @@ protected slots:
 
 private:
 	void checkGroupModified(const QString &oldGroupName);
+	void askPiniUpdate();
 
 	QList<QQPost *> m_history;
 	bool m_hasXPostId; //false = unknown

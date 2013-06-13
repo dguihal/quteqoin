@@ -213,7 +213,6 @@ void MainWindow::bouchotGroupChanged(QQBouchot *bouchot, QString oldGroupName)
 
 	m_pini->addPiniTab(bouchot->settings().group());
 	bouchot->setNewPostsFromHistory();
-	m_pini->newPostsAvailable(bouchot->settings().group());
 }
 
 void MainWindow::initBouchot(QQBouchot *bouchot)
