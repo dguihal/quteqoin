@@ -54,6 +54,8 @@ public:
 
 	void purgePinitabHistory(const QString &groupName);
 
+	virtual bool event(QEvent *e);
+
 public slots:
 	void norlogeClicked(QString srcBouchot, QQNorloge norloge);
 	void norlogeRefClicked(QString srcBouchot, QQNorlogeRef nRef);
@@ -62,7 +64,6 @@ public slots:
 	void showTotozViewer(QString &totozId);
 	void hideTotozViewer();
 	void loginClicked(QString bouchot, QString login);
-	void newPostsAvailable(QString groupName);
 	void newPostsAcknowledged(QString groupName);
 
 signals:
@@ -72,10 +73,11 @@ protected:
 	virtual void contextMenuEvent(QContextMenuEvent *ev);
 
 private:
-	bool printPostAtCursor(QTextCursor &cursor, QQPost *post);
-	unsigned int insertPostToList(QList<QQPost *> *listPosts, QQPost *post, unsigned int indexStart);
 	QString applyMessageTransformFilters(QQPost *post);
 	bool applyPostDisplayFilters(QQPost *post);
+	unsigned int insertPostToList(QList<QQPost *> *listPosts, QQPost *post, unsigned int indexStart);
+	void newPostsAvailable(QString groupName);
+	bool printPostAtCursor(QTextCursor &cursor, QQPost *post);
 
 	QQTotozDownloader * m_totozDownloader;
 	QQTotozManager * m_totozManager;

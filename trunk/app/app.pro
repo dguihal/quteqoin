@@ -50,6 +50,7 @@ SOURCES += main.cpp\
 	core/qqpiniurlhelper.cpp \
 	core/qqmessagetransformfilter.cpp \
 	ui/settingsmanager/qqfiltersettings.cpp \
+    core/qqbackendupdatedevent.cpp
 
 HEADERS  += mainwindow.h \
 	core/qqsettings.h \
@@ -87,6 +88,7 @@ HEADERS  += mainwindow.h \
 	core/qqmessagetransformfilter.h \
 	ui/settingsmanager/qqfiltersettings.h \
 	core/qqtypes.h \
+    core/qqbackendupdatedevent.h
 
 FORMS += mainwindow.ui \
 	ui/qqpalmipede.ui \
