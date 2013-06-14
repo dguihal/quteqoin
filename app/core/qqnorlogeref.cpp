@@ -135,13 +135,21 @@ bool QQNorlogeRef::matchesPost(QQPost * post)
 		return false;
 
 	bool found = false;
-	for(int i = 0; i < m_listPostTarget.size(); i++ )
+	QMutableListIterator< QPointer<QQPost> > i(m_listPostTarget);
+	while(i.hasNext())
 	{
-		QPointer<QQPost> ptrPost = m_listPostTarget.at(i);
-		if(ptrPost.isNull())
-			m_listPostTarget.removeOne(ptrPost);
-		else if(ptrPost.data() == post)
+		QPointer<QQPost> ptr = i.next();
+		if(ptr.isNull())
+		{
+			i.remove();
+			continue;
+		}
+
+		if(ptr.data() == post)
+		{
 			found = true;
+			break;
+		}
 	}
 
 	if(! found)

@@ -8,7 +8,6 @@
 #include "ui/qqpostparser.h"
 #include "ui/qqmessageblockuserdata.h"
 #include "ui/qqpalmipede.h"
-//#include "ui/qqsyntaxhighlighter.h"
 #include "ui/qqtextbrowser.h"
 #include "ui/qqtotozmanager.h"
 #include "ui/qqtotozviewer.h"
@@ -376,9 +375,6 @@ void QQPinipede::norlogeRefHovered(QQNorlogeRef norlogeRef)
 
 		if(textBrowser->isVisible())
 		{
-			//QQSyntaxHighlighter * highlighter = textBrowser->document()->findChildren<QQSyntaxHighlighter *>().at(0);
-			//highlighter->setNorlogeRefToHighlight(norlogeRef);
-
 			// Get the cursor position near the top left corner of the current viewport.
 			QTextCursor cursor = textBrowser->cursorForPosition(QPoint(0, 0));
 			// Get the cursor position near the bottom left corner of the current viewport.
@@ -463,12 +459,6 @@ void QQPinipede::norlogeRefHovered(QQNorlogeRef norlogeRef)
 		destCursor.beginEditBlock();
 		do
 		{
-			// qDebug() << "QQPinipede::norlogeRefHovered cursor.blockNumber()=" << cursor.blockNumber()
-			//		 << ", mainTable->rows()=" << mainTable->rows()
-			//		 << ", mainTable->columns()=" << mainTable->columns();
-
-			//if(cursor.block().userState() == QQSyntaxHighlighter::UNSET)
-			//	continue;
 			QQMessageBlockUserData * userData = (QQMessageBlockUserData *) (cursor.block().userData());
 
 			if(norlogeRef.matchesPost(userData->post()))

@@ -169,6 +169,7 @@ void QQPostParser::colorizeNRef(QTextDocument &doc, QQPost *post, QQMessageBlock
 										 post->norloge(),
 										 cursor.selectedText(),
 										 m_indexShit + cursor.selectionStart());
+		linkNorlogeRef(&nRef);
 		userData->addNorlogeRefZone(nRef);
 
 		cursor.mergeCharFormat(nRef.isReponse() ? repFmt : fmt);
@@ -177,6 +178,33 @@ void QQPostParser::colorizeNRef(QTextDocument &doc, QQPost *post, QQMessageBlock
 		cursor = doc.find(m_norlogeReg, cursor);
 	}
 }
+
+//////////////////////////////////////////////////////////////
+/// \brief QQPostParser::linkNorlogeRef
+/// \param nRef
+///
+void QQPostParser::linkNorlogeRef(QQNorlogeRef *nRef)
+{
+		QQBouchot * bouchot = QQBouchot::bouchot(nRef->dstBouchot());
+		if(bouchot == NULL)
+				return;
+
+		QList<QQPost *> history = bouchot->getPostsHistory();
+
+		// Parcourir du plus recent au plus ancien devrait etre plus rapide car
+		// les reponse sont souvent proches du poste d'origine;
+		bool targetFound = false;
+		for(int i = history.length() - 1; i >= 0; i--)
+		{
+			QQPost * post = history.at(i);
+
+			if(nRef->matchesPost(post))
+					targetFound = true;
+			else if(targetFound) // On ne quitte pas avant au cas de match multiple
+					break;
+		}
+}
+
 
 //////////////////////////////////////////////////////////////
 /// \brief QQPostParser::colorizeTableVolante
