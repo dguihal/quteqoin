@@ -8,6 +8,7 @@
 
 class QQMessageTransformFilter;
 class QQMessageBlockUserData;
+class QQNorlogeRef;
 class QQPost;
 
 class QQPostParser : public QObject
@@ -30,6 +31,7 @@ private:
 	void colorizeBigorno(QTextDocument &doc, QQPost *post, QQMessageBlockUserData *userData);
 	void colorizeDuck(QTextDocument &doc, QQMessageBlockUserData *userData);
 	void colorizeNRef(QTextDocument &doc, QQPost *post, QQMessageBlockUserData *userData);
+	void linkNorlogeRef(QQNorlogeRef *nRef);
 	void colorizeTableVolante(QTextDocument &doc, QQMessageBlockUserData *userData);
 	void colorizeTotoz(QTextDocument &doc, QQMessageBlockUserData *userData);
 
