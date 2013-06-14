@@ -21,9 +21,9 @@ class QQTextBrowser;
 class QQTotozManager;
 class QTextCursor;
 class QQPost;
+class QQPostParser;
 class QQTotozDownloader;
 class QQTotozViewer;
-class QQMessageTransformFilter;
 
 class QLabel;
 class QMovie;
@@ -65,6 +65,7 @@ public slots:
 	void hideTotozViewer();
 	void loginClicked(QString bouchot, QString login);
 	void newPostsAcknowledged(QString groupName);
+	void notify();
 
 signals:
 	void insertTextPalmi(QString bouchot, QString text);
@@ -73,23 +74,22 @@ protected:
 	virtual void contextMenuEvent(QContextMenuEvent *ev);
 
 private:
-	QString applyMessageTransformFilters(QQPost *post);
 	bool applyPostDisplayFilters(QQPost *post);
 	unsigned int insertPostToList(QList<QQPost *> *listPosts, QQPost *post, unsigned int indexStart);
 	void newPostsAvailable(QString groupName);
 	bool printPostAtCursor(QTextCursor &cursor, QQPost *post);
 
-	QQTotozDownloader * m_totozDownloader;
-	QQTotozManager * m_totozManager;
-	QQTotozViewer * m_totozViewer;
-	QLabel * m_hiddenPostViewerLabel;
+	QQTotozDownloader *m_totozDownloader;
+	QQTotozManager *m_totozManager;
+	QQTotozViewer *m_totozViewer;
+	QLabel *m_hiddenPostViewerLabel;
 	QBuffer m_totozData;
 	QString m_hiddenPostViewerLabelSSheet;
 
 	QHash<QString, QList<QQPost *> *> m_listPostsTabMap;
 	QHash<QString, QQTextBrowser *> m_textBrowserHash;
 
-	QList<QQMessageTransformFilter *> m_listMessageTransformFilters;
+	QQPostParser *m_postparser;
 
 	QMutex newPostsAvailableMutex;
 

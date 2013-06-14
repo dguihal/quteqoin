@@ -227,3 +227,16 @@ bool QQNorlogeRef::isReponse()
 	}
 	return m_isResponse;
 }
+
+QString QQNorlogeRef::toString() const
+{
+	QString res;
+	if(isValid())
+	{
+		res.append(dstNorloge());
+		if(m_norlogeIndex > 0)
+			res.append('^').append(QString::number(m_norlogeIndex));
+		res.append('@').append(dstBouchot());
+	}
+	return res;
+}

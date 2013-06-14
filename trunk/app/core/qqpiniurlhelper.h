@@ -17,7 +17,7 @@ public:
 
 	void getContentType(const QUrl &url);
 
-	virtual void transformMessage(const QQPost *post, QString &message);
+	virtual void transformMessage(const QString& bouchot, QString &message);
 
 signals:
 	void contentTypeAvailable(QUrl &url, QString &contentType);

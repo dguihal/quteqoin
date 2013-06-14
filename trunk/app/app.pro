@@ -26,7 +26,6 @@ SOURCES += main.cpp\
 	ui/qqtextbrowser.cpp \
 	xml/qqxmlparser.cpp \
 	core/qqnorloge.cpp \
-	ui/qqsyntaxhighlighter.cpp \
 	ui/qqmessageblockuserdata.cpp \
 	core/qqnorlogeref.cpp \
 	ui/qqproxyauthdialog.cpp \
@@ -50,7 +49,8 @@ SOURCES += main.cpp\
 	core/qqpiniurlhelper.cpp \
 	core/qqmessagetransformfilter.cpp \
 	ui/settingsmanager/qqfiltersettings.cpp \
-    core/qqbackendupdatedevent.cpp
+    core/qqbackendupdatedevent.cpp \
+    ui/qqpostparser.cpp
 
 HEADERS  += mainwindow.h \
 	core/qqsettings.h \
@@ -62,7 +62,6 @@ HEADERS  += mainwindow.h \
 	ui/qqtextbrowser.h \
 	xml/qqxmlparser.h \
 	core/qqnorloge.h \
-	ui/qqsyntaxhighlighter.h \
 	ui/qqmessageblockuserdata.h \
 	core/qqnorlogeref.h \
 	ui/qqproxyauthdialog.h \
@@ -88,7 +87,8 @@ HEADERS  += mainwindow.h \
 	core/qqmessagetransformfilter.h \
 	ui/settingsmanager/qqfiltersettings.h \
 	core/qqtypes.h \
-    core/qqbackendupdatedevent.h
+    core/qqbackendupdatedevent.h \
+    ui/qqpostparser.h
 
 FORMS += mainwindow.ui \
 	ui/qqpalmipede.ui \

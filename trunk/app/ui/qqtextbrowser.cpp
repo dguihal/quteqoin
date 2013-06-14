@@ -37,7 +37,7 @@ QQTextBrowser::QQTextBrowser(QString groupName, QQPinipede *parent) :
 	//setContextMenuPolicy(Qt::CustomContextMenu);
 
 	m_groupName = groupName;
-	m_highlighted = false;
+	m_highlightedNorlogeRef.clear();
 	m_mouseClick = false;
 	m_urlHelper = new QQPiniUrlHelper(this);
 	connect(m_urlHelper, SIGNAL(contentTypeAvailable(QUrl&,QString&)), this, SLOT(handleContentTypeAvailable(QUrl&,QString&)));
@@ -194,15 +194,21 @@ void QQTextBrowser::updateNotifArea(int)
 
 void QQTextBrowser::highlightNorloge(QQNorlogeRef nRef)
 {
-	if(m_highlighted)
+	if(nRef.toString() != m_highlightedNorlogeRef)
+	{
 		unHighlightNorloge();
-	emit norlogeRefHovered(nRef);
+		emit norlogeRefHovered(nRef);
+		m_highlightedNorlogeRef = nRef.toString();
+	}
 }
 
 void QQTextBrowser::unHighlightNorloge()
 {
-	emit unHighlight(this);
-	m_highlighted = false;
+	if(! m_highlightedNorlogeRef.isEmpty())
+	{
+		emit unHighlight(this);
+		m_highlightedNorlogeRef.clear();
+	}
 }
 
 void QQTextBrowser::showTotoz(QString & totozId)
@@ -348,6 +354,7 @@ void QQTextBrowser::mouseMoveEvent(QMouseEvent * event)
 		{
 			// Il faut unhilighter puisqu'on ne survole pas de zone de norloge ni de zone de message
 			unHighlightNorloge();
+			hideTotoz();
 		}
 	}
 }

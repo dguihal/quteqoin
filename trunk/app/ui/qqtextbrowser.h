@@ -25,9 +25,6 @@ public:
 	int timeUAAreaWidth() { return m_timeUAAreaWidthPx; }
 	void notifAreaPaintEvent(QPaintEvent *event);
 
-	void setHighlighted(bool highlighted = true) { m_highlighted = highlighted; }
-	bool isHighlighted() { return m_highlighted; }
-
 public slots:
 	void updateNotifArea(int);
 
@@ -83,7 +80,7 @@ private:
 
 	int m_timeUAAreaWidthPx;
 
-	bool m_highlighted;
+	QString m_highlightedNorlogeRef;
 	QString m_displayedTotozId;
 
 	QString m_groupName;
