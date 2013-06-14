@@ -54,9 +54,9 @@ void QQPiniUrlHelper::getContentType(const QUrl &url)
 /// \param post
 /// \param message
 ///
-void QQPiniUrlHelper::transformMessage(const QQPost *post, QString &message)
+void QQPiniUrlHelper::transformMessage(const QString &bouchot, QString &message)
 {
-	Q_UNUSED(post)
+	Q_UNUSED(bouchot)
 
 	QRegExp reg(URL_HOST_REGEXP,
 				Qt::CaseInsensitive,

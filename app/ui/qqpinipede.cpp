@@ -3,12 +3,12 @@
 #include "mainwindow.h"
 #include "core/qqbackendupdatedevent.h"
 #include "core/qqbouchot.h"
-#include "core/qqpiniurlhelper.h"
 #include "core/qqpurgebouchothistoevent.h"
 #include "core/qqtotozdownloader.h"
+#include "ui/qqpostparser.h"
 #include "ui/qqmessageblockuserdata.h"
 #include "ui/qqpalmipede.h"
-#include "ui/qqsyntaxhighlighter.h"
+//#include "ui/qqsyntaxhighlighter.h"
 #include "ui/qqtextbrowser.h"
 #include "ui/qqtotozmanager.h"
 #include "ui/qqtotozviewer.h"
@@ -29,12 +29,32 @@
 #include <QToolButton>
 #include <QVBoxLayout>
 
+//Uncomment to activate complementary color highlight
+//#define COLOR_COMPLEMENT
+
+#ifdef COLOR_COMPLEMENT
+#define HIGHLIGHT_COLOR_S 200
+#define HIGHLIGHT_COLOR_V 200
+#else
+#define HIGHLIGHT_COLOR "#FFE940"
+#endif
+
+#define LOGIN_COLOR "#553333"
+#define UA_COLOR "#883333"
+#define UNKNOWN_POSTER_COLOR "#BB3333"
+
 QQPinipede::QQPinipede(QWidget * parent) :
 	QTabWidget(parent)
 {
 	m_totozManager = NULL;
 
 	m_totozDownloader = new QQTotozDownloader(this);
+
+	m_postparser = new QQPostParser(this);
+	connect(m_postparser, SIGNAL(totozRequired(QString &)),
+			m_totozDownloader, SLOT(fetchTotoz(QString &)));
+	connect(m_postparser, SIGNAL(notifyBigorno()),
+			this, SLOT(notify()));
 
 	m_hiddenPostViewerLabelSSheet = QString::fromAscii("border: 2px solid black; border-radius: 4px;");
 	m_hiddenPostViewerLabel = new QLabel(this);
@@ -45,10 +65,6 @@ QQPinipede::QQPinipede(QWidget * parent) :
 	m_hiddenPostViewerLabel->setWordWrap(true);
 	m_hiddenPostViewerLabel->setScaledContents(true);
 	m_hiddenPostViewerLabel->hide();
-
-	QQSettings settings;
-	if(settings.value(SETTINGS_FILTER_SMART_URL_TRANSFORMER, DEFAULT_FILTER_SMART_URL_TRANSFORMER).toBool())
-		m_listMessageTransformFilters.append(new QQPiniUrlHelper(this));
 
 	m_totozViewer = new QQTotozViewer("", this);
 	m_totozViewer->hide();
@@ -86,11 +102,6 @@ void QQPinipede::addPiniTab(const QString & groupName)
 	addTab(textBrowser, groupName);
 
 	m_textBrowserHash.insert(groupName, textBrowser);
-	//textBrowser->document() devient le proprietaire du highlighter
-	QQSyntaxHighlighter * highlighter = new QQSyntaxHighlighter(textBrowser->document());
-	highlighter->setNotificationWindow(window());
-	connect(highlighter, SIGNAL(totozRequired(QString &)),
-			m_totozDownloader, SLOT(fetchTotoz(QString &)));
 
 	connect(textBrowser, SIGNAL(norlogeClicked(QString, QQNorloge)), this, SLOT(norlogeClicked(QString, QQNorloge)));
 	connect(textBrowser, SIGNAL(norlogeRefClicked(QString, QQNorlogeRef)), this, SLOT(norlogeRefClicked(QString, QQNorlogeRef)));
@@ -265,6 +276,15 @@ void QQPinipede::newPostsAcknowledged(QString groupName)
 }
 
 //////////////////////////////////////////////////////////////
+/// \brief notify
+///
+void QQPinipede::notify()
+{
+	QIcon icon = QIcon(QString::fromAscii(":/img/Point_exclamation_rouge.svg"));
+	window()->setWindowIcon(icon);
+}
+
+//////////////////////////////////////////////////////////////
 /// \brief QQPinipede::norlogeClicked
 /// \param srcBouchot
 /// \param norloge
@@ -334,7 +354,7 @@ void QQPinipede::loginClicked(QString bouchot, QString login)
 ///
 void QQPinipede::norlogeRefHovered(QQNorlogeRef norlogeRef)
 {
-	qDebug() << "QQPinipede::norlogeRefHovered, datetimepart=" << norlogeRef.dstNorloge() << ", destbouchot=" << norlogeRef.dstBouchot();
+	qDebug() << "QQPinipede::norlogeRefHovered, value =" << norlogeRef.toString();
 
 	QStringList groups;
 
@@ -354,27 +374,81 @@ void QQPinipede::norlogeRefHovered(QQNorlogeRef norlogeRef)
 	{
 		textBrowser = m_textBrowserHash.value(group);
 
-		if(textBrowser->isHighlighted())
-			unHighlight(textBrowser);
-
 		if(textBrowser->isVisible())
 		{
-			textBrowser->setHighlighted();
-			QQSyntaxHighlighter * highlighter = textBrowser->document()->findChildren<QQSyntaxHighlighter *>().at(0);
-			highlighter->setNorlogeRefToHighlight(norlogeRef);
+			//QQSyntaxHighlighter * highlighter = textBrowser->document()->findChildren<QQSyntaxHighlighter *>().at(0);
+			//highlighter->setNorlogeRefToHighlight(norlogeRef);
 
 			// Get the cursor position near the top left corner of the current viewport.
 			QTextCursor cursor = textBrowser->cursorForPosition(QPoint(0, 0));
 			// Get the cursor position near the bottom left corner of the current viewport.
 			int endBlockPos = (textBrowser->cursorForPosition(QPoint(textBrowser->viewport()->width(), textBrowser->viewport()->height()))).blockNumber();
 
-			do
+			QList<QTextEdit::ExtraSelection> extraSelections;
+			while(cursor.movePosition(QTextCursor::NextBlock) && cursor.blockNumber() <= endBlockPos)
 			{
-				highlighter->rehighlightBlock(cursor.block());
-				if(cursor.block().userState() & QQSyntaxHighlighter::FULL_HIGHLIGHTED)
+				//cursor.movePosition(QTextCursor::StartOfBlock, QTextCursor::MoveAnchor);
+				QQMessageBlockUserData * userData = (QQMessageBlockUserData *) cursor.block().userData();
+				if(norlogeRef.matchesPost(userData->post()))
+				{
+#ifdef COLOR_COMPLEMENT
+					int h, s, v;
+					userData->post()->bouchot()->settings().color().getHsv(&h, &s, &v);
+					QColor highlightColor = QColor::fromHsv((h + 180) % 360, qMax(s, HIGHLIGHT_COLOR_S), qMax(v, HIGHLIGHT_COLOR_V));
+#else
+					QColor highlightColor = QColor(HIGHLIGHT_COLOR);
+#endif
+
+					QTextCursor selCursor = cursor;
+					do
+					{
+						QTextEdit::ExtraSelection extra;
+						extra.format.setBackground(highlightColor);
+						extra.format.setProperty(QTextFormat::FullWidthSelection, true);
+						extra.cursor = selCursor;
+						extraSelections.append(extra);
+
+						if(! selCursor.movePosition(QTextCursor::EndOfLine, QTextCursor::MoveAnchor))
+						{
+							qDebug() << "Break1";
+							break;
+						}
+						if(! selCursor.movePosition(QTextCursor::NextCharacter, QTextCursor::MoveAnchor))
+						{
+							qDebug() << "Break2";
+							break;
+						}
+					} while(selCursor.block().blockNumber() == cursor.block().blockNumber());
+
 					highlightSuccess = true;
-			} while(cursor.movePosition(QTextCursor::NextBlock) &&
-					cursor.blockNumber() <= endBlockPos);
+				}
+				else
+				{
+					foreach (QQNorlogeRef nRef, userData->norlogeRefs())
+					{
+						if(norlogeRef.matchesNRef(nRef))
+						{
+#ifdef COLOR_COMPLEMENT
+							int h, s, v;
+							userData->post()->bouchot()->settings().color().getHsv(&h, &s, &v);
+							QColor highlightColor = QColor::fromHsv((h + 180) % 360, qMax(s, HIGHLIGHT_COLOR_S), qMax(v, HIGHLIGHT_COLOR_V));
+#else
+							QColor highlightColor = QColor(HIGHLIGHT_COLOR);
+#endif
+							QTextCursor selCursor = cursor;
+							selCursor.movePosition(QTextCursor::NextCharacter, QTextCursor::MoveAnchor, nRef.getPosInMessage());
+							selCursor.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor, nRef.getOrigNRef().length());
+
+							QTextEdit::ExtraSelection extra;
+							extra.format.setBackground(highlightColor);
+							extra.cursor = selCursor;
+							extraSelections.append(extra);
+						}
+					}
+				}
+			}
+
+			textBrowser->setExtraSelections(extraSelections);
 		}
 	}
 
@@ -392,8 +466,9 @@ void QQPinipede::norlogeRefHovered(QQNorlogeRef norlogeRef)
 			// qDebug() << "QQPinipede::norlogeRefHovered cursor.blockNumber()=" << cursor.blockNumber()
 			//		 << ", mainTable->rows()=" << mainTable->rows()
 			//		 << ", mainTable->columns()=" << mainTable->columns();
-			if(cursor.block().userState() == QQSyntaxHighlighter::NOT_HIGHLIGHTED)
-				continue;
+
+			//if(cursor.block().userState() == QQSyntaxHighlighter::UNSET)
+			//	continue;
 			QQMessageBlockUserData * userData = (QQMessageBlockUserData *) (cursor.block().userData());
 
 			if(norlogeRef.matchesPost(userData->post()))
@@ -431,27 +506,8 @@ void QQPinipede::norlogeRefHovered(QQNorlogeRef norlogeRef)
 ///
 void QQPinipede::unHighlight(QQTextBrowser *tBrowser)
 {
-	//qDebug() << "QQPinipede::unHighlight";
-
 	m_hiddenPostViewerLabel->hide();
-
-	if(tBrowser == NULL || ! tBrowser->isHighlighted())
-		return;
-
-	tBrowser->setHighlighted(false);
-
-	//m_hiddenPostViewerLabel->hide();
-
-	QTextCursor cursor(tBrowser->document());
-	QQSyntaxHighlighter * highlighter = tBrowser->document()->findChildren<QQSyntaxHighlighter *>().at(0);
-	highlighter->setNorlogeRefToHighlight(QQNorlogeRef());
-
-	do
-	{
-		if(cursor.block().userState() & (QQSyntaxHighlighter::NORLOGE_HIGHLIGHTED | QQSyntaxHighlighter::FULL_HIGHLIGHTED))
-			highlighter->rehighlightBlock(cursor.block());
-
-	} while(cursor.movePosition(QTextCursor::NextBlock));
+	tBrowser->setExtraSelections(QList<QTextEdit::ExtraSelection>());
 }
 
 //////////////////////////////////////////////////////////////
@@ -545,22 +601,6 @@ void QQPinipede::contextMenuEvent(QContextMenuEvent * ev)
 /*************************************************************
  * Private
  *************************************************************/
-
-//////////////////////////////////////////////////////////////
-/// \brief QQPinipede::applyMessageTransformFilters
-/// \param post
-/// \return
-///
-QString QQPinipede::applyMessageTransformFilters(QQPost *post)
-{
-	QString message = post->message();
-
-	QQMessageTransformFilter *messageTransformFilter;
-	foreach(messageTransformFilter, m_listMessageTransformFilters)
-		messageTransformFilter->transformMessage(post, message);
-
-	return message;
-}
 
 //////////////////////////////////////////////////////////////
 /// \brief QQPinipede::applyPostDisplayFilters
@@ -763,6 +803,7 @@ bool QQPinipede::printPostAtCursor(QTextCursor & cursor, QQPost * post)
 
 	QTextBlockFormat bFormat = cursor.blockFormat();
 	bFormat.setTabPositions(cursor.document()->defaultTextOption().tabs());
+	bFormat.setBackground(post->bouchot()->settings().colorLight());
 	cursor.setBlockFormat(bFormat);
 
 	QQMessageBlockUserData * data = new QQMessageBlockUserData();
@@ -821,21 +862,21 @@ bool QQPinipede::printPostAtCursor(QTextCursor & cursor, QQPost * post)
 #endif
 	if(post->login().size() != 0)
 	{
-		loginUaFormat.setForeground(QColor("#553333"));
+		loginUaFormat.setForeground(QColor(LOGIN_COLOR));
 
 		txt = post->login();
 	}
 	else if(post->UA().size() != 0)
 	{
 		loginUaFormat.setFontItalic(true);
-		loginUaFormat.setForeground(QColor("#883333"));
+		loginUaFormat.setForeground(QColor(UA_COLOR));
 
 		txt = post->UA();
 	}
 	else
 	{
 		loginUaFormat.setFontFamily("Monospace");
-		loginUaFormat.setForeground(QColor("#BB3333"));
+		loginUaFormat.setForeground(QColor(UNKNOWN_POSTER_COLOR));
 
 		txt = QString::fromAscii("$NO UA$");
 	}
@@ -866,9 +907,12 @@ bool QQPinipede::printPostAtCursor(QTextCursor & cursor, QQPost * post)
 	cursor.setCharFormat(defaultFormat);
 
 	// Application des filtres de transformation du message
-	QString message = applyMessageTransformFilters(post);
+	//QString message = applyMessageTransformFilters(post);
+	m_postparser->setIndexShift(rangeMsg.begin);
+	QTextDocumentFragment *message = m_postparser->formatMessage(post, data);
+	cursor.insertFragment(* message);
+	delete message;
 
-	cursor.insertHtml(message);
 #if(QT_VERSION >= QT_VERSION_CHECK(4, 7, 0))
 	rangeMsg.end = cursor.positionInBlock();
 #else

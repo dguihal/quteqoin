@@ -10,7 +10,7 @@ class QQMessageTransformFilter
 public:
 	explicit QQMessageTransformFilter();
 
-	virtual void transformMessage(const QQPost *post, QString &message) = 0;
+	virtual void transformMessage(const QString &bouchot, QString &message) = 0;
 
 };
 

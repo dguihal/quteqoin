@@ -55,15 +55,7 @@ public:
 
 	bool isValid() const { return m_valid; }
 
-	bool operator == ( const QQNorlogeRef & other ) const
-	{
-		bool res = ( this->isValid() == other.isValid() &&
-					 QString::compare(this->dstBouchot(), other.dstBouchot()) == 0 &&
-					 QString::compare(this->dstNorloge(), other.dstNorloge()) == 0 &&
-					 this->getPosInMessage() == other.getPosInMessage() );
-
-		return res;
-	}
+	QString toString() const;
 
 private:
 	QString m_dstBouchot;
