@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>281</width>
+    <width>295</width>
     <height>270</height>
    </rect>
   </property>
@@ -14,7 +14,16 @@
    <string>Form</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
-   <property name="margin">
+   <property name="leftMargin">
+    <number>0</number>
+   </property>
+   <property name="topMargin">
+    <number>0</number>
+   </property>
+   <property name="rightMargin">
+    <number>0</number>
+   </property>
+   <property name="bottomMargin">
     <number>0</number>
    </property>
    <item>
@@ -168,6 +177,52 @@
       </item>
       <item row="1" column="1">
        <widget class="QComboBox" name="fontSizeComboB"/>
+      </item>
+      <item row="2" column="0">
+       <widget class="QLabel" name="label">
+        <property name="text">
+         <string>Highlight color :</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1">
+       <widget class="QWidget" name="widget_2" native="true">
+        <layout class="QHBoxLayout" name="horizontalLayout">
+         <property name="leftMargin">
+          <number>0</number>
+         </property>
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <property name="rightMargin">
+          <number>0</number>
+         </property>
+         <property name="bottomMargin">
+          <number>0</number>
+         </property>
+         <item>
+          <widget class="QRadioButton" name="dynamicHighLightColorRB">
+           <property name="text">
+            <string>Dynamic</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QRadioButton" name="fixedHighLightColorRB">
+           <property name="text">
+            <string>Fixed</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="colorChooserRB">
+           <property name="text">
+            <string/>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
       </item>
      </layout>
     </widget>

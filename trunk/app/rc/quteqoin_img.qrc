@@ -4,7 +4,6 @@
         <file>delete-icon.png</file>
         <file>menu-edit-icon.png</file>
         <file>Point_exclamation_rouge.svg</file>
-        <file>Fleche_verte.svg</file>
         <file>rubber_duck_yellow.svg</file>
         <file>totoz-loader.gif</file>
         <file>totoz-icon.jpeg</file>
@@ -14,5 +13,6 @@
         <file>filter-icon.png</file>
         <file>palmi-clear.png</file>
         <file>settings-icon.png</file>
+        <file>Fleche_verte.png</file>
     </qresource>
 </RCC>

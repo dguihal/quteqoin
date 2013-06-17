@@ -79,7 +79,8 @@ QQTextBrowser::QQTextBrowser(QString groupName, QQPinipede *parent) :
 	connect(this->verticalScrollBar(), SIGNAL(valueChanged(int)), this, SLOT(updateNotifArea(int)));
 
 	verticalScrollBar()->setInvertedControls(true);
-	verticalScrollBar()->triggerAction( QAbstractSlider::SliderToMaximum );
+	verticalScrollBar()->triggerAction(QAbstractSlider::SliderToMaximum);
+
 }
 
 QQTextBrowser::~QQTextBrowser()

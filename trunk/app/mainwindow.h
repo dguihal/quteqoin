@@ -6,6 +6,7 @@
 class QQBouchot;
 class QQPalmipede;
 class QQPinipede;
+class QQPiniSearchWidget;
 class QQSettings;
 class QQTotozManager;
 
@@ -47,6 +48,7 @@ private:
 	Ui::MainWindow *m_ui;
 	QQPalmipede *m_palmi;
 	QQPinipede *m_pini;
+	QQPiniSearchWidget *m_pSearchW;
 	QQTotozManager *m_totozManager;
 };
 

@@ -22,7 +22,6 @@ SOURCES += main.cpp\
 	core/qqpost.cpp \
 	ui/qqpalmipede.cpp \
 	ui/qqpinipede.cpp \
-	ui/qqsettingsdialog.cpp \
 	ui/qqtextbrowser.cpp \
 	xml/qqxmlparser.cpp \
 	core/qqnorloge.cpp \
@@ -50,7 +49,8 @@ SOURCES += main.cpp\
 	core/qqmessagetransformfilter.cpp \
 	ui/settingsmanager/qqfiltersettings.cpp \
     core/qqbackendupdatedevent.cpp \
-    ui/qqpostparser.cpp
+    ui/qqpostparser.cpp \
+    ui/qqpinisearchwidget.cpp
 
 HEADERS  += mainwindow.h \
 	core/qqsettings.h \
@@ -58,7 +58,6 @@ HEADERS  += mainwindow.h \
 	core/qqpost.h \
 	ui/qqpalmipede.h \
 	ui/qqpinipede.h \
-	ui/qqsettingsdialog.h \
 	ui/qqtextbrowser.h \
 	xml/qqxmlparser.h \
 	core/qqnorloge.h \
@@ -88,11 +87,11 @@ HEADERS  += mainwindow.h \
 	ui/settingsmanager/qqfiltersettings.h \
 	core/qqtypes.h \
     core/qqbackendupdatedevent.h \
-    ui/qqpostparser.h
+    ui/qqpostparser.h \
+    ui/qqpinisearchwidget.h
 
 FORMS += mainwindow.ui \
 	ui/qqpalmipede.ui \
-	ui/qqsettingsdialog.ui \
 	ui/qqproxyauthdialog.ui \
 	ui/qqtotozmanager.ui \
 	ui/qqsettingsmanager.ui \
@@ -101,7 +100,8 @@ FORMS += mainwindow.ui \
 	ui/settingsmanager/qqgeneralsettings.ui \
 	ui/settingsmanager/qqpalmisettings.ui \
 	ui/settingsmanager/qqtotozsettings.ui \
-	ui/settingsmanager/qqfiltersettings.ui
+	ui/settingsmanager/qqfiltersettings.ui \
+    ui/qqpinisearchwidget.ui
 
 OTHER_FILES +=
 
