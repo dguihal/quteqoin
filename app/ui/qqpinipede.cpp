@@ -16,8 +16,10 @@
 #include <QApplication>
 #include <QContextMenuEvent>
 #include <QCursor>
+#include <QHBoxLayout>
 #include <QImage>
 #include <QLabel>
+#include <QLineEdit>
 #include <QMovie>
 #include <QScrollBar>
 #include <QTabBar>
@@ -34,10 +36,9 @@
 #ifdef COLOR_COMPLEMENT
 #define HIGHLIGHT_COLOR_S 200
 #define HIGHLIGHT_COLOR_V 200
-#else
-#define HIGHLIGHT_COLOR "#FFE940"
 #endif
 
+#define HIGHLIGHT_COLOR "#FFE940"
 #define LOGIN_COLOR "#553333"
 #define UA_COLOR "#883333"
 #define UNKNOWN_POSTER_COLOR "#BB3333"
@@ -275,12 +276,50 @@ void QQPinipede::newPostsAcknowledged(QString groupName)
 }
 
 //////////////////////////////////////////////////////////////
-/// \brief notify
+/// \brief QQPinipede::notify
 ///
 void QQPinipede::notify()
 {
 	QIcon icon = QIcon(QString::fromAscii(":/img/Point_exclamation_rouge.svg"));
 	window()->setWindowIcon(icon);
+}
+
+//////////////////////////////////////////////////////////////
+/// \brief searchText
+/// \param text
+/// \param forward
+///
+void QQPinipede::searchText(const QString &text, bool forward)
+{
+	foreach (QQTextBrowser *textBrowser, m_textBrowserHash.values())
+	{
+		if(! textBrowser->isVisible())
+			continue;
+
+		QTextDocument *doc = textBrowser->document();
+		QTextCursor cursor = textBrowser->textCursor();
+
+		QTextDocument::FindFlags flags = 0;
+		if(forward)
+			flags |= QTextDocument::FindBackward;
+
+		cursor = doc->find(text, cursor, flags);
+		if(! cursor.isNull())
+		{
+			qDebug() << "cursor :" << cursor.selectedText();
+
+			QList<QTextEdit::ExtraSelection> extraSelections;
+			QTextEdit::ExtraSelection extra;
+			extra.format.setBackground(QColor(HIGHLIGHT_COLOR));
+			extra.cursor = cursor;
+			extraSelections.clear();
+			extraSelections.append(extra);
+
+			textBrowser->setExtraSelections(extraSelections);
+			textBrowser->setTextCursor(cursor);
+			textBrowser->ensureCursorVisible();
+		}
+	}
 }
 
 //////////////////////////////////////////////////////////////
@@ -381,6 +420,7 @@ void QQPinipede::norlogeRefHovered(QQNorlogeRef norlogeRef)
 			int endBlockPos = (textBrowser->cursorForPosition(QPoint(textBrowser->viewport()->width(), textBrowser->viewport()->height()))).blockNumber();
 
 			QList<QTextEdit::ExtraSelection> extraSelections;
+			extraSelections.clear();
 			while(cursor.movePosition(QTextCursor::NextBlock) && cursor.blockNumber() <= endBlockPos)
 			{
 				//cursor.movePosition(QTextCursor::StartOfBlock, QTextCursor::MoveAnchor);
@@ -644,8 +684,10 @@ void QQPinipede::newPostsAvailable(QString groupName)
 	while(! newPostsAvailableMutex.tryLock(1000))
 		qWarning() << "newPostsAvailable " << groupName << "tryLock timeout";
 
-	QList<QQPost *> newPosts;
+	QQTextBrowser * textBrowser = m_textBrowserHash.value(groupName);
+	bool wasAtEnd = (textBrowser->verticalScrollBar()->sliderPosition() == textBrowser->verticalScrollBar()->maximum());
 
+	QList<QQPost *> newPosts;
 	foreach(QQBouchot *b, QQBouchot::listBouchotsGroup(groupName))
 	{
 		QList<QQPost *> newBouchotPosts = b->takeNewPosts();
@@ -672,7 +714,6 @@ void QQPinipede::newPostsAvailable(QString groupName)
 	// Tri necessaire puisqu'on a potentiellement melange les posts de plusieurs tribunes
 	qSort(newPosts.begin(), newPosts.end(), postComp);
 
-	QQTextBrowser * textBrowser = m_textBrowserHash.value(groupName);
 	//On signale via la forme de la souris qu'un traitement est en cours
 	textBrowser->viewport()->setCursor(Qt::BusyCursor);
 	QTextDocument * doc = textBrowser->document();
@@ -680,7 +721,6 @@ void QQPinipede::newPostsAvailable(QString groupName)
 	QTextCursor cursor(doc);
 	cursor.beginEditBlock();
 
-	bool wasAtEnd = (textBrowser->verticalScrollBar()->sliderPosition() == textBrowser->verticalScrollBar()->maximum());
 	bool postWasPrinted = true;
 	// Recuperation de l'historique des posts (ou creation si absent)
 	QList<QQPost *> *destlistPosts = NULL;

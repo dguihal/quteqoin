@@ -19,13 +19,14 @@ class QQSyntaxHighlighter;
 class QQSettings;
 class QQTextBrowser;
 class QQTotozManager;
-class QTextCursor;
+class QQPiniSearchWidget;
 class QQPost;
 class QQPostParser;
 class QQTotozDownloader;
 class QQTotozViewer;
 
 class QLabel;
+class QLineEdit;
 class QMovie;
 class QTextBrowser;
 class QTextDocument;
@@ -66,6 +67,7 @@ public slots:
 	void loginClicked(QString bouchot, QString login);
 	void newPostsAcknowledged(QString groupName);
 	void notify();
+	void searchText(const QString &text, bool forward = true);
 
 signals:
 	void insertTextPalmi(QString bouchot, QString text);

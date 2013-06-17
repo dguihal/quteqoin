@@ -4,7 +4,7 @@
 #include "core/qqsettings.h"
 #include "ui/qqpalmipede.h"
 #include "ui/qqpinipede.h"
-#include "ui/qqsettingsdialog.h"
+#include "ui/qqpinisearchwidget.h"
 #include "ui/qqsettingsmanager.h"
 #include "ui/qqtotozmanager.h"
 
@@ -56,11 +56,22 @@ MainWindow::MainWindow(QWidget *parent) :
 
 	connect(toolButton, SIGNAL(clicked()), this, SLOT(displayOptions()));
 
+	QWidget *centralWidget = new QWidget(this);
+	QLayout *layout = new QVBoxLayout();
+
 	m_pini = new QQPinipede(this);
 	m_pini->setToolButton(toolButton);
 	m_pini->setTotozManager(m_totozManager);
 	connect(m_pini, SIGNAL(insertTextPalmi(QString, QString)), m_palmi, SLOT(insertReplaceText(QString, QString)));
-	setCentralWidget(m_pini);
+	layout->addWidget(m_pini);
+
+	m_pSearchW = new QQPiniSearchWidget(this);
+	m_pSearchW->hide();
+	connect(m_pSearchW, SIGNAL(search(QString,bool)), m_pini, SLOT(searchText(QString,bool)));
+	layout->addWidget(m_pSearchW);
+
+	centralWidget->setLayout(layout);
+	setCentralWidget(centralWidget);
 
 	QQSettings settings;
 	if(settings.contains(SETTINGS_MAINWINDOW_GEOMETRY))
@@ -179,12 +190,20 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
 		processed = true;
 		break;
 	}
+	case Qt::Key_F:
+		if(event->modifiers() == Qt::CTRL)
+		{
+			m_pSearchW->show();
+			m_pSearchW->setFocus();
+			processed = true;
+		}
+		break;
 	default :
 		break;
 	}
 
 	if(! processed)
-	QMainWindow::keyPressEvent(event);
+		QMainWindow::keyPressEvent(event);
 }
 
 void MainWindow::bouchotDestroyed(QQBouchot *bouchot)
