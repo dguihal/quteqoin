@@ -68,10 +68,6 @@ void QQPiniSearchWidget::keyPressEvent(QKeyEvent *event)
 
 	switch(event->key())
 	{
-	case Qt::Key_F:
-		if(event->modifiers() == Qt::CTRL)
-			ui->stopSearchPB->animateClick();
-		break;
 	case Qt::Key_F3:
 		if(event->modifiers() == Qt::SHIFT)
 			ui->revSearchPB->animateClick();

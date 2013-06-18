@@ -304,10 +304,17 @@ void QQPinipede::searchText(const QString &text, bool forward)
 			flags |= QTextDocument::FindBackward;
 
 		cursor = doc->find(text, cursor, flags);
+		if(cursor.isNull())
+		{
+			cursor.movePosition(QTextCursor::Start);
+			if(forward)
+				cursor.movePosition(QTextCursor::End);
+
+			cursor = doc->find(text, cursor, flags);
+		}
+
 		if(! cursor.isNull())
 		{
-			qDebug() << "cursor :" << cursor.selectedText();
-
 			QList<QTextEdit::ExtraSelection> extraSelections;
 			QTextEdit::ExtraSelection extra;
 			extra.format.setBackground(QColor(HIGHLIGHT_COLOR));
