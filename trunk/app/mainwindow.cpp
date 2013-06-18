@@ -48,7 +48,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	QAction *actionTotozManager = m_totozManager->toggleViewAction();
 	actionTotozManager->setShortcut(Qt::ControlModifier + Qt::Key_T);
 
-	// Setup du pini
+	// Setup du bouton d'options
 	QToolButton *toolButton = new QToolButton();
 	toolButton->setIcon(QIcon(":/img/settings-icon.png"));
 	toolButton->addAction(actionPalmi);
@@ -56,6 +56,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
 	connect(toolButton, SIGNAL(clicked()), this, SLOT(displayOptions()));
 
+	// Setup du pini
 	QWidget *centralWidget = new QWidget(this);
 	QLayout *layout = new QVBoxLayout();
 
@@ -72,6 +73,13 @@ MainWindow::MainWindow(QWidget *parent) :
 
 	centralWidget->setLayout(layout);
 	setCentralWidget(centralWidget);
+
+	// Action complementaire
+	QAction *actionSearch = new QAction(tr("Search pini"), this);
+	actionSearch->setShortcut(Qt::ControlModifier + Qt::Key_F);
+	actionSearch->setCheckable(true);
+	connect(actionSearch, SIGNAL(triggered(bool)), m_pSearchW, SLOT(setVisible(bool)));
+	toolButton->addAction(actionSearch);
 
 	QQSettings settings;
 	if(settings.contains(SETTINGS_MAINWINDOW_GEOMETRY))
@@ -174,7 +182,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
 
 void MainWindow::keyPressEvent(QKeyEvent *event)
 {
-	bool processed = false;
+	bool processed = true;
 
 	switch(event->key())
 	{
@@ -187,18 +195,10 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
 			bouchot->stopRefresh();
 			bouchot->startRefresh();
 		}
-		processed = true;
 		break;
 	}
-	case Qt::Key_F:
-		if(event->modifiers() == Qt::CTRL)
-		{
-			m_pSearchW->show();
-			m_pSearchW->setFocus();
-			processed = true;
-		}
-		break;
 	default :
+		processed = false;
 		break;
 	}
 
