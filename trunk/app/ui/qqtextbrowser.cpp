@@ -54,9 +54,9 @@ QQTextBrowser::QQTextBrowser(QString groupName, QQPinipede *parent) :
 	opt.setAlignment(Qt::AlignLeft);
 
 	QList<QTextOption::Tab> listTabs;
-	int baseWidth = QFontMetrics(docFont).width('a');
+	qreal baseWidth = QFontMetricsF(docFont).averageCharWidth();
 	m_timeUAAreaWidthPx = baseWidth * TIME_UA_AREA_WIDTH_CHAR;
-	int tabPosPx = baseWidth * (TIME_UA_AREA_WIDTH_CHAR + 1); // + margin
+	qreal tabPosPx = baseWidth * (TIME_UA_AREA_WIDTH_CHAR + 1); // + margin
 
 #if(QT_VERSION >= QT_VERSION_CHECK(4, 7, 0))
 	QTextOption::Tab tab(tabPosPx, QTextOption::DelimiterTab, '\t');

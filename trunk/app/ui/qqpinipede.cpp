@@ -839,9 +839,9 @@ bool QQPinipede::printPostAtCursor(QTextCursor & cursor, QQPost * post)
 	QQMessageBlockUserData * data = new QQMessageBlockUserData();
 	data->setPost(post);
 
-	int textLen = 0;
+	qreal textLen = 0;
 	QFont currFont = cursor.document()->defaultFont();
-	int loginUAAreaWidth = browser->timeUAAreaWidth();
+	qreal loginUAAreaWidth = browser->timeUAAreaWidth();
 
 	QTextCharFormat defaultFormat;
 	defaultFormat.setFont(currFont);
@@ -869,12 +869,12 @@ bool QQPinipede::printPostAtCursor(QTextCursor & cursor, QQPost * post)
 #endif
 	data->setZRange(QQMessageBlockUserData::NORLOGE, rangeNorloge);
 
-	QFontMetrics fm = QFontMetrics(norlogeFormat.font());
+	QFontMetricsF fm = QFontMetricsF(norlogeFormat.font());
 	textLen += fm.size(Qt::TextSingleLine | Qt::TextExpandTabs, txt).width();
 
 	cursor.insertText(" ", defaultFormat);
 
-	fm = QFontMetrics(defaultFormat.font());
+	fm = QFontMetricsF(defaultFormat.font());
 	textLen += fm.size(Qt::TextSingleLine | Qt::TextExpandTabs," ").width();
 
 
@@ -911,7 +911,7 @@ bool QQPinipede::printPostAtCursor(QTextCursor & cursor, QQPost * post)
 		txt = QString::fromAscii("$NO UA$");
 	}
 
-	fm = QFontMetrics(loginUaFormat.font());
+	fm = QFontMetricsF(loginUaFormat.font());
 	if(textLen + fm.size(Qt::TextSingleLine | Qt::TextExpandTabs, txt).width() > loginUAAreaWidth)
 		txt = fm.elidedText(txt, Qt::ElideMiddle, loginUAAreaWidth - textLen);
 	txt.append("\t");
