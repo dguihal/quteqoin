@@ -179,10 +179,10 @@ void QQTotozViewer::displayText(QString text)
 {
 	QPoint curPos = pos();
 	setStyleSheet("QLabel { background-color : rgba(255, 255, 255, 200); color : black; }");
-	QFontMetrics fm(font());
-	QSize txtSize = fm.size(Qt::TextSingleLine, text);
-	setMinimumSize(txtSize);
-	setMaximumSize(txtSize);
+	QFontMetricsF fm(font());
+	QSizeF txtSize = fm.size(Qt::TextSingleLine, text);
+	setMinimumSize(txtSize.toSize());
+	setMaximumSize(txtSize.toSize());
 	setText(text);
 	move(curPos);
 }

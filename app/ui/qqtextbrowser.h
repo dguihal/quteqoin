@@ -22,7 +22,7 @@ public:
 	~QQTextBrowser();
 
 	int notifAreaWidth();
-	int timeUAAreaWidth() { return m_timeUAAreaWidthPx; }
+	qreal timeUAAreaWidth() { return m_timeUAAreaWidthPx; }
 	void notifAreaPaintEvent(QPaintEvent *event);
 
 public slots:
@@ -78,7 +78,7 @@ private:
 	bool m_mouseClick;
 	QPoint m_lastPoint;
 
-	int m_timeUAAreaWidthPx;
+	qreal m_timeUAAreaWidthPx;
 
 	QString m_highlightedNorlogeRef;
 	QString m_displayedTotozId;
