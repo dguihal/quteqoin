@@ -19,7 +19,7 @@
 #define X_POST_ID_HEADER "X-Post-Id"
 
 int defaultRefreshRate = 30;
-typedef struct bouchotDef
+typedef struct QQBouchotDef
 {
 	char name[16];
 	char getUrl[64];
@@ -29,12 +29,12 @@ typedef struct bouchotDef
 	char alias[64];
 	char cookieProto[64];
 	QQBouchot::TypeSlip typeSlip;
-} bouchotDefStruct;
+} QQBouchotDef;
 
 //Définition des bouchots préconfigurés
 // tiré d'olcc by Chrisix
 int bouchotsDefSize = 10;
-bouchotDefStruct bouchotsDef[] =
+QQBouchotDef bouchotsDef[] =
 {
 	{ "dlfp", "http://linuxfr.org/board/index.xml", "http://linuxfr.org/board", "board[message]=%m",
 	  "#dac0de", "linuxfr,beyrouth,passite,dapassite", "linuxfr.org_session=", QQBouchot::SlipTagsEncoded },
