@@ -22,21 +22,6 @@ QQPiniUrlHelper::QQPiniUrlHelper(QObject *parent) :
 	QQNetworkAccessor(parent), QQMessageTransformFilter()
 {
 	m_contentTypeReplies.clear();
-
-	QQSettings settings;
-	QuteQoin::QQSmartUrlFilerTransformType trType =
-				(QuteQoin::QQSmartUrlFilerTransformType) settings.value(SETTINGS_FILTER_SMART_URL_TRANSFORM_TYPE, DEFAULT_FILTER_SMART_URL_TRANSFORM_TYPE).toInt();
-	switch(trType)
-	{
-		case QuteQoin::Full:
-			m_urlPatternReplace = FULL_HOST_REPLACE;
-			break;
-		case QuteQoin::Short:
-			m_urlPatternReplace = SHORT_HOST_REPLACE;
-			break;
-		default:
-			m_urlPatternReplace = SHORTER_HOST_REPLACE;
-	}
 }
 
 //////////////////////////////////////////////////////////////
@@ -56,13 +41,29 @@ void QQPiniUrlHelper::getContentType(const QUrl &url)
 ///
 void QQPiniUrlHelper::transformMessage(const QString &bouchot, QString &message)
 {
-	Q_UNUSED(bouchot)
+	Q_UNUSED(bouchot);
+
+	QString urlPatternReplace;
+	QQSettings settings;
+	QuteQoin::QQSmartUrlFilerTransformType trType =
+				(QuteQoin::QQSmartUrlFilerTransformType) settings.value(SETTINGS_FILTER_SMART_URL_TRANSFORM_TYPE, DEFAULT_FILTER_SMART_URL_TRANSFORM_TYPE).toInt();
+	switch(trType)
+	{
+		case QuteQoin::Full:
+			urlPatternReplace = FULL_HOST_REPLACE;
+			break;
+		case QuteQoin::Short:
+			urlPatternReplace = SHORT_HOST_REPLACE;
+			break;
+		default:
+			urlPatternReplace = SHORTER_HOST_REPLACE;
+	}
 
 	QRegExp reg(URL_HOST_REGEXP,
 				Qt::CaseInsensitive,
 				QRegExp::RegExp2);
 
-	message.replace(reg, m_urlPatternReplace);
+	message.replace(reg, urlPatternReplace);
 
 }
 

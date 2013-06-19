@@ -113,6 +113,7 @@ void MainWindow::displayOptions()
 	connect(&settingsManager, SIGNAL(bouchotCreated(QQBouchot*)), this, SLOT(initBouchot(QQBouchot*)));
 	connect(&settingsManager, SIGNAL(minimizePalmi()), this, SLOT(doTriggerMiniPalmi()));
 	connect(&settingsManager, SIGNAL(maximizePalmi()), this, SLOT(doTriggerMaxiPalmi()));
+	connect(&settingsManager, SIGNAL(fullRepaint()), this, SLOT(doFullRepaint()));
 	connect(&settingsManager, SIGNAL(totozSearchEnabledChanged(bool)), m_totozManager, SLOT(totozSearchEnabled(bool)));
 	settingsManager.exec();
 
@@ -232,6 +233,22 @@ void MainWindow::bouchotGroupChanged(QQBouchot *bouchot, QString oldGroupName)
 
 	m_pini->addPiniTab(bouchot->settings().group());
 	bouchot->setNewPostsFromHistory();
+}
+
+void MainWindow::doFullRepaint()
+{
+	QList<QQBouchot *> bouchots = QQBouchot::listBouchots();
+	QMultiHash<QString, QQBouchot *> groupHash;
+	foreach(QQBouchot * bouchot, bouchots)
+		groupHash.insertMulti(bouchot->settings().group(), bouchot);
+
+	foreach(QString group, groupHash.keys())
+	{
+		m_pini->removePiniTab(group);
+		m_pini->addPiniTab(group);
+		foreach (QQBouchot * bouchot, groupHash.values(group))
+			bouchot->setNewPostsFromHistory();
+	}
 }
 
 void MainWindow::initBouchot(QQBouchot *bouchot)
