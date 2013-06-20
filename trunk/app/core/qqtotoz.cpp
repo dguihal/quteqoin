@@ -1,8 +1,8 @@
 #include "qqtotoz.h"
 #include "core/qqsettingsparams.h"
 
-#include <QBuffer>
 #include <QtDebug>
+#include <QBuffer>
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
 
@@ -61,12 +61,16 @@ bool QQTotoz::isCacheExpired()
 
 QString QQTotoz::getPath(QString id)
 {
+#if(QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
+	QDir dirCache(QStandardPaths::writableLocation(QStandardPaths::CacheLocation));
+#else
 	QDir dirCache(QDesktopServices::storageLocation(QDesktopServices::CacheLocation));
+#endif
 
 	if(! dirCache.exists())
 		dirCache.mkpath(dirCache.path());
 
-	QString totozIdB64 = QString(id.toLower().toAscii().toBase64()).left(255);
+	QString totozIdB64 = QString(id.toLower().toLatin1().toBase64()).left(255);
 	totozIdB64.replace('/', '_');
 	return dirCache.filePath(totozIdB64);
 }
@@ -125,7 +129,9 @@ void QQTotoz::load()
 			break;
 		case QXmlStreamReader::Characters:
 			if(xml.isCDATA())
-#if(QT_VERSION >= QT_VERSION_CHECK(4, 8, 0))
+#if(QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
+				m_totozData = QByteArray::fromBase64(xml.text().toLatin1());
+#elif(QT_VERSION >= QT_VERSION_CHECK(4, 8, 0))
 				m_totozData = QByteArray::fromBase64(xml.text().toAscii());
 #else
 				m_totozData = QByteArray::fromBase64(xml.text().toString().toAscii());

@@ -68,14 +68,12 @@ void QQTMRequester::searchTotoz(const QString & key, int offset)
 
 	QString searchPattern = settings.value(SETTINGS_TOTOZ_SERVER_QUERY_PATTERN,
 										   DEFAULT_TOTOZ_SERVER_QUERY_PATTERN).toString();
-	searchPattern.replace("%t", key.toAscii().toPercentEncoding());
+	searchPattern.replace("%t", key.toLatin1().toPercentEncoding());
 	searchPattern.replace("%o", QString::number(offset));
 
 
-	QString urlString = settings.value(SETTINGS_TOTOZ_SERVER_URL,
-									   DEFAULT_TOTOZ_SERVER_URL).toString()
-						.append("/")
-						.append(searchPattern);
+	QString urlString = settings.value(SETTINGS_TOTOZ_SERVER_URL, DEFAULT_TOTOZ_SERVER_URL).toString();
+	urlString.append("/").append(searchPattern);
 
 	QUrl url(urlString);
 
@@ -91,7 +89,7 @@ void QQTMRequester::parsingFinished()
 	m_totozes.append(m_xmlParser->totozes());
 
 	if(m_xmlParser->numResults() > 0 &&
-	   m_totozes.size() < m_xmlParser->numResults())
+			m_totozes.size() < m_xmlParser->numResults())
 		searchTotoz(m_currKey, m_totozes.size());
 	else
 		emit requestFinished();

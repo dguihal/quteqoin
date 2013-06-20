@@ -88,7 +88,7 @@ QQBouchot::~QQBouchot()
 void QQBouchot::postMessage(const QString &message)
 {
 	QString url = m_bSettings.postUrl();
-	QByteArray postData = m_bSettings.postData().toAscii();
+	QByteArray postData = m_bSettings.postData().toLatin1();
 	QByteArray mark("%m");
 
 	if(postData.contains(mark))
@@ -109,14 +109,14 @@ void QQBouchot::postMessage(const QString &message)
 			ua=QString(DEFAULT_GENERAL_DEFAULT_UA);
 	}
 
-	request.setRawHeader("User-Agent", ua.toAscii());
+	request.setRawHeader("User-Agent", ua.toLatin1());
 
 	if(m_bSettings.cookie().isEmpty() == false)
-		request.setRawHeader("Cookie", m_bSettings.cookie().toAscii());
+		request.setRawHeader("Cookie", m_bSettings.cookie().toLatin1());
 
 	request.setRawHeader("Accept", "*/*");
 	request.setRawHeader("Accept-Encoding","gzip, deflate");
-	request.setRawHeader("Referer", request.url().toString().toAscii());
+	request.setRawHeader("Referer", request.url().toString().toLatin1());
 	httpPost(request, postData);
 }
 
@@ -215,7 +215,7 @@ void QQBouchot::fetchBackend()
 	else
 	{
 		lastId.setNum(m_lastId);
-		url.replace(QString::fromAscii("%i"), lastId);
+		url.replace(QString::fromLatin1("%i"), lastId);
 	}
 
 	qDebug() << "QQBouchot::fetchBackend url=" << url;
@@ -226,10 +226,10 @@ void QQBouchot::fetchBackend()
 						 QNetworkRequest::AlwaysNetwork);
 
 	QQSettings settings;
-	request.setRawHeader(QString::fromAscii("User-Agent").toAscii(), QString(DEFAULT_GENERAL_DEFAULT_UA).toAscii());
+	request.setRawHeader(QString::fromLatin1("User-Agent").toLatin1(), QString(DEFAULT_GENERAL_DEFAULT_UA).toLatin1());
 
 	if(m_bSettings.cookie().isEmpty() == false)
-		request.setRawHeader(QString::fromAscii("Cookie").toAscii(), m_bSettings.cookie().toAscii());
+		request.setRawHeader(QString::fromLatin1("Cookie").toLatin1(), m_bSettings.cookie().toLatin1());
 
 	QNetworkReply * reply = httpGet(request);
 	connect(reply, SIGNAL(sslErrors(const QList<QSslError>&)), this, SLOT(slotSslErrors(const QList<QSslError>&)));
@@ -317,9 +317,10 @@ void QQBouchot::insertNewPost(QQPost &newPost)
 	}
 	//Si la tribune gere le X-Post-Id mais que l'id du post ne fait pas
 	// partie de la liste alors il est d'une autre moule
-	else if(m_hasXPostId)
-		tmpNewPost->setSelfPost(false);
 
+	//Pas du tout efface, il peut s'agir d'un post provenant d'un autre canard
+	//else if(m_hasXPostId)
+	//	tmpNewPost->setSelfPost(false);
 
 	m_newPostHistory.prepend(tmpNewPost);
 }
@@ -375,7 +376,7 @@ QStringList QQBouchot::getBouchotDefNameList()
 	int i = 0;
 	QStringList res;
 	for(i = 0; i < bouchotsDefSize; i++)
-		res.append(QString::fromAscii(bouchotsDef[i].name));
+		res.append(QString::fromLatin1(bouchotsDef[i].name));
 
 	return res;
 }

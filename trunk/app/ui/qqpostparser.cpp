@@ -80,7 +80,7 @@ void QQPostParser::colorizeBigorno(QTextDocument &doc, QQPost *post, QQMessageBl
 	if(id.length() == 0)
 		id = post->bouchot()->settings().ua();
 
-	QString bigorno = QString::fromAscii("\\b(?:");
+	QString bigorno = QString::fromLatin1("\\b(?:");
 	if(id.length() > 0)
 		bigorno.append(id).append("|");
 	bigorno.append("moules)<");
@@ -112,18 +112,18 @@ void QQPostParser::colorizeBigorno(QTextDocument &doc, QQPost *post, QQMessageBl
 ///
 void QQPostParser::colorizeDuck(QTextDocument &doc, QQMessageBlockUserData *userData)
 {
-	QString tete = QString::fromAscii("(?:[o0ô°øòó@]|(?:&ocirc;)|(?:&deg;)|(?:&oslash;)|(?:&ograve;)|(?:&oacute;))");
+	QString tete = QString::fromLatin1("(?:[o0ô°øòó@]|(?:&ocirc;)|(?:&deg;)|(?:&oslash;)|(?:&ograve;)|(?:&oacute;))");
 
 	QList<QRegExp> regexes;
-	regexes << QRegExp(QString::fromAscii("\\\\_").append(tete).append(QString::fromAscii("<")),
-								Qt::CaseSensitive,
-								QRegExp::RegExp);
-
-	regexes << QRegExp(QString::fromAscii(">").append(tete).append(QString::fromAscii("_\\/")),
+	regexes << QRegExp(QString::fromLatin1("\\\\_").append(tete).append(QString::fromLatin1("<")),
 					   Qt::CaseSensitive,
 					   QRegExp::RegExp);
 
-	regexes << QRegExp(QString::fromAscii("coin ?! ?coin ?!"),
+	regexes << QRegExp(QString::fromLatin1(">").append(tete).append(QString::fromLatin1("_\\/")),
+					   Qt::CaseSensitive,
+					   QRegExp::RegExp);
+
+	regexes << QRegExp(QString::fromLatin1("coin ?! ?coin ?!"),
 					   Qt::CaseSensitive,
 					   QRegExp::RegExp);
 
@@ -185,24 +185,24 @@ void QQPostParser::colorizeNRef(QTextDocument &doc, QQPost *post, QQMessageBlock
 ///
 void QQPostParser::linkNorlogeRef(QQNorlogeRef *nRef)
 {
-		QQBouchot * bouchot = QQBouchot::bouchot(nRef->dstBouchot());
-		if(bouchot == NULL)
-				return;
+	QQBouchot * bouchot = QQBouchot::bouchot(nRef->dstBouchot());
+	if(bouchot == NULL)
+		return;
 
-		QList<QQPost *> history = bouchot->getPostsHistory();
+	QList<QQPost *> history = bouchot->getPostsHistory();
 
-		// Parcourir du plus recent au plus ancien devrait etre plus rapide car
-		// les reponse sont souvent proches du poste d'origine;
-		bool targetFound = false;
-		for(int i = history.length() - 1; i >= 0; i--)
-		{
-			QQPost * post = history.at(i);
+	// Parcourir du plus recent au plus ancien devrait etre plus rapide car
+	// les reponse sont souvent proches du poste d'origine;
+	bool targetFound = false;
+	for(int i = history.length() - 1; i >= 0; i--)
+	{
+		QQPost * post = history.at(i);
 
-			if(nRef->matchesPost(post))
-					targetFound = true;
-			else if(targetFound) // On ne quitte pas avant au cas de match multiple
-					break;
-		}
+		if(nRef->matchesPost(post))
+			targetFound = true;
+		else if(targetFound) // On ne quitte pas avant au cas de match multiple
+			break;
+	}
 }
 
 
@@ -214,7 +214,7 @@ void QQPostParser::linkNorlogeRef(QQNorlogeRef *nRef)
 ///
 void QQPostParser::colorizeTableVolante(QTextDocument &doc, QQMessageBlockUserData *userData)
 {
-	QRegExp m_tvReg = QRegExp(QString::fromAscii("(?:flap ?flap)|(?:table[ _]volante)"),
+	QRegExp m_tvReg = QRegExp(QString::fromLatin1("(?:flap ?flap)|(?:table[ _]volante)"),
 							  Qt::CaseSensitive,
 							  QRegExp::RegExp);
 
@@ -238,7 +238,7 @@ void QQPostParser::colorizeTableVolante(QTextDocument &doc, QQMessageBlockUserDa
 ///
 void QQPostParser::colorizeTotoz(QTextDocument &doc, QQMessageBlockUserData *userData)
 {
-	QRegExp m_totozReg = QRegExp(QString::fromAscii("(\\[\\:[^\\t\\)\\]]+\\])"), //[:[^\t\)\]]
+	QRegExp m_totozReg = QRegExp(QString::fromLatin1("(\\[\\:[^\\t\\)\\]]+\\])"), //[:[^\t\)\]]
 								 Qt::CaseSensitive,
 								 QRegExp::RegExp);
 

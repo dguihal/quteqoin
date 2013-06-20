@@ -56,7 +56,7 @@ QQPinipede::QQPinipede(QWidget * parent) :
 	connect(m_postparser, SIGNAL(notifyBigorno()),
 			this, SLOT(notify()));
 
-	m_hiddenPostViewerLabelSSheet = QString::fromAscii("border: 2px solid black; border-radius: 4px;");
+	m_hiddenPostViewerLabelSSheet = QString::fromLatin1("border: 2px solid black; border-radius: 4px;");
 	m_hiddenPostViewerLabel = new QLabel(this);
 	m_hiddenPostViewerLabel->setStyleSheet(m_hiddenPostViewerLabelSSheet);
 
@@ -280,7 +280,7 @@ void QQPinipede::newPostsAcknowledged(QString groupName)
 ///
 void QQPinipede::notify()
 {
-	QIcon icon = QIcon(QString::fromAscii(":/img/Point_exclamation_rouge.svg"));
+	QIcon icon = QIcon(QString::fromLatin1(":/img/Point_exclamation_rouge.svg"));
 	window()->setWindowIcon(icon);
 }
 
@@ -336,7 +336,7 @@ void QQPinipede::searchText(const QString &text, bool forward)
 ///
 void QQPinipede::norlogeClicked(QString srcBouchot, QQNorloge norloge)
 {
-	emit insertTextPalmi(srcBouchot, norloge.toStringPalmi() + QString::fromAscii(" "));
+	emit insertTextPalmi(srcBouchot, norloge.toStringPalmi() + QString::fromLatin1(" "));
 }
 
 //////////////////////////////////////////////////////////////
@@ -390,7 +390,7 @@ void QQPinipede::norlogeRefClicked(QString srcBouchot, QQNorlogeRef nRef)
 ///
 void QQPinipede::loginClicked(QString bouchot, QString login)
 {
-	emit insertTextPalmi(bouchot, login + QString::fromAscii("< "));
+	emit insertTextPalmi(bouchot, login + QString::fromLatin1("< "));
 }
 
 //////////////////////////////////////////////////////////////
@@ -915,7 +915,7 @@ bool QQPinipede::printPostAtCursor(QTextCursor & cursor, QQPost * post)
 		loginUaFormat.setFontFamily("Monospace");
 		loginUaFormat.setForeground(QColor(UNKNOWN_POSTER_COLOR));
 
-		txt = QString::fromAscii("$NO UA$");
+		txt = QString::fromLatin1("$NO UA$");
 	}
 
 	fm = QFontMetricsF(loginUaFormat.font());

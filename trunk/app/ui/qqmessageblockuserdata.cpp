@@ -77,7 +77,7 @@ QPair<int, QString> QQMessageBlockUserData::stringForIndex(int index, const QMap
 
 		i++;
 	}
-	return qMakePair(-1, QString::fromAscii(""));
+	return qMakePair(-1, QString::fromLatin1(""));
 }
 
 bool QQMessageBlockUserData::isIndexInString(int index, int stringIndexStart, const QString & string)

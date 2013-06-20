@@ -75,7 +75,11 @@ bool QQXmlParser::characters(const QString & ch)
 	   (m_elementNames.top() == "login"))
 	{
 		if (m_typeSlip == QQBouchot::SlipTagsRaw)
+#if(QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
+			m_tmpString.append(ch.toHtmlEscaped());
+#else
 			m_tmpString.append(Qt::escape(ch));
+#endif
 		else
 			m_tmpString.append(ch);
 	}
@@ -202,11 +206,19 @@ bool QQXmlParser::endElement(const QString &namespaceURI, const QString &localNa
 	else
 	{
 		if (localName == "info")
+#if(QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
+			m_currentPost.setUA(m_tmpString.trimmed().toHtmlEscaped());
+#else
 			m_currentPost.setUA(Qt::escape(m_tmpString.trimmed()));
+#endif
 		else if (localName == "message")
 			m_currentPost.setMessage(m_tmpString.trimmed());
 		else if (localName == "login")
+#if(QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
+			m_currentPost.setLogin(m_tmpString.trimmed().toHtmlEscaped());
+#else
 			m_currentPost.setLogin(Qt::escape(m_tmpString.trimmed()));
+#endif
 		m_tmpString.clear();
 	}
 	m_elementNames.pop();

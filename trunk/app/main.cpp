@@ -1,15 +1,23 @@
 #include "mainwindow.h"
 #include "core/qqsettingsparams.h"
 
-#include <QtGui/QApplication>
-#include <QtGui/QDesktopServices>
-#include <QtCore/QDateTime>
-#include <QtCore/QDir>
-#include <QtCore/QSettings>
+#include <QApplication>
+#if(QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
+#include <QStandardPaths>
+#else
+#include <QDesktopServices>
+#endif
+#include <QDateTime>
+#include <QDir>
+#include <QSettings>
 
 void purgeCache()
 {
+#if(QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
+	QDir dirCache(QStandardPaths::writableLocation(QStandardPaths::CacheLocation));
+#else
 	QDir dirCache(QDesktopServices::storageLocation(QDesktopServices::CacheLocation));
+#endif
 	QDateTime now = QDateTime::currentDateTime();
 	QFileInfoList fileInfoList = dirCache.entryInfoList();
 	for (int i = 0; i < fileInfoList.size(); ++i)

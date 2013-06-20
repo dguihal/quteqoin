@@ -27,7 +27,7 @@ QQSettings::~QQSettings()
 
 void QQSettings::removeBouchot(const QString &name)
 {
-	beginGroup(QString::fromAscii("bouchot"));
+	beginGroup(QString::fromLatin1("bouchot"));
 	beginGroup(name);
 
 	remove(SETTINGS_BOUCHOT_COLOR);
@@ -47,7 +47,7 @@ void QQSettings::removeBouchot(const QString &name)
 
 	QStringList listBouchotsNames = listBouchots();
 	listBouchotsNames.removeAll(name);
-	setValue(SETTINGS_LIST_BOUCHOTS, QVariant(listBouchotsNames.join(QChar::fromAscii(BOUCHOTS_SPLIT_CHAR))));
+	setValue(SETTINGS_LIST_BOUCHOTS, QVariant(listBouchotsNames.join(QChar::fromLatin1(BOUCHOTS_SPLIT_CHAR))));
 }
 
 QStringList QQSettings::listTotozSrvPresets()
@@ -58,7 +58,7 @@ QStringList QQSettings::listTotozSrvPresets()
 
 QQTotozSrvPreset QQSettings::getTotozSrvPreset(QString totozSrvPreset, bool labelOnly)
 {
-	QFile file(QString::fromAscii(SETTINGS_TOTOZ_PRESETS_PATH) + "/" + totozSrvPreset);
+	QFile file(QString::fromLatin1(SETTINGS_TOTOZ_PRESETS_PATH) + "/" + totozSrvPreset);
 	QQTotozSrvPreset preset;
 
 	if(!file.open(QIODevice::ReadOnly | QIODevice::Text))
@@ -95,7 +95,7 @@ QQTotozSrvPreset QQSettings::getTotozSrvPreset(QString totozSrvPreset, bool labe
 
 void QQSettings::saveBouchot(const QString &name, const QQBouchot::QQBouchotSettings &bouchotSettings)
 {
-	beginGroup(QString::fromAscii("bouchot"));
+	beginGroup(QString::fromLatin1("bouchot"));
 	beginGroup(name);
 
 	setValue(SETTINGS_BOUCHOT_COLOR, bouchotSettings.colorToString());
@@ -116,14 +116,14 @@ void QQSettings::saveBouchot(const QString &name, const QQBouchot::QQBouchotSett
 	QStringList listBouchotsNames = listBouchots();
 	if(! listBouchotsNames.contains(name, Qt::CaseInsensitive))
 		listBouchotsNames.append(name);
-	setValue(SETTINGS_LIST_BOUCHOTS, QVariant(listBouchotsNames.join(QChar::fromAscii(BOUCHOTS_SPLIT_CHAR))));
+	setValue(SETTINGS_LIST_BOUCHOTS, QVariant(listBouchotsNames.join(QChar::fromLatin1(BOUCHOTS_SPLIT_CHAR))));
 }
 
 QQBouchot * QQSettings::loadBouchot(const QString &name)
 {
 	QQBouchot::QQBouchotSettings newBouchotSettings;
 
-	beginGroup(QString::fromAscii("bouchot"));
+	beginGroup(QString::fromLatin1("bouchot"));
 	beginGroup(name);
 
 	// Pas d'url de backend , pas de bouchot
@@ -143,7 +143,7 @@ QQBouchot * QQSettings::loadBouchot(const QString &name)
 	newBouchotSettings.setSlipType((QQBouchot::TypeSlip) value(SETTINGS_BOUCHOT_SLIPTYPE, "").toInt());
 
 	endGroup(); //beginGroup(name);
-	endGroup(); //beginGroup(QString::fromAscii("bouchot"));
+	endGroup(); //beginGroup(QString::fromLatin1("bouchot"));
 
 
 	QQBouchot *newBouchot = new QQBouchot(name, NULL);
@@ -155,7 +155,7 @@ QQBouchot * QQSettings::loadBouchot(const QString &name)
 QStringList QQSettings::listBouchots()
 {
 	QString bouchots = value(SETTINGS_LIST_BOUCHOTS, "").toString();
-	return bouchots.split(QChar::fromAscii(BOUCHOTS_SPLIT_CHAR),
+	return bouchots.split(QChar::fromLatin1(BOUCHOTS_SPLIT_CHAR),
 						  QString::SkipEmptyParts);
 }
 

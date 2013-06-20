@@ -32,8 +32,8 @@ public:
 	public:
 		QStringList aliases() const { return m_aliases; }
 		void setAliases(const QStringList &newAliases) { m_aliases = newAliases; }
-		QString aliasesToString() const { return this->m_aliases.join(QChar::fromAscii(Separator)); }
-		void setAliasesFromString(const QString &newAliasesString) { m_aliases = newAliasesString.split(QChar::fromAscii(Separator)); }
+		QString aliasesToString() const { return this->m_aliases.join(QChar::fromLatin1(Separator)); }
+		void setAliasesFromString(const QString &newAliasesString) { m_aliases = newAliasesString.split(QChar::fromLatin1(Separator)); }
 		bool containsAlias(const QString & alias) { return m_aliases.contains(alias); }
 
 		QString backendUrl() const { return m_backendUrl; }
