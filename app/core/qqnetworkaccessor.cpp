@@ -94,7 +94,7 @@ QDateTime QQNetworkAccessor::parseRC822(QString string)
 	int pos = string.indexOf(',') + 1;
 	QString minString = string.right(string.length() - pos);
 	QStringList fields = minString.split(" ", QString::SkipEmptyParts);
-	QDate date(fields[2].toInt(), name_to_month(fields[1].toAscii()), fields[0].toInt());
+	QDate date(fields[2].toInt(), name_to_month(fields[1].toLatin1()), fields[0].toInt());
 	QTime time = QTime::fromString(fields[3], "hh:mm:ss");
 	if(fields[4].startsWith('+'))
 	{
@@ -122,7 +122,7 @@ void QQNetworkAccessor::proxyAuthenticationRequired(const QNetworkProxy & proxy,
 	qDebug() << "QQSettings::proxyAuthenticationRequired";
 	//Premier echec
 	if(QQNetworkAccessor::m_proxyUser.size() != 0 &&
-	   authenticator->user() != QQNetworkAccessor::m_proxyUser)
+			authenticator->user() != QQNetworkAccessor::m_proxyUser)
 	{
 		authenticator->setUser(QQNetworkAccessor::m_proxyUser);
 		authenticator->setPassword(QQNetworkAccessor::m_proxyPasswd);

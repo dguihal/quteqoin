@@ -115,7 +115,7 @@ bool QQPost::isReponse()
 QString QQPost::norlogeComplete()
 {
 	QString res = m_norloge;
-	res.append(QString::fromAscii("^")).append(QString::number(m_norlogeIndex));
+	res.append(QString::fromLatin1("^")).append(QString::number(m_norlogeIndex));
 	return res;
 }
 

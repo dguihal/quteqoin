@@ -129,10 +129,10 @@ void QQPalmipede::changeNorloges(const QString & bouchot)
 {
 	QString text = ui->postLineEdit->text();
 	QRegExp norlogeReg = QQNorlogeRef::norlogeRegexp();
-	QRegExp bouchotRemoverReg = QRegExp(QString::fromAscii("@").append(bouchot),
+	QRegExp bouchotRemoverReg = QRegExp(QString::fromLatin1("@").append(bouchot),
 										Qt::CaseSensitive,
 										QRegExp::RegExp);
-	QRegExp bouchotAdderReg = QRegExp(QString::fromAscii("@[A-Za-z0-9_]+"),
+	QRegExp bouchotAdderReg = QRegExp(QString::fromLatin1("@[A-Za-z0-9_]+"),
 									  Qt::CaseSensitive,
 									  QRegExp::RegExp);
 	QString destText;
@@ -151,7 +151,7 @@ void QQPalmipede::changeNorloges(const QString & bouchot)
 		if(norloge.contains(bouchotRemoverReg))
 			destText.append(norloge.left(norloge.length() - bouchotRemoverReg.matchedLength()));
 		else if(! norloge.contains(bouchotAdderReg) && bouchot != m_oldBouchot)
-			destText.append(norloge).append(QString::fromAscii("@")).append(m_oldBouchot);
+			destText.append(norloge).append(QString::fromLatin1("@")).append(m_oldBouchot);
 		else
 			destText.append(norloge);
 
@@ -181,9 +181,9 @@ void QQPalmipede::setMinimal(bool minimal)
 
 void QQPalmipede::blamPafActivated(const QString & text)
 {
-	if(text.contains(QString::fromAscii("paf"), Qt::CaseInsensitive))
+	if(text.contains(QString::fromLatin1("paf"), Qt::CaseInsensitive))
 		ui->postLineEdit->paf();
-	else if(text.contains(QString::fromAscii("BLAM"), Qt::CaseInsensitive))
+	else if(text.contains(QString::fromLatin1("BLAM"), Qt::CaseInsensitive))
 		ui->postLineEdit->blam();
 	else
 		qDebug()<<"QQPalmipede::momentClicked : index non reconnu : " << text;

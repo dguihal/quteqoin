@@ -16,7 +16,7 @@ public:
 	QQTotoz(const QQTotoz & totoz);
 	~QQTotoz();
 
-	QString getOrigString() const { return (QString::fromAscii("[:")).append(m_id).append(QString::fromAscii("]")); }
+	QString getOrigString() const { return (QString::fromLatin1("[:")).append(m_id).append(QString::fromLatin1("]")); }
 	QString getId() { return m_id; }
 
 	bool isValid() { return m_id.length() > 0 && cacheExists(); }

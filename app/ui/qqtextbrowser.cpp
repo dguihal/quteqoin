@@ -115,13 +115,13 @@ void QQTextBrowser::notifAreaPaintEvent(QPaintEvent * event)
 
 	// Recuperation du premier bloc a dessiner
 	QTextBlock block = cursorForPosition(
-						   event->rect().topLeft()
-						   ).block();
+				event->rect().topLeft()
+				).block();
 
 	// Recuperation du dernier bloc a dessiner
 	QTextBlock lastBlock = cursorForPosition(
-							   event->rect().bottomRight()
-							   ).block();
+				event->rect().bottomRight()
+				).block();
 	while(block.isValid() && block.blockNumber() <= lastBlock.blockNumber())
 	{
 		QQMessageBlockUserData * uData = (QQMessageBlockUserData *) block.userData();
@@ -252,7 +252,7 @@ void QQTextBrowser::webSearchActiontriggered()
 	if(! selection.isEmpty())
 	{
 		webSearchUrl.replace("%s", QUrl::toPercentEncoding(selection));
-		QDesktopServices::openUrl(QUrl::fromEncoded(webSearchUrl.toAscii()));
+		QDesktopServices::openUrl(QUrl::fromEncoded(webSearchUrl.toLatin1()));
 	}
 }
 
@@ -303,11 +303,11 @@ void QQTextBrowser::mouseMoveEvent(QMouseEvent * event)
 	if(blockData != NULL)
 	{
 		//Zone message
-		#if(QT_VERSION >= QT_VERSION_CHECK(4, 7, 0))
-			int posInBlock =  cursor.positionInBlock();
-		#else
-			int posInBlock =  cursor.position() - cursor.block().position();
-		#endif
+#if(QT_VERSION >= QT_VERSION_CHECK(4, 7, 0))
+		int posInBlock =  cursor.positionInBlock();
+#else
+		int posInBlock =  cursor.position() - cursor.block().position();
+#endif
 		if(blockData->isIndexInZRange(posInBlock, QQMessageBlockUserData::MESSAGE))
 		{
 			//Est-on au dessus d'une url
@@ -390,7 +390,7 @@ void QQTextBrowser::mouseReleaseEvent(QMouseEvent * event)
 		return;
 
 	// Reset de l'icone de l'application
-	QIcon icon = QIcon(QString::fromAscii(":/img/rubber_duck_yellow.svg"));
+	QIcon icon = QIcon(QString::fromLatin1(":/img/rubber_duck_yellow.svg"));
 	window()->setWindowIcon(icon);
 
 	// Marquage des posts comme lus
@@ -427,11 +427,11 @@ void QQTextBrowser::mouseReleaseEvent(QMouseEvent * event)
 
 		// Clic sur Norloge
 		//Zone message
-		#if(QT_VERSION >= QT_VERSION_CHECK(4, 7, 0))
-			int posInBlock =  cursor.positionInBlock();
-		#else
-			int posInBlock =  cursor.position() - cursor.block().position();
-		#endif
+#if(QT_VERSION >= QT_VERSION_CHECK(4, 7, 0))
+		int posInBlock =  cursor.positionInBlock();
+#else
+		int posInBlock =  cursor.position() - cursor.block().position();
+#endif
 		if(blockData->isIndexInZRange(posInBlock, QQMessageBlockUserData::NORLOGE))
 		{
 			QQNorloge norloge(post->bouchot()->name(),
@@ -477,13 +477,13 @@ void QQTextBrowser::paintEvent(QPaintEvent * event)
 
 	// Recuperation du premier bloc a dessiner
 	QTextBlock block = cursorForPosition(
-						   event->rect().topLeft()
-						   ).block();
+				event->rect().topLeft()
+				).block();
 
 	// Recuperation du dernier bloc a dessiner
 	QTextBlock lastBlock = cursorForPosition(
-							   event->rect().bottomRight()
-							   ).block();
+				event->rect().bottomRight()
+				).block();
 	while(block.isValid() && block.blockNumber() <= lastBlock.blockNumber())
 	{
 		QQMessageBlockUserData * uData = (QQMessageBlockUserData *) block.userData();

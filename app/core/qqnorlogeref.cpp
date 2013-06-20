@@ -39,17 +39,17 @@ QQNorlogeRef::QQNorlogeRef(const QString &bouchot, const QString &dateh, const Q
 		m_hasDate = false;
 		if(date.size() > 0)
 		{
-			QStringList dateSplit = date.split(QChar::fromAscii('/'));
+			QStringList dateSplit = date.split(QChar::fromLatin1('/'));
 			if(dateSplit.size() > 2)
 				m_dateYearPart = dateSplit.takeFirst();
 
 			m_dateMonthPart = dateSplit.takeFirst();
 			m_dateDayPart = dateSplit.takeFirst();
-			m_dateDayPart.remove(QChar::fromAscii('#'));
+			m_dateDayPart.remove(QChar::fromLatin1('#'));
 		}
 
 		QString time = capturedTexts[3];
-		QStringList timeSplit = time.split(QChar::fromAscii(':'));
+		QStringList timeSplit = time.split(QChar::fromLatin1(':'));
 		m_dateHourPart = timeSplit.takeFirst();
 		m_dateMinutePart = timeSplit.takeFirst();
 
@@ -81,7 +81,7 @@ QQNorlogeRef::QQNorlogeRef(const QString &bouchot, const QString &dateh, const Q
 
 		m_dstBouchot = capturedTexts[4];
 		//supression du @ initial
-		m_dstBouchot.remove(QChar::fromAscii('@'));
+		m_dstBouchot.remove(QChar::fromLatin1('@'));
 	}
 	m_isReponseDefined = false;
 	m_isResponse = false;

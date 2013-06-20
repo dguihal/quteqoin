@@ -47,7 +47,7 @@ void QQTotozDownloader::requestFinishedSlot(QNetworkReply * reply)
 	m_totozIdReplyHash.remove(reply);
 
 	if(!redirectedURL.isEmpty() &&
-	   redirectedURL != reply->url())
+			redirectedURL != reply->url())
 	{
 		qDebug() << "QQTotozDownloader::requestFinishedSlot: Redirected to " << redirectedURL.toString();
 		QNetworkRequest request(redirectedURL);
@@ -73,7 +73,7 @@ void QQTotozDownloader::requestFinishedSlot(QNetworkReply * reply)
 		QDateTime expire;
 		if(reply->hasRawHeader("Expires"))
 		{
-			expire = parseRC822(QString::fromAscii(reply->rawHeader("Expires")));
+			expire = parseRC822(QString::fromLatin1(reply->rawHeader("Expires")));
 			totoz.setCacheExpireDate(expire);
 		}
 		else

@@ -23,7 +23,7 @@ MainWindow::MainWindow(QWidget *parent) :
 {
 	m_ui->setupUi(this);
 
-	QIcon icon = QIcon(QString::fromAscii(":/img/rubber_duck_yellow.svg"));
+	QIcon icon = QIcon(QString::fromLatin1(":/img/rubber_duck_yellow.svg"));
 	setWindowIcon(icon);
 
 	// Setup du palmi

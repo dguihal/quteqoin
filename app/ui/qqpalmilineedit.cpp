@@ -70,7 +70,7 @@ void QQPalmiLineEdit::insertText(const QString &str)
 ///
 void QQPalmiLineEdit::blam()
 {
-	insertText(QString::fromAscii("_o/* <b>BLAM</b>! "));
+	insertText(QString::fromLatin1("_o/* <b>BLAM</b>! "));
 }
 
 //////////////////////////////////////////////////////////////
@@ -78,7 +78,7 @@ void QQPalmiLineEdit::blam()
 ///
 void QQPalmiLineEdit::bold()
 {
-	insertText(QString::fromAscii("<b>%s</b>"));
+	insertText(QString::fromLatin1("<b>%s</b>"));
 }
 
 //////////////////////////////////////////////////////////////
@@ -86,7 +86,7 @@ void QQPalmiLineEdit::bold()
 ///
 void QQPalmiLineEdit::italic()
 {
-	insertText(QString::fromAscii("<i>%s</i>"));
+	insertText(QString::fromLatin1("<i>%s</i>"));
 }
 
 //////////////////////////////////////////////////////////////
@@ -94,7 +94,7 @@ void QQPalmiLineEdit::italic()
 ///
 void QQPalmiLineEdit::paf()
 {
-	insertText(QString::fromAscii("_o/* <b>paf!</b> "));
+	insertText(QString::fromLatin1("_o/* <b>paf!</b> "));
 }
 
 //////////////////////////////////////////////////////////////
@@ -102,7 +102,7 @@ void QQPalmiLineEdit::paf()
 ///
 void QQPalmiLineEdit::moment()
 {
-	insertText(QString::fromAscii("====> <b>Moment %s</b> <===="));
+	insertText(QString::fromLatin1("====> <b>Moment %s</b> <===="));
 }
 
 //////////////////////////////////////////////////////////////
@@ -110,7 +110,7 @@ void QQPalmiLineEdit::moment()
 ///
 void QQPalmiLineEdit::strike()
 {
-	insertText(QString::fromAscii("<s>%s</s>"));
+	insertText(QString::fromLatin1("<s>%s</s>"));
 }
 
 //////////////////////////////////////////////////////////////
@@ -118,7 +118,7 @@ void QQPalmiLineEdit::strike()
 ///
 void QQPalmiLineEdit::underline()
 {
-	insertText(QString::fromAscii("<u>%s</u>"));
+	insertText(QString::fromLatin1("<u>%s</u>"));
 }
 
 //////////////////////////////////////////////////////////////

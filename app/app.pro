@@ -6,11 +6,13 @@
 
 QT += core gui network xml
 
+greaterThan(QT_MAJOR_VERSION, 4) {
+    QT += widgets
+}
+
 TARGET = quteqoin
 TEMPLATE = app
 
-LIBS += ../lib/nanim/libnanim.a \
-	../ext/nanopb/libnanopb.a
 
 INCLUDEPATH += ../lib/nanim \
 	../ext/nanopb
@@ -48,9 +50,9 @@ SOURCES += main.cpp\
 	core/qqpiniurlhelper.cpp \
 	core/qqmessagetransformfilter.cpp \
 	ui/settingsmanager/qqfiltersettings.cpp \
-    core/qqbackendupdatedevent.cpp \
-    ui/qqpostparser.cpp \
-    ui/qqpinisearchwidget.cpp
+        core/qqbackendupdatedevent.cpp \
+        ui/qqpostparser.cpp \
+        ui/qqpinisearchwidget.cpp
 
 HEADERS  += mainwindow.h \
 	core/qqsettings.h \
@@ -86,9 +88,9 @@ HEADERS  += mainwindow.h \
 	core/qqmessagetransformfilter.h \
 	ui/settingsmanager/qqfiltersettings.h \
 	core/qqtypes.h \
-    core/qqbackendupdatedevent.h \
-    ui/qqpostparser.h \
-    ui/qqpinisearchwidget.h
+        core/qqbackendupdatedevent.h \
+        ui/qqpostparser.h \
+        ui/qqpinisearchwidget.h
 
 FORMS += mainwindow.ui \
 	ui/qqpalmipede.ui \
@@ -129,10 +131,16 @@ unix {
 }
 
 win32 {
-	RC_FILE = rc/quteqoin_win.rc
+        RC_FILE = rc/quteqoin_win.rc
 	debug {
 		CONFIG += console
-	}
+                LIBS += ../lib/nanim/debug/libnanim.a \
+                        ../ext/nanopb/debug/libnanopb.a
+        } else {
+                LIBS += ../lib/nanim/release/libnanim.a \
+                        ../ext/nanopb/release/libnanopb.a
+        }
+} else {
+    LIBS += ../lib/nanim/libnanim.a \
+            ../ext/nanopb/libnanopb.a
 }
-
-
