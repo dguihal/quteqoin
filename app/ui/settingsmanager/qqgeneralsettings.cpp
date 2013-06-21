@@ -16,12 +16,6 @@ QQGeneralSettings::QQGeneralSettings(QWidget *parent) :
 			this, SLOT(fontChanged(const QFont &)));
 	connect(ui->fontSizeComboB, SIGNAL(activated(int)),
 			this, SLOT(fontSizeChanged(int)));
-	connect(ui->maxHistLineEdit, SIGNAL(textChanged(const QString &)),
-			this, SLOT(maxHistorySizeChanged(const QString &)));
-	connect(ui->defaultUALlineEdit, SIGNAL(textChanged(const QString &)),
-			this, SLOT(defaultUAChanged(const QString &)));
-	connect(ui->defaultLoginLineEdit, SIGNAL(textChanged(const QString &)),
-			this, SLOT(defaultLoginChanged(const QString &)));
 
 	m_defaultFont = QFont();
 	ui->fontFamComboB->setCurrentFont(m_defaultFont);
@@ -51,7 +45,7 @@ void QQGeneralSettings::fontChanged(const QFont &font)
 {
 	QFontDatabase fDB;
 
-	QList<int> listSizes = fDB.pointSizes(font.family(), fDB.styleString(font));
+	QList<int> listSizes = fDB.pointSizes(font.family());
 
 	int fontSize = m_defaultFont.pointSize();
 	if(! listSizes.contains(fontSize))
@@ -86,13 +80,7 @@ void QQGeneralSettings::setMaxHistorySize(const QString &maxSize)
 
 QString QQGeneralSettings::maxHistorySize()
 {
-	return m_maxHistorySize;
-}
-
-void QQGeneralSettings::maxHistorySizeChanged(const QString &maxHistorySize)
-{
-	Q_UNUSED(maxHistorySize);
-	m_maxHistorySize = ui->maxHistLineEdit->text();
+	return ui->maxHistLineEdit->text();
 }
 
 //PROPERTY DefaultLogin
@@ -103,13 +91,7 @@ void QQGeneralSettings::setDefaultLogin(const QString &defaultLogin)
 
 QString QQGeneralSettings::defaultLogin()
 {
-	return m_defaultLogin;
-}
-
-void QQGeneralSettings::defaultLoginChanged(const QString &defaultLogin)
-{
-	Q_UNUSED(defaultLogin);
-	m_defaultLogin = ui->defaultLoginLineEdit->text();
+	return ui->defaultLoginLineEdit->text();
 }
 
 //PROPERTY DefaultUA
@@ -120,13 +102,7 @@ void QQGeneralSettings::setDefaultUA(const QString &defaultUA)
 
 QString QQGeneralSettings::defaultUA()
 {
-	return m_defaultUA;
-}
-
-void QQGeneralSettings::defaultUAChanged(const QString &defaultUA)
-{
-	Q_UNUSED(defaultUA);
-	m_defaultUA = ui->defaultUALlineEdit->text();
+	return ui->defaultUALlineEdit->text();
 }
 
 //PROPERTY DefaultwebSearchUrl
@@ -137,12 +113,6 @@ void QQGeneralSettings::setDefaultWebSearchUrl(const QString &defaultWebSearchUr
 
 QString QQGeneralSettings::defaultWebSearchUrl()
 {
-	return m_defaultwebSearchUrl;
-}
-
-void QQGeneralSettings::defaultWebSearchUrl(const QString &defaultWebSearchUrl)
-{
-	Q_UNUSED(defaultWebSearchUrl);
-	m_defaultwebSearchUrl = ui->defaultWebSearchUrlLineEdit->text();
+	return ui->defaultWebSearchUrlLineEdit->text();
 }
 

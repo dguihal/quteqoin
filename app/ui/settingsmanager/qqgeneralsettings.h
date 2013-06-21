@@ -38,21 +38,11 @@ public:
 protected slots:
 	void fontChanged(const QFont &font);
 	void fontSizeChanged(int index);
-	void maxHistorySizeChanged(const QString &maxHistorySize);
-	void defaultLoginChanged(const QString &defaultLogin);
-	void defaultUAChanged(const QString &defaultUA);
-	void defaultWebSearchUrl(const QString &defaultWebSearchUrl);
 
 private:
 	Ui::QQGeneralSettings *ui;
 
 	QFont m_defaultFont;
-	QString m_maxHistorySize;
-	QString m_defaultLogin;
-	QString m_defaultUA;
-	QString m_defaultwebSearchUrl;
-
-
 };
 
 #endif // QQGENERALSETTINGS_H
