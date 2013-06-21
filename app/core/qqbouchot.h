@@ -116,6 +116,7 @@ public:
 	static QQBouchot * bouchot(const QString &bouchotName);
 	static QList<QQBouchot *> listBouchots();
 	static QList<QQBouchot *> listBouchotsGroup(const QString &groupName);
+	static QList<QString> listGroups();
 
 public slots:
 	void slotSslErrors(const QList<QSslError> &errors);

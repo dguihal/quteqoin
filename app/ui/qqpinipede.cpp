@@ -72,7 +72,8 @@ QQPinipede::QQPinipede(QWidget * parent) :
 	m_totozViewer->setScaledContents(false);
 	m_totozViewer->setTotozDownloader(m_totozDownloader);
 	m_totozViewer->enableBookmarksAdd();
-	//connect(m_totozViewer, SIGNAL(totozClicked(QString)), this, SLOT(totozClicked(QString)));
+
+	setMovable(true);
 }
 
 QQPinipede::~QQPinipede()

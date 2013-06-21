@@ -390,11 +390,9 @@ QQBouchot * QQBouchot::bouchot(const QString &bouchotName)
 		ret = s_hashBouchots.value(bouchotName);
 	else
 	{
-		QList<QQBouchot *> bouchots = listBouchots();
-		for(int i = 0; i < bouchots.length(); i++)
+		foreach (QQBouchot *bouchot, listBouchots())
 		{
-			QQBouchot * bouchot = bouchots.at(i);
-			if(bouchots.at(i)->settings().aliases().contains(bouchotName))
+			if(bouchot->settings().aliases().contains(bouchotName))
 			{
 				ret = bouchot;
 				break;
@@ -422,6 +420,18 @@ QList<QQBouchot *> QQBouchot::listBouchotsGroup(const QString &groupName)
 			res.append(bouchot);
 	}
 	return res;
+}
+
+QList<QString> QQBouchot::listGroups()
+{
+	QList<QString> listGroups;
+	foreach (QQBouchot *bouchot, s_hashBouchots.values())
+	{
+		QString group = bouchot->settings().group();
+		if(! listGroups.contains(group))
+			listGroups.append(group);
+	}
+	return listGroups;
 }
 
 void QQBouchot::askPiniUpdate()

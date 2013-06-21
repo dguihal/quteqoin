@@ -237,16 +237,11 @@ void MainWindow::bouchotGroupChanged(QQBouchot *bouchot, QString oldGroupName)
 
 void MainWindow::doFullRepaint()
 {
-	QList<QQBouchot *> bouchots = QQBouchot::listBouchots();
-	QMultiHash<QString, QQBouchot *> groupHash;
-	foreach(QQBouchot * bouchot, bouchots)
-		groupHash.insertMulti(bouchot->settings().group(), bouchot);
-
-	foreach(QString group, groupHash.keys())
+	foreach(QString group, QQBouchot::listGroups())
 	{
 		m_pini->removePiniTab(group);
 		m_pini->addPiniTab(group);
-		foreach (QQBouchot * bouchot, groupHash.values(group))
+		foreach (QQBouchot * bouchot, QQBouchot::listBouchotsGroup(group))
 			bouchot->setNewPostsFromHistory();
 	}
 }
