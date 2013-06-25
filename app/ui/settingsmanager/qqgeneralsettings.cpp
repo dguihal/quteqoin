@@ -1,7 +1,10 @@
 #include "qqgeneralsettings.h"
 #include "ui_qqgeneralsettings.h"
 
+#include "core/qqsettingsparams.h"
+
 #include <QtDebug>
+#include <QColorDialog>
 
 QQGeneralSettings::QQGeneralSettings(QWidget *parent) :
 	QWidget(parent),
@@ -16,6 +19,8 @@ QQGeneralSettings::QQGeneralSettings(QWidget *parent) :
 			this, SLOT(fontChanged(const QFont &)));
 	connect(ui->fontSizeComboB, SIGNAL(activated(int)),
 			this, SLOT(fontSizeChanged(int)));
+	connect(ui->colorChooserPB, SIGNAL(clicked(bool)),
+			this, SLOT(showColorDialog()));
 
 	m_defaultFont = QFont();
 	ui->fontFamComboB->setCurrentFont(m_defaultFont);
@@ -116,3 +121,38 @@ QString QQGeneralSettings::defaultWebSearchUrl()
 	return ui->defaultWebSearchUrlLineEdit->text();
 }
 
+//PROPERTY DynamicHighlight
+void QQGeneralSettings::setHightLightColor(const QString &hColor)
+{
+	m_color = hColor;
+	QColor color(hColor);
+	if(color.isValid())
+	{
+		ui->fixedHighLightColorRB->setChecked(true);
+		ui->colorChooserPB->setStyleSheet("QPushButton{background-color: " + m_color + ";}");
+	}
+	else
+		ui->dynamicHighLightColorRB->setChecked(true);
+}
+
+QString QQGeneralSettings::highlightColor()
+{
+	if(ui->dynamicHighLightColorRB->isChecked())
+		return QString();
+	else
+		return m_color;
+}
+
+void QQGeneralSettings::showColorDialog()
+{
+	QColor color(m_color);
+	if(! color.isValid())
+		color.setNamedColor(DEFAULT_GENERAL_HIGHLIGHT_COLOR);
+
+	color = QColorDialog::getColor(color, this);
+	if(color.isValid())
+	{
+		m_color = color.name();
+		ui->colorChooserPB->setStyleSheet("QPushButton{background-color: " + m_color + ";}");
+	}
+}
