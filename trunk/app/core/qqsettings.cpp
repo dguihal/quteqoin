@@ -159,6 +159,13 @@ QStringList QQSettings::listBouchots()
 						  QString::SkipEmptyParts);
 }
 
+//////////////////////////////////////////////////////////////
+/// \brief QQSettings::setValueWithDefault
+/// \param key
+/// \param newValue
+/// \param defaultValue
+/// \return true if the stored value changed
+///
 bool QQSettings::setValueWithDefault(const QString &key, const QVariant &newValue, const QVariant &defaultValue)
 {
 	QVariant oldValue = value(key, defaultValue);
@@ -168,7 +175,7 @@ bool QQSettings::setValueWithDefault(const QString &key, const QVariant &newValu
 	else
 		setValue(key, newValue);
 
-	return (oldValue == newValue);
+	return (oldValue != newValue);
 }
 
 void QQSettings::setUserPalmiShorcuts(QList< QPair<QChar, QString> > userPalmiShortcuts)
