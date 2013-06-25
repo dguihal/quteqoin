@@ -456,18 +456,9 @@ void QQPinipede::norlogeRefHovered(QQNorlogeRef norlogeRef)
 						extra.format.setProperty(QTextFormat::FullWidthSelection, true);
 						extra.cursor = selCursor;
 						extraSelections.append(extra);
-
-						if(! selCursor.movePosition(QTextCursor::EndOfLine, QTextCursor::MoveAnchor))
-						{
-							qDebug() << "Break1";
-							break;
-						}
-						if(! selCursor.movePosition(QTextCursor::NextCharacter, QTextCursor::MoveAnchor))
-						{
-							qDebug() << "Break2";
-							break;
-						}
-					} while(selCursor.block().blockNumber() == cursor.block().blockNumber());
+					} while(selCursor.movePosition(QTextCursor::EndOfLine, QTextCursor::MoveAnchor) &&
+							selCursor.movePosition(QTextCursor::NextCharacter, QTextCursor::MoveAnchor)&&
+							selCursor.block().blockNumber() == cursor.block().blockNumber());
 
 					highlightSuccess = true;
 				}
