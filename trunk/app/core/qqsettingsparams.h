@@ -27,6 +27,9 @@
 #define SETTINGS_GENERAL_DEFAULT_FONT "default_font"
 #define DEFAULT_GENERAL_DEFAULT_FONT QFont().toString()
 
+#define SETTINGS_GENERAL_HIGHLIGHT_COLOR "highlight_color"
+#define DEFAULT_GENERAL_HIGHLIGHT_COLOR "#FFE940"
+
 // TOTOZ
 #define SETTINGS_TOTOZ_BOOKMARKLIST "totoz_bookmarklist"
 

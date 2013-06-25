@@ -231,6 +231,9 @@ void QQSettingsManager::initGeneralSettings()
 	QFont defaultFont;
 	defaultFont.fromString(settings.value(SETTINGS_GENERAL_DEFAULT_FONT, DEFAULT_GENERAL_DEFAULT_FONT).toString());
 	m_generalSettingsW->setDefaultFont(defaultFont);
+
+	QString hColor = settings.value(SETTINGS_GENERAL_HIGHLIGHT_COLOR, DEFAULT_GENERAL_HIGHLIGHT_COLOR).toString();
+	m_generalSettingsW->setHightLightColor(hColor);
 }
 
 void QQSettingsManager::saveGeneralSettings()
@@ -251,6 +254,9 @@ void QQSettingsManager::saveGeneralSettings()
 
 	QString defaultFont = m_generalSettingsW->defaultFont().toString();
 	needPiniFullRepaint |= settings.setValueWithDefault(SETTINGS_GENERAL_DEFAULT_FONT, defaultFont, DEFAULT_GENERAL_DEFAULT_FONT);
+
+	QString hColor = m_generalSettingsW->highlightColor();
+	settings.setValueWithDefault(SETTINGS_GENERAL_HIGHLIGHT_COLOR, hColor, DEFAULT_GENERAL_HIGHLIGHT_COLOR);
 }
 
 void QQSettingsManager::initPalmiSettings()

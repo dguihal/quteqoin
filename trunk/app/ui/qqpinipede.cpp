@@ -30,15 +30,9 @@
 #include <QToolButton>
 #include <QVBoxLayout>
 
-//Uncomment to activate complementary color highlight
-//#define COLOR_COMPLEMENT
-
-#ifdef COLOR_COMPLEMENT
 #define HIGHLIGHT_COLOR_S 200
 #define HIGHLIGHT_COLOR_V 200
-#endif
 
-#define HIGHLIGHT_COLOR "#FFE940"
 #define LOGIN_COLOR "#553333"
 #define UA_COLOR "#883333"
 #define UNKNOWN_POSTER_COLOR "#BB3333"
@@ -292,6 +286,11 @@ void QQPinipede::notify()
 ///
 void QQPinipede::searchText(const QString &text, bool forward)
 {
+	QQSettings settings;
+	QColor color(settings.value(SETTINGS_GENERAL_HIGHLIGHT_COLOR, DEFAULT_GENERAL_HIGHLIGHT_COLOR).toString());
+	if(!color.isValid())
+		color.setNamedColor(DEFAULT_GENERAL_HIGHLIGHT_COLOR);
+
 	foreach (QQTextBrowser *textBrowser, m_textBrowserHash.values())
 	{
 		if(! textBrowser->isVisible())
@@ -318,7 +317,7 @@ void QQPinipede::searchText(const QString &text, bool forward)
 		{
 			QList<QTextEdit::ExtraSelection> extraSelections;
 			QTextEdit::ExtraSelection extra;
-			extra.format.setBackground(QColor(HIGHLIGHT_COLOR));
+			extra.format.setBackground(color);
 			extra.cursor = cursor;
 			extraSelections.clear();
 			extraSelections.append(extra);
@@ -327,6 +326,8 @@ void QQPinipede::searchText(const QString &text, bool forward)
 			textBrowser->setTextCursor(cursor);
 			textBrowser->ensureCursorVisible();
 		}
+
+		break; //Pas besoin d'aller plus loin seul un seul est visible a la fois
 	}
 }
 
@@ -416,6 +417,8 @@ void QQPinipede::norlogeRefHovered(QQNorlogeRef norlogeRef)
 
 	bool highlightSuccess = false;
 	QQTextBrowser *textBrowser = NULL;
+	QQSettings settings;
+	QColor color(settings.value(SETTINGS_GENERAL_HIGHLIGHT_COLOR, DEFAULT_GENERAL_HIGHLIGHT_COLOR).toString());
 	foreach (QString group, groups)
 	{
 		textBrowser = m_textBrowserHash.value(group);
@@ -435,13 +438,15 @@ void QQPinipede::norlogeRefHovered(QQNorlogeRef norlogeRef)
 				QQMessageBlockUserData * userData = (QQMessageBlockUserData *) cursor.block().userData();
 				if(norlogeRef.matchesPost(userData->post()))
 				{
-#ifdef COLOR_COMPLEMENT
-					int h, s, v;
-					userData->post()->bouchot()->settings().color().getHsv(&h, &s, &v);
-					QColor highlightColor = QColor::fromHsv((h + 180) % 360, qMax(s, HIGHLIGHT_COLOR_S), qMax(v, HIGHLIGHT_COLOR_V));
-#else
-					QColor highlightColor = QColor(HIGHLIGHT_COLOR);
-#endif
+					QColor highlightColor;
+					if(color.isValid())
+						highlightColor = color;
+					else
+					{
+						int h, s, v;
+						userData->post()->bouchot()->settings().color().getHsv(&h, &s, &v);
+						highlightColor = QColor::fromHsv((h + 180) % 360, qMax(s, HIGHLIGHT_COLOR_S), qMax(v, HIGHLIGHT_COLOR_V));
+					}
 
 					QTextCursor selCursor = cursor;
 					do
@@ -472,13 +477,16 @@ void QQPinipede::norlogeRefHovered(QQNorlogeRef norlogeRef)
 					{
 						if(norlogeRef.matchesNRef(nRef))
 						{
-#ifdef COLOR_COMPLEMENT
-							int h, s, v;
-							userData->post()->bouchot()->settings().color().getHsv(&h, &s, &v);
-							QColor highlightColor = QColor::fromHsv((h + 180) % 360, qMax(s, HIGHLIGHT_COLOR_S), qMax(v, HIGHLIGHT_COLOR_V));
-#else
-							QColor highlightColor = QColor(HIGHLIGHT_COLOR);
-#endif
+							QColor highlightColor;
+							if(color.isValid())
+								highlightColor = color;
+							else
+							{
+								int h, s, v;
+								userData->post()->bouchot()->settings().color().getHsv(&h, &s, &v);
+								highlightColor = QColor::fromHsv((h + 180) % 360, qMax(s, HIGHLIGHT_COLOR_S), qMax(v, HIGHLIGHT_COLOR_V));
+							}
+
 							QTextCursor selCursor = cursor;
 							selCursor.movePosition(QTextCursor::NextCharacter, QTextCursor::MoveAnchor, nRef.getPosInMessage());
 							selCursor.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor, nRef.getOrigNRef().length());

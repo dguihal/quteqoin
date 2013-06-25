@@ -11,10 +11,6 @@ class QQGeneralSettings : public QWidget
 {
 	Q_OBJECT
 	Q_PROPERTY(QFont m_defaultFont READ defaultFont WRITE setDefaultFont)
-	Q_PROPERTY(QString m_maxHistorySize READ maxHistorySize WRITE setMaxHistorySize)
-	Q_PROPERTY(QString m_defaultUA READ defaultUA WRITE setDefaultUA)
-	Q_PROPERTY(QString m_defaultLogin READ defaultLogin WRITE setDefaultLogin)
-	Q_PROPERTY(QString m_defaultwebSearchUrl READ defaultLogin WRITE setDefaultLogin)
 
 public:
 	explicit QQGeneralSettings(QWidget *parent = 0);
@@ -35,14 +31,19 @@ public:
 	void setDefaultWebSearchUrl(const QString &defaultWebSearchUrl);
 	QString defaultWebSearchUrl();
 
+	void setHightLightColor(const QString &hColor);
+	QString highlightColor();
+
 protected slots:
 	void fontChanged(const QFont &font);
 	void fontSizeChanged(int index);
+	void showColorDialog();
 
 private:
 	Ui::QQGeneralSettings *ui;
 
 	QFont m_defaultFont;
+	QString m_color;
 };
 
 #endif // QQGENERALSETTINGS_H

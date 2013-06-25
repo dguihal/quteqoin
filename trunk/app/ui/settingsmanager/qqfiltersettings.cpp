@@ -25,6 +25,7 @@ bool QQFilterSettings::isSmartUrlEnabled()
 
 void QQFilterSettings::setSmartUrlTransformerType(QuteQoin::QQSmartUrlFilerTransformType transformType)
 {
+	m_smartUrlTransformType = transformType;
 	switch(transformType)
 	{
 	case QuteQoin::Full:
@@ -35,6 +36,7 @@ void QQFilterSettings::setSmartUrlTransformerType(QuteQoin::QQSmartUrlFilerTrans
 		break;
 	case QuteQoin::Shorter:
 		ui->shorterHostUrlRB->setChecked(true);
+		m_smartUrlTransformType = QuteQoin::Shorter;
 		break;
 	}
 }
