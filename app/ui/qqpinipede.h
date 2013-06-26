@@ -80,6 +80,7 @@ private:
 	unsigned int insertPostToList(QList<QQPost *> *listPosts, QQPost *post, unsigned int indexStart);
 	void newPostsAvailable(QString groupName);
 	bool printPostAtCursor(QTextCursor &cursor, QQPost *post);
+	QColor getDynHighlightColor(const QColor &bgColor);
 
 	QQTotozDownloader *m_totozDownloader;
 	QQTotozManager *m_totozManager;

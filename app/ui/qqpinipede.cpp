@@ -30,9 +30,6 @@
 #include <QToolButton>
 #include <QVBoxLayout>
 
-#define HIGHLIGHT_COLOR_S 200
-#define HIGHLIGHT_COLOR_V 200
-
 #define LOGIN_COLOR "#553333"
 #define UA_COLOR "#883333"
 #define UNKNOWN_POSTER_COLOR "#BB3333"
@@ -288,8 +285,6 @@ void QQPinipede::searchText(const QString &text, bool forward)
 {
 	QQSettings settings;
 	QColor color(settings.value(SETTINGS_GENERAL_HIGHLIGHT_COLOR, DEFAULT_GENERAL_HIGHLIGHT_COLOR).toString());
-	if(!color.isValid())
-		color.setNamedColor(DEFAULT_GENERAL_HIGHLIGHT_COLOR);
 
 	foreach (QQTextBrowser *textBrowser, m_textBrowserHash.values())
 	{
@@ -315,14 +310,25 @@ void QQPinipede::searchText(const QString &text, bool forward)
 
 		if(! cursor.isNull())
 		{
-			QList<QTextEdit::ExtraSelection> extraSelections;
+			QColor highlightColor;
+			if(color.isValid())
+				highlightColor = color;
+			else
+			{
+				QQMessageBlockUserData * userData = (QQMessageBlockUserData *) cursor.block().userData();
+				highlightColor = getDynHighlightColor(userData->post()->bouchot()->settings().colorLight());
+			}
+
 			QTextEdit::ExtraSelection extra;
-			extra.format.setBackground(color);
+			extra.format.setBackground(highlightColor);
 			extra.cursor = cursor;
-			extraSelections.clear();
+
+			QList<QTextEdit::ExtraSelection> extraSelections;
 			extraSelections.append(extra);
 
 			textBrowser->setExtraSelections(extraSelections);
+
+			cursor.clearSelection();
 			textBrowser->setTextCursor(cursor);
 			textBrowser->ensureCursorVisible();
 		}
@@ -434,7 +440,6 @@ void QQPinipede::norlogeRefHovered(QQNorlogeRef norlogeRef)
 			extraSelections.clear();
 			while(cursor.movePosition(QTextCursor::NextBlock) && cursor.blockNumber() <= endBlockPos)
 			{
-				//cursor.movePosition(QTextCursor::StartOfBlock, QTextCursor::MoveAnchor);
 				QQMessageBlockUserData * userData = (QQMessageBlockUserData *) cursor.block().userData();
 				if(norlogeRef.matchesPost(userData->post()))
 				{
@@ -442,11 +447,7 @@ void QQPinipede::norlogeRefHovered(QQNorlogeRef norlogeRef)
 					if(color.isValid())
 						highlightColor = color;
 					else
-					{
-						int h, s, v;
-						userData->post()->bouchot()->settings().color().getHsv(&h, &s, &v);
-						highlightColor = QColor::fromHsv((h + 180) % 360, qMax(s, HIGHLIGHT_COLOR_S), qMax(v, HIGHLIGHT_COLOR_V));
-					}
+						highlightColor = getDynHighlightColor(userData->post()->bouchot()->settings().colorLight());
 
 					QTextBlockFormat format = cursor.blockFormat();
 					format.setBackground(highlightColor);
@@ -468,11 +469,7 @@ void QQPinipede::norlogeRefHovered(QQNorlogeRef norlogeRef)
 							if(color.isValid())
 								highlightColor = color;
 							else
-							{
-								int h, s, v;
-								userData->post()->bouchot()->settings().color().getHsv(&h, &s, &v);
-								highlightColor = QColor::fromHsv((h + 180) % 360, qMax(s, HIGHLIGHT_COLOR_S), qMax(v, HIGHLIGHT_COLOR_V));
-							}
+								highlightColor = getDynHighlightColor(userData->post()->bouchot()->settings().colorLight());
 
 							QTextCursor selCursor = cursor;
 							selCursor.movePosition(QTextCursor::NextCharacter, QTextCursor::MoveAnchor, nRef.getPosInMessage());
@@ -965,4 +962,24 @@ bool QQPinipede::printPostAtCursor(QTextCursor & cursor, QQPost * post)
 	block.setUserData(data);
 
 	return true;
+}
+
+//////////////////////////////////////////////////////////////
+/// \brief QQPinipede::getDynHighlightColor
+/// \param bgColor
+/// \return
+///
+#define HIGHLIGHT_COLOR_S 200
+#define HIGHLIGHT_COLOR_V 200
+QColor QQPinipede::getDynHighlightColor(const QColor &bgColor)
+{
+	int h, nh, s, ns, v, nv;
+	bgColor.getHsv(&h, &s, &v);
+	nh = (h + 180) % 360;
+	// zone a exclure car elle correspond au bleu fonce qui passe mal avec la font noire
+	if(nh > 210 && nh < 270)
+		nh = (nh <= 240) ? 210 : 270;
+	ns = qMax(s, HIGHLIGHT_COLOR_S);
+	nv = qMax(v, HIGHLIGHT_COLOR_V);
+	return QColor::fromHsv(nh, ns, nv);
 }
