@@ -448,17 +448,13 @@ void QQPinipede::norlogeRefHovered(QQNorlogeRef norlogeRef)
 						highlightColor = QColor::fromHsv((h + 180) % 360, qMax(s, HIGHLIGHT_COLOR_S), qMax(v, HIGHLIGHT_COLOR_V));
 					}
 
-					QTextCursor selCursor = cursor;
-					do
-					{
-						QTextEdit::ExtraSelection extra;
-						extra.format.setBackground(highlightColor);
-						extra.format.setProperty(QTextFormat::FullWidthSelection, true);
-						extra.cursor = selCursor;
-						extraSelections.append(extra);
-					} while(selCursor.movePosition(QTextCursor::EndOfLine, QTextCursor::MoveAnchor) &&
-							selCursor.movePosition(QTextCursor::NextCharacter, QTextCursor::MoveAnchor)&&
-							selCursor.block().blockNumber() == cursor.block().blockNumber());
+					QTextBlockFormat format = cursor.blockFormat();
+					format.setBackground(highlightColor);
+					cursor.mergeBlockFormat(format);
+
+					QTextEdit::ExtraSelection extra;
+					extra.cursor = cursor;
+					extraSelections.append(extra);
 
 					highlightSuccess = true;
 				}
@@ -544,6 +540,16 @@ void QQPinipede::norlogeRefHovered(QQNorlogeRef norlogeRef)
 void QQPinipede::unHighlight(QQTextBrowser *tBrowser)
 {
 	m_hiddenPostViewerLabel->hide();
+	foreach (QTextEdit::ExtraSelection extra, tBrowser->extraSelections())
+	{
+		if(! extra.cursor.hasSelection()) //fulll block
+		{
+			QTextBlockFormat format = extra.cursor.blockFormat();
+			QQMessageBlockUserData * userData = (QQMessageBlockUserData *) extra.cursor.block().userData();
+			format.setBackground(userData->post()->bouchot()->settings().colorLight());
+			extra.cursor.mergeBlockFormat(format);
+		}
+	}
 	tBrowser->setExtraSelections(QList<QTextEdit::ExtraSelection>());
 }
 
