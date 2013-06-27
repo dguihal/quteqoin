@@ -26,7 +26,7 @@ public slots:
 	void fetchTotoz(QString & totozId);
 
 signals:
-	void fetchTotozFinished(QString & totozId, bool success);
+	void fetchTotozFinished(QString & totozId, bool success, QString & errMsg);
 
 protected slots:
 	void requestFinishedSlot(QNetworkReply* reply);
