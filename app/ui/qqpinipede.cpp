@@ -562,21 +562,8 @@ void QQPinipede::showTotozViewer(QString & totozId)
 	if(settings.value(SETTINGS_TOTOZ_VISUAL_MODE, DEFAULT_TOTOZ_VISUAL_MODE).toString() == TOTOZ_VISUAL_MODE_DISABLED)
 		return;
 
-	m_totozViewer->setTotozId(totozId);
 	m_totozViewer->setParent(currentWidget());
-
-	QPoint totozViewerPos = currentWidget()->mapFromGlobal(QCursor::pos());
-	QSize viewerSize = currentWidget()->size();
-	if(totozViewerPos.x() > (viewerSize.width() / 2))
-		totozViewerPos.setX(totozViewerPos.x() - m_totozViewer->width());
-	else
-		totozViewerPos.setX(totozViewerPos.x());
-	if(totozViewerPos.y() > (viewerSize.height() / 2))
-		totozViewerPos.setY(totozViewerPos.y() - m_totozViewer->height());
-	else
-		totozViewerPos.setY(totozViewerPos.y());
-	m_totozViewer->move(totozViewerPos);
-
+	m_totozViewer->setTotozId(totozId);
 	m_totozViewer->show();
 }
 

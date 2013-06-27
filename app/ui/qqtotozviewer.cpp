@@ -1,6 +1,7 @@
 #include "qqtotozviewer.h"
 
 #include "core/qqtotozdownloader.h"
+#include "ui/qqtextbrowser.h"
 
 #include <QtDebug>
 #include <QImage>
@@ -177,14 +178,16 @@ void QQTotozViewer::contextMenuEvent(QContextMenuEvent * ev)
 
 void QQTotozViewer::displayText(QString text)
 {
-	QPoint curPos = pos();
+	//QPoint curPos = pos();
 	setStyleSheet("QLabel { background-color : rgba(255, 255, 255, 200); color : black; }");
 	QFontMetricsF fm(font());
 	QSizeF txtSize = fm.size(Qt::TextSingleLine, text);
 	setMinimumSize(txtSize.toSize());
 	setMaximumSize(txtSize.toSize());
 	setText(text);
-	move(curPos);
+	adjustSize();
+	//move(curPos);
+	setPos();
 }
 
 void QQTotozViewer::displayMovie()
@@ -196,6 +199,7 @@ void QQTotozViewer::displayMovie()
 	setMinimumSize(m_totozMovie->frameRect().size());
 	setMaximumSize(m_totozMovie->frameRect().size());
 	adjustSize();
+	setPos();
 	m_totozMovie->start();
 }
 
@@ -207,9 +211,29 @@ void QQTotozViewer::displayImage(QImage & image)
 	setMinimumSize(pixmap.width(), pixmap.height());
 	setMaximumSize(pixmap.width(), pixmap.height());
 	adjustSize();
+	setPos();
 }
 
 QString QQTotozViewer::getAnchor()
 {
 	return QString("[:").append(m_totozId).append("]");
+}
+
+void QQTotozViewer::setPos()
+{
+	QQTextBrowser* parentTB;
+	if((parentTB = qobject_cast<QQTextBrowser*>(parentWidget())) != NULL)
+	{
+		QPoint totozViewerPos = parentTB->mapFromGlobal(QCursor::pos());
+		QSize viewerSize = parentTB->size();
+		if(totozViewerPos.x() > (viewerSize.width() / 2))
+			totozViewerPos.setX(totozViewerPos.x() - width());
+		else
+			totozViewerPos.setX(totozViewerPos.x());
+		if(totozViewerPos.y() > (viewerSize.height() / 2))
+			totozViewerPos.setY(totozViewerPos.y() - height());
+		else
+			totozViewerPos.setY(totozViewerPos.y());
+		move(totozViewerPos);
+	}
 }
