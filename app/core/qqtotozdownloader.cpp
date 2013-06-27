@@ -60,11 +60,12 @@ void QQTotozDownloader::requestFinishedSlot(QNetworkReply * reply)
 	else if (reply->error() != QNetworkReply::NoError)
 	{
 		// Recuperation du Statut HTTP
-		QVariant statusCodeV = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute);
+		QString statusCodeV = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toString();
+		QString errString = reply->attribute(QNetworkRequest::HttpReasonPhraseAttribute).toString();
 
-		qWarning() << "QQTotozDownloader::requestFinishedSlot, error : " << reply->errorString()
-				   << "HTTP statusCode : " << statusCodeV.toString();
-		emit fetchTotozFinished(totozId, false);
+		qWarning() << "QQTotozDownloader::requestFinishedSlot, error : " << errString
+				   << "HTTP statusCode : " << statusCodeV;
+		emit fetchTotozFinished(totozId, false, errString);
 	} // Tout est OK on poursuit
 	else
 	{
@@ -84,7 +85,8 @@ void QQTotozDownloader::requestFinishedSlot(QNetworkReply * reply)
 		qDebug() << "QQTotozDownloader::requestFinishedSlot, totozId =" << totozId;
 		totoz.setCacheExpireDate(expire);
 		totoz.save();
-		emit fetchTotozFinished(totozId, true);
+		QString errStr;
+		emit fetchTotozFinished(totozId, true, errStr);
 	}
 
 	reply->deleteLater();
