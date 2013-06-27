@@ -47,6 +47,7 @@ private:
 	void displayImage(QImage &image);
 	QString getAnchor();
 	void init(const QString &totozId);
+	void setPos();
 
 	QString m_totozId;
 
