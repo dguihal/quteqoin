@@ -213,7 +213,8 @@ void QQPalmipede::postPushButtonClicked()
 {
 	QString message = ui->postLineEdit->text();
 	QString bouchotDest = ui->boardSelectorComboBox->currentText();
-	emit postMessage(bouchotDest, message);
+	emit postMessage(bouchotDest, message.replace(
+						 QRegExp("\\s", Qt::CaseInsensitive, QRegExp::RegExp2), " "));
 
 	//envisager de garder un histo des derniers posts "Au cas ou"
 	ui->postLineEdit->clear();
