@@ -99,8 +99,6 @@ void QQPostParser::colorizeBigorno(QTextDocument &doc, QQPost *post, QQMessageBl
 		userData->addBigornoZone(bigItem);
 
 		emit notifyBigorno();
-
-		cursor.movePosition(QTextCursor::NextCharacter);
 	}
 }
 
@@ -140,7 +138,6 @@ void QQPostParser::colorizeDuck(QTextDocument &doc, QQMessageBlockUserData *user
 		{
 			userData->addDuckZone(m_indexShit + cursor.selectionStart(), cursor.selectedText());
 			cursor.mergeCharFormat(fmt);
-			cursor.movePosition(QTextCursor::NextCharacter);
 		}
 	}
 }
@@ -155,7 +152,7 @@ void QQPostParser::colorizeNRef(QTextDocument &doc, QQPost *post, QQMessageBlock
 {
 	QRegExp m_norlogeReg = QQNorlogeRef::norlogeRegexp();
 
-	QTextCursor cursor = doc.find(m_norlogeReg, QTextCursor(&doc));
+	QTextCursor cursor(&doc);
 	QTextCharFormat repFmt = cursor.blockCharFormat();
 	repFmt.setForeground(QColor(NORLOGE_REP_COLOR));
 	repFmt.setFontWeight(QFont::DemiBold);
@@ -163,7 +160,7 @@ void QQPostParser::colorizeNRef(QTextDocument &doc, QQPost *post, QQMessageBlock
 	QTextCharFormat fmt = cursor.blockCharFormat();
 	fmt.setForeground(QColor(NORLOGE_COLOR));
 
-	while(! cursor.isNull())
+	while(! (cursor = doc.find(m_norlogeReg, cursor)).isNull())
 	{
 		QQNorlogeRef nRef = QQNorlogeRef(post->bouchot()->name(),
 										 post->norloge(),
@@ -173,9 +170,6 @@ void QQPostParser::colorizeNRef(QTextDocument &doc, QQPost *post, QQMessageBlock
 		userData->addNorlogeRefZone(nRef);
 
 		cursor.mergeCharFormat(nRef.isReponse() ? repFmt : fmt);
-		cursor.movePosition(QTextCursor::NextCharacter);
-
-		cursor = doc.find(m_norlogeReg, cursor);
 	}
 }
 
@@ -226,7 +220,6 @@ void QQPostParser::colorizeTableVolante(QTextDocument &doc, QQMessageBlockUserDa
 	{
 		userData->addTableVZone(m_indexShit + cursor.selectionStart(), cursor.selectedText());
 		cursor.mergeCharFormat(fmt);
-		cursor.movePosition(QTextCursor::NextCharacter);
 	}
 }
 
@@ -256,6 +249,5 @@ void QQPostParser::colorizeTotoz(QTextDocument &doc, QQMessageBlockUserData *use
 		emit totozRequired(totozName);
 
 		cursor.mergeCharFormat(fmt);
-		cursor.movePosition(QTextCursor::NextCharacter);
 	}
 }
