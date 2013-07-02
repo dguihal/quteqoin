@@ -42,9 +42,10 @@ public:
 
 	void setToolButton(QToolButton *toolButton);
 
-	void addPiniTab(const QString &);
-	void createPiniTabs(const QList<QString> &groups);
-	void removePiniTab(const QString &);
+	void addPiniTab(const QString &groupName);
+	void clearPiniTab(const QString &groupName);
+	void removePiniTab(const QString &groupName);
+	void repaintPiniTab(const QString &groupName);
 
 	void purgePiniTab(const QString &groupName, const QString &bouchotName);
 	void purgePinitab(const QString &groupName, const QString &bouchotName, unsigned int max);
