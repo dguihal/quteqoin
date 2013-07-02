@@ -50,7 +50,7 @@ protected:
 	virtual void contextMenuEvent(QContextMenuEvent *ev);
 
 protected slots:
-	void webSearchActiontriggered();
+	void webSearchActionTriggered();
 	void handleContentTypeAvailable(QUrl &url, QString &contentType);
 
 private:
