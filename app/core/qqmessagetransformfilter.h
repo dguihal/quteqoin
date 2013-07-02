@@ -3,8 +3,6 @@
 
 #include <QString>
 
-class QQPost;
-
 class QQMessageTransformFilter
 {
 public:

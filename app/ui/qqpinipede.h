@@ -21,6 +21,7 @@ class QQTextBrowser;
 class QQTotozManager;
 class QQPiniSearchWidget;
 class QQPost;
+class QQPostDisplayFilter;
 class QQPostParser;
 class QQTotozDownloader;
 class QQTotozViewer;
@@ -92,6 +93,7 @@ private:
 
 	QHash<QString, QList<QQPost *> *> m_listPostsTabMap;
 	QHash<QString, QQTextBrowser *> m_textBrowserHash;
+	QList<QQPostDisplayFilter *> m_listpostDisplayFilters;
 
 	QQPostParser *m_postparser;
 

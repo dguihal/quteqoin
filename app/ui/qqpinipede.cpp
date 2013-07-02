@@ -3,6 +3,7 @@
 #include "mainwindow.h"
 #include "core/qqbackendupdatedevent.h"
 #include "core/qqbouchot.h"
+#include "core/qqpostdisplayfilter.h"
 #include "core/qqpurgebouchothistoevent.h"
 #include "core/qqtotozdownloader.h"
 #include "ui/qqpostparser.h"
@@ -685,7 +686,12 @@ void QQPinipede::contextMenuEvent(QContextMenuEvent * ev)
 ///
 bool QQPinipede::applyPostDisplayFilters(QQPost *post)
 {
-	Q_UNUSED(post)
+	QList<QQPostDisplayFilter *> m_listpostDisplayFilters;
+	foreach(QQPostDisplayFilter *filter, m_listpostDisplayFilters)
+	{
+		if(! filter->filter(post))
+			return false;
+	}
 	return true;
 }
 
