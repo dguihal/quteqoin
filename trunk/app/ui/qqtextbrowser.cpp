@@ -34,7 +34,6 @@ QQTextBrowser::QQTextBrowser(QString groupName, QQPinipede *parent) :
 	setFrameStyle(QFrame::NoFrame);
 	setReadOnly(true);
 	setOpenExternalLinks(true);
-	//setContextMenuPolicy(Qt::CustomContextMenu);
 
 	m_groupName = groupName;
 	m_highlightedNorlogeRef.clear();
@@ -242,7 +241,7 @@ void QQTextBrowser::handleContentTypeAvailable(QUrl &url, QString &contentType)
 	}
 }
 
-void QQTextBrowser::webSearchActiontriggered()
+void QQTextBrowser::webSearchActionTriggered()
 {
 	QQSettings settings;
 	QString webSearchUrl = settings.value(SETTINGS_GENERAL_WEBSEARCH_URL, DEFAULT_GENERAL_WEBSEARCH_URL).toString();
@@ -553,7 +552,7 @@ void QQTextBrowser::contextMenuEvent(QContextMenuEvent * ev)
 		if(cursor.hasSelection())
 		{
 			QAction *action = menu->addAction(tr("&Search on web"));
-			connect(action, SIGNAL(triggered()), this, SLOT(webSearchActiontriggered()));
+			connect(action, SIGNAL(triggered()), this, SLOT(webSearchActionTriggered()));
 		}
 		menu->exec(QCursor::pos());
 	}
