@@ -153,14 +153,17 @@ void QQPinipede::repaintPiniTab(const QString &groupName)
 	clearPiniTab(groupName);
 
 	QList<QQPost *> *posts = m_listPostsTabMap.value(groupName);
-	printPostAtCursor(cursor, posts->at(0));
+	cursor.beginEditBlock();
+	bool postwasPrinted = printPostAtCursor(cursor, posts->at(0));
 	for(int i = 1; i < posts->size(); i++)
 	{
-		cursor.insertBlock();
+		if(postwasPrinted)
+			cursor.insertBlock();
 		printPostAtCursor(cursor, posts->at(i));
 		if(i < lastNew)
 			((QQMessageBlockUserData *) cursor.block().userData())->setAcknowledged();
 	}
+	cursor.endEditBlock();
 
 	textBrowser->verticalScrollBar()->setSliderPosition(sliderPos);
 
@@ -799,7 +802,8 @@ void QQPinipede::newPostsAvailable(QString groupName)
 		{
 			//Necessite de le copier car il sera supprime par le nouveau userData de la premiere ligne
 			QQMessageBlockUserData * uData = new QQMessageBlockUserData(* ((QQMessageBlockUserData *) cursor.block().userData()));
-			cursor.insertBlock();
+			if(postWasPrinted)
+				cursor.insertBlock();
 			cursor.block().setUserData(uData);
 			cursor.movePosition(QTextCursor::PreviousBlock);
 			postWasPrinted = printPostAtCursor(cursor, newPost);
@@ -808,7 +812,8 @@ void QQPinipede::newPostsAvailable(QString groupName)
 		{
 			cursor.movePosition(QTextCursor::NextBlock, QTextCursor::MoveAnchor, (insertIndex - baseInsertIndex) - 1);
 			cursor.movePosition(QTextCursor::EndOfBlock);
-			cursor.insertBlock();
+			if(postWasPrinted)
+				cursor.insertBlock();
 			postWasPrinted = printPostAtCursor(cursor, newPost);
 		}
 
@@ -822,7 +827,8 @@ void QQPinipede::newPostsAvailable(QString groupName)
 		//Le premier item a deja ete insere dans la liste destlistPosts dans la boucle while au dessus
 		//on a juste a l'afficher
 		cursor.movePosition(QTextCursor::End);
-		cursor.insertBlock();
+		if(postWasPrinted)
+			cursor.insertBlock();
 		postWasPrinted = printPostAtCursor(cursor, newPosts.at(newPostsIndex++));
 
 		while(newPostsIndex < newPosts.size())
@@ -836,7 +842,8 @@ void QQPinipede::newPostsAvailable(QString groupName)
 			}
 
 			destlistPosts->append(newPosts.at(newPostsIndex));
-			cursor.insertBlock();
+			if(postWasPrinted)
+				cursor.insertBlock();
 			postWasPrinted = printPostAtCursor(cursor, newPosts.at(newPostsIndex++));
 		}
 	}
