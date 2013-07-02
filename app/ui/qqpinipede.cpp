@@ -136,25 +136,37 @@ void QQPinipede::repaintPiniTab(const QString &groupName)
 		qWarning() << "repaintPiniTab " << groupName << "tryLock timeout";
 
 	QApplication::setOverrideCursor(Qt::BusyCursor);
-	bool wasAtEnd = (textBrowser->verticalScrollBar()->sliderPosition() == textBrowser->verticalScrollBar()->maximum());
+	int sliderPos = textBrowser->verticalScrollBar()->sliderPosition();
+
+	qDebug() << textBrowser->document()->blockCount();
+
+	QTextCursor cursor(textBrowser->document());
+	cursor.movePosition(QTextCursor::End);
+	do
+	{
+		QQMessageBlockUserData *uData = (QQMessageBlockUserData *) cursor.block().userData();
+		if(uData->isNew())
+			break;
+	} while(cursor.movePosition(QTextCursor::PreviousBlock));
+	int lastNew = cursor.blockNumber();
+
 	clearPiniTab(groupName);
 
 	QList<QQPost *> *posts = m_listPostsTabMap.value(groupName);
-	QTextCursor cursor(textBrowser->document());
-	for(int i = 0; i < posts->size(); i++)
+	printPostAtCursor(cursor, posts->at(0));
+	for(int i = 1; i < posts->size(); i++)
 	{
-		if(i > 0)
-			cursor.insertBlock();
+		cursor.insertBlock();
 		printPostAtCursor(cursor, posts->at(i));
+		if(i < lastNew)
+			((QQMessageBlockUserData *) cursor.block().userData())->setAcknowledged();
 	}
 
-	if(wasAtEnd)
-		textBrowser->verticalScrollBar()->triggerAction(QAbstractSlider::SliderToMaximum);
+	textBrowser->verticalScrollBar()->setSliderPosition(sliderPos);
 
 	QApplication::restoreOverrideCursor();
 
 	newPostsAvailableMutex.unlock();
-
 }
 
 
