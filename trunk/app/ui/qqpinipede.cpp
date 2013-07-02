@@ -85,7 +85,7 @@ void QQPinipede::setToolButton(QToolButton *toolButton)
 	setCornerWidget(toolButton, Qt::TopRightCorner);
 }
 
-void QQPinipede::addPiniTab(const QString & groupName)
+void QQPinipede::addPiniTab(const QString &groupName)
 {
 	if(this->m_textBrowserHash.value(groupName) != NULL)
 		return;
@@ -106,22 +106,57 @@ void QQPinipede::addPiniTab(const QString & groupName)
 	connect(textBrowser, SIGNAL(displayTotozContextMenu(QPoint &)), m_totozViewer, SLOT(displayContextMenu(QPoint &)));
 }
 
-void QQPinipede::createPiniTabs(const QList<QString> &groups)
+void  QQPinipede::clearPiniTab(const QString &groupName)
 {
-	for (int i = 0; i < groups.size(); i++)
-		this->addPiniTab(groups[i]);
+	QQTextBrowser *textBrowser = m_textBrowserHash.value(groupName);
+	if(textBrowser != NULL)
+		textBrowser->clear();
 }
 
-void QQPinipede::removePiniTab(const QString &name)
+void QQPinipede::removePiniTab(const QString &groupName)
 {
-	QQTextBrowser *textBrowser = m_textBrowserHash.value(name);
+	QQTextBrowser *textBrowser = m_textBrowserHash.value(groupName);
+	if(textBrowser == NULL)
+		return;
 
 	removeTab(indexOf(textBrowser));
-	m_textBrowserHash.remove(name);
+	m_textBrowserHash.remove(groupName);
 	delete textBrowser;
 
-	m_listPostsTabMap.remove(name);
+	m_listPostsTabMap.remove(groupName);
 }
+
+void QQPinipede::repaintPiniTab(const QString &groupName)
+{
+	QQTextBrowser *textBrowser = m_textBrowserHash.value(groupName);
+	if(textBrowser == NULL)
+		return;
+
+	while(! newPostsAvailableMutex.tryLock(1000))
+		qWarning() << "repaintPiniTab " << groupName << "tryLock timeout";
+
+	QApplication::setOverrideCursor(Qt::BusyCursor);
+	bool wasAtEnd = (textBrowser->verticalScrollBar()->sliderPosition() == textBrowser->verticalScrollBar()->maximum());
+	clearPiniTab(groupName);
+
+	QList<QQPost *> *posts = m_listPostsTabMap.value(groupName);
+	QTextCursor cursor(textBrowser->document());
+	for(int i = 0; i < posts->size(); i++)
+	{
+		if(i > 0)
+			cursor.insertBlock();
+		printPostAtCursor(cursor, posts->at(i));
+	}
+
+	if(wasAtEnd)
+		textBrowser->verticalScrollBar()->triggerAction(QAbstractSlider::SliderToMaximum);
+
+	QApplication::restoreOverrideCursor();
+
+	newPostsAvailableMutex.unlock();
+
+}
+
 
 void QQPinipede::purgePiniTab(const QString &groupName, const QString &bouchotName)
 {
@@ -235,7 +270,6 @@ void QQPinipede::purgePinitabHistory(const QString & groupName)
 						)
 					);
 	}
-
 }
 
 //////////////////////////////////////////////////////////////
@@ -712,7 +746,7 @@ void QQPinipede::newPostsAvailable(QString groupName)
 	qSort(newPosts.begin(), newPosts.end(), postComp);
 
 	//On signale via la forme de la souris qu'un traitement est en cours
-	textBrowser->viewport()->setCursor(Qt::BusyCursor);
+	QApplication::setOverrideCursor(Qt::BusyCursor);
 	QTextDocument * doc = textBrowser->document();
 
 	QTextCursor cursor(doc);
@@ -804,7 +838,7 @@ void QQPinipede::newPostsAvailable(QString groupName)
 		textBrowser->verticalScrollBar()->triggerAction(QAbstractSlider::SliderToMaximum);
 
 	//Remise en place de l'ancienne forme du pointeur
-	textBrowser->viewport()->setCursor(Qt::ArrowCursor);
+	QApplication::restoreOverrideCursor();
 
 	//Signalement de nouveaux posts dans le nom du Tab
 	QString tabName = groupName;
@@ -820,7 +854,7 @@ void QQPinipede::newPostsAvailable(QString groupName)
 /// \param post
 /// \return
 ///
-bool QQPinipede::printPostAtCursor(QTextCursor & cursor, QQPost * post)
+bool QQPinipede::printPostAtCursor(QTextCursor &cursor, QQPost *post)
 {
 	if(! applyPostDisplayFilters(post))
 		return false;
