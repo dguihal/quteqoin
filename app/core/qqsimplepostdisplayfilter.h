@@ -29,7 +29,7 @@ public:
 
 	virtual bool filter(const QQPost *post);
 
-	addRule(const QQSimplePostDisplayFilter::Rule &newRule);
+	void addRule(const QQSimplePostDisplayFilter::Rule &newRule);
 
 private:
 	QList<Rule> m_rules;
