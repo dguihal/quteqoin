@@ -53,7 +53,8 @@ SOURCES += main.cpp\
 	core/qqbackendupdatedevent.cpp \
 	ui/qqpostparser.cpp \
 	ui/qqpinisearchwidget.cpp \
-	core/qqpostdisplayfilter.cpp
+	core/qqpostdisplayfilter.cpp \
+	core/qqsimplepostdisplayfilter.cpp
 
 HEADERS  += mainwindow.h \
 	core/qqsettings.h \
@@ -92,7 +93,8 @@ HEADERS  += mainwindow.h \
 	core/qqbackendupdatedevent.h \
 	ui/qqpostparser.h \
 	ui/qqpinisearchwidget.h \
-	core/qqpostdisplayfilter.h
+	core/qqpostdisplayfilter.h \
+	core/qqsimplepostdisplayfilter.h
 
 FORMS += mainwindow.ui \
 	ui/qqpalmipede.ui \
