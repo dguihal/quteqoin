@@ -27,7 +27,7 @@ public:
 		QString getPostValue(QQPost *post);
 	};
 
-	virtual bool filter(const QQPost *post);
+	virtual bool filter(QQPost *post);
 
 	void addRule(const QQSimplePostDisplayFilter::Rule &newRule);
 

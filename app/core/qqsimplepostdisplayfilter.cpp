@@ -16,11 +16,11 @@ QQSimplePostDisplayFilter::QQSimplePostDisplayFilter()
 /// \param post
 /// \return true if post match filter
 ///
-bool QQSimplePostDisplayFilter::filter(const QQPost *post)
+bool QQSimplePostDisplayFilter::filter(QQPost *post)
 {
 	bool rep = true;
 	for(int i = 0; i < m_rules.size() && rep; i++)
-		rep = m_rules.at(i).validate(post);
+		rep = m_rules.value(i).validate(post);
 
 	return rep;
 }

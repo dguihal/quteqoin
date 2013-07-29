@@ -112,7 +112,7 @@ bool QQPost::isReponse()
 	return false;
 }
 
-QString QQPost::norlogeComplete()
+QString QQPost::norlogeComplete() const
 {
 	QString res = m_norloge;
 	res.append(QString::fromLatin1("^")).append(QString::number(m_norlogeIndex));
@@ -120,7 +120,7 @@ QString QQPost::norlogeComplete()
 }
 
 //
-QString QQPost::norlogeFormatee()
+QString QQPost::norlogeFormatee() const
 {
 	QString tmp("");
 	tmp.append("[")
