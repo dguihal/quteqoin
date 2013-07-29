@@ -95,6 +95,7 @@ void QQTextBrowser::notifAreaPaintEvent(QPaintEvent * event)
 {
 	QPainter painter(m_notifArea);
 	painter.setRenderHint(QPainter::Antialiasing, true);
+	painter.setRenderHint(QPainter::HighQualityAntialiasing, true);
 
 	// Pour les nouveaux posts
 	QColor newPostsBrushColor(0, 255, 0, 100);
@@ -469,6 +470,7 @@ void QQTextBrowser::paintEvent(QPaintEvent * event)
 	// Pour le bigorno
 	QPainter bigornoPainter(viewport());
 	bigornoPainter.setRenderHint(QPainter::Antialiasing, true);
+	bigornoPainter.setRenderHint(QPainter::HighQualityAntialiasing, true);
 	QColor bigornoBrushColor(60, 0, 0, 100);
 	bigornoPainter.setBrush(QBrush(bigornoBrushColor));
 	QColor bigornoPenColor(150, 0, 0);
@@ -502,12 +504,12 @@ void QQTextBrowser::paintEvent(QPaintEvent * event)
 					QTextCursor cursor = QTextCursor(block);
 					cursor.movePosition(QTextCursor::Right, QTextCursor::MoveAnchor, bigItem.position());
 					QRect rect = cursorRect(cursor);
-					rect.setWidth(bigornoPainter.fontMetrics().boundingRect(bigItem.word()).width());
-					rect.adjust(-2, 0, +2, 0);
+					rect.setWidth(QFontMetrics(document()->defaultFont()).boundingRect(bigItem.word()).width());
+					rect.adjust(-1, 0, +1, 0);
 
 					//qDebug() << "QQTextBrowser::paintEvent, highlighting : " << bigItem.word() << ", rect = : " << rect;
 
-					bigornoPainter.drawRoundedRect(rect, 3.0, 3.0);
+					bigornoPainter.drawRoundedRect(rect, 5.0, 5.0);
 				}
 			}
 		}
