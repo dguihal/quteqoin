@@ -25,6 +25,7 @@ public:
 	~QQTotozManager();
 
 public slots:
+	virtual void setVisible(bool visible);
 	void tabChanged(int tabIndex);
 	void searchTotoz();
 	void totozSearchFinished();
@@ -35,7 +36,6 @@ signals:
 	void totozClicked(QString anchor);
 
 protected:
-	virtual void closeEvent(QCloseEvent * event);
 	virtual void focusInEvent(QFocusEvent *event);
 
 protected slots:
@@ -52,6 +52,7 @@ private:
 	QQTMRequester *m_requester;
 	QQTotozDownloader *m_totozDownloader;
 	QWidget *m_totozServerSearchWidget;
+	QWidget *m_oldFocusWidget;
 };
 
 #endif // QQTOTOZMANAGER_H

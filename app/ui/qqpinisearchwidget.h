@@ -32,6 +32,8 @@ protected slots:
 
 private:
 	Ui::QQPiniSearchWidget *ui;
+
+	QWidget *m_oldFocusWidget;
 };
 
 #endif // PINISEARCHWIDGET_H

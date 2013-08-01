@@ -42,7 +42,6 @@ MainWindow::MainWindow(QWidget *parent) :
 	m_totozManager->setAllowedAreas(Qt::LeftDockWidgetArea |
 									Qt::RightDockWidgetArea);
 	connect(m_totozManager, SIGNAL(totozClicked(QString)), m_palmi, SLOT(insertReplaceText(QString)));
-	connect(m_totozManager, SIGNAL(visibilityChanged(bool)), this, SLOT(totozManagerVisibilityChanged(bool)));
 	addDockWidget(Qt::RightDockWidgetArea, m_totozManager, Qt::Vertical);
 
 	QAction *actionTotozManager = m_totozManager->toggleViewAction();
@@ -94,7 +93,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
 	// Envoyer le focus par defaut sur le palmi s'il est visible
 	if(m_palmi->isVisible())
-		m_palmi->setFocus(Qt::OtherFocusReason);
+		m_palmi->setFocus();
 
 	initBouchots();
 }
@@ -157,16 +156,6 @@ void MainWindow::palmiVisibilityChanged(bool visible)
 {
 	m_ui->actionPalmiHidden->setChecked(! visible);
 	if(visible)
-		m_palmi->setFocus();
-	else
-		m_pini->setFocus();
-}
-
-void MainWindow::totozManagerVisibilityChanged(bool visible)
-{
-	if(visible)
-		m_totozManager->setFocus();
-	else if(m_palmi->isVisible())
 		m_palmi->setFocus();
 	else
 		m_pini->setFocus();
