@@ -553,7 +553,7 @@ void QQPinipede::norlogeRefHovered(QQNorlogeRef norlogeRef)
 
 			if(norlogeRef.matchesPost(userData->post()))
 			{
-				qDebug() << "QQPinipede::norlogeRefHovered cursor.blockNumber()=" << cursor.blockNumber();
+				//qDebug() << "QQPinipede::norlogeRefHovered cursor.blockNumber()=" << cursor.blockNumber();
 				cursor.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
 				QTextDocumentFragment fragment = cursor.selection();
 				if(! destCursor.atBlockStart())

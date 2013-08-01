@@ -169,10 +169,51 @@ void QQTotozManager::totozSearchEnabled(bool enabled)
 			ui->qqTMTabWidget->removeTab(TAB_SEARCH_INDEX);
 }
 
-void QQTotozManager::closeEvent(QCloseEvent * event)
+//////////////////////////////////////////////////////////////
+/// \brief checkFocusRecurse
+/// \param parent
+/// \return
+///
+bool checkFocusRecurse(QWidget *parent)
 {
-	ui->searchLineEdit->clear();
-	QDockWidget::closeEvent(event);
+	bool focus = parent->hasFocus();
+	if(! focus)
+	{
+		foreach(QObject *child, parent->children())
+		{
+			if(child->isWidgetType())
+			{
+				if((focus = checkFocusRecurse((QWidget *)child)) == true)
+					break;
+			}
+		}
+	}
+	return focus;
+}
+
+//////////////////////////////////////////////////////////////
+/// \brief QQTotozManager::setVisible
+/// \param visible
+///
+void QQTotozManager::setVisible(bool visible)
+{
+	if(! visible)
+	{
+		ui->searchLineEdit->clear();
+
+		if(checkFocusRecurse(this) &&
+		   m_oldFocusWidget != NULL &&
+		   m_oldFocusWidget->isVisible())
+			m_oldFocusWidget->setFocus();
+
+	}
+	else
+	{
+		m_oldFocusWidget = QApplication::focusWidget();
+		ui->searchLineEdit->setFocus();
+	}
+
+	QWidget::setVisible(visible);
 }
 
 void QQTotozManager::focusInEvent(QFocusEvent * event)

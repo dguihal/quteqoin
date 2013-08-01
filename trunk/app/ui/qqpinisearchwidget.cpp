@@ -17,6 +17,8 @@ QQPiniSearchWidget::QQPiniSearchWidget(QWidget *parent) :
 {
 	ui->setupUi(this);
 
+	m_oldFocusWidget = NULL;
+
 	setAutoFillBackground(true);
 
 	QPixmap image(":/img/Fleche_verte.png");
@@ -43,14 +45,46 @@ QQPiniSearchWidget::~QQPiniSearchWidget()
 }
 
 //////////////////////////////////////////////////////////////
-/// \brief QQPiniSearchWidget::hide
+/// \brief checkFocusRecurse
+/// \param parent
+/// \return
+///
+bool checkFocusRecurse(QWidget *parent)
+{
+	bool focus = parent->hasFocus();
+	if(! focus)
+	{
+		foreach(QObject *child, parent->children())
+		{
+			if(child->isWidgetType())
+			{
+				if((focus = checkFocusRecurse((QWidget *)child)) == true)
+					break;
+			}
+		}
+	}
+	return focus;
+}
+//////////////////////////////////////////////////////////////
+/// \brief QQPiniSearchWidget::setVisible
+/// \param visible
 ///
 void QQPiniSearchWidget::setVisible(bool visible)
 {
 	if(! visible)
+	{
 		ui->searchLineEdit->clear();
+
+		if(checkFocusRecurse(this) &&
+		   m_oldFocusWidget != NULL &&
+		   m_oldFocusWidget->isVisible())
+			m_oldFocusWidget->setFocus();
+	}
 	else
-		ui->searchLineEdit->setFocus(Qt::OtherFocusReason);
+	{
+		m_oldFocusWidget = QApplication::focusWidget();
+		ui->searchLineEdit->setFocus();
+	}
 
 	QWidget::setVisible(visible);
 }

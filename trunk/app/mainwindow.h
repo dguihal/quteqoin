@@ -30,7 +30,6 @@ public slots:
 	void doTriggerMaxiPalmi();
 	void doTriggerMiniPalmi();
 	void palmiVisibilityChanged(bool visible);
-	void totozManagerVisibilityChanged(bool visible);
 
 protected:
 	virtual void closeEvent(QCloseEvent *event);
