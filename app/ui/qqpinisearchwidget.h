@@ -16,7 +16,7 @@ public:
 	~QQPiniSearchWidget();
 
 public slots:
-	void hide();
+	virtual void setVisible(bool visible);
 
 signals:
 	void search(const QString &text, bool forward);

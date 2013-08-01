@@ -43,10 +43,16 @@ QQPiniSearchWidget::~QQPiniSearchWidget()
 }
 
 //////////////////////////////////////////////////////////////
-void QQPiniSearchWidget::hide()
+/// \brief QQPiniSearchWidget::hide
+///
+void QQPiniSearchWidget::setVisible(bool visible)
 {
-	ui->searchLineEdit->clear();
-	QWidget::hide();
+	if(! visible)
+		ui->searchLineEdit->clear();
+	else
+		ui->searchLineEdit->setFocus(Qt::OtherFocusReason);
+
+	QWidget::setVisible(visible);
 }
 
 //////////////////////////////////////////////////////////////
