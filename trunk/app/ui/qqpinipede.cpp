@@ -345,41 +345,69 @@ void QQPinipede::searchText(const QString &text, bool forward)
 		QTextCursor cursor = textBrowser->textCursor();
 
 		QTextDocument::FindFlags flags = 0;
-		if(forward)
+		if(! forward)
 			flags |= QTextDocument::FindBackward;
 
-		cursor = doc->find(text, cursor, flags);
-		if(cursor.isNull())
-		{
-			cursor.movePosition(QTextCursor::Start);
-			if(forward)
-				cursor.movePosition(QTextCursor::End);
+		QTextCursor findCursor = doc->find(text, cursor, flags);
 
-			cursor = doc->find(text, cursor, flags);
+		//En cas d'alternance back/forward
+		if(!findCursor.isNull())
+		{
+			if(forward && findCursor.selectionStart() == cursor.position())
+			{
+				cursor.movePosition(QTextCursor::NextCharacter,
+									QTextCursor::MoveAnchor,
+									findCursor.selectedText().size());
+				findCursor = doc->find(text, cursor, flags);
+			}
+			else if(findCursor.selectionEnd() == cursor.position())
+			{
+				cursor.movePosition(QTextCursor::PreviousCharacter,
+									QTextCursor::MoveAnchor,
+									findCursor.selectedText().size());
+				findCursor = doc->find(text, cursor, flags);
+			}
 		}
 
-		if(! cursor.isNull())
+		if(findCursor.isNull())
+		{
+			if(forward)
+				cursor.movePosition(QTextCursor::Start);
+			else
+				cursor.movePosition(QTextCursor::End);
+
+			findCursor = doc->find(text, cursor, flags);
+		}
+
+		if(! findCursor.isNull())
 		{
 			QColor highlightColor;
 			if(color.isValid())
 				highlightColor = color;
 			else
 			{
-				QQMessageBlockUserData * userData = (QQMessageBlockUserData *) cursor.block().userData();
+				QQMessageBlockUserData * userData = (QQMessageBlockUserData *) findCursor.block().userData();
 				highlightColor = getDynHighlightColor(userData->post()->bouchot()->settings().colorLight());
 			}
 
 			QTextEdit::ExtraSelection extra;
-			extra.format.setBackground(highlightColor);
-			extra.cursor = cursor;
+				extra.format.setBackground(highlightColor);
+			extra.cursor = findCursor;
 
 			QList<QTextEdit::ExtraSelection> extraSelections;
 			extraSelections.append(extra);
 
 			textBrowser->setExtraSelections(extraSelections);
 
-			cursor.clearSelection();
-			textBrowser->setTextCursor(cursor);
+			if(! forward)
+			{
+				int selLength = findCursor.selectedText().size();
+				findCursor.clearSelection();
+				findCursor.movePosition(QTextCursor::PreviousCharacter, QTextCursor::MoveAnchor, selLength);
+			}
+			else
+				findCursor.clearSelection();
+			textBrowser->setTextCursor(findCursor);
 			textBrowser->ensureCursorVisible();
 		}
 
