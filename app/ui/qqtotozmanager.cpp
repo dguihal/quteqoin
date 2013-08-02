@@ -5,6 +5,8 @@
 #include "core/totozmanager/qqtmrequester.h"
 #include "ui/qqtotozviewer.h"
 
+#include "qutetools.h"
+
 #include <QtDebug>
 #include <QCursor>
 #include <QLabel>
@@ -170,28 +172,6 @@ void QQTotozManager::totozSearchEnabled(bool enabled)
 }
 
 //////////////////////////////////////////////////////////////
-/// \brief checkFocusRecurse
-/// \param parent
-/// \return
-///
-bool checkFocusRecurse(QWidget *parent)
-{
-	bool focus = parent->hasFocus();
-	if(! focus)
-	{
-		foreach(QObject *child, parent->children())
-		{
-			if(child->isWidgetType())
-			{
-				if((focus = checkFocusRecurse((QWidget *)child)) == true)
-					break;
-			}
-		}
-	}
-	return focus;
-}
-
-//////////////////////////////////////////////////////////////
 /// \brief QQTotozManager::setVisible
 /// \param visible
 ///
@@ -201,7 +181,7 @@ void QQTotozManager::setVisible(bool visible)
 	{
 		ui->searchLineEdit->clear();
 
-		if(checkFocusRecurse(this) &&
+		if(QuteTools::checkFocusRecurse(this) &&
 		   m_oldFocusWidget != NULL &&
 		   m_oldFocusWidget->isVisible())
 			m_oldFocusWidget->setFocus();

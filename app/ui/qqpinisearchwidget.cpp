@@ -1,6 +1,8 @@
 #include "qqpinisearchwidget.h"
 #include "ui_qqpinisearchwidget.h"
 
+#include "qutetools.h"
+
 #include <QFocusEvent>
 #include <QKeyEvent>
 #include <QTransform>
@@ -45,27 +47,6 @@ QQPiniSearchWidget::~QQPiniSearchWidget()
 }
 
 //////////////////////////////////////////////////////////////
-/// \brief checkFocusRecurse
-/// \param parent
-/// \return
-///
-bool checkFocusRecurse(QWidget *parent)
-{
-	bool focus = parent->hasFocus();
-	if(! focus)
-	{
-		foreach(QObject *child, parent->children())
-		{
-			if(child->isWidgetType())
-			{
-				if((focus = checkFocusRecurse((QWidget *)child)) == true)
-					break;
-			}
-		}
-	}
-	return focus;
-}
-//////////////////////////////////////////////////////////////
 /// \brief QQPiniSearchWidget::setVisible
 /// \param visible
 ///
@@ -75,7 +56,7 @@ void QQPiniSearchWidget::setVisible(bool visible)
 	{
 		ui->searchLineEdit->clear();
 
-		if(checkFocusRecurse(this) &&
+		if(QuteTools::checkFocusRecurse(this) &&
 		   m_oldFocusWidget != NULL &&
 		   m_oldFocusWidget->isVisible())
 			m_oldFocusWidget->setFocus();

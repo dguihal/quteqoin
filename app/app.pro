@@ -13,10 +13,6 @@ greaterThan(QT_MAJOR_VERSION, 4) {
 TARGET = quteqoin
 TEMPLATE = app
 
-
-INCLUDEPATH += ../lib/nanim \
-	../ext/nanopb
-
 SOURCES += main.cpp\
 	mainwindow.cpp \
 	core/qqsettings.cpp \
@@ -134,17 +130,39 @@ unix {
 	INSTALLS += target desktop icon
 }
 
+INCLUDEPATH += $$PWD/../ext/nanopb \
+			$$PWD/../lib/nanim \
+			$$PWD/../lib/qutetools
+
+DEPENDPATH += $$PWD/../ext/nanopb \
+			$$PWD/../lib/nanim \
+			$$PWD/../lib/qutetools
+
 win32 {
 		RC_FILE = rc/quteqoin_win.rc
-	debug {
-		CONFIG += console
-				LIBS += ../lib/nanim/debug/libnanim.a \
-						../ext/nanopb/debug/libnanopb.a
+		debug {
+			CONFIG += console
+			LIBS += -L$$OUT_PWD/../ext/nanopb/debug/ -lnanopb\
+					-L$$OUT_PWD/../lib/nanim/debug/ -lnanim \
+					-L$$OUT_PWD/../lib/qutetools/debug/ -lqutetools
+
+			PRE_TARGETDEPS += $$OUT_PWD/../ext/nanopb/debug/nanopb.lib \
+							$$OUT_PWD/../lib/nanim/debug/nanim.lib \
+							$$OUT_PWD/../lib/qutetools/debug/qutetools.lib
+
 		} else {
-				LIBS += ../lib/nanim/release/libnanim.a \
-						../ext/nanopb/release/libnanopb.a
+			LIBS += ../ext/nanopb/release/libnanopb.a -lnanopb \
+					../lib/nanim/release/libnanim.a -lnanim \
+					-L$$OUT_PWD/../lib/qutetools/release/ -lqutetools
+			PRE_TARGETDEPS += $$OUT_PWD/../ext/nanopb/release/nanopb.lib \
+							$$OUT_PWD/../lib/nanim/release/nanim.lib \
+							$$OUT_PWD/../lib/qutetools/release/qutetools.lib
 		}
 } else {
-	LIBS += ../lib/nanim/libnanim.a \
-			../ext/nanopb/libnanopb.a
+	LIBS += -L$$OUT_PWD/../ext/nanopb/libnanopb.a \
+			-L$$OUT_PWD/../lib/nanim/libnanim.a \
+			-L$$OUT_PWD/../lib/qutetools/ -lqutetools
+	PRE_TARGETDEPS += $$OUT_PWD/../ext/nanopb/libnanopb.a \
+					$$OUT_PWD/../lib/nanim/libnanim.a \
+					$$OUT_PWD/../lib/qutetools/libqutetools.a
 }
