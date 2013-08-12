@@ -73,7 +73,7 @@ bool QQPost::isSelfPost()
 		QQSettings settings;
 
 		QString login = bouchotSettings.login();
-		if(login.size() > 0)
+		if(login.size() == 0)
 			login = settings.value(SETTINGS_GENERAL_DEFAULT_LOGIN, DEFAULT_GENERAL_DEFAULT_LOGIN).toString();
 
 		if(login.size() > 0)
