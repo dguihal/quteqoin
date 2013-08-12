@@ -67,44 +67,35 @@ void QQPost::setSelfPost(bool selfPost)
 
 bool QQPost::isSelfPost()
 {
-	if(m_isSelfPost == True)
-		return true;
-	else if(m_isSelfPost == False)
-		return false;
-	else // Unknown
+	if(m_isSelfPost == Unknown)
 	{
 		QQBouchot::QQBouchotSettings bouchotSettings = bouchot()->settings();
 		QQSettings settings;
 
-		if(m_login.size() > 0)
-		{
-			QString login = bouchotSettings.login();
-			if(login.size() == 0)
-				login = settings.value(SETTINGS_GENERAL_DEFAULT_LOGIN, SETTINGS_GENERAL_DEFAULT_LOGIN).toString();
+		QString login = bouchotSettings.login();
+		if(login.size() > 0)
+			login = settings.value(SETTINGS_GENERAL_DEFAULT_LOGIN, DEFAULT_GENERAL_DEFAULT_LOGIN).toString();
 
-			if(m_login.compare(login, Qt::CaseSensitive) == 0)
-			{
+		if(login.size() > 0)
+		{
+			if(login.compare(m_login, Qt::CaseSensitive) == 0)
 				m_isSelfPost = True;
-				return true;
-			}
 		}
-		else if(m_ua.size() > 0)
+		else
 		{
 			QString ua = bouchotSettings.ua();
 			if(ua.size() == 0)
 				ua = settings.value(SETTINGS_GENERAL_DEFAULT_UA, DEFAULT_GENERAL_DEFAULT_UA).toString();
 
-			if(m_ua.compare(ua, Qt::CaseSensitive) == 0)
-			{
+			if(ua.compare(m_ua, Qt::CaseSensitive) == 0)
 				m_isSelfPost = True;
-				return true;
-			}
 		}
 
+		//If not true => false
 		if(m_isSelfPost == Unknown)
 			m_isSelfPost = False;
 	}
-	return false;
+	return m_isSelfPost == True;
 }
 
 bool QQPost::isReponse()
