@@ -1,0 +1,98 @@
+#!/bin/bash
+#
+# Copyright (C) 2013  Jerome Pinot <ngc891@gmail.com>
+# All rights reserved.
+#
+# Redistribution and use of this script, with or without modification, is
+# permitted provided that the following conditions are met:
+#
+# 1. Redistributions of this script must retain the above copyright
+#    notice, this list of conditions and the following disclaimer.
+#
+#  THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR IMPLIED
+#  WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+#  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO
+#  EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+#  SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+#  PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+#  OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+#  WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+#  OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+#  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+#
+# Begin quteqoin.SlackBuild
+
+
+NAME=quteqoin
+BUILD=${BUILD:-1jp}
+CWD=$(pwd)
+TMP=${TMP:-/tmp}
+PKG=${TMP}/package-${NAME}
+
+# First check if we are in the right folder
+if [ -f ./${NAME}.SlackBuild ]; then
+  echo 'Found SlackBuild'
+  cd ../..
+else
+  echo '** Error: You must run this script from the dists/Slackware sub-folder!'
+  exit 1
+fi
+
+# Set the version number from SVN
+if [ -d ${CWD}/../../.svn ]; then
+  VERSION=r`LC_ALL=C svn info | grep 'Revision: ' | cut -d ' ' -f2`
+  echo "VERSION is set to ${VERSION}"
+else
+  VERSION=${VERSION:-0.1}
+  echo "** Info: Can't find svn information, using release version number"
+  echo "** Info: You can change this by setting VERSION"
+fi
+
+# Detecting arch
+if [ -z "${ARCH}" ]; then
+  case "$( uname -m )" in
+    i?86) ARCH=i486 ;;
+    arm*) ARCH=arm ;;
+    *) ARCH=$( uname -m ) ;;
+  esac
+fi
+
+# Set flags
+if [ "${ARCH}" = "i486" ]; then
+  SCFLAGS="-O2 -march=i486 -mtune=i686"
+elif [ "${ARCH}" = "i686" ]; then
+  SCFLAGS="-O2 -march=i686 -mtune=i686"
+elif [ "${ARCH}" = "x86_64" ]; then
+  SCFLAGS="-O2 -fPIC"
+else
+  SCFLAGS="-O2"
+fi
+
+# Creating directories
+if [ ! -d ${TMP} ]; then
+  mkdir -p ${TMP}
+fi
+rm -rf ${PKG}
+mkdir -p ${PKG}
+
+# Building
+if [ -f Makefile ]; then
+  make distclean
+fi
+qmake PREFIX=/usr QMAKE_CXXFLAGS="${SCFLAGS}"
+make -j3
+make INSTALL_ROOT=${PKG}/ install
+
+# Cleaning
+find ${PKG} | xargs file | grep "executable" | grep ELF | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null
+find ${PKG} | xargs file | grep "shared object" | grep ELF | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null
+
+# Building the package
+cd ${PKG}
+mkdir install
+install -m644 ${CWD}/slack-desc install/
+install -m644 ${CWD}/doinst.sh install/
+makepkg -l y -c n ${CWD}/${NAME}-${VERSION}-${ARCH}-${BUILD}.txz
+rm -rf ${PKG}
+
+# End quteqoin.SlackBuild
