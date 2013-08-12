@@ -65,6 +65,8 @@ QQPinipede::QQPinipede(QWidget * parent) :
 	m_totozViewer->setTotozDownloader(m_totozDownloader);
 	m_totozViewer->enableBookmarksAdd();
 
+	addTab(new QWidget(), "(void)");
+
 	setMovable(true);
 }
 
@@ -88,6 +90,12 @@ void QQPinipede::setToolButton(QToolButton *toolButton)
 
 void QQPinipede::addPiniTab(const QString &groupName)
 {
+	if(count() == 1 && this->m_textBrowserHash.size() == 0)
+	{
+		currentWidget()->deleteLater();
+		clear();
+	}
+
 	if(this->m_textBrowserHash.value(groupName) != NULL)
 		return;
 
@@ -125,6 +133,9 @@ void QQPinipede::removePiniTab(const QString &groupName)
 	delete textBrowser;
 
 	m_listPostsTabMap.remove(groupName);
+
+	if(count() == 0)
+		addTab(new QWidget(), "(void)");
 }
 
 void QQPinipede::repaintPiniTab(const QString &groupName)
