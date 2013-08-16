@@ -1,0 +1,5 @@
+sequence=duck_kill_1,duck_kill_2
+loop=false
+update_ms=1000
+direction_h=none
+direction_l=bottom

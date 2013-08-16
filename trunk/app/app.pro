@@ -130,39 +130,40 @@ unix {
 	INSTALLS += target desktop icon
 }
 
-INCLUDEPATH += $$PWD/../ext/nanopb \
-			$$PWD/../lib/nanim \
+INCLUDEPATH += \
+			$$PWD/../lib/qutehunt \
 			$$PWD/../lib/qutetools
 
-DEPENDPATH += $$PWD/../ext/nanopb \
-			$$PWD/../lib/nanim \
+DEPENDPATH += \
+			$$PWD/../lib/qutehunt \
 			$$PWD/../lib/qutetools
 
 win32 {
 		RC_FILE = rc/quteqoin_win.rc
 		debug {
 			CONFIG += console
-			LIBS += -L$$OUT_PWD/../ext/nanopb/debug/ -lnanopb\
-					-L$$OUT_PWD/../lib/nanim/debug/ -lnanim \
+			LIBS += \
+					-L$$OUT_PWD/../lib/qutehunt/debug/ -lqutehunt \
 					-L$$OUT_PWD/../lib/qutetools/debug/ -lqutetools
 
-			PRE_TARGETDEPS += $$OUT_PWD/../ext/nanopb/debug/nanopb.lib \
-							$$OUT_PWD/../lib/nanim/debug/nanim.lib \
+			PRE_TARGETDEPS += \
+							$$OUT_PWD/../lib/qutehunt/debug/qutehunt.lib \
 							$$OUT_PWD/../lib/qutetools/debug/qutetools.lib
 
 		} else {
-			LIBS += ../ext/nanopb/release/libnanopb.a -lnanopb \
-					../lib/nanim/release/libnanim.a -lnanim \
+			LIBS += \
+					-L$$OUT_PWD/../lib/qutehunt/release/ -lqutehunt \
 					-L$$OUT_PWD/../lib/qutetools/release/ -lqutetools
-			PRE_TARGETDEPS += $$OUT_PWD/../ext/nanopb/release/nanopb.lib \
-							$$OUT_PWD/../lib/nanim/release/nanim.lib \
+
+			PRE_TARGETDEPS += \
+							$$OUT_PWD/../lib/qutehunt/release/qutehunt.lib \
 							$$OUT_PWD/../lib/qutetools/release/qutetools.lib
 		}
 } else {
-	LIBS += -L$$OUT_PWD/../ext/nanopb/libnanopb.a \
-			-L$$OUT_PWD/../lib/nanim/libnanim.a \
+	LIBS += \
+			-L$$OUT_PWD/../lib/qutehunt/ -lqutehunt \
 			-L$$OUT_PWD/../lib/qutetools/ -lqutetools
-	PRE_TARGETDEPS += $$OUT_PWD/../ext/nanopb/libnanopb.a \
-					$$OUT_PWD/../lib/nanim/libnanim.a \
+	PRE_TARGETDEPS += \
+					$$OUT_PWD/../lib/qutehunt/libqutehunt.a \
 					$$OUT_PWD/../lib/qutetools/libqutetools.a
 }
