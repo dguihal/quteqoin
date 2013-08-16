@@ -1,11 +1,9 @@
 #ifndef QQHUNTANIMATION_H
 #define QQHUNTANIMATION_H
 
-#include "qutehunt_global.h"
-
 #include <QStringList>
 
-class QUTEHUNTSHARED_EXPORT QQHuntAnimation
+class QQHuntAnimation
 {
 
 public:
