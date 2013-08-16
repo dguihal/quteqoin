@@ -1,0 +1,5 @@
+sequence=duck_hor_1,duck_hor_2,duck_hor_3,duck_hor_2
+loop=true
+update_ms=200
+direction_h=right
+direction_l=none

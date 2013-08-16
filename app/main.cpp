@@ -1,6 +1,8 @@
 #include "mainwindow.h"
 #include "core/qqsettingsparams.h"
 
+#include "qqhuntanimation.h"
+
 #include <QApplication>
 #if(QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
 #include <QStandardPaths>
@@ -29,6 +31,8 @@ void purgeCache()
 
 int main(int argc, char *argv[])
 {
+	Q_INIT_RESOURCE(animations);
+
 	QApplication a(argc, argv);
 	a.setOrganizationName("Moules Corp");
 	a.setApplicationName("quteqoin");

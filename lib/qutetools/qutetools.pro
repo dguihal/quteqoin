@@ -6,13 +6,15 @@
 
 QT += core gui
 greaterThan(QT_MAJOR_VERSION, 4) {
-QT       += widgets
+	QT += widgets
 }
 
 TARGET = qutetools
 TEMPLATE = lib
 CONFIG += staticlib
 
-SOURCES += qutetools.cpp
+SOURCES += \
+	qutetools.cpp
 
-HEADERS += qutetools.h
+HEADERS += \
+	qutetools.h
