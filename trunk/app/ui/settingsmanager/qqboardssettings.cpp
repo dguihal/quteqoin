@@ -12,6 +12,7 @@ QQBoardsSettings::QQBoardsSettings(QWidget *parent) :
 {
 	ui->setupUi(this);
 	ui->bouchotListView->setModel(new QStringListModel());
+	ui->deleteBouchotButton->setIcon(style()->standardIcon(QStyle::SP_DialogCancelButton));
 
 	connect(ui->addBouchotButton, SIGNAL(clicked()), this, SLOT(addBouchot()));
 	connect(ui->deleteBouchotButton, SIGNAL(clicked()), this, SLOT(deleteBouchot()));

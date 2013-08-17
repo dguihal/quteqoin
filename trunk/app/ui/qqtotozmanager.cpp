@@ -50,6 +50,7 @@ QQTotozManager::QQTotozManager(QWidget *parent) :
 	totozSearchEnabled(settings.value(SETTINGS_TOTOZ_SERVER_ALLOW_SEARCH, DEFAULT_TOTOZ_SERVER_ALLOW_SEARCH).toBool());
 
 	ui->cancelSearchButton->hide();
+	ui->cancelSearchButton->setIcon(style()->standardIcon(QStyle::SP_DialogCancelButton));
 	connect(ui->cancelSearchButton, SIGNAL(clicked()), this, SLOT(totozSearchCanceled()));
 
 	ui->serverScrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);

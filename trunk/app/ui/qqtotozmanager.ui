@@ -87,7 +87,7 @@
              <x>0</x>
              <y>0</y>
              <width>198</width>
-             <height>463</height>
+             <height>28</height>
             </rect>
            </property>
           </widget>
@@ -123,7 +123,7 @@
              <x>0</x>
              <y>0</y>
              <width>198</width>
-             <height>463</height>
+             <height>465</height>
             </rect>
            </property>
           </widget>
@@ -144,10 +144,6 @@
          <property name="text">
           <string/>
          </property>
-         <property name="icon">
-          <iconset resource="../rc/quteqoin_img.qrc">
-           <normaloff>:/img/delete-icon.png</normaloff>:/img/delete-icon.png</iconset>
-         </property>
         </widget>
        </item>
       </layout>
@@ -156,8 +152,6 @@
    </layout>
   </widget>
  </widget>
- <resources>
-  <include location="../rc/quteqoin_img.qrc"/>
- </resources>
+ <resources/>
  <connections/>
 </ui>
