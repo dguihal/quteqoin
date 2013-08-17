@@ -94,16 +94,10 @@
      <property name="text">
       <string/>
      </property>
-     <property name="icon">
-      <iconset resource="../rc/quteqoin_img.qrc">
-       <normaloff>:/img/delete-icon.png</normaloff>:/img/delete-icon.png</iconset>
-     </property>
     </widget>
    </item>
   </layout>
  </widget>
- <resources>
-  <include location="../rc/quteqoin_img.qrc"/>
- </resources>
+ <resources/>
  <connections/>
 </ui>

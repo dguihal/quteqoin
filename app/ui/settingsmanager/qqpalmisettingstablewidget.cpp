@@ -234,13 +234,12 @@ int QQPalmiSettingsTableWidget::appendEmptyUserRow()
 		return currRow - 1;
 
 	QPushButton *rowDelBtn;
-	QPixmap delPixmap(":/img/delete-icon.png");
-	QPixmap scaledDelPixmap = delPixmap.scaledToWidth(BTN_PIXMAP_MAX_WIDTH);
+	QPixmap delPixmap = style()->standardIcon(QStyle::SP_DialogCancelButton).pixmap(BTN_PIXMAP_MAX_WIDTH);
 
 	insertRow(currRow);
 
 	// 1st Col
-	rowDelBtn = new QPushButton(QIcon(scaledDelPixmap), "", this);
+	rowDelBtn = new QPushButton(QIcon(delPixmap), "", this);
 	rowDelBtn->setMaximumWidth(BTN_PIXMAP_MAX_WIDTH);
 	connect(rowDelBtn, SIGNAL(clicked()), this, SLOT(handleRemoveRowClicked()));
 	setCellWidget(currRow, BTN_COLUMN, rowDelBtn);

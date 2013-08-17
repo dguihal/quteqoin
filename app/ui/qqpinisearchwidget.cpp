@@ -3,6 +3,7 @@
 
 #include "qutetools.h"
 
+#include <QCommonStyle>
 #include <QFocusEvent>
 #include <QKeyEvent>
 #include <QTransform>
@@ -23,13 +24,11 @@ QQPiniSearchWidget::QQPiniSearchWidget(QWidget *parent) :
 
 	setAutoFillBackground(true);
 
-	QPixmap image(":/img/Fleche_verte.png");
-	image = image.scaled(16, 16, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
-	ui->fwdSearchPB->setIcon(QIcon(image));
-	QTransform mirrorTr;
-	mirrorTr = mirrorTr.rotate(180, Qt::YAxis);
-	image = image.transformed(mirrorTr);
-	ui->revSearchPB->setIcon(QIcon(image));
+	QStyle *currentStyle = style();
+
+	ui->revSearchPB->setIcon(currentStyle->standardIcon(QStyle::SP_ArrowLeft));
+	ui->fwdSearchPB->setIcon(currentStyle->standardIcon(QStyle::SP_ArrowRight));
+	ui->stopSearchPB->setIcon(currentStyle->standardIcon(QStyle::SP_DialogCancelButton));
 
 	connect(ui->stopSearchPB, SIGNAL(clicked()), this, SLOT(hide()));
 	connect(ui->searchLineEdit, SIGNAL(textChanged(QString)), this, SLOT(searchTextChanged(QString)));
