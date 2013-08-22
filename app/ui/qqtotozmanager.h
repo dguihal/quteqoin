@@ -47,7 +47,7 @@ private:
 	void fillBookmarks();
 	void createViewer(QScrollArea * dest, const QStringList & ids, QQTotoz::TotozBookmarkAction action);
 
-	Ui::QQTotozManager *ui;
+	Ui::QQTotozManager *m_ui;
 
 	QQTMRequester *m_requester;
 	QQTotozDownloader *m_totozDownloader;
