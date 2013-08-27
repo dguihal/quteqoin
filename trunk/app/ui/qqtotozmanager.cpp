@@ -108,10 +108,6 @@ void QQTotozManager::totozSearchFinished()
 
 	QList<QString> results = m_requester->results();
 
-	QWidget * widget = new QWidget(this);
-	QVBoxLayout * layout = new QVBoxLayout();
-	layout->setContentsMargins(0, 0, 0, 0);
-
 	if(results.size() > 0)
 	{
 		for(int i = 0; i < results.size(); i++)
@@ -121,33 +117,21 @@ void QQTotozManager::totozSearchFinished()
 		}
 
 		createViewer(m_ui->serverScrollArea, results, QQTotoz::ADD);
-
-		for(int i = 0; i < results.size(); i++)
-		{
-			QQTotozViewer * viewer = new QQTotozViewer(this);
-			viewer->enableBookmarksAdd();
-			viewer->setTotozDownloader(m_totozDownloader);
-			viewer->setTotozId(results.at(i));
-			connect(viewer, SIGNAL(totozBookmarkAct(QString,QQTotoz::TotozBookmarkAction)), this, SLOT(totozBookmarkDo(QString,QQTotoz::TotozBookmarkAction)));
-			connect(viewer, SIGNAL(totozClicked(QString)), this, SLOT(totozSelected(QString)));
-			layout->addWidget(viewer);
-		}
-
 	}
 	else
 	{
-		QLabel * label = new QLabel("No totoz found", widget);
+		QWidget *widget = new QWidget(this);
+		QVBoxLayout *layout = new QVBoxLayout();
+		layout->setContentsMargins(0, 0, 0, 0);
+
+		QLabel *label = new QLabel("No totoz found", widget);
 		layout->addWidget(label);
 
+		QWidget *oldWidget = m_ui->serverScrollArea->takeWidget();
+		m_ui->serverScrollArea->setWidget(widget);
+
+		delete oldWidget;
 	}
-
-	layout->addSpacerItem(new QSpacerItem(1, 1, QSizePolicy::Minimum, QSizePolicy::Expanding));
-	widget->setLayout(layout);
-	QWidget * oldWidget = m_ui->serverScrollArea->takeWidget();
-	m_ui->serverScrollArea->setWidget(widget);
-	m_ui->serverScrollAreaContents = widget;
-
-	oldWidget->deleteLater();
 }
 
 void QQTotozManager::totozSearchCanceled()
@@ -195,10 +179,10 @@ void QQTotozManager::setVisible(bool visible)
 		m_ui->searchLineEdit->setFocus();
 	}
 
-	QWidget::setVisible(visible);
+	QDockWidget::setVisible(visible);
 }
 
-void QQTotozManager::focusInEvent(QFocusEvent * event)
+void QQTotozManager::focusInEvent(QFocusEvent *event)
 {
 	QDockWidget::focusInEvent(event);
 	m_ui->searchLineEdit->setFocus();
@@ -208,8 +192,8 @@ void QQTotozManager::handleSearchTextChanged(QString text)
 {
 	if(text.size() < MIN_TOTOZ_SEARCH_LEN)
 	{
-		QWidget * oldWidget = m_ui->serverScrollArea->takeWidget();
-		QWidget * emptyWidget = new QWidget();
+		QWidget *oldWidget = m_ui->serverScrollArea->takeWidget();
+		QWidget *emptyWidget = new QWidget();
 		m_ui->serverScrollArea->setWidget(emptyWidget);
 		m_ui->serverScrollAreaContents = emptyWidget;
 
@@ -289,15 +273,15 @@ void QQTotozManager::fillBookmarks()
 	createViewer(m_ui->bookmarkScrollArea, totozIds, QQTotoz::REMOVE);
 }
 
-void QQTotozManager::createViewer(QScrollArea * dest, const QStringList & ids, QQTotoz::TotozBookmarkAction action)
+void QQTotozManager::createViewer(QScrollArea *dest, const QStringList &ids, QQTotoz::TotozBookmarkAction action)
 {
-	QWidget * widget = new QWidget(this);
-	QVBoxLayout * layout = new QVBoxLayout();
+	QWidget *widget = new QWidget(this);
+	QVBoxLayout *layout = new QVBoxLayout();
 	layout->setContentsMargins(0, 0, 0, 0);
 
 	for(int i = 0; i < ids.size(); i++)
 	{
-		QQTotozViewer * viewer = new QQTotozViewer(this);
+		QQTotozViewer *viewer = new QQTotozViewer(widget);
 		viewer->setTotozDownloader(m_totozDownloader);
 
 		if(action == QQTotoz::ADD)
@@ -314,8 +298,7 @@ void QQTotozManager::createViewer(QScrollArea * dest, const QStringList & ids, Q
 	layout->addSpacerItem(new QSpacerItem(1, 1, QSizePolicy::Minimum, QSizePolicy::Expanding));
 
 	widget->setLayout(layout);
-	QWidget * oldWidget = dest->takeWidget();
+	QWidget *oldWidget = dest->takeWidget();
 	dest->setWidget(widget);
-
-	oldWidget->deleteLater();
+	delete oldWidget;
 }

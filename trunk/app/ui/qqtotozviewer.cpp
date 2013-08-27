@@ -65,6 +65,7 @@ void QQTotozViewer::updateImg()
 	m_totozDataBuffer->open(QIODevice::ReadOnly);
 
 	m_totozMovie = new QMovie(this);
+	//connect(m_totozMovie, SIGNAL(frameChanged(int)), this, SLOT(onMovieFrameChanged(int)));
 	m_totozMovie->setDevice(m_totozDataBuffer);
 
 	if(m_totozMovie->isValid())
@@ -140,6 +141,21 @@ void QQTotozViewer::totozAvailable(QString &totozId, bool success, QString &errM
 	}
 }
 
+/*
+void QQTotozViewer::onMovieFrameChanged(int frameNumber)
+{
+	qDebug() << "QQTotozViewer::onMovieFrameChanged" << this << m_totozId << frameNumber;
+}
+
+void QQTotozViewer::setVisible (bool visible)
+{
+	if(m_totozMovie != NULL)
+		visible ? m_totozMovie->start() : m_totozMovie->stop();
+
+	QLabel::setVisible(visible);
+}
+*/
+
 void QQTotozViewer::mousePressEvent(QMouseEvent * ev)
 {
 	QLabel::mousePressEvent(ev);
@@ -200,6 +216,9 @@ void QQTotozViewer::displayMovie()
 	setMaximumSize(m_totozMovie->frameRect().size());
 	adjustSize();
 	setPos();
+
+	//if(isVisible())
+	//	m_totozMovie->start();
 	m_totozMovie->start();
 }
 
