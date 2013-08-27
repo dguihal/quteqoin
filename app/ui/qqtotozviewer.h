@@ -28,6 +28,10 @@ public:
 public slots:
 	void displayContextMenu(QPoint &pos);
 	void totozAvailable(QString &totozId, bool success, QString &errMsg);
+	/*
+	void onMovieFrameChanged(int frameNumber);
+	virtual void setVisible (bool visible);
+	*/
 
 signals:
 	void totozClicked(QString anchor);
