@@ -28,10 +28,6 @@ public:
 public slots:
 	void displayContextMenu(QPoint &pos);
 	void totozAvailable(QString &totozId, bool success, QString &errMsg);
-	/*
-	void onMovieFrameChanged(int frameNumber);
-	virtual void setVisible (bool visible);
-	*/
 
 signals:
 	void totozClicked(QString anchor);
@@ -39,11 +35,13 @@ signals:
 
 protected:
 	void updateImg();
+	virtual void contextMenuEvent(QContextMenuEvent *ev);
+	virtual void enterEvent(QEvent *event);
+	virtual void hideEvent(QHideEvent *event);
+	virtual void leaveEvent(QEvent *event);
 	virtual void mousePressEvent(QMouseEvent *ev);
 	virtual void mouseReleaseEvent(QMouseEvent *ev);
-	virtual void enterEvent(QEvent *event);
-	virtual void leaveEvent(QEvent *event);
-	virtual void contextMenuEvent(QContextMenuEvent *ev);
+	virtual void showEvent(QShowEvent *event);
 
 private:
 	void displayText(QString text);

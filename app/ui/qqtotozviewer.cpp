@@ -14,7 +14,7 @@
 
 #define TIMER_INTERVAL 1000
 
-void QQTotozViewer::init(const QString & totozId)
+void QQTotozViewer::init(const QString &totozId)
 {
 	m_mousePressOK = false;
 	m_bookmarkAddEnabled = false;
@@ -31,7 +31,11 @@ void QQTotozViewer::init(const QString & totozId)
 	setTotozId(totozId);
 }
 
-void QQTotozViewer::setTotozId(const QString & totozId)
+QQTotozViewer::~QQTotozViewer()
+{
+}
+
+void QQTotozViewer::setTotozId(const QString &totozId)
 {
 	if(totozId.startsWith("[:") && totozId.endsWith("]"))
 		m_totozId = totozId.mid(2, totozId.length() - 3);
@@ -47,8 +51,45 @@ void QQTotozViewer::setTotozId(const QString & totozId)
 	}
 }
 
-QQTotozViewer::~QQTotozViewer()
+void QQTotozViewer::displayContextMenu(QPoint &pos)
 {
+	QMenu menu(this);
+	QString actBookmAddStr("Add to bookmarks");
+	QString actBookmRemStr("Remove from bookmarks");
+	if(m_bookmarkAddEnabled)
+		menu.addAction(actBookmAddStr);
+	if(m_bookmarkRemEnabled)
+		menu.addAction(actBookmRemStr);
+
+	QString actSendPalmiStr("Send to palmi");
+	menu.addAction(actSendPalmiStr);
+
+	QAction *actionTriggered = NULL;
+	if( (actionTriggered = menu.exec(pos)) != NULL )
+	{
+		QString text = actionTriggered->text();
+		if(text == actBookmAddStr)
+			emit totozBookmarkAct(m_totozId, QQTotoz::ADD);
+		else if(text == actBookmRemStr)
+			emit totozBookmarkAct(m_totozId, QQTotoz::REMOVE);
+		else if(text == actSendPalmiStr)
+			emit totozClicked(getAnchor());
+		else
+			qWarning() << "Unknown action triggered";
+	}
+
+}
+
+void QQTotozViewer::totozAvailable(QString &totozId, bool success, QString &errMsg)
+{
+	if(totozId == m_totozId)
+	{
+		disconnect(m_downloader);
+		if(success)
+			updateImg();
+		else
+			displayText(errMsg);
+	}
 }
 
 void QQTotozViewer::updateImg()
@@ -65,7 +106,6 @@ void QQTotozViewer::updateImg()
 	m_totozDataBuffer->open(QIODevice::ReadOnly);
 
 	m_totozMovie = new QMovie(this);
-	//connect(m_totozMovie, SIGNAL(frameChanged(int)), this, SLOT(onMovieFrameChanged(int)));
 	m_totozMovie->setDevice(m_totozDataBuffer);
 
 	if(m_totozMovie->isValid())
@@ -100,89 +140,7 @@ void QQTotozViewer::updateImg()
 	}
 }
 
-void QQTotozViewer::displayContextMenu(QPoint & pos)
-{
-	QMenu menu(this);
-	QString actBookmAddStr("Add to bookmarks");
-	QString actBookmRemStr("Remove from bookmarks");
-	if(m_bookmarkAddEnabled)
-		menu.addAction(actBookmAddStr);
-	if(m_bookmarkRemEnabled)
-		menu.addAction(actBookmRemStr);
-
-	QString actSendPalmiStr("Send to palmi");
-	menu.addAction(actSendPalmiStr);
-
-	QAction * actionTriggered = NULL;
-	if( (actionTriggered = menu.exec(pos)) != NULL )
-	{
-		QString text = actionTriggered->text();
-		if(text == actBookmAddStr)
-			emit totozBookmarkAct(m_totozId, QQTotoz::ADD);
-		else if(text == actBookmRemStr)
-			emit totozBookmarkAct(m_totozId, QQTotoz::REMOVE);
-		else if(text == actSendPalmiStr)
-			emit totozClicked(getAnchor());
-		else
-			qWarning() << "Unknown action triggered";
-	}
-
-}
-
-void QQTotozViewer::totozAvailable(QString &totozId, bool success, QString &errMsg)
-{
-	if(totozId == m_totozId)
-	{
-		disconnect(m_downloader);
-		if(success)
-			updateImg();
-		else
-			displayText(errMsg);
-	}
-}
-
-/*
-void QQTotozViewer::onMovieFrameChanged(int frameNumber)
-{
-	qDebug() << "QQTotozViewer::onMovieFrameChanged" << this << m_totozId << frameNumber;
-}
-
-void QQTotozViewer::setVisible (bool visible)
-{
-	if(m_totozMovie != NULL)
-		visible ? m_totozMovie->start() : m_totozMovie->stop();
-
-	QLabel::setVisible(visible);
-}
-*/
-
-void QQTotozViewer::mousePressEvent(QMouseEvent * ev)
-{
-	QLabel::mousePressEvent(ev);
-	if(ev->button() == Qt::LeftButton)
-		m_mousePressOK = true;
-}
-
-void QQTotozViewer::mouseReleaseEvent(QMouseEvent * ev)
-{
-	QLabel::mouseReleaseEvent(ev);
-	if(ev->button() == Qt::LeftButton && m_mousePressOK)
-		emit totozClicked(getAnchor());
-}
-
-void QQTotozViewer::enterEvent(QEvent * event)
-{
-	QLabel::enterEvent(event);
-	m_mousePressOK = false;
-}
-
-void QQTotozViewer::leaveEvent(QEvent * event)
-{
-	QLabel::leaveEvent(event);
-	m_mousePressOK = false;
-}
-
-void QQTotozViewer::contextMenuEvent(QContextMenuEvent * ev)
+void QQTotozViewer::contextMenuEvent(QContextMenuEvent *ev)
 {
 	//QLabel::contextMenuEvent(ev);
 
@@ -190,6 +148,46 @@ void QQTotozViewer::contextMenuEvent(QContextMenuEvent * ev)
 	QPoint pos = ev->globalPos();
 
 	displayContextMenu(pos);
+}
+
+void QQTotozViewer::enterEvent(QEvent *event)
+{
+	QLabel::enterEvent(event);
+	m_mousePressOK = false;
+}
+
+void QQTotozViewer::hideEvent(QHideEvent *event)
+{
+	if(m_totozMovie != NULL)
+		m_totozMovie->stop();
+	QLabel::hideEvent(event);
+}
+
+void QQTotozViewer::leaveEvent(QEvent *event)
+{
+	QLabel::leaveEvent(event);
+	m_mousePressOK = false;
+}
+
+void QQTotozViewer::mousePressEvent(QMouseEvent *ev)
+{
+	QLabel::mousePressEvent(ev);
+	if(ev->button() == Qt::LeftButton)
+		m_mousePressOK = true;
+}
+
+void QQTotozViewer::mouseReleaseEvent(QMouseEvent *ev)
+{
+	QLabel::mouseReleaseEvent(ev);
+	if(ev->button() == Qt::LeftButton && m_mousePressOK)
+		emit totozClicked(getAnchor());
+}
+
+void QQTotozViewer::showEvent(QShowEvent *event)
+{
+	if(m_totozMovie != NULL)
+		m_totozMovie->start();
+	QLabel::showEvent(event);
 }
 
 void QQTotozViewer::displayText(QString text)
@@ -202,7 +200,6 @@ void QQTotozViewer::displayText(QString text)
 	setMaximumSize(txtSize.toSize());
 	setText(text);
 	adjustSize();
-	//move(curPos);
 	setPos();
 }
 
@@ -217,12 +214,11 @@ void QQTotozViewer::displayMovie()
 	adjustSize();
 	setPos();
 
-	//if(isVisible())
-	//	m_totozMovie->start();
-	m_totozMovie->start();
+	if(isVisible())
+		m_totozMovie->start();
 }
 
-void QQTotozViewer::displayImage(QImage & image)
+void QQTotozViewer::displayImage(QImage &image)
 {
 	setStyleSheet("QLabel { background-color : rgba(255, 255, 255, 0); color : black; }");
 	QPixmap pixmap = QPixmap::fromImage(image);
