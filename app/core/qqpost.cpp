@@ -73,22 +73,25 @@ bool QQPost::isSelfPost()
 		QQSettings settings;
 
 		QString login = bouchotSettings.login();
-		if(login.size() == 0)
-			login = settings.value(SETTINGS_GENERAL_DEFAULT_LOGIN, DEFAULT_GENERAL_DEFAULT_LOGIN).toString();
-
-		if(login.size() > 0)
-		{
-			if(login.compare(m_login, Qt::CaseSensitive) == 0)
+		if(login.size() > 0 && login.compare(m_login, Qt::CaseSensitive) == 0)
 				m_isSelfPost = True;
-		}
 		else
 		{
 			QString ua = bouchotSettings.ua();
-			if(ua.size() == 0)
-				ua = settings.value(SETTINGS_GENERAL_DEFAULT_UA, DEFAULT_GENERAL_DEFAULT_UA).toString();
-
-			if(ua.compare(m_ua, Qt::CaseSensitive) == 0)
+			if(ua.size() > 0 && ua.compare(m_ua, Qt::CaseSensitive) == 0)
 				m_isSelfPost = True;
+			else
+			{
+				login = settings.value(SETTINGS_GENERAL_DEFAULT_LOGIN, DEFAULT_GENERAL_DEFAULT_LOGIN).toString();
+				if(login.size() > 0 && login.compare(m_login, Qt::CaseSensitive) == 0)
+					m_isSelfPost = True;
+				else
+				{
+					ua = settings.value(SETTINGS_GENERAL_DEFAULT_UA, DEFAULT_GENERAL_DEFAULT_UA).toString();
+					if(ua.size() > 0 && ua.compare(m_ua, Qt::CaseSensitive) == 0)
+						m_isSelfPost = True;
+				}
+			}
 		}
 
 		//If not true => false
