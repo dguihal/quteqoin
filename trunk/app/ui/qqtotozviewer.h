@@ -5,6 +5,7 @@
 
 #include <QBuffer>
 #include <QLabel>
+#include <QMovie>
 #include <QString>
 
 class QQTotozDownloader;
@@ -53,8 +54,8 @@ private:
 
 	QString m_totozId;
 
-	QMovie *m_totozMovie;
-	QBuffer *m_totozDataBuffer;
+	QMovie m_totozMovie;
+	QBuffer m_totozDataBuffer;
 
 	QQTotozDownloader *m_downloader;
 

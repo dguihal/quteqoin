@@ -6,7 +6,6 @@
 #include <QtDebug>
 #include <QImage>
 #include <QMenu>
-#include <QMovie>
 #include <QMouseEvent>
 #include <QPixmap>
 #include <QPoint>
@@ -19,9 +18,9 @@ void QQTotozViewer::init(const QString &totozId)
 	m_mousePressOK = false;
 	m_bookmarkAddEnabled = false;
 	m_bookmarkRemEnabled = false;
-	m_totozMovie = NULL;
 	m_downloader = NULL;
-	m_totozDataBuffer = new QBuffer(this);
+	m_totozMovie.setCacheMode(QMovie::CacheNone);
+	connect(&m_totozMovie, SIGNAL(finished()), &m_totozMovie, SLOT(start()));
 
 	setStyleSheet("QLabel { background-color : rgba(255, 255, 255, 0); color : black; }");
 	setTextFormat(Qt::PlainText);
@@ -95,34 +94,28 @@ void QQTotozViewer::totozAvailable(QString &totozId, bool success, QString &errM
 void QQTotozViewer::updateImg()
 {
 	clear();
-	if(m_totozMovie != NULL)
-		delete m_totozMovie;
 
 	QQTotoz totoz(m_totozId);
 	QByteArray totozData = totoz.data();
 
-	m_totozDataBuffer->close();
-	m_totozDataBuffer->setData(totozData);
-	m_totozDataBuffer->open(QIODevice::ReadOnly);
+	m_totozDataBuffer.close();
+	m_totozDataBuffer.setData(totozData);
+	m_totozDataBuffer.open(QIODevice::ReadOnly);
 
-	m_totozMovie = new QMovie(this);
-	m_totozMovie->setDevice(m_totozDataBuffer);
+	m_totozMovie.setDevice(& m_totozDataBuffer);
 
-	if(m_totozMovie->isValid())
+	if(m_totozMovie.isValid())
 		displayMovie();
 	else
 	{
-		delete m_totozMovie;
-		m_totozMovie = NULL;
-
 		QImage image;
 		if(image.loadFromData(totozData))
 			displayImage(image);
 		else
 		{
-			m_totozDataBuffer->close();
+			m_totozDataBuffer.close();
 			QQTotoz::invalidateCache(m_totozId);
-			m_totozMovie = new QMovie(":/img/totoz-loader.gif");
+			m_totozMovie.setFileName(":/img/totoz-loader.gif");
 
 			displayMovie();
 
@@ -158,8 +151,8 @@ void QQTotozViewer::enterEvent(QEvent *event)
 
 void QQTotozViewer::hideEvent(QHideEvent *event)
 {
-	if(m_totozMovie != NULL)
-		m_totozMovie->stop();
+	if(m_totozMovie.isValid())
+		m_totozMovie.stop();
 	QLabel::hideEvent(event);
 }
 
@@ -185,15 +178,13 @@ void QQTotozViewer::mouseReleaseEvent(QMouseEvent *ev)
 
 void QQTotozViewer::showEvent(QShowEvent *event)
 {
-	if(m_totozMovie != NULL)
-		m_totozMovie->start();
+	if(m_totozMovie.isValid())
+		m_totozMovie.start();
 	QLabel::showEvent(event);
 }
 
 void QQTotozViewer::displayText(QString text)
 {
-	//QPoint curPos = pos();
-	setStyleSheet("QLabel { background-color : rgba(255, 255, 255, 200); color : black; }");
 	QFontMetricsF fm(font());
 	QSizeF txtSize = fm.size(Qt::TextSingleLine, text);
 	setMinimumSize(txtSize.toSize());
@@ -205,22 +196,19 @@ void QQTotozViewer::displayText(QString text)
 
 void QQTotozViewer::displayMovie()
 {
-	setStyleSheet("QLabel { background-color : rgba(255, 255, 255, 0); color : black; }");
-	m_totozMovie->setCacheMode(QMovie::CacheNone);
-	m_totozMovie->jumpToFrame(0);
-	setMovie(m_totozMovie);
-	setMinimumSize(m_totozMovie->frameRect().size());
-	setMaximumSize(m_totozMovie->frameRect().size());
+	m_totozMovie.jumpToFrame(0);
+	setMovie(&m_totozMovie);
+	setMinimumSize(m_totozMovie.frameRect().size());
+	setMaximumSize(m_totozMovie.frameRect().size());
 	adjustSize();
 	setPos();
 
 	if(isVisible())
-		m_totozMovie->start();
+		m_totozMovie.start();
 }
 
 void QQTotozViewer::displayImage(QImage &image)
 {
-	setStyleSheet("QLabel { background-color : rgba(255, 255, 255, 0); color : black; }");
 	QPixmap pixmap = QPixmap::fromImage(image);
 	setPixmap(pixmap);
 	setMinimumSize(pixmap.width(), pixmap.height());

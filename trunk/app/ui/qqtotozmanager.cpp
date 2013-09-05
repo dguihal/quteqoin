@@ -64,7 +64,8 @@ QQTotozManager::QQTotozManager(QWidget *parent) :
 
 	m_ui->dockWidgetContents->setMaximumWidth(m_ui->qqTMTabWidget->width());
 
-	fillBookmarks();
+	if(isVisible())
+		fillBookmarks();
 }
 
 QQTotozManager::~QQTotozManager()
@@ -276,7 +277,7 @@ void QQTotozManager::fillBookmarks()
 void QQTotozManager::createViewer(QScrollArea *dest, const QStringList &ids, QQTotoz::TotozBookmarkAction action)
 {
 	QWidget *widget = new QWidget(this);
-	QVBoxLayout *layout = new QVBoxLayout();
+	QVBoxLayout *layout = new QVBoxLayout(widget);
 	layout->setContentsMargins(0, 0, 0, 0);
 
 	for(int i = 0; i < ids.size(); i++)
@@ -300,5 +301,7 @@ void QQTotozManager::createViewer(QScrollArea *dest, const QStringList &ids, QQT
 	widget->setLayout(layout);
 	QWidget *oldWidget = dest->takeWidget();
 	dest->setWidget(widget);
-	delete oldWidget;
+
+	//Doit etre supprime "plus tard" car ici on peut avoir ete appele par le widget qu'on va detruire ici-meme
+	oldWidget->deleteLater();
 }
