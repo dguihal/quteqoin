@@ -28,10 +28,19 @@ QQPiniUrlHelper::QQPiniUrlHelper(QObject *parent) :
 /// \brief QQPiniUrlHelper::getContentType
 /// \param url
 ///
+QHash<QUrl, QString> QQPiniUrlHelper::m_contentTypeCache;
 void QQPiniUrlHelper::getContentType(const QUrl &url)
 {
-	QNetworkReply *reply = httpHead(QNetworkRequest(url));
-	m_contentTypeReplies.append(reply);
+	if(! QQPiniUrlHelper::m_contentTypeCache.contains(url))
+	{
+		QNetworkReply *reply = httpHead(QNetworkRequest(url));
+		m_contentTypeReplies.append(reply);
+	}
+	else
+	{
+		QUrl reqUrl = url;
+		emit contentTypeAvailable(reqUrl, m_contentTypeCache[url]);
+	}
 }
 
 //////////////////////////////////////////////////////////////
@@ -76,6 +85,7 @@ void QQPiniUrlHelper::requestFinishedSlot(QNetworkReply *reply)
 	if(m_contentTypeReplies.contains(reply))
 	{
 		m_contentTypeReplies.removeAll(reply);
+		QUrl sourceUrl = reply->request().url();
 		QString rep(tr("Unknown"));
 		if(reply->error() == QNetworkReply::NoError)
 		{
@@ -83,11 +93,11 @@ void QQPiniUrlHelper::requestFinishedSlot(QNetworkReply *reply)
 			QStringList contentTypeParts = contentType.split(";", QString::SkipEmptyParts);
 			if(contentTypeParts.size() > 0)
 				rep = contentTypeParts.at(0);
+
+			QQPiniUrlHelper::m_contentTypeCache.insert(sourceUrl, rep);
 		}
 		else
 			qDebug() << reply->errorString();
-
-		QUrl sourceUrl = reply->request().url();
 		emit contentTypeAvailable(sourceUrl, rep);
 	}
 }
