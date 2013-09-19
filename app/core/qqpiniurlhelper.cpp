@@ -14,6 +14,8 @@
 #define SHORT_HOST_REPLACE "\\1[\\3\\4]\\5"
 #define SHORTER_HOST_REPLACE "\\1[\\3]\\5"
 
+#define CONTENT_TYPE_CACHE_SIZE 500
+
 //////////////////////////////////////////////////////////////
 /// \brief QQPiniUrlHelper::QQPiniUrlHelper
 /// \param parent
@@ -29,6 +31,7 @@ QQPiniUrlHelper::QQPiniUrlHelper(QObject *parent) :
 /// \param url
 ///
 QHash<QUrl, QString> QQPiniUrlHelper::m_contentTypeCache;
+QList<QUrl> QQPiniUrlHelper::m_contentTypeCacheUrls;
 void QQPiniUrlHelper::getContentType(const QUrl &url)
 {
 	if(! QQPiniUrlHelper::m_contentTypeCache.contains(url))
@@ -95,6 +98,9 @@ void QQPiniUrlHelper::requestFinishedSlot(QNetworkReply *reply)
 				rep = contentTypeParts.at(0);
 
 			QQPiniUrlHelper::m_contentTypeCache.insert(sourceUrl, rep);
+			QQPiniUrlHelper::m_contentTypeCacheUrls.append(sourceUrl);
+			while(QQPiniUrlHelper::m_contentTypeCacheUrls.size() > CONTENT_TYPE_CACHE_SIZE)
+				QQPiniUrlHelper::m_contentTypeCache.remove(QQPiniUrlHelper::m_contentTypeCacheUrls.takeFirst());
 		}
 		else
 			qDebug() << reply->errorString();

@@ -29,6 +29,7 @@ public slots:
 private:
 	QList<QNetworkReply *> m_contentTypeReplies;
 	static QHash<QUrl, QString> m_contentTypeCache;
+	static QList<QUrl> m_contentTypeCacheUrls;
 };
 
 #endif // QQPINIURLHELPER_H
