@@ -1,8 +1,6 @@
 #include "mainwindow.h"
 #include "core/qqsettingsparams.h"
 
-#include "qqhuntanimation.h"
-
 #include <QApplication>
 #if(QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
 #include <QStandardPaths>

@@ -4,17 +4,27 @@
 #
 #-------------------------------------------------
 
-QT       -= gui
+QT       += gui
 
 TARGET = qutehunt
 TEMPLATE = lib
 CONFIG += staticlib
 
 SOURCES += \
-	qqhuntanimation.cpp
+	qqduck.cpp \
+	qqhuntingview.cpp \
+	qqduckpixmapitem.cpp
 
 HEADERS += \
-	qqhuntanimation.h
+	qqduck.h \
+	qqhuntingview.h \
+	qqduckpixmapitem.h
 
 RESOURCES += \
 	rc/animations.qrc
+
+INCLUDEPATH += \
+			$$PWD/../qutetools
+
+DEPENDPATH += \
+			$$PWD/../qutetools

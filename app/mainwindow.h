@@ -10,6 +10,7 @@ class QQPiniSearchWidget;
 class QQSettings;
 class QQTotozManager;
 
+
 namespace Ui {
 	class MainWindow;
 }

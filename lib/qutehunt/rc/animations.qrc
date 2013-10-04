@@ -3,23 +3,19 @@
         <file>duck_hor_1.png</file>
         <file>duck_hor_2.png</file>
         <file>duck_hor_3.png</file>
-        <file>anim_duck_hor</file>
     </qresource>
     <qresource prefix="/anims/duck_vert">
         <file>duck_vert_1.png</file>
         <file>duck_vert_2.png</file>
         <file>duck_vert_3.png</file>
-        <file>anim_duck_vert</file>
     </qresource>
     <qresource prefix="/anims/duck_diag">
         <file>duck_diag_1.png</file>
         <file>duck_diag_2.png</file>
         <file>duck_diag_3.png</file>
-        <file>anim_duck_diag</file>
     </qresource>
     <qresource prefix="/anims/duck_kill">
         <file>duck_kill_1.png</file>
         <file>duck_kill_2.png</file>
-        <file>anim_duck_kill</file>
     </qresource>
 </RCC>

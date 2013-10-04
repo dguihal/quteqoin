@@ -8,8 +8,8 @@
 #include "ui/qqsettingsmanager.h"
 #include "ui/qqtotozmanager.h"
 
-#include <QCloseEvent>
 #include <QtDebug>
+#include <QCloseEvent>
 #include <QIcon>
 #include <QKeyEvent>
 #include <QLayout>

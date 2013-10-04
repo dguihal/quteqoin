@@ -39,6 +39,7 @@ QQPinipede::QQPinipede(QWidget * parent) :
 	QTabWidget(parent)
 {
 	m_totozManager = NULL;
+	m_huntingView = NULL;
 
 	m_totozDownloader = new QQTotozDownloader(this);
 
@@ -66,6 +67,9 @@ QQPinipede::QQPinipede(QWidget * parent) :
 	m_totozViewer->enableBookmarksAdd();
 
 	addTab(new QWidget(), "(void)");
+
+	m_huntingView = new QQHuntingView(this);
+	connect(m_huntingView, SIGNAL(duckKilled(QString,QString)), this, SLOT(duckKilled(QString,QString)));
 
 	setMovable(true);
 }
@@ -104,6 +108,8 @@ void QQPinipede::addPiniTab(const QString &groupName)
 
 	m_textBrowserHash.insert(groupName, textBrowser);
 
+	connect(textBrowser, SIGNAL(duckClicked(QString,QString)), m_huntingView, SLOT(launch(QString,QString)));
+	connect(textBrowser, SIGNAL(shotDuck()), m_huntingView, SLOT(killDuck()));
 	connect(textBrowser, SIGNAL(norlogeClicked(QString, QQNorloge)), this, SLOT(norlogeClicked(QString, QQNorloge)));
 	connect(textBrowser, SIGNAL(norlogeRefClicked(QString, QQNorlogeRef)), this, SLOT(norlogeRefClicked(QString, QQNorlogeRef)));
 	connect(textBrowser, SIGNAL(loginClicked(QString, QString)), this, SLOT(loginClicked(QString, QString)));
@@ -427,6 +433,33 @@ void QQPinipede::searchText(const QString &text, bool forward)
 }
 
 //////////////////////////////////////////////////////////////
+/// \brief duckKilled
+/// \param board
+/// \param postId
+///
+void QQPinipede::duckKilled(QString board, QString postId)
+{
+	QQBouchot *bouchotDest = QQBouchot::bouchot(board);
+	QString message;
+	foreach(QQPost *post, bouchotDest->getPostsHistory())
+	{
+		if(post->id() == postId)
+		{
+			QQNorloge norloge(board, post->norloge());
+			if(post->isNorlogeMultiple())
+				norloge.setNorlogeIndex(post->norlogeIndex());
+			message = norloge.toStringPalmi();
+			break;
+		}
+	}
+
+	int arobasePos = message.indexOf('@');
+	if(arobasePos >= 0)
+		message = message.left(arobasePos);
+	bouchotDest->postMessage(message + QString::fromLatin1(" pan ! pan !"));
+}
+
+//////////////////////////////////////////////////////////////
 /// \brief QQPinipede::norlogeClicked
 /// \param srcBouchot
 /// \param norloge
@@ -713,6 +746,18 @@ void QQPinipede::contextMenuEvent(QContextMenuEvent * ev)
 	else
 		QTabWidget::contextMenuEvent(ev);
 }
+
+//////////////////////////////////////////////////////////////
+/// \brief QQPinipede::resizeEvent
+/// \param event
+///
+void QQPinipede::resizeEvent(QResizeEvent *event)
+{
+	if(m_huntingView)
+		m_huntingView->resize(event->size());
+	event->accept();
+}
+
 
 /*************************************************************
  * Private

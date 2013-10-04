@@ -1,6 +1,8 @@
 #ifndef QQPINIPEDE_H
 #define QQPINIPEDE_H
 
+#include "qqhuntingview.h"
+
 #include "core/qqnorloge.h"
 #include "core/qqnorlogeref.h"
 #include "core/qqtotoz.h"
@@ -60,6 +62,7 @@ public:
 	virtual bool event(QEvent *e);
 
 public slots:
+	void duckKilled(QString board,QString postId);
 	void norlogeClicked(QString srcBouchot, QQNorloge norloge);
 	void norlogeRefClicked(QString srcBouchot, QQNorlogeRef nRef);
 	void norlogeRefHovered(QQNorlogeRef norlogeRef);
@@ -76,6 +79,7 @@ signals:
 
 protected:
 	virtual void contextMenuEvent(QContextMenuEvent *ev);
+	virtual void resizeEvent(QResizeEvent *event);
 
 private:
 	bool applyPostDisplayFilters(QQPost *post);
@@ -98,6 +102,8 @@ private:
 	QQPostParser *m_postparser;
 
 	QMutex newPostsAvailableMutex;
+
+	QQHuntingView *m_huntingView;
 
 	int norlogeMatchLength;
 	int duckMatchLength;

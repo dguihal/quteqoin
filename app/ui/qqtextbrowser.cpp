@@ -432,6 +432,7 @@ void QQTextBrowser::mouseReleaseEvent(QMouseEvent * event)
 #else
 		int posInBlock =  cursor.position() - cursor.block().position();
 #endif
+		bool duckLaunched = false;
 		if(blockData->isIndexInZRange(posInBlock, QQMessageBlockUserData::NORLOGE))
 		{
 			QQNorloge norloge(post->bouchot()->name(),
@@ -459,7 +460,19 @@ void QQTextBrowser::mouseReleaseEvent(QMouseEvent * event)
 			QQNorlogeRef nRef = blockData->norlogeRefForIndex(posInBlock);
 			if(nRef.isValid())
 				emit norlogeRefClicked(post->bouchot()->name(), nRef);
+			else
+			{
+				QPair<int, QString> duck = blockData->duckForIndex(posInBlock);
+				if(duck.first >= 0)
+				{
+					duckLaunched = true;
+					qDebug() << blockData->post()->bouchot()->name() << blockData->post()->id();
+					emit duckClicked(blockData->post()->bouchot()->name(), blockData->post()->id());
+				}
+			}
 		}
+		if(!duckLaunched)
+			emit shotDuck();
 	}
 }
 
