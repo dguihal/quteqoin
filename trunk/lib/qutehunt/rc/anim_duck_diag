@@ -1,5 +1,0 @@
-sequence=duck_diag_1,duck_diag_2,duck_diag_3,duck_diag_2
-loop=true
-update_ms=200
-direction_h=right
-direction_l=top
