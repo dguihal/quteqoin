@@ -27,3 +27,14 @@ bool QuteTools::checkFocusRecurse(QWidget *parent)
 	}
 	return focus;
 }
+
+//////////////////////////////////////////////////////////////
+/// \brief QuteTools::randInt
+/// \param low
+/// \param high
+/// \return Random number between low and high
+///
+int QuteTools::randInt(int low, int high)
+{
+	return qrand() % ((high + 1) - low) + low;
+}
