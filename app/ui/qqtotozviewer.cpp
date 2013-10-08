@@ -20,7 +20,6 @@ void QQTotozViewer::init(const QString &totozId)
 	m_bookmarkRemEnabled = false;
 	m_downloader = NULL;
 	m_totozMovie.setCacheMode(QMovie::CacheNone);
-	//connect(&m_totozMovie, SIGNAL(finished()), &m_totozMovie, SLOT(start()));
 
 	setStyleSheet("QLabel { background-color : rgba(255, 255, 255, 0); color : black; }");
 	setTextFormat(Qt::PlainText);
@@ -196,6 +195,10 @@ void QQTotozViewer::displayText(QString text)
 
 void QQTotozViewer::displayMovie()
 {
+	m_totozMovie.disconnect(SIGNAL(finished()));
+	if(m_totozMovie.frameCount() > 1)
+		connect(&m_totozMovie, SIGNAL(finished()), &m_totozMovie, SLOT(start()));
+
 	m_totozMovie.jumpToFrame(0);
 	setMovie(&m_totozMovie);
 	setMinimumSize(m_totozMovie.frameRect().size());
