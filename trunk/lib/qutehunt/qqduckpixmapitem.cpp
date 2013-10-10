@@ -223,6 +223,7 @@ void QQDuckPixmapItem::loadNextPixMap()
 
 		int scaleX = pixmapProp.m_mirrorX ? -1 : 1;
 		int scaleY = pixmapProp.m_mirrorY ? -1 : 1;
+		setTransformOriginPoint(p.width() / 2, p.height() / 2);
 		setTransform(QTransform().scale(scaleX, scaleY).rotateRadians(pixmapProp.m_rotationAngle, Qt::ZAxis));
 		setPixmap(p);
 		if(m_animPixmapTimerEnabled)
