@@ -69,6 +69,7 @@ QQPinipede::QQPinipede(QWidget * parent) :
 	addTab(new QWidget(), "(void)");
 
 	m_huntingView = new QQHuntingView(this);
+	m_huntingView->resize(size());
 	connect(m_huntingView, SIGNAL(duckKilled(QString,QString)), this, SLOT(duckKilled(QString,QString)));
 
 	setMovable(true);
