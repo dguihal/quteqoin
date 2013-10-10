@@ -755,7 +755,7 @@ void QQPinipede::resizeEvent(QResizeEvent *event)
 {
 	if(m_huntingView)
 		m_huntingView->resize(event->size());
-	event->accept();
+	QTabWidget::resizeEvent(event);
 }
 
 
