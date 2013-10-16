@@ -1,6 +1,6 @@
 #include "qqduckpixmapitem.h"
 
-#include "qutetools.h"
+#include "core/qutetools.h"
 
 #include <qmath.h>
 

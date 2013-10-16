@@ -5,7 +5,7 @@
 #include "core/totozmanager/qqtmrequester.h"
 #include "ui/qqtotozviewer.h"
 
-#include "qutetools.h"
+#include "core/qutetools.h"
 
 #include <QtDebug>
 #include <QCursor>
