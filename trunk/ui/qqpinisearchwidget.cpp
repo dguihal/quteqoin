@@ -1,7 +1,7 @@
 #include "qqpinisearchwidget.h"
 #include "ui_qqpinisearchwidget.h"
 
-#include "qutetools.h"
+#include "core/qutetools.h"
 
 #include <QCommonStyle>
 #include <QFocusEvent>

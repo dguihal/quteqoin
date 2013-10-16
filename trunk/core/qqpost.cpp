@@ -114,9 +114,9 @@ QString QQPost::norlogeFormatee() const
 {
 	QString tmp("");
 	tmp.append("[")
-			.append(norloge().mid(8,2)).append(":")
-			.append(norloge().mid(10,2)).append(":")
-			.append(norloge().mid(12,2)).append("]");
+			.append(m_norloge.mid(8,2)).append(":")
+			.append(m_norloge.mid(10,2)).append(":")
+			.append(m_norloge.mid(12,2)).append("]");
 	return tmp;
 }
 
@@ -153,12 +153,12 @@ void QQPost::reset()
 	m_isSelfPost = Unknown;
 }
 
-bool postComp(QQPost *left, QQPost *right)
-{
-	return (* left) < (* right);
-}
-
 //////////////////////////////////////////////////////////////////////////
 ////////////        Fonctions private        /////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 
+
+bool postComp(QQPost *left, QQPost *right)
+{
+	return (* left) < (* right);
+}
