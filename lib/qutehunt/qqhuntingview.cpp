@@ -15,8 +15,7 @@ QQHuntingView::QQHuntingView(QWidget *parent) :
 	QGraphicsView(parent)
 {
 	setRenderHint(QPainter::Antialiasing);
-	setPalette(Qt::transparent);
-	setStyleSheet("background: transparent");
+	setStyleSheet("background: transparent; border: transparent;");
 	setAttribute(Qt::WA_TransparentForMouseEvents);
 
 	QGraphicsScene *scene = new QGraphicsScene();

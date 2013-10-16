@@ -37,7 +37,6 @@ QQDuckPixmapItem::QQDuckPixmapItem(QString srcBouchot, QString postId, QObject *
 
 QQDuckPixmapItem::~QQDuckPixmapItem()
 {
-	qDebug() << "delete";
 }
 
 #define SPEED_FACTOR 200
@@ -55,17 +54,17 @@ void QQDuckPixmapItem::animate()
 
 	//Recuperation des bornes
 	QRectF sceneRect = scene()->sceneRect();
-	qreal maxX = sceneRect.width() - boundingRect().width();
-	qreal maxY = sceneRect.height() - boundingRect().height();
+	float maxX = sceneRect.width() - boundingRect().width();
+	float maxY = sceneRect.height() - boundingRect().height();
 
 	//Et du point initial
 	QPointF curPos = pos();
 
 	//Calcul du nouveau vecteur vitesse
-	qreal angle = (((qreal) qrand()) / INT_MAX) * M_PI_2;
+	float angle = (((float) qrand()) / INT_MAX) * M_PI_2;
 	angle -= M_PI_4;
 
-	QMatrix2x2 rotMatrix;
+	QQMatrix2x2 rotMatrix;
 	rotMatrix(0, 0) = qCos(angle);
 	rotMatrix(0, 1) = qSin(angle);
 	rotMatrix(1, 0) = 0.0 - rotMatrix(0,1);
@@ -80,7 +79,7 @@ void QQDuckPixmapItem::animate()
 		pAnimation->setStartValue(curPos);
 		connect(pAnimation, SIGNAL(finished()), this, SLOT(loadNextPixMap()));
 
-		qreal angle = qAcos(m_speedVec(X_VALUE)); // 0 <= angle <= Pi
+		float angle = qAcos(m_speedVec(X_VALUE)); // 0 <= angle <= Pi
 		QQPixmapProp pixmapProp;
 		if((0 <= angle) && (angle < M_PI_6))
 			pixmapProp.m_pixmapName = "duck_hor/duck_hor_%1.png";
@@ -110,18 +109,18 @@ void QQDuckPixmapItem::animate()
 		}
 		m_listPixmapProp.append(pixmapProp);
 
-		QQMatrix1x2 resSpeedVec = m_speedVec * ((qreal) SPEED_FACTOR)
-											 * (timeMs / (qreal) (MAX_DURATION - MIN_DURATION));
-		qreal destPosX = curPos.x() + resSpeedVec(X_VALUE);
-		qreal destPosY = curPos.y() + resSpeedVec(Y_VALUE);
+		QQMatrix1x2 resSpeedVec = m_speedVec * ((float) SPEED_FACTOR)
+											 * (timeMs / (float) (MAX_DURATION - MIN_DURATION));
+		float destPosX = curPos.x() + resSpeedVec(X_VALUE);
+		float destPosY = curPos.y() + resSpeedVec(Y_VALUE);
 
-		qreal xFactor = 1;
+		float xFactor = 1;
 		if(destPosX < 0)
 			xFactor = (0.0 - curPos.x() / (destPosX - curPos.x()));
 		else if(destPosX > maxX)
 			xFactor = (maxX - curPos.x()) / (destPosX - curPos.x());
 
-		qreal yFactor = 1;
+		float yFactor = 1;
 		if(destPosY < 0)
 			yFactor = (0.0 - curPos.y() / (destPosY - curPos.y()));
 		else if(destPosY > maxY)
@@ -131,7 +130,7 @@ void QQDuckPixmapItem::animate()
 		//Collision de bord detectee
 		if(xFactor < 1 || yFactor < 1)
 		{
-			qreal realtime;
+			float realtime = 0;
 			if(xFactor <= yFactor) // on touche gauche/droite avant haut/bas
 			{
 				realtime = timeMs * xFactor;
@@ -177,7 +176,7 @@ void QQDuckPixmapItem::animateKill()
 	m_animPixmapTimer.stop();
 
 	QPointF curPos = pos();
-	qreal maxY = scene()->sceneRect().height() - boundingRect().height();
+	float maxY = scene()->sceneRect().height() - boundingRect().height();
 
 	QPropertyAnimation *pAnimation = new QPropertyAnimation(this, "pos");
 	pAnimation->setStartValue(curPos);
