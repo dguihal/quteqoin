@@ -29,8 +29,6 @@ void purgeCache()
 
 int main(int argc, char *argv[])
 {
-	Q_INIT_RESOURCE(animations);
-
 	QApplication a(argc, argv);
 	a.setOrganizationName("Moules Corp");
 	a.setApplicationName("quteqoin");
