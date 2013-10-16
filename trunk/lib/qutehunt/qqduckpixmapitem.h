@@ -7,7 +7,8 @@
 #include <QTimer>
 #include <QVector>
 
-typedef QGenericMatrix<1, 2, qreal> QQMatrix1x2;
+typedef QGenericMatrix<1, 2, float> QQMatrix1x2;
+typedef QGenericMatrix<2, 2, float> QQMatrix2x2;
 
 class QQDuckPixmapItem : public QObject, public QGraphicsPixmapItem
 {
@@ -37,7 +38,7 @@ private:
 	public:
 		explicit QQPixmapProp() : m_pixmapName() { m_rotationAngle = 0.0, m_mirrorX = false, m_mirrorY = false; }
 		QString m_pixmapName;
-		qreal m_rotationAngle;
+		double m_rotationAngle;
 		bool m_mirrorX;
 		bool m_mirrorY;
 	};
