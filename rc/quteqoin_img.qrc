@@ -13,5 +13,6 @@
         <file>palmi-clear.png</file>
         <file>settings-icon.png</file>
         <file>delete-icon.png</file>
+        <file>hunt-icon.png</file>
     </qresource>
 </RCC>
