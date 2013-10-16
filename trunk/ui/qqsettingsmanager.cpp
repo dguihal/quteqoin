@@ -16,6 +16,8 @@
 #define ITEM_BOARDS_TYPE (QListWidgetItem::UserType + 2)
 #define ITEM_PALMI_TYPE (QListWidgetItem::UserType + 3)
 #define ITEM_FILTER_TYPE (QListWidgetItem::UserType + 4)
+#define ITEM_HUNT_TYPE (QListWidgetItem::UserType + 5)
+
 
 QQSettingsManager::QQSettingsManager(QWidget *parent) :
 	QDialog(parent),
@@ -75,6 +77,15 @@ QQSettingsManager::QQSettingsManager(QWidget *parent) :
 	m_filterSettingsW->hide();
 	layout->addWidget(m_filterSettingsW);
 
+	listSettingsTheme->addItem(
+				new QListWidgetItem(QIcon(":/img/hunt-icon.png"), tr("Hunt"),
+									listSettingsTheme, ITEM_HUNT_TYPE)
+				);
+	//m_huntSettingsW = new QQHuntSettings(this);
+	inithuntSettings();
+	//m_huntSettingsW->hide();
+	//layout->addWidget(m_huntSettingsW);
+
 	listSettingsTheme->setMaximumWidth(listSettingsTheme->sizeHintForColumn(0) + 15);
 	connect(listSettingsTheme, SIGNAL(itemSelectionChanged()),
 			this, SLOT(configItemChanged()));
@@ -93,6 +104,7 @@ void QQSettingsManager::accept()
 	saveBoardsSettings();
 	saveFilterSettings();
 	saveGeneralSettings();
+	saveHuntSettings();
 	saveTotozSettings();
 	savePalmiSettings();
 
@@ -109,10 +121,11 @@ void QQSettingsManager::configItemChanged()
 	ui->settingsThemeLabel->setText(item->text());
 
 	m_generalSettingsW->hide();
-	m_filterSettingsW->hide();
 	m_totozSettingsW->hide();
 	m_boardsSettingsW->hide();
 	m_palmiSettingsW->hide();
+	m_filterSettingsW->hide();
+	//m_huntSettingsW->hide();
 	switch(item->type())
 	{
 	case ITEM_GENERAL_TYPE:
@@ -129,6 +142,9 @@ void QQSettingsManager::configItemChanged()
 		break;
 	case ITEM_FILTER_TYPE:
 		m_filterSettingsW->show();
+		break;
+	case ITEM_HUNT_TYPE:
+	//	m_huntSettingsW->show();
 		break;
 	default:
 		qWarning() << "Unknown type : " << item->type() << ", ignoring";
@@ -257,6 +273,16 @@ void QQSettingsManager::saveGeneralSettings()
 
 	QString hColor = m_generalSettingsW->highlightColor();
 	settings.setValueWithDefault(SETTINGS_GENERAL_HIGHLIGHT_COLOR, hColor, DEFAULT_GENERAL_HIGHLIGHT_COLOR);
+}
+
+void QQSettingsManager::initHuntSettings()
+{
+	//TODO
+}
+
+void QQSettingsManager::saveHuntSettings()
+{
+	//TODO
 }
 
 void QQSettingsManager::initPalmiSettings()

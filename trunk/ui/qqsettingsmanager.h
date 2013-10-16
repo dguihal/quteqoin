@@ -45,6 +45,8 @@ private:
 	void saveFilterSettings();
 	void initGeneralSettings();
 	void saveGeneralSettings();
+	void initHuntSettings();
+	void saveHuntSettings();
 	void initPalmiSettings();
 	void savePalmiSettings();
 	void initTotozSettings();
@@ -55,6 +57,7 @@ private:
 	QQBoardsSettings *m_boardsSettingsW;
 	QQFilterSettings *m_filterSettingsW;
 	QQGeneralSettings *m_generalSettingsW;
+	//QQHuntSettings *m_huntSettingsW;
 	QQPalmiSettings *m_palmiSettingsW;
 	QQTotozSettings *m_totozSettingsW;
 
