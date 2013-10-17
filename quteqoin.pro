@@ -53,7 +53,8 @@ SOURCES += main.cpp\
 	core/qqsimplepostdisplayfilter.cpp \
 	ui/qqhuntingview.cpp \
 	ui/qqduckpixmapitem.cpp \
-	core/qutetools.cpp
+	core/qutetools.cpp \
+	core/qqhuntpixmapitem.cpp
 
 HEADERS  += mainwindow.h \
 	core/qqsettings.h \
@@ -96,7 +97,8 @@ HEADERS  += mainwindow.h \
 	core/qqsimplepostdisplayfilter.h \
 	ui/qqhuntingview.h \
 	ui/qqduckpixmapitem.h \
-	core/qutetools.h
+	core/qutetools.h \
+	core/qqhuntpixmapitem.h
 
 FORMS += mainwindow.ui \
 	ui/qqpalmipede.ui \

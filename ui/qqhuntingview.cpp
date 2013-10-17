@@ -48,7 +48,7 @@ void QQHuntingView::resizeEvent(QResizeEvent *event)
 }
 
 //////////////////////////////////////////////////////////////
-/// \brief QQHuntingView::launch
+/// \brief QQHuntingView::launchDuck
 /// \param srcBouchot
 /// \param postId
 ///
