@@ -18,6 +18,10 @@ public:
 	explicit QQDuckPixmapItem(QString srcBouchot, QString postId, QObject *parent = 0);
 	~QQDuckPixmapItem();
 
+
+	QString bouchotName() const { return m_srcBouchot; }
+	QString postId() const { return m_postId; }
+
 signals:
 
 public slots:

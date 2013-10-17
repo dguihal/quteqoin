@@ -1,7 +1,7 @@
 #ifndef QQHUNTINGVIEW_H
 #define QQHUNTINGVIEW_H
 
-#include "core/qqduck.h"
+#include "ui/qqduckpixmapitem.h"
 
 #include <QGraphicsView>
 #include <QObject>
@@ -17,7 +17,7 @@ signals:
 	void duckKilled(QString srcBouchot, QString postId);
 
 public slots:
-	void launch(QString srcBouchot, QString postId);
+	void launchDuck(QString srcBouchot, QString postId);
 	void killDuck();
 
 protected:
@@ -25,7 +25,7 @@ protected:
 
 private:
 
-	QList<QQDuck *> m_duckList;
+	QList<QQDuckPixmapItem *> m_duckList;
 };
 
 #endif // QQHUNTINGVIEW_H
