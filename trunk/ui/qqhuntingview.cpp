@@ -1,6 +1,6 @@
 #include "qqhuntingview.h"
 
-#include "qqduckpixmapitem.h"
+#include "core/qqduckpixmapitem.h"
 
 #include <QtDebug>
 #include <QCursor>

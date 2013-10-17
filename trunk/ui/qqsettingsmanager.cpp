@@ -82,7 +82,7 @@ QQSettingsManager::QQSettingsManager(QWidget *parent) :
 									listSettingsTheme, ITEM_HUNT_TYPE)
 				);
 	//m_huntSettingsW = new QQHuntSettings(this);
-	inithuntSettings();
+	initHuntSettings();
 	//m_huntSettingsW->hide();
 	//layout->addWidget(m_huntSettingsW);
 
