@@ -1,7 +1,5 @@
 #include "qqhuntingview.h"
 
-#include "core/qqduckpixmapitem.h"
-
 #include <QtDebug>
 #include <QCursor>
 #include <QPropertyAnimation>
@@ -30,9 +28,6 @@ QQHuntingView::QQHuntingView(QWidget *parent) :
 ///
 QQHuntingView::~QQHuntingView()
 {
-	foreach (QQDuck *duck, m_duckList) {
-		delete duck;
-	}
 	m_duckList.clear();
 
 	QGraphicsScene *currScene = scene();
@@ -57,19 +52,17 @@ void QQHuntingView::resizeEvent(QResizeEvent *event)
 /// \param srcBouchot
 /// \param postId
 ///
-void QQHuntingView::launch(QString srcBouchot, QString postId)
+void QQHuntingView::launchDuck(QString srcBouchot, QString postId)
 {
 	qDebug() << srcBouchot << postId;
-	QQDuck *duck = new QQDuck(srcBouchot, postId, this);
 
-	QQDuckPixmapItem *item = new QQDuckPixmapItem(srcBouchot, postId);
-	item->setPos(mapFromGlobal(QCursor::pos()));
-	scene()->addItem(item);
+	QQDuckPixmapItem *duck = new QQDuckPixmapItem(srcBouchot, postId);
+	duck->setPos(mapFromGlobal(QCursor::pos()));
+	scene()->addItem(duck);
 
-	duck->setPixmapItem(item);
 	m_duckList << duck;
 
-	duck->launch();
+	duck->animate();
 }
 
 void QQHuntingView::killDuck()
@@ -77,17 +70,16 @@ void QQHuntingView::killDuck()
 	QPoint shotPoint = mapFromGlobal(QCursor::pos());
 	QPointF shotPointF(shotPoint);
 
-	foreach(QQDuck *duck, m_duckList)
+	foreach(QQDuckPixmapItem *duck, m_duckList)
 	{
-		QQDuckPixmapItem *pixmapItem = duck->pixmapItem();
-		QPointF itemPos = pixmapItem->pos();
-		QRectF itemRect = pixmapItem->boundingRect();
+		QPointF itemPos = duck->pos();
+		QRectF itemRect = duck->boundingRect();
 		if(shotPointF.x() >= itemPos.x() && shotPointF.x() <= (itemPos.x() + itemRect.width()) &&
 		   shotPointF.y() >= itemPos.y() && shotPointF.y() <= (itemPos.y() + itemRect.height()))
 		{
-			emit duckKilled(duck->tribuneName(), duck->postId());
+			emit duckKilled(duck->bouchotName(), duck->postId());
 			m_duckList.removeOne(duck);
-			duck->kill();
+			duck->animateKill();
 			break;
 		}
 	}
