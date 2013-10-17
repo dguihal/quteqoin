@@ -15,7 +15,7 @@
         <file>duck_diag_3.png</file>
     </qresource>
     <qresource prefix="/anims/duck_kill">
-        <file>duck_kill_1.png</file>
-        <file>duck_kill_2.png</file>
+        <file>duck_kill.png</file>
+        <file>duck_fall.png</file>
     </qresource>
 </RCC>
