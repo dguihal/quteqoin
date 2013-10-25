@@ -10,6 +10,7 @@
 class QQBoardsSettings;
 class QQFilterSettings;
 class QQGeneralSettings;
+class QQHuntSettings;
 class QQPalmiSettings;
 class QQTotozSettings;
 
@@ -57,7 +58,7 @@ private:
 	QQBoardsSettings *m_boardsSettingsW;
 	QQFilterSettings *m_filterSettingsW;
 	QQGeneralSettings *m_generalSettingsW;
-	//QQHuntSettings *m_huntSettingsW;
+	QQHuntSettings *m_huntSettingsW;
 	QQPalmiSettings *m_palmiSettingsW;
 	QQTotozSettings *m_totozSettingsW;
 

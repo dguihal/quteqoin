@@ -54,7 +54,8 @@ SOURCES += main.cpp\
 	ui/qqhuntingview.cpp \
 	ui/qqduckpixmapitem.cpp \
 	core/qutetools.cpp \
-	core/qqhuntpixmapitem.cpp
+	core/qqhuntpixmapitem.cpp \
+	ui/settingsmanager/qqhuntsettings.cpp
 
 HEADERS  += mainwindow.h \
 	core/qqsettings.h \
@@ -98,7 +99,8 @@ HEADERS  += mainwindow.h \
 	ui/qqhuntingview.h \
 	ui/qqduckpixmapitem.h \
 	core/qutetools.h \
-	core/qqhuntpixmapitem.h
+	core/qqhuntpixmapitem.h \
+	ui/settingsmanager/qqhuntsettings.h
 
 FORMS += mainwindow.ui \
 	ui/qqpalmipede.ui \
@@ -111,7 +113,8 @@ FORMS += mainwindow.ui \
 	ui/settingsmanager/qqpalmisettings.ui \
 	ui/settingsmanager/qqtotozsettings.ui \
 	ui/settingsmanager/qqfiltersettings.ui \
-	ui/qqpinisearchwidget.ui
+	ui/qqpinisearchwidget.ui \
+	ui/settingsmanager/qqhuntsettings.ui
 
 OTHER_FILES +=
 
