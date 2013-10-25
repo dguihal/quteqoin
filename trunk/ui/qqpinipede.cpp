@@ -40,6 +40,7 @@ QQPinipede::QQPinipede(QWidget * parent) :
 {
 	m_totozManager = NULL;
 	m_huntingView = NULL;
+	m_duckAutolaunchEnabled = false;
 
 	m_totozDownloader = new QQTotozDownloader(this);
 
@@ -843,6 +844,10 @@ void QQPinipede::newPostsAvailable(QString groupName)
 	}
 
 	QQSettings settings;
+	//On ne peut pas vérifier la valeur dans le "printPostAtCursor", trop couteux, du coup on la met a jour ici
+	m_duckAutolaunchEnabled =
+			(((QuteQoin::QQHuntMode) settings.value(SETTINGS_HUNT_MODE, DEFAULT_HUNT_MODE).toInt()) == QuteQoin::Auto);
+
 	int maxHistorySize = settings.value(SETTINGS_GENERAL_MAX_HISTLEN, DEFAULT_GENERAL_MAX_HISTLEN).toInt();
 	//Il ne sert a rien d'insérer plus que de posts que le max de l'historique
 	while(newPosts.size() > maxHistorySize)
@@ -1091,6 +1096,10 @@ bool QQPinipede::printPostAtCursor(QTextCursor &cursor, QQPost *post)
 #endif
 	data->setZRange(QQMessageBlockUserData::MESSAGE, rangeMsg);
 	block.setUserData(data);
+
+	//Duck autolaunch
+	if(m_duckAutolaunchEnabled && data->duckIndexes().size() > 0)
+		m_huntingView->launchDuck(post->bouchot()->name(), post->id());
 
 	return true;
 }
