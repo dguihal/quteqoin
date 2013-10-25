@@ -85,7 +85,7 @@ void QQPostParser::colorizeBigorno(QTextDocument &doc, QQPost *post, QQMessageBl
 		bigorno.append(id).append("|");
 	bigorno.append("moules)<");
 
-	QRegExp m_bigornoReg = QRegExp(bigorno,
+	QRegExp bigornoReg = QRegExp(bigorno,
 								   Qt::CaseInsensitive,
 								   QRegExp::RegExp);
 
@@ -93,7 +93,7 @@ void QQPostParser::colorizeBigorno(QTextDocument &doc, QQPost *post, QQMessageBl
 	QTextCharFormat fmt = cursor.blockCharFormat();
 	fmt.setForeground(QColor(Qt::red));
 
-	while(! (cursor = doc.find(m_bigornoReg, cursor)).isNull())
+	while(! (cursor = doc.find(bigornoReg, cursor)).isNull())
 	{
 		QQBigornoItem bigItem(m_indexShit + cursor.selectionStart(), cursor.selectedText());
 		userData->addBigornoZone(bigItem);
@@ -150,7 +150,7 @@ void QQPostParser::colorizeDuck(QTextDocument &doc, QQMessageBlockUserData *user
 ///
 void QQPostParser::colorizeNRef(QTextDocument &doc, QQPost *post, QQMessageBlockUserData *userData)
 {
-	QRegExp m_norlogeReg = QQNorlogeRef::norlogeRegexp();
+	QRegExp norlogeReg = QQNorlogeRef::norlogeRegexp();
 
 	QTextCursor cursor(&doc);
 	QTextCharFormat repFmt = cursor.blockCharFormat();
@@ -160,7 +160,7 @@ void QQPostParser::colorizeNRef(QTextDocument &doc, QQPost *post, QQMessageBlock
 	QTextCharFormat fmt = cursor.blockCharFormat();
 	fmt.setForeground(QColor(NORLOGE_COLOR));
 
-	while(! (cursor = doc.find(m_norlogeReg, cursor)).isNull())
+	while(! (cursor = doc.find(norlogeReg, cursor)).isNull())
 	{
 		QQNorlogeRef nRef = QQNorlogeRef(post->bouchot()->name(),
 										 post->norloge(),
@@ -179,7 +179,7 @@ void QQPostParser::colorizeNRef(QTextDocument &doc, QQPost *post, QQMessageBlock
 ///
 void QQPostParser::linkNorlogeRef(QQNorlogeRef *nRef)
 {
-	QQBouchot * bouchot = QQBouchot::bouchot(nRef->dstBouchot());
+	QQBouchot *bouchot = QQBouchot::bouchot(nRef->dstBouchot());
 	if(bouchot == NULL)
 		return;
 
@@ -208,7 +208,7 @@ void QQPostParser::linkNorlogeRef(QQNorlogeRef *nRef)
 ///
 void QQPostParser::colorizeTableVolante(QTextDocument &doc, QQMessageBlockUserData *userData)
 {
-	QRegExp m_tvReg = QRegExp(QString::fromLatin1("(?:flap ?flap)|(?:table[ _]volante)"),
+	QRegExp tvReg = QRegExp(QString::fromLatin1("(?:flap ?flap)|(?:table[ _]volante)"),
 							  Qt::CaseSensitive,
 							  QRegExp::RegExp);
 
@@ -216,13 +216,14 @@ void QQPostParser::colorizeTableVolante(QTextDocument &doc, QQMessageBlockUserDa
 	QTextCharFormat fmt = cursor.blockCharFormat();
 	fmt.setForeground(QColor(DUCK_COLOR));
 
-	while(! (cursor = doc.find(m_tvReg, cursor)).isNull())
+	while(! (cursor = doc.find(tvReg, cursor)).isNull())
 	{
 		userData->addTableVZone(m_indexShit + cursor.selectionStart(), cursor.selectedText());
 		cursor.mergeCharFormat(fmt);
 	}
 }
 
+#define MAX_TOTOZ_PREFETCH_POST 3
 //////////////////////////////////////////////////////////////
 /// \brief QQPostParser::colorizeTotoz
 /// \param doc
@@ -231,22 +232,29 @@ void QQPostParser::colorizeTableVolante(QTextDocument &doc, QQMessageBlockUserDa
 ///
 void QQPostParser::colorizeTotoz(QTextDocument &doc, QQMessageBlockUserData *userData)
 {
-	QRegExp m_totozReg = QRegExp(QString::fromLatin1("(\\[\\:[^\\t\\)\\]]+\\])"), //[:[^\t\)\]]
+	QRegExp totozReg = QRegExp(QString::fromLatin1("(\\[\\:[^\\t\\)\\]]+\\])"), //[:[^\t\)\]]
 								 Qt::CaseSensitive,
 								 QRegExp::RegExp);
+
+	QStringList requestedTotoz;
 
 	QTextCursor cursor(&doc);
 	QTextCharFormat fmt = cursor.blockCharFormat();
 	fmt.setForeground(QColor(TOTOZ_COLOR));
 	fmt.setFontWeight(QFont::Bold);
 
-	while(! (cursor = doc.find(m_totozReg, cursor)).isNull())
+	while(! (cursor = doc.find(totozReg, cursor)).isNull())
 	{
 		QString totozId = cursor.selectedText();
 		userData->addTotozZone(m_indexShit + cursor.selectionStart(), totozId);
 
 		QString totozName = totozId.mid(2, totozId.length() - 3);
-		emit totozRequired(totozName);
+		//Antiflood : Maximum 3 requetes et sur des totoz différents
+		if(!requestedTotoz.contains(totozName) && requestedTotoz.size() <= MAX_TOTOZ_PREFETCH_POST)
+		{
+			emit totozRequired(totozName);
+			requestedTotoz.insert(totozName);
+		}
 
 		cursor.mergeCharFormat(fmt);
 	}
