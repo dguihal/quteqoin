@@ -104,11 +104,7 @@ private:
 	QMutex newPostsAvailableMutex;
 
 	QQHuntingView *m_huntingView;
-
-	int norlogeMatchLength;
-	int duckMatchLength;
-	int totozMatchLength;
-
+	bool m_duckAutolaunchEnabled;
 };
 
 #endif // QQPINIPEDE_H
