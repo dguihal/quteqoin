@@ -87,4 +87,13 @@
 #define SETTINGS_FILTER_SMART_URL_TRANSFORM_TYPE "filter_smart_url_transform_type"
 #define DEFAULT_FILTER_SMART_URL_TRANSFORM_TYPE QuteQoin::Shorter
 
+// HUNT
+#define SETTINGS_HUNT_MODE "hunt_mode"
+#define DEFAULT_HUNT_MODE QuteQoin::Manual
+
+#define SETTINGS_HUNT_SILENT_ENABLED "hunt_silent_enabled"
+#define DEFAULT_HUNT_SILENT_ENABLED false
+
+#define SETTINGS_HUNT_MAX_ITEMS "hunt_max_items"
+#define DEFAULT_HUNT_MAX_ITEMS 5
 #endif // QQSETTINGSPARAMS_H

@@ -1,5 +1,7 @@
 #include "qqhuntingview.h"
 
+#include "core/qqsettings.h"
+
 #include <QtDebug>
 #include <QCursor>
 #include <QPropertyAnimation>
@@ -54,7 +56,11 @@ void QQHuntingView::resizeEvent(QResizeEvent *event)
 ///
 void QQHuntingView::launchDuck(QString srcBouchot, QString postId)
 {
-	qDebug() << srcBouchot << postId;
+	QQSettings settings;
+
+	if(settings.value(SETTINGS_HUNT_MODE, DEFAULT_HUNT_MODE).toInt() == QuteQoin::Disabled ||
+	   settings.value(SETTINGS_HUNT_MAX_ITEMS, DEFAULT_HUNT_MAX_ITEMS).toInt() <= m_duckList.size())
+		return;
 
 	QQDuckPixmapItem *duck = new QQDuckPixmapItem(srcBouchot, postId);
 	duck->setPos(mapFromGlobal(QCursor::pos()));
@@ -77,7 +83,10 @@ void QQHuntingView::killDuck()
 		if(shotPointF.x() >= itemPos.x() && shotPointF.x() <= (itemPos.x() + itemRect.width()) &&
 		   shotPointF.y() >= itemPos.y() && shotPointF.y() <= (itemPos.y() + itemRect.height()))
 		{
-			emit duckKilled(duck->bouchotName(), duck->postId());
+			QQSettings settings;
+			if(! settings.value(SETTINGS_HUNT_SILENT_ENABLED, DEFAULT_HUNT_SILENT_ENABLED).toBool())
+				emit duckKilled(duck->bouchotName(), duck->postId());
+
 			m_duckList.removeOne(duck);
 			duck->animateKill();
 			break;

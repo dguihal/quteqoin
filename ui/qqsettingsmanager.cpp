@@ -6,6 +6,7 @@
 #include "ui/settingsmanager/qqboardssettings.h"
 #include "ui/settingsmanager/qqfiltersettings.h"
 #include "ui/settingsmanager/qqgeneralsettings.h"
+#include "ui/settingsmanager/qqhuntsettings.h"
 #include "ui/settingsmanager/qqpalmisettings.h"
 #include "ui/settingsmanager/qqtotozsettings.h"
 
@@ -81,10 +82,10 @@ QQSettingsManager::QQSettingsManager(QWidget *parent) :
 				new QListWidgetItem(QIcon(":/img/hunt-icon.png"), tr("Hunt"),
 									listSettingsTheme, ITEM_HUNT_TYPE)
 				);
-	//m_huntSettingsW = new QQHuntSettings(this);
+	m_huntSettingsW = new QQHuntSettings(this);
 	initHuntSettings();
-	//m_huntSettingsW->hide();
-	//layout->addWidget(m_huntSettingsW);
+	m_huntSettingsW->hide();
+	layout->addWidget(m_huntSettingsW);
 
 	listSettingsTheme->setMaximumWidth(listSettingsTheme->sizeHintForColumn(0) + 15);
 	connect(listSettingsTheme, SIGNAL(itemSelectionChanged()),
@@ -125,7 +126,7 @@ void QQSettingsManager::configItemChanged()
 	m_boardsSettingsW->hide();
 	m_palmiSettingsW->hide();
 	m_filterSettingsW->hide();
-	//m_huntSettingsW->hide();
+	m_huntSettingsW->hide();
 	switch(item->type())
 	{
 	case ITEM_GENERAL_TYPE:
@@ -144,7 +145,7 @@ void QQSettingsManager::configItemChanged()
 		m_filterSettingsW->show();
 		break;
 	case ITEM_HUNT_TYPE:
-	//	m_huntSettingsW->show();
+		m_huntSettingsW->show();
 		break;
 	default:
 		qWarning() << "Unknown type : " << item->type() << ", ignoring";
@@ -277,12 +278,30 @@ void QQSettingsManager::saveGeneralSettings()
 
 void QQSettingsManager::initHuntSettings()
 {
-	//TODO
+	QQSettings settings;
+
+	QuteQoin::QQHuntMode huntMode = (QuteQoin::QQHuntMode) settings.value(SETTINGS_HUNT_MODE, DEFAULT_HUNT_MODE).toInt();
+	m_huntSettingsW->sethuntMode(huntMode);
+
+	bool silentHuntEnable = settings.value(SETTINGS_HUNT_SILENT_ENABLED, DEFAULT_HUNT_SILENT_ENABLED).toBool();
+	m_huntSettingsW->setSilentHunt(silentHuntEnable);
+
+	int maxHuntableItems = settings.value(SETTINGS_HUNT_MAX_ITEMS, DEFAULT_HUNT_MAX_ITEMS).toInt();
+	m_huntSettingsW->setMaxHuntableItems(maxHuntableItems);
 }
 
 void QQSettingsManager::saveHuntSettings()
 {
-	//TODO
+	QQSettings settings;
+
+	QuteQoin::QQHuntMode huntMode = m_huntSettingsW->huntMode();
+	settings.setValueWithDefault(SETTINGS_HUNT_MODE, huntMode, DEFAULT_HUNT_MODE);
+
+	bool silentHuntEnable = m_huntSettingsW->silentHuntEnabled();
+	settings.setValueWithDefault(SETTINGS_HUNT_SILENT_ENABLED, silentHuntEnable, DEFAULT_HUNT_SILENT_ENABLED);
+
+	int maxHuntableItems = m_huntSettingsW->maxHuntableItems();
+	settings.setValueWithDefault(SETTINGS_HUNT_MAX_ITEMS, maxHuntableItems, DEFAULT_HUNT_MAX_ITEMS);
 }
 
 void QQSettingsManager::initPalmiSettings()
