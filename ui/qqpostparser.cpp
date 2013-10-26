@@ -253,7 +253,7 @@ void QQPostParser::colorizeTotoz(QTextDocument &doc, QQMessageBlockUserData *use
 		if(!requestedTotoz.contains(totozName) && requestedTotoz.size() <= MAX_TOTOZ_PREFETCH_POST)
 		{
 			emit totozRequired(totozName);
-			requestedTotoz.insert(totozName);
+			requestedTotoz.append(totozName);
 		}
 
 		cursor.mergeCharFormat(fmt);
