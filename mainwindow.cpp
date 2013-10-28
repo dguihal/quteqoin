@@ -58,6 +58,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	// Setup du pini
 	QWidget *centralWidget = new QWidget(this);
 	QLayout *layout = new QVBoxLayout();
+	layout->setContentsMargins(1, 1, 1, 1);
 
 	m_pini = new QQPinipede(this);
 	m_pini->setToolButton(toolButton);
