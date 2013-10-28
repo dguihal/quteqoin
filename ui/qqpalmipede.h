@@ -41,9 +41,8 @@ protected:
 private:
 	void changeNorloges(const QString & bouchot);
 
-	Ui::QQPalmipede *ui;
-	QShortcut *blamShortcut;
-	QShortcut *pafShortcut;
+	Ui::QQPalmipede *m_ui;
+
 	QString m_oldBouchot;
 
 	bool m_minimal;
