@@ -8,12 +8,7 @@ class QQPurgeBouchotHistoEvent : public QEvent
 {
 public:
 	static const QEvent::Type PURGE_BOUCHOT_HISTO;
-	QQPurgeBouchotHistoEvent(QEvent::Type type, QString maxId);
-
-	QString maxId() { return m_maxId; }
-
-private :
-	QString m_maxId;
+	QQPurgeBouchotHistoEvent();
 };
 
 #endif // QQPURGEBOUCHOTHISTOEVENT_H

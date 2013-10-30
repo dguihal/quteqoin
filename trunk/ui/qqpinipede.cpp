@@ -172,7 +172,7 @@ void QQPinipede::repaintPiniTab(const QString &groupName)
 
 	clearPiniTab(groupName);
 
-	QList<QQPost *> *posts = m_listPostsTabMap.value(groupName);
+	QQListPostPtr *posts = m_listPostsTabMap.value(groupName);
 	cursor.beginEditBlock();
 	bool postwasPrinted = printPostAtCursor(cursor, posts->at(0));
 	for(int i = 1; i < posts->size(); i++)
@@ -201,7 +201,7 @@ void QQPinipede::purgePiniTab(const QString &groupName, const QString &bouchotNa
 void QQPinipede::purgePinitab(const QString &groupName, const QString &bouchotName, unsigned int max)
 {
 	QQTextBrowser *textBrowser = m_textBrowserHash.value(groupName);
-	QList<QQPost *> *destListPosts = m_listPostsTabMap[groupName];
+	QQListPostPtr *destListPosts = m_listPostsTabMap[groupName];
 
 	if(textBrowser == NULL)
 		return;
@@ -263,7 +263,7 @@ void QQPinipede::purgePinitab(const QString &groupName, const QString &bouchotNa
 void QQPinipede::purgePinitabHistory(const QString & groupName)
 {
 	QQTextBrowser *textBrowser = m_textBrowserHash.value(groupName);
-	QList<QQPost *> *destlistPosts = m_listPostsTabMap[groupName];
+	QQListPostPtr *destlistPosts = m_listPostsTabMap[groupName];
 
 	if(textBrowser == NULL || destlistPosts == NULL)
 		return;
@@ -283,27 +283,21 @@ void QQPinipede::purgePinitabHistory(const QString & groupName)
 	cursor.endEditBlock();
 
 	// Purge de l'historique interne
-	QHash<QString, QString> maxIdRemoved;
+	QStringList purgedBoards;
 	while(destlistPosts->size() > (int) maxHistorySize)
 	{
-		//On ne supprime pas, ils sont aussi stockés au niveau du bouchot
-		QQPost * post = destlistPosts->takeFirst();
-		maxIdRemoved.insert(post->bouchot()->name(), post->id());
+		QQPostPtr post = destlistPosts->takeFirst();
+		if(! purgedBoards.contains(post->bouchot()->name()))
+			purgedBoards.append(post->bouchot()->name());
+
+		delete post;
 	}
 
 	// Purge de l'historique interne des bouchots
-	QHashIterator<QString, QString> i(maxIdRemoved);
-	while(i.hasNext())
+	foreach(QString boardName, purgedBoards)
 	{
-		i.next();
-		QQBouchot * bouchot = QQBouchot::bouchot(i.key());
-		QApplication::postEvent(
-					bouchot,
-					new QQPurgeBouchotHistoEvent(
-						QQPurgeBouchotHistoEvent::PURGE_BOUCHOT_HISTO,
-						i.value()
-						)
-					);
+		QQBouchot * board = QQBouchot::bouchot(boardName);
+		QApplication::postEvent(board, new QQPurgeBouchotHistoEvent());
 	}
 }
 
@@ -710,7 +704,7 @@ QQPost * QQPinipede::getPostForGroup(QString &groupName, int numPost)
 {
 	if(m_listPostsTabMap.contains(groupName))
 	{
-		QList<QQPost *> *listPosts = m_listPostsTabMap[groupName];
+		QQListPostPtr *listPosts = m_listPostsTabMap[groupName];
 		if(listPosts->size() > numPost)
 			return listPosts->at(numPost);
 	}
@@ -788,7 +782,7 @@ bool QQPinipede::applyPostDisplayFilters(QQPost *post)
 /// \param indexStart
 /// \return
 ///
-unsigned int QQPinipede::insertPostToList(QList<QQPost *> *listPosts, QQPost *post, unsigned int indexStart)
+unsigned int QQPinipede::insertPostToList(QQListPostPtr *listPosts, QQPost *post, unsigned int indexStart)
 {
 	for(int i = indexStart; i < listPosts->size(); i++)
 	{
@@ -825,14 +819,14 @@ void QQPinipede::newPostsAvailable(QString groupName)
 	QQTextBrowser * textBrowser = m_textBrowserHash.value(groupName);
 	bool wasAtEnd = (textBrowser->verticalScrollBar()->sliderPosition() == textBrowser->verticalScrollBar()->maximum());
 
-	QList<QQPost *> newPosts;
+	QQListPostPtr newPosts;
 	foreach(QQBouchot *b, QQBouchot::listBouchotsGroup(groupName))
 	{
-		QList<QQPost *> newBouchotPosts = b->takeNewPosts();
-		if(newBouchotPosts.size() > 0)
+		QQListPostPtr newPostsBouchot = b->takeNewPosts();
+		if(newPostsBouchot.size() > 0)
 		{
 			qDebug() << "QQPinipede::newPostsAvailable, newPosts from :" << b->name();
-			newPosts.append(newBouchotPosts);
+			newPosts.append(newPostsBouchot);
 		}
 	}
 
@@ -865,13 +859,13 @@ void QQPinipede::newPostsAvailable(QString groupName)
 
 	bool postWasPrinted = true;
 	// Recuperation de l'historique des posts (ou creation si absent)
-	QList<QQPost *> *destlistPosts = NULL;
+	QQListPostPtr *destlistPosts = NULL;
 	if(! m_listPostsTabMap.contains(groupName))
 	{
 		// Cas du pini vide, il contient déjà un bloc vide, on
 		//  a juste a afficher le premier post;
 		QQPost * firstPost = newPosts.takeFirst();
-		destlistPosts = new QList<QQPost *>();
+		destlistPosts = new QQListPostPtr();
 		destlistPosts->append(firstPost);
 		m_listPostsTabMap.insert(groupName, destlistPosts);
 		postWasPrinted = printPostAtCursor(cursor, firstPost);

@@ -146,9 +146,9 @@ void QQBouchot::stopRefresh()
 	timer.stop();
 }
 
-QList<QQPost *> QQBouchot::takeNewPosts()
+QQListPostPtr QQBouchot::takeNewPosts()
 {
-	QList <QQPost *> list(m_newPostHistory);
+	QQListPostPtr list(m_newPostHistory);
 	m_newPostHistory.clear();
 	return list;
 }
@@ -158,7 +158,7 @@ void QQBouchot::setNewPostsFromHistory()
 	int index = m_history.length();
 	if(! m_newPostHistory.isEmpty())
 	{
-		QQPost * firstNew = m_newPostHistory.first();
+		QQPostPtr firstNew = m_newPostHistory.first();
 		index = m_history.indexOf(firstNew);
 	}
 	while (--index >= 0)
@@ -171,15 +171,14 @@ bool QQBouchot::event(QEvent *e)
 {
 	if(e->type() == QQPurgeBouchotHistoEvent::PURGE_BOUCHOT_HISTO)
 	{
-		QString maxId = ((QQPurgeBouchotHistoEvent *) e)->maxId();
-
-		// Il faut au moins garder le dernier post dans l'histo
-		while(m_history.size() > 1)
+		QMutableListIterator<QQPostPtr> i(m_history);
+		while (i.hasNext())
 		{
-			if(m_history.at(0)->id() == maxId)
+			QQPostPtr post = i.next();
+			if(post.isNull())
+				i.remove();
+			else
 				break;
-
-			delete m_history.takeAt(0);
 		}
 	}
 	else
