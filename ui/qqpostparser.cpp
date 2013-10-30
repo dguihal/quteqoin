@@ -183,7 +183,7 @@ void QQPostParser::linkNorlogeRef(QQNorlogeRef *nRef)
 	if(bouchot == NULL)
 		return;
 
-	QList<QQPost *> history = bouchot->getPostsHistory();
+	QQListPostPtr history = bouchot->getPostsHistory();
 
 	// Parcourir du plus recent au plus ancien devrait etre plus rapide car
 	// les reponse sont souvent proches du poste d'origine;

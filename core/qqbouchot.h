@@ -103,8 +103,8 @@ public:
 	void startRefresh();
 	void stopRefresh();
 
-	QList<QQPost *> takeNewPosts();
-	QList<QQPost *> getPostsHistory() {	return m_history; }
+	QQListPostPtr takeNewPosts();
+	QQListPostPtr getPostsHistory() { return m_history; }
 	void setNewPostsFromHistory();
 
 	void setPiniWidget(QWidget *widget) { m_piniWidget = widget; }
@@ -136,12 +136,12 @@ private:
 	void checkGroupModified(const QString &oldGroupName);
 	void askPiniUpdate();
 
-	QList<QQPost *> m_history;
+	QQListPostPtr m_history;
 	bool m_hasXPostId; //false = unknown
-	QList<QString> m_xPostIds;
+	QStringList m_xPostIds;
 	int m_lastId;
 	QString m_name;
-	QList<QQPost *> m_newPostHistory;
+	QQListPostPtr m_newPostHistory;
 	QQBouchotSettings m_bSettings;
 	QTimer timer;
 

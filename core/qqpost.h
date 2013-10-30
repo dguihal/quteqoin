@@ -18,15 +18,22 @@
 #ifndef QQPOST_H
 #define QQPOST_H
 
-
 #include <QObject>
+#include <QPointer>
+#include <QList>
 #include <QString>
 
 class QQBouchot;
+class QQPost;
+
+typedef QPointer<QQPost> QQPostPtr;
+typedef QList<QQPostPtr> QQListPostPtr;
+
 class QQPost : public QObject
 {
 Q_OBJECT
 public:
+
 	//////////////////////////////////////////////////////////////////////////
 	////////////            Constructeurs        /////////////////////////////
 	//////////////////////////////////////////////////////////////////////////

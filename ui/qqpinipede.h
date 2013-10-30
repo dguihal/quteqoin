@@ -83,7 +83,7 @@ protected:
 
 private:
 	bool applyPostDisplayFilters(QQPost *post);
-	unsigned int insertPostToList(QList<QQPost *> *listPosts, QQPost *post, unsigned int indexStart);
+	unsigned int insertPostToList(QQListPostPtr *listPosts, QQPost *post, unsigned int indexStart);
 	void newPostsAvailable(QString groupName);
 	bool printPostAtCursor(QTextCursor &cursor, QQPost *post);
 	QColor getDynHighlightColor(const QColor &bgColor);
@@ -95,7 +95,7 @@ private:
 	QBuffer m_totozData;
 	QString m_hiddenPostViewerLabelSSheet;
 
-	QHash<QString, QList<QQPost *> *> m_listPostsTabMap;
+	QHash<QString, QQListPostPtr *> m_listPostsTabMap;
 	QHash<QString, QQTextBrowser *> m_textBrowserHash;
 	QList<QQPostDisplayFilter *> m_listpostDisplayFilters;
 
