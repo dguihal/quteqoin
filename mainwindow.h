@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 
+class QQBoardsInfo;
 class QQBouchot;
 class QQPalmipede;
 class QQPinipede;
@@ -47,6 +48,7 @@ private:
 	void minimizePalmi(bool isPalmiMini);
 
 	Ui::MainWindow *m_ui;
+	QQBoardsInfo *m_boardsInfo;
 	QQPalmipede *m_palmi;
 	QQPinipede *m_pini;
 	QQPiniSearchWidget *m_pSearchW;

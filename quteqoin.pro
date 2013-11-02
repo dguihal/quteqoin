@@ -7,7 +7,9 @@
 QT += core gui network xml
 
 greaterThan(QT_MAJOR_VERSION, 4) {
-	QT += widgets
+	QT += widgets quick
+} else {
+	QT += declarative
 }
 
 TARGET = quteqoin
@@ -55,7 +57,10 @@ SOURCES += main.cpp\
 	ui/qqduckpixmapitem.cpp \
 	core/qutetools.cpp \
 	core/qqhuntpixmapitem.cpp \
-	ui/settingsmanager/qqhuntsettings.cpp
+	ui/settingsmanager/qqhuntsettings.cpp \
+	ui/qqboardsinfo.cpp \
+	ui/qqboardinfo.cpp \
+	core/qqmussel.cpp
 
 HEADERS  += mainwindow.h \
 	core/qqsettings.h \
@@ -100,7 +105,10 @@ HEADERS  += mainwindow.h \
 	ui/qqduckpixmapitem.h \
 	core/qutetools.h \
 	core/qqhuntpixmapitem.h \
-	ui/settingsmanager/qqhuntsettings.h
+	ui/settingsmanager/qqhuntsettings.h \
+	ui/qqboardsinfo.h \
+	ui/qqboardinfo.h \
+	core/qqmussel.h
 
 FORMS += mainwindow.ui \
 	ui/qqpalmipede.ui \
@@ -114,14 +122,16 @@ FORMS += mainwindow.ui \
 	ui/settingsmanager/qqtotozsettings.ui \
 	ui/settingsmanager/qqfiltersettings.ui \
 	ui/qqpinisearchwidget.ui \
-	ui/settingsmanager/qqhuntsettings.ui
+	ui/settingsmanager/qqhuntsettings.ui \
+	ui/qqboardsinfo.ui \
+	ui/qqboardinfo.ui
 
 OTHER_FILES +=
 
 RESOURCES += \
 	rc/quteqoin_img.qrc \
 	rc/quteqoin_defs.qrc \
-	rc/animations.qrc
+	rc/quteqoin_anims.qrc
 
 QMAKE_CXXFLAGS_RELEASE += -DQT_NO_DEBUG_OUTPUT
 
@@ -141,3 +151,5 @@ unix {
 
 	INSTALLS += target desktop icon
 }
+
+# vim: ts=4 sw=4 sts=4 noexpandtab

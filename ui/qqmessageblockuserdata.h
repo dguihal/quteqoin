@@ -26,7 +26,7 @@ public:
 	enum zoneRangeID { NORLOGE, LOGINUA, MESSAGE };
 
 	QQMessageBlockUserData();
-	QQMessageBlockUserData(const QQMessageBlockUserData & userData);
+	QQMessageBlockUserData(const QQMessageBlockUserData &userData);
 	~QQMessageBlockUserData();
 
 	ZoneRange zRangeForID( const zoneRangeID zrId ) { return m_ranges[zrId]; }
@@ -34,23 +34,23 @@ public:
 	bool isIndexInZRange( const int index, const zoneRangeID zrId );
 
 	QQPost * post() { return m_post; }
-	void setPost(QQPost * newPost) { m_post = QPointer<QQPost>(newPost); }
+	void setPost(QQPost *newPost) { m_post = QPointer<QQPost>(newPost); }
 
-	void addNorlogeRefZone(const QQNorlogeRef & norlogeRef) { m_listNRef.append(norlogeRef); }
+	void addNorlogeRefZone(const QQNorlogeRef &norlogeRef) { m_listNRef.append(norlogeRef); }
 	QQNorlogeRef norlogeRefForIndex(int index);
 	QList<QQNorlogeRef> norlogeRefs() const { return m_listNRef; }
 	bool hasNRefToSelfPost() const;
 
-	void addTotozZone(int index, const QString & totozId) { m_mapTotozId.insert(index, totozId); }
+	void addTotozZone(int index, const QString &totozId) { m_mapTotozId.insert(index, totozId); }
 	QPair<int, QString> totozIdAndIndexForIndex(int index) { return stringForIndex(index, m_mapTotozId); }
 	QString totozIdForIndex(int index) { return totozIdAndIndexForIndex(index).second; }
 	QList<int> totozIndexes() const { return m_mapTotozId.uniqueKeys(); }
 
-	void addDuckZone(int index, const QString & duck) { m_mapDuck.insert(index, duck); }
+	void addDuckZone(int index, const QString &duck) { m_mapDuck.insert(index, duck); }
 	QPair<int, QString> duckForIndex(int index) { return stringForIndex(index, m_mapDuck); }
 	QList<int> duckIndexes() const { return m_mapDuck.uniqueKeys(); }
 
-	void addTableVZone(int index, const QString & tableV) { m_mapTableV.insert(index, tableV); }
+	void addTableVZone(int index, const QString &tableV) { m_mapTableV.insert(index, tableV); }
 	QPair<int, QString> tableVForIndex(int index) { return stringForIndex(index, m_mapTableV); }
 	QList<int> tableVIndexes() const { return m_mapTableV.uniqueKeys(); }
 
@@ -71,8 +71,8 @@ public:
 
 
 private:
-	QPair<int, QString> stringForIndex(int index, const QMap<int, QString> & map);
-	bool isIndexInString(int index, int stringIndex, const QString & string);
+	QPair<int, QString> stringForIndex(int index, const QMap<int, QString> &map);
+	bool isIndexInString(int index, int stringIndex, const QString &string);
 
 	QList<QQNorlogeRef> m_listNRef;
 	QList<QQBigornoItem> m_listBigorno;
