@@ -16,6 +16,7 @@ QQHuntingView::QQHuntingView(QWidget *parent) :
 {
 	setRenderHint(QPainter::Antialiasing);
 	setStyleSheet("background: transparent; border-style: none;");
+	setWindowFlags(Qt::FramelessWindowHint);
 	setAttribute(Qt::WA_TransparentForMouseEvents);
 	setCacheMode(QGraphicsView::CacheBackground);
 	setFrameStyle(QFrame::NoFrame);
@@ -73,6 +74,9 @@ void QQHuntingView::launchDuck(QString srcBouchot, QString postId)
 	duck->animate();
 }
 
+//////////////////////////////////////////////////////////////
+/// \brief QQHuntingView::killDuck
+///
 void QQHuntingView::killDuck()
 {
 	QPoint shotPoint = mapFromGlobal(QCursor::pos());

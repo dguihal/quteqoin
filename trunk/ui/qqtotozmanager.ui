@@ -36,6 +36,9 @@
     </sizepolicy>
    </property>
    <layout class="QVBoxLayout" name="verticalLayout">
+    <property name="spacing">
+     <number>1</number>
+    </property>
     <property name="leftMargin">
      <number>0</number>
     </property>
@@ -64,6 +67,21 @@
         <string>Bookmarks</string>
        </attribute>
        <layout class="QHBoxLayout" name="horizontalLayout_2">
+        <property name="spacing">
+         <number>3</number>
+        </property>
+        <property name="leftMargin">
+         <number>1</number>
+        </property>
+        <property name="topMargin">
+         <number>1</number>
+        </property>
+        <property name="rightMargin">
+         <number>1</number>
+        </property>
+        <property name="bottomMargin">
+         <number>1</number>
+        </property>
         <item>
          <widget class="QScrollArea" name="bookmarkScrollArea">
           <property name="sizePolicy">
@@ -86,8 +104,8 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>198</width>
-             <height>28</height>
+             <width>214</width>
+             <height>500</height>
             </rect>
            </property>
           </widget>
@@ -100,6 +118,21 @@
         <string>Server</string>
        </attribute>
        <layout class="QHBoxLayout" name="horizontalLayout_3">
+        <property name="spacing">
+         <number>3</number>
+        </property>
+        <property name="leftMargin">
+         <number>1</number>
+        </property>
+        <property name="topMargin">
+         <number>1</number>
+        </property>
+        <property name="rightMargin">
+         <number>1</number>
+        </property>
+        <property name="bottomMargin">
+         <number>1</number>
+        </property>
         <item>
          <widget class="QScrollArea" name="serverScrollArea">
           <property name="sizePolicy">
@@ -122,8 +155,8 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>198</width>
-             <height>465</height>
+             <width>214</width>
+             <height>502</height>
             </rect>
            </property>
           </widget>
@@ -136,6 +169,21 @@
     <item>
      <widget class="QWidget" name="widget" native="true">
       <layout class="QHBoxLayout" name="horizontalLayout">
+       <property name="spacing">
+        <number>3</number>
+       </property>
+       <property name="leftMargin">
+        <number>1</number>
+       </property>
+       <property name="topMargin">
+        <number>1</number>
+       </property>
+       <property name="rightMargin">
+        <number>1</number>
+       </property>
+       <property name="bottomMargin">
+        <number>1</number>
+       </property>
        <item>
         <widget class="QLineEdit" name="searchLineEdit"/>
        </item>

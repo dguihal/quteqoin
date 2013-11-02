@@ -2,6 +2,7 @@
 #include "ui_mainwindow.h"
 #include "core/qqbouchot.h"
 #include "core/qqsettings.h"
+#include "ui/qqboardsinfo.h"
 #include "ui/qqpalmipede.h"
 #include "ui/qqpinipede.h"
 #include "ui/qqpinisearchwidget.h"
@@ -47,9 +48,19 @@ MainWindow::MainWindow(QWidget *parent) :
 	QAction *actionTotozManager = m_totozManager->toggleViewAction();
 	actionTotozManager->setShortcut(Qt::ControlModifier + Qt::Key_T);
 
+	// Setup du board info
+	m_boardsInfo = new QQBoardsInfo(this);
+	m_boardsInfo->setAllowedAreas(Qt::LeftDockWidgetArea |
+									Qt::RightDockWidgetArea);
+	m_boardsInfo->updateBoardList();
+	addDockWidget(Qt::LeftDockWidgetArea, m_boardsInfo, Qt::Vertical);
+
+	QAction *actionBoardInfo = m_boardsInfo->toggleViewAction();
+	actionBoardInfo->setShortcut(Qt::ControlModifier + Qt::Key_I);
 	// Setup du bouton d'options
 	QToolButton *toolButton = new QToolButton();
 	toolButton->setIcon(QIcon(":/img/settings-icon.png"));
+	toolButton->addAction(actionBoardInfo);
 	toolButton->addAction(actionPalmi);
 	toolButton->addAction(actionTotozManager);
 
@@ -244,6 +255,8 @@ void MainWindow::initBouchot(QQBouchot *bouchot)
 
 	connect(bouchot, SIGNAL(destroyed(QQBouchot*)), this, SLOT(bouchotDestroyed(QQBouchot *)));
 	connect(bouchot, SIGNAL(groupChanged(QQBouchot*,QString)), this, SLOT(bouchotGroupChanged(QQBouchot*,QString)));
+
+	m_boardsInfo->updateBoardList();
 }
 
 

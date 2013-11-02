@@ -3,6 +3,7 @@
 
 #include "core/qqnetworkaccessor.h"
 #include "core/qqpost.h"
+#include "core/qqmussel.h"
 
 #include <QColor>
 #include <QHash>
@@ -91,7 +92,7 @@ public:
 	~QQBouchot();
 
 	QString name() { return m_name; }
-	//void setName(const QString &newName) { m_name = newName; }
+	QList<QQMussel> lastPosters() { return m_lastPosters; }
 
 	void parseBackend(const QByteArray &data);
 	void postMessage(const QString &message);
@@ -111,6 +112,7 @@ public:
 
 	virtual bool event(QEvent *e);
 
+	//static
 	static QQBouchotSettings getBouchotDef(const QString &bouchotName);
 	static QStringList getBouchotDefNameList();
 	static QQBouchot * bouchot(const QString &bouchotName);
@@ -125,6 +127,8 @@ signals:
 	void removed(QString name, QString groupName);
 	void destroyed(QQBouchot *bouchot);
 	void groupChanged(QQBouchot *bouchot, QString oldGroupName);
+	void refreshStarted(int interval);
+	void lastPostersUpdated();
 
 protected slots:
 	void fetchBackend();
@@ -133,8 +137,8 @@ protected slots:
 	void parsingFinished();
 
 private:
-	void checkGroupModified(const QString &oldGroupName);
 	void askPiniUpdate();
+	void checkGroupModified(const QString &oldGroupName);
 
 	QQListPostPtr m_history;
 	bool m_hasXPostId; //false = unknown
@@ -143,12 +147,16 @@ private:
 	QString m_name;
 	QQListPostPtr m_newPostHistory;
 	QQBouchotSettings m_bSettings;
-	QTimer timer;
+	QTimer m_timer;
 
 	QQXmlParser *m_xmlParser;
 
 	QWidget *m_piniWidget;
 
+	int m_deltaTimeH;
+	QList<QQMussel> m_lastPosters;
+
+	//static
 	static QHash<QString, QQBouchot *> s_hashBouchots;
 };
 

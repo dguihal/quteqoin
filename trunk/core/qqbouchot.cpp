@@ -56,22 +56,19 @@ QQBouchotDef bouchotsDef[] =
 	  "#ffd0d0", "schee,seeschloss", "", QQBouchot::SlipTagsRaw },
 	{ "devnewton", "http://devnewton.bci.im/fr/chat/xml", "http://devnewton.bci.im/fr/chat/post", "message=%m",
 	  "#666666", "", "", QQBouchot::SlipTagsRaw }
-}
-;
+};
 
 QQBouchot::QQBouchot(const QString &name, QObject *parent) :
-	QQNetworkAccessor(parent)
+	QQNetworkAccessor(parent),
+	m_hasXPostId(false), // unknown
+	m_lastId(-1),
+	m_name(name),
+	m_xmlParser(new QQXmlParser()),
+	m_piniWidget(NULL),
+	m_deltaTimeH(-1) // unknown
 {
-	m_name = name;
 	m_bSettings.setRefresh(0);
-	m_history.clear();
-	m_newPostHistory.clear();
-	m_hasXPostId = false; // unknown
-	m_xPostIds.clear();
-	m_lastId=-1;
-	m_piniWidget = NULL;
 
-	m_xmlParser = new QQXmlParser();
 	connect(m_xmlParser, SIGNAL(newPostReady(QQPost&)), this, SLOT(insertNewPost(QQPost&)));
 	connect(m_xmlParser, SIGNAL(finished()), this, SLOT(parsingFinished()));
 
@@ -134,7 +131,7 @@ void QQBouchot::startRefresh()
 		return;
 
 	//Connection du signal
-	connect(&timer, SIGNAL(timeout()), this, SLOT(fetchBackend()));
+	connect(&m_timer, SIGNAL(timeout()), this, SLOT(fetchBackend()));
 
 	//Première récuperation
 	fetchBackend();
@@ -142,8 +139,8 @@ void QQBouchot::startRefresh()
 
 void QQBouchot::stopRefresh()
 {
-	timer.disconnect();
-	timer.stop();
+	m_timer.disconnect();
+	m_timer.stop();
 }
 
 QQListPostPtr QQBouchot::takeNewPosts()
@@ -193,7 +190,7 @@ void QQBouchot::fetchBackend()
 	QString lastId;
 
 	//on bloque le timer
-	timer.stop();
+	m_timer.stop();
 
 	if(m_lastId < 0)
 	{
@@ -216,14 +213,11 @@ void QQBouchot::fetchBackend()
 		url.replace(QString::fromLatin1("%i"), lastId);
 	}
 
-	qDebug() << "QQBouchot::fetchBackend url=" << url;
-
 	QNetworkRequest request(QUrl::fromUserInput(url));
 	request.setAttribute(QNetworkRequest::User, QQBouchot::BackendRequest);
 	request.setAttribute(QNetworkRequest::CacheLoadControlAttribute,
 						 QNetworkRequest::AlwaysNetwork);
 
-	QQSettings settings;
 	request.setRawHeader(QString::fromLatin1("User-Agent").toLatin1(), QString(DEFAULT_GENERAL_DEFAULT_UA).toLatin1());
 
 	if(m_bSettings.cookie().isEmpty() == false)
@@ -232,41 +226,34 @@ void QQBouchot::fetchBackend()
 	QNetworkReply * reply = httpGet(request);
 	connect(reply, SIGNAL(sslErrors(const QList<QSslError>&)), this, SLOT(slotSslErrors(const QList<QSslError>&)));
 
-	timer.setInterval(m_bSettings.refresh() * 1000);
-	timer.start();
+	m_timer.setInterval(m_bSettings.refresh() * 1000);
+	m_timer.start();
 }
 
 
 void QQBouchot::slotSslErrors(const QList<QSslError> &errors)
 {
-	for(int i = 0; i < errors.size(); i++)
+	foreach(QSslError err, errors)
 	{
-		if(errors[i].error() != QSslError::NoError)
+		if(err.error() != QSslError::NoError)
 		{
-			qDebug() << "QQNetworkAccessor::slotNetworkReplyError: " << errors[i].errorString();
+			qDebug() << "QQNetworkAccessor::slotNetworkReplyError: " << err.errorString();
 		}
 	}
 }
 
 void QQBouchot::requestFinishedSlot(QNetworkReply *reply)
 {
-	// Recuperation du Statut HTTP
-	//QVariant statusCodeV = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute);
-
-	qDebug() << "QQBouchot::requestFinishedSlot url=" << reply->url();
-
 	if(reply->error() != QNetworkReply::NoError)
 	{
 		qWarning() << "QQBouchot::requestFinishedSlot, error : " << reply->error()
 				   << ", msg : " << reply->errorString();
-		//stopRefresh();
 	}
 	else
 	{
 		switch(reply->request().attribute(QNetworkRequest::User, QQBouchot::UnknownRequest).toInt(0))
 		{
 		case QQBouchot::PostRequest:
-			//qDebug() << "QQBouchot::requestFinishedSlot post Request detected, refresh du backend ";
 			if(reply->hasRawHeader(X_POST_ID_HEADER))
 			{
 				m_hasXPostId = true;
@@ -275,12 +262,9 @@ void QQBouchot::requestFinishedSlot(QNetworkReply *reply)
 
 			fetchBackend();
 			break;
-
 		case QQBouchot::BackendRequest:
-			//qDebug() << "QQBouchot::requestFinishedSlot fetch backend detected";
 			parseBackend(reply->readAll());
 			break;
-
 		default:
 			qWarning()  << "QQBouchot::requestFinishedSlot, reply->request().attribute(QNetworkRequest::User).toInt() unknown";
 		}
@@ -328,10 +312,81 @@ void QQBouchot::parsingFinished()
 {
 	if(m_newPostHistory.size() > 0)
 	{
+		QDateTime currentDateTime = QDateTime::currentDateTime();
+		if(m_deltaTimeH == -1 &&
+		   m_history.size() > 0 &&
+		   m_newPostHistory.size() > 0)
+		{
+			//Le delta de TZ ne peut etre determine efficacement que lors d'un
+			// refresh de backend (pas lors du chargement initial).
+			QQPost *last = m_newPostHistory.last();
+			QDateTime postDateTime = QDateTime::fromString(last->norloge(), "yyyyMMddHHmmss");
+			m_deltaTimeH = postDateTime.secsTo(currentDateTime) / 3600; //Secondes vers Heures
+		}
+
 		m_history.append(m_newPostHistory);
+		m_lastPosters.clear();
+		{
+			int deltaTimeH = m_deltaTimeH;
+			// Si on ne sait pas on considere que c'est 0 en attendant d'en savoir plus
+			if(deltaTimeH < 0)
+				deltaTimeH = 0;
+
+			currentDateTime.addSecs( deltaTimeH * 3600 ); // on se met sur le meme TZ que le bouchot
+			for(int i = m_history.size() - 1; i >= 0; i--)
+			{
+				QQPost *post = m_history.at(i);
+				QDateTime postDateTime = QDateTime::fromString(post->norloge(), "yyyyMMddHHmmss");
+				if(qAbs(currentDateTime.secsTo(postDateTime)) < (2 * 3600))
+				{
+					QString name;
+					bool isAuth;
+					if(post->login().size() > 0)
+					{
+						name = post->login();
+						isAuth = true;
+					}
+					else if((post->UA().size() > 0) && ! post->UA().contains('/'))
+					{
+						name = post->UA();
+						isAuth = false;
+					}
+
+					if(name.length() > 0)
+					{
+						QQMussel mussel(name, m_name, isAuth);
+						bool found = false;
+						foreach (QQMussel lastMussels, m_lastPosters) {
+							if(lastMussels == mussel)
+							{
+								found = true;
+								break;
+							}
+						}
+						if(! found)
+							m_lastPosters.append(mussel);
+					}
+				}
+				else
+					break;
+			}
+			emit lastPostersUpdated();
+		}
 		m_lastId = m_xmlParser->maxId();
 		askPiniUpdate();
 	}
+}
+
+void QQBouchot::askPiniUpdate()
+{
+	QApplication::postEvent(
+				(QObject *) m_piniWidget,
+				new QQBackendUpdatedEvent(
+					QQBackendUpdatedEvent::BACKEND_UPDATED,
+					m_bSettings.group()
+					),
+				Qt::LowEventPriority
+				);
 }
 
 void QQBouchot::checkGroupModified(const QString &oldGroupName)
@@ -430,16 +485,4 @@ QList<QString> QQBouchot::listGroups()
 			listGroups.append(group);
 	}
 	return listGroups;
-}
-
-void QQBouchot::askPiniUpdate()
-{
-	QApplication::postEvent(
-				(QObject *) m_piniWidget,
-				new QQBackendUpdatedEvent(
-					QQBackendUpdatedEvent::BACKEND_UPDATED,
-					m_bSettings.group()
-					),
-				Qt::LowEventPriority
-				);
 }
