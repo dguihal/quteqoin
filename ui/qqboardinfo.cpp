@@ -4,30 +4,51 @@
 #include "core/qqbouchot.h"
 
 #include <QtDebug>
-#include <QPalette>
 
 QQBoardInfo::QQBoardInfo(QQBouchot *board, QWidget *parent) :
 	QWidget(parent),
 	m_ui(new Ui::QQBoardInfo),
-	m_board(board),
-	m_pctPoll(0)
+	m_board(board)
 {
 	if(m_board == NULL)
 		return;
 
 	m_ui->setupUi(this);
 
+
 	m_ui->bodyWidget->hide();
 	m_ui->showBtn->setText("+");
 	connect(m_ui->showBtn, SIGNAL(clicked()), this, SLOT(toggleExpandedView()));
 
-	m_ui->boardNameLbl->setText(m_board->name());
+	m_ui->refreshPB->setTextVisible(true);
+	m_ui->refreshPB->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
+	m_ui->refreshPB->setFormat(m_board->name());
+	m_ui->refreshPB->setStyleSheet(QString("QProgressBar { border: none; background-color: rgba(0, 0, 0, 0%)} ")
+								   .append("QProgressBar::chunk {background-color: ")
+								   .append(m_board->settings().color().name())
+								   .append("; width: 5px; margin: 0.5px;}"));
+
+	m_pctPollAnimation.setStartValue(0);
+	m_pctPollAnimation.setEndValue(100);
+	m_pctPollAnimation.setEasingCurve(QEasingCurve::Linear);
+	m_pctPollAnimation.setTargetObject(m_ui->refreshPB);
+	m_pctPollAnimation.setPropertyName("value");
+	rearmRefreshPB();
 	connect(m_board, SIGNAL(lastPostersUpdated()), this, SLOT(updateUserList()));
+	connect(m_board, SIGNAL(refreshStarted()), this, SLOT(rearmRefreshPB()));
 }
 
 QQBoardInfo::~QQBoardInfo()
 {
 	delete m_ui;
+}
+
+void QQBoardInfo::rearmRefreshPB()
+{
+	m_pctPollAnimation.stop();
+	m_ui->refreshPB->setValue(0);
+	m_pctPollAnimation.setDuration(m_board->settings().refresh() * 1000);
+	m_pctPollAnimation.start();
 }
 
 void QQBoardInfo::toggleExpandedView()
@@ -45,7 +66,6 @@ void QQBoardInfo::toggleExpandedView()
 }
 
 #define MAX_ITEMS 10
-
 void QQBoardInfo::updateUserList()
 {
 	QList<QQMussel> lastPosters = m_board->lastPosters();
@@ -91,20 +111,4 @@ void QQBoardInfo::updateUserList()
 	{
 		m_ui->usrDspSA->hide();
 	}
-}
-
-void QQBoardInfo::setPctPoll(int pctPoll)
-{
-	m_pctPoll = pctPoll;
-
-	QPalette palette;
-	QLinearGradient linearGradient(QPointF(0, 0), QPointF(width(), 0));
-	QColor baseColor = m_board->settings().color();
-	linearGradient.setColorAt(width() * m_pctPoll / 100.0, baseColor);
-	baseColor.setAlpha(0);
-	linearGradient.setColorAt(width(), baseColor);
-	palette.setBrush(QPalette::Window,*(new QBrush(linearGradient)));
-
-	m_ui->headWidget->setPalette(palette);
-	m_ui->headWidget->update();
 }

@@ -1,6 +1,7 @@
 #ifndef QQBOARDINFO_H
 #define QQBOARDINFO_H
 
+#include <QPropertyAnimation>
 #include <QWidget>
 
 namespace Ui {
@@ -12,16 +13,13 @@ class QQBouchot;
 class QQBoardInfo : public QWidget
 {
 	Q_OBJECT
-	Q_PROPERTY(int m_pctPoll READ pctPoll WRITE setPctPoll)
 
 public:
 	explicit QQBoardInfo(QQBouchot *board, QWidget *parent = 0);
 	~QQBoardInfo();
 
-	int pctPoll() { return m_pctPoll; }
-
 public slots:
-	void setPctPoll(int pctPoll);
+	void rearmRefreshPB();
 	void toggleExpandedView();
 	void updateUserList();
 
@@ -30,7 +28,7 @@ private:
 
 	QQBouchot *m_board;
 
-	int m_pctPoll;
+	QPropertyAnimation m_pctPollAnimation;
 };
 
 #endif // QQBOARDINFO_H
