@@ -127,7 +127,7 @@ signals:
 	void removed(QString name, QString groupName);
 	void destroyed(QQBouchot *bouchot);
 	void groupChanged(QQBouchot *bouchot, QString oldGroupName);
-	void refreshStarted(int interval);
+	void refreshStarted();
 	void lastPostersUpdated();
 
 protected slots:

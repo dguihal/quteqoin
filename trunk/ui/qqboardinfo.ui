@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>250</width>
-    <height>95</height>
+    <height>101</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -23,16 +23,7 @@
    <property name="spacing">
     <number>1</number>
    </property>
-   <property name="leftMargin">
-    <number>1</number>
-   </property>
-   <property name="topMargin">
-    <number>1</number>
-   </property>
-   <property name="rightMargin">
-    <number>1</number>
-   </property>
-   <property name="bottomMargin">
+   <property name="margin">
     <number>1</number>
    </property>
    <item>
@@ -41,43 +32,18 @@
       <property name="spacing">
        <number>3</number>
       </property>
-      <property name="leftMargin">
-       <number>1</number>
-      </property>
-      <property name="topMargin">
-       <number>1</number>
-      </property>
-      <property name="rightMargin">
-       <number>1</number>
-      </property>
-      <property name="bottomMargin">
+      <property name="margin">
        <number>1</number>
       </property>
       <item>
-       <widget class="QLabel" name="boardNameLbl">
-        <property name="font">
-         <font>
-          <weight>75</weight>
-          <bold>true</bold>
-         </font>
+       <widget class="QProgressBar" name="refreshPB">
+        <property name="value">
+         <number>0</number>
         </property>
-        <property name="text">
-         <string>BoardName</string>
+        <property name="format">
+         <string/>
         </property>
        </widget>
-      </item>
-      <item>
-       <spacer name="horizontalSpacer">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>96</width>
-          <height>20</height>
-         </size>
-        </property>
-       </spacer>
       </item>
       <item>
        <widget class="QToolButton" name="showBtn">
@@ -101,16 +67,7 @@
       <property name="spacing">
        <number>3</number>
       </property>
-      <property name="leftMargin">
-       <number>1</number>
-      </property>
-      <property name="topMargin">
-       <number>1</number>
-      </property>
-      <property name="rightMargin">
-       <number>1</number>
-      </property>
-      <property name="bottomMargin">
+      <property name="margin">
        <number>1</number>
       </property>
       <item alignment="Qt::AlignLeft|Qt::AlignTop">
@@ -148,8 +105,8 @@
           <rect>
            <x>0</x>
            <y>0</y>
-           <width>201</width>
-           <height>68</height>
+           <width>204</width>
+           <height>72</height>
           </rect>
          </property>
         </widget>

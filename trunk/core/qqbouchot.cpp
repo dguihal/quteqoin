@@ -226,6 +226,7 @@ void QQBouchot::fetchBackend()
 	QNetworkReply * reply = httpGet(request);
 	connect(reply, SIGNAL(sslErrors(const QList<QSslError>&)), this, SLOT(slotSslErrors(const QList<QSslError>&)));
 
+	emit refreshStarted();
 	m_timer.setInterval(m_bSettings.refresh() * 1000);
 	m_timer.start();
 }
