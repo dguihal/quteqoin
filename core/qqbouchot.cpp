@@ -58,6 +58,11 @@ QQBouchotDef bouchotsDef[] =
 	  "#666666", "", "", QQBouchot::SlipTagsRaw }
 };
 
+//////////////////////////////////////////////////////////////
+/// \brief QQBouchot::QQBouchot
+/// \param name
+/// \param parent
+///
 QQBouchot::QQBouchot(const QString &name, QObject *parent) :
 	QQNetworkAccessor(parent),
 	m_hasXPostId(false), // unknown
@@ -75,6 +80,9 @@ QQBouchot::QQBouchot(const QString &name, QObject *parent) :
 	QQBouchot::s_hashBouchots.insert(m_name, this);
 }
 
+//////////////////////////////////////////////////////////////
+/// \brief QQBouchot::~QQBouchot
+///
 QQBouchot::~QQBouchot()
 {
 	QQBouchot::s_hashBouchots.remove(m_name);
@@ -82,6 +90,10 @@ QQBouchot::~QQBouchot()
 	delete m_xmlParser;
 }
 
+//////////////////////////////////////////////////////////////
+/// \brief QQBouchot::postMessage
+/// \param message
+///
 void QQBouchot::postMessage(const QString &message)
 {
 	QString url = m_bSettings.postUrl();
@@ -117,6 +129,10 @@ void QQBouchot::postMessage(const QString &message)
 	httpPost(request, postData);
 }
 
+//////////////////////////////////////////////////////////////
+/// \brief QQBouchot::setSettings
+/// \param newSettings
+///
 void QQBouchot::setSettings(const QQBouchotSettings &newSettings)
 {
 	QString oldGroup = m_bSettings.group();
@@ -124,7 +140,9 @@ void QQBouchot::setSettings(const QQBouchotSettings &newSettings)
 	checkGroupModified(oldGroup);
 }
 
-
+//////////////////////////////////////////////////////////////
+/// \brief QQBouchot::startRefresh
+///
 void QQBouchot::startRefresh()
 {
 	if(m_bSettings.refresh() <= 0)
@@ -137,12 +155,19 @@ void QQBouchot::startRefresh()
 	fetchBackend();
 }
 
+//////////////////////////////////////////////////////////////
+/// \brief QQBouchot::stopRefresh
+///
 void QQBouchot::stopRefresh()
 {
 	m_timer.disconnect();
 	m_timer.stop();
 }
 
+//////////////////////////////////////////////////////////////
+/// \brief QQBouchot::takeNewPosts
+/// \return
+///
 QQListPostPtr QQBouchot::takeNewPosts()
 {
 	QQListPostPtr list(m_newPostHistory);
@@ -150,6 +175,9 @@ QQListPostPtr QQBouchot::takeNewPosts()
 	return list;
 }
 
+//////////////////////////////////////////////////////////////
+/// \brief QQBouchot::setNewPostsFromHistory
+///
 void QQBouchot::setNewPostsFromHistory()
 {
 	int index = m_history.length();
@@ -164,6 +192,11 @@ void QQBouchot::setNewPostsFromHistory()
 	askPiniUpdate();
 }
 
+//////////////////////////////////////////////////////////////
+/// \brief QQBouchot::event
+/// \param e
+/// \return
+///
 bool QQBouchot::event(QEvent *e)
 {
 	if(e->type() == QQPurgeBouchotHistoEvent::PURGE_BOUCHOT_HISTO)
@@ -184,6 +217,9 @@ bool QQBouchot::event(QEvent *e)
 	return true;
 }
 
+//////////////////////////////////////////////////////////////
+/// \brief QQBouchot::fetchBackend
+///
 void QQBouchot::fetchBackend()
 {
 	QString url = m_bSettings.backendUrl();
@@ -231,7 +267,10 @@ void QQBouchot::fetchBackend()
 	m_timer.start();
 }
 
-
+//////////////////////////////////////////////////////////////
+/// \brief QQBouchot::slotSslErrors
+/// \param errors
+///
 void QQBouchot::slotSslErrors(const QList<QSslError> &errors)
 {
 	foreach(QSslError err, errors)
@@ -243,6 +282,10 @@ void QQBouchot::slotSslErrors(const QList<QSslError> &errors)
 	}
 }
 
+//////////////////////////////////////////////////////////////
+/// \brief QQBouchot::requestFinishedSlot
+/// \param reply
+///
 void QQBouchot::requestFinishedSlot(QNetworkReply *reply)
 {
 	if(reply->error() != QNetworkReply::NoError)
@@ -273,6 +316,10 @@ void QQBouchot::requestFinishedSlot(QNetworkReply *reply)
 	reply->deleteLater();
 }
 
+//////////////////////////////////////////////////////////////
+/// \brief QQBouchot::parseBackend
+/// \param data
+///
 void QQBouchot::parseBackend(const QByteArray &data)
 {
 	QXmlSimpleReader xmlReader;
@@ -287,6 +334,10 @@ void QQBouchot::parseBackend(const QByteArray &data)
 	xmlReader.parse(&xmlSource);
 }
 
+//////////////////////////////////////////////////////////////
+/// \brief QQBouchot::insertNewPost
+/// \param newPost
+///
 void QQBouchot::insertNewPost(QQPost &newPost)
 {
 	QQPost * tmpNewPost = new QQPost(newPost);
@@ -308,7 +359,10 @@ void QQBouchot::insertNewPost(QQPost &newPost)
 	m_newPostHistory.prepend(tmpNewPost);
 }
 
-
+#define MAX_TIME_USER_ACTIVE_S (30 * 60)
+//////////////////////////////////////////////////////////////
+/// \brief QQBouchot::parsingFinished
+///
 void QQBouchot::parsingFinished()
 {
 	if(m_newPostHistory.size() > 0)
@@ -338,7 +392,7 @@ void QQBouchot::parsingFinished()
 			{
 				QQPost *post = m_history.at(i);
 				QDateTime postDateTime = QDateTime::fromString(post->norloge(), "yyyyMMddHHmmss");
-				if(qAbs(currentDateTime.secsTo(postDateTime)) < (2 * 3600))
+				if(qAbs(currentDateTime.secsTo(postDateTime)) < MAX_TIME_USER_ACTIVE_S)
 				{
 					QString name;
 					bool isAuth;
@@ -378,6 +432,9 @@ void QQBouchot::parsingFinished()
 	}
 }
 
+//////////////////////////////////////////////////////////////
+/// \brief QQBouchot::askPiniUpdate
+///
 void QQBouchot::askPiniUpdate()
 {
 	QApplication::postEvent(
@@ -390,6 +447,10 @@ void QQBouchot::askPiniUpdate()
 				);
 }
 
+//////////////////////////////////////////////////////////////
+/// \brief QQBouchot::checkGroupModified
+/// \param oldGroupName
+///
 void QQBouchot::checkGroupModified(const QString &oldGroupName)
 {
 	if(m_bSettings.group() != oldGroupName)
@@ -400,6 +461,11 @@ void QQBouchot::checkGroupModified(const QString &oldGroupName)
 // Static
 /////////////////////////
 
+//////////////////////////////////////////////////////////////
+/// \brief QQBouchot::getBouchotDef
+/// \param bouchotName
+/// \return
+///
 QQBouchot::QQBouchotSettings QQBouchot::getBouchotDef(const QString &bouchotName)
 {
 
@@ -425,6 +491,10 @@ QQBouchot::QQBouchotSettings QQBouchot::getBouchotDef(const QString &bouchotName
 	return settings;
 }
 
+//////////////////////////////////////////////////////////////
+/// \brief QQBouchot::getBouchotDefNameList
+/// \return
+///
 QStringList QQBouchot::getBouchotDefNameList()
 {
 	int i = 0;
@@ -435,8 +505,16 @@ QStringList QQBouchot::getBouchotDefNameList()
 	return res;
 }
 
+//////////////////////////////////////////////////////////////
+/// \brief QQBouchot::s_hashBouchots
+///
 QHash<QString, QQBouchot *> QQBouchot::s_hashBouchots;
 
+//////////////////////////////////////////////////////////////
+/// \brief QQBouchot::bouchot
+/// \param bouchotName
+/// \return
+///
 QQBouchot * QQBouchot::bouchot(const QString &bouchotName)
 {
 	QQBouchot * ret = NULL;
@@ -457,11 +535,20 @@ QQBouchot * QQBouchot::bouchot(const QString &bouchotName)
 	return ret;
 }
 
+//////////////////////////////////////////////////////////////
+/// \brief QQBouchot::listBouchots
+/// \return
+///
 QList<QQBouchot *> QQBouchot::listBouchots()
 {
 	return s_hashBouchots.values();
 }
 
+//////////////////////////////////////////////////////////////
+/// \brief QQBouchot::listBouchotsGroup
+/// \param groupName
+/// \return
+///
 QList<QQBouchot *> QQBouchot::listBouchotsGroup(const QString &groupName)
 {
 	QHashIterator<QString, QQBouchot *> i(s_hashBouchots);
@@ -476,6 +563,10 @@ QList<QQBouchot *> QQBouchot::listBouchotsGroup(const QString &groupName)
 	return res;
 }
 
+//////////////////////////////////////////////////////////////
+/// \brief QQBouchot::listGroups
+/// \return
+///
 QList<QString> QQBouchot::listGroups()
 {
 	QList<QString> listGroups;
