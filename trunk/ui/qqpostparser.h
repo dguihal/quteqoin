@@ -3,6 +3,7 @@
 
 #include <QList>
 #include <QObject>
+#include <QQueue>
 #include <QTextDocument>
 #include <QTextDocumentFragment>
 
@@ -36,6 +37,7 @@ private:
 	void colorizeTotoz(QTextDocument &doc, QQMessageBlockUserData *userData);
 
 	QList<QQMessageTransformFilter *> m_listMessageTransformFilters;
+	QQueue<QString> lastTotozIds;
 
 	int m_indexShit;
 };
