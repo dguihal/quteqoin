@@ -224,6 +224,7 @@ void QQPostParser::colorizeTableVolante(QTextDocument &doc, QQMessageBlockUserDa
 }
 
 #define MAX_TOTOZ_PREFETCH_POST 3
+#define MAX_LAST_TOTOZ_IDS_COUNT 50
 //////////////////////////////////////////////////////////////
 /// \brief QQPostParser::colorizeTotoz
 /// \param doc
@@ -236,13 +237,12 @@ void QQPostParser::colorizeTotoz(QTextDocument &doc, QQMessageBlockUserData *use
 								 Qt::CaseSensitive,
 								 QRegExp::RegExp);
 
-	QStringList requestedTotoz;
-
 	QTextCursor cursor(&doc);
 	QTextCharFormat fmt = cursor.blockCharFormat();
 	fmt.setForeground(QColor(TOTOZ_COLOR));
 	fmt.setFontWeight(QFont::Bold);
 
+	int totozCount = 0;
 	while(! (cursor = doc.find(totozReg, cursor)).isNull())
 	{
 		QString totozId = cursor.selectedText();
@@ -250,10 +250,14 @@ void QQPostParser::colorizeTotoz(QTextDocument &doc, QQMessageBlockUserData *use
 
 		QString totozName = totozId.mid(2, totozId.length() - 3);
 		//Antiflood : Maximum 3 requetes et sur des totoz différents
-		if(!requestedTotoz.contains(totozName) && requestedTotoz.size() <= MAX_TOTOZ_PREFETCH_POST)
+		if(!lastTotozIds.contains(totozName) && totozCount <= MAX_TOTOZ_PREFETCH_POST)
 		{
+			totozCount++;
+			lastTotozIds.enqueue(totozName);
+			while(lastTotozIds.count() > MAX_LAST_TOTOZ_IDS_COUNT)
+				lastTotozIds.dequeue();
+
 			emit totozRequired(totozName);
-			requestedTotoz.append(totozName);
 		}
 
 		cursor.mergeCharFormat(fmt);
