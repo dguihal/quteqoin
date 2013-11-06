@@ -273,11 +273,17 @@ void QQBouchot::fetchBackend()
 ///
 void QQBouchot::slotSslErrors(const QList<QSslError> &errors)
 {
+	bool signalSend = false;
 	foreach(QSslError err, errors)
 	{
 		if(err.error() != QSslError::NoError)
 		{
-			qDebug() << "QQNetworkAccessor::slotNetworkReplyError: " << err.errorString();
+			qWarning() << "QQNetworkAccessor::slotNetworkReplyError: " << err.errorString();
+			if(! signalSend)
+			{
+				emit refreshError();
+				signalSend = true;
+			}
 		}
 	}
 }
@@ -292,6 +298,7 @@ void QQBouchot::requestFinishedSlot(QNetworkReply *reply)
 	{
 		qWarning() << "QQBouchot::requestFinishedSlot, error : " << reply->error()
 				   << ", msg : " << reply->errorString();
+		emit refreshError();
 	}
 	else
 	{
@@ -367,69 +374,22 @@ void QQBouchot::parsingFinished()
 {
 	if(m_newPostHistory.size() > 0)
 	{
-		QDateTime currentDateTime = QDateTime::currentDateTime();
 		if(m_deltaTimeH == -1 &&
-		   m_history.size() > 0 &&
-		   m_newPostHistory.size() > 0)
+		   m_history.size() > 0) //Ne peut-etre fait sur le 1° backend recupere
 		{
 			//Le delta de TZ ne peut etre determine efficacement que lors d'un
 			// refresh de backend (pas lors du chargement initial).
 			QQPost *last = m_newPostHistory.last();
 			QDateTime postDateTime = QDateTime::fromString(last->norloge(), "yyyyMMddHHmmss");
-			m_deltaTimeH = postDateTime.secsTo(currentDateTime) / 3600; //Secondes vers Heures
+			m_deltaTimeH = postDateTime.secsTo(QDateTime::currentDateTime()) / 3600; //Secondes vers Heures
 		}
 
 		m_history.append(m_newPostHistory);
-		m_lastPosters.clear();
-		{
-			int deltaTimeH = m_deltaTimeH;
-			// Si on ne sait pas on considere que c'est 0 en attendant d'en savoir plus
-			if(deltaTimeH < 0)
-				deltaTimeH = 0;
-
-			currentDateTime.addSecs( deltaTimeH * 3600 ); // on se met sur le meme TZ que le bouchot
-			for(int i = m_history.size() - 1; i >= 0; i--)
-			{
-				QQPost *post = m_history.at(i);
-				QDateTime postDateTime = QDateTime::fromString(post->norloge(), "yyyyMMddHHmmss");
-				if(qAbs(currentDateTime.secsTo(postDateTime)) < MAX_TIME_USER_ACTIVE_S)
-				{
-					QString name;
-					bool isAuth;
-					if(post->login().size() > 0)
-					{
-						name = post->login();
-						isAuth = true;
-					}
-					else if((post->UA().size() > 0) && ! post->UA().contains('/'))
-					{
-						name = post->UA();
-						isAuth = false;
-					}
-
-					if(name.length() > 0)
-					{
-						QQMussel mussel(name, m_name, isAuth);
-						bool found = false;
-						foreach (QQMussel lastMussels, m_lastPosters) {
-							if(lastMussels == mussel)
-							{
-								found = true;
-								break;
-							}
-						}
-						if(! found)
-							m_lastPosters.append(mussel);
-					}
-				}
-				else
-					break;
-			}
-			emit lastPostersUpdated();
-		}
 		m_lastId = m_xmlParser->maxId();
 		askPiniUpdate();
 	}
+
+	updateLastUsers();
 }
 
 //////////////////////////////////////////////////////////////
@@ -455,6 +415,52 @@ void QQBouchot::checkGroupModified(const QString &oldGroupName)
 {
 	if(m_bSettings.group() != oldGroupName)
 		emit groupChanged(this, oldGroupName);
+}
+
+//////////////////////////////////////////////////////////////
+/// \brief QQBouchot::updateLastUsers
+///
+void QQBouchot::updateLastUsers()
+{
+	m_lastPosters.clear();
+
+	int deltaTimeH = m_deltaTimeH;
+	// Si on ne sait pas on considere que c'est 0 en attendant d'en savoir plus
+	if(deltaTimeH < 0)
+		deltaTimeH = 0;
+
+	QDateTime currentDateTime = QDateTime::currentDateTime();
+	currentDateTime.addSecs( deltaTimeH * 3600 ); // on se met sur le meme TZ que le bouchot
+	for(int i = m_history.size() - 1; i >= 0; i--)
+	{
+		QQPost *post = m_history.at(i);
+		QDateTime postDateTime = QDateTime::fromString(post->norloge(), "yyyyMMddHHmmss");
+		if(qAbs(currentDateTime.secsTo(postDateTime)) < MAX_TIME_USER_ACTIVE_S)
+		{
+			QString name;
+			bool isAuth;
+			if(post->login().size() > 0)
+			{
+				name = post->login();
+				isAuth = true;
+			}
+			else if((post->UA().size() > 0) && ! post->UA().contains('/'))
+			{
+				name = post->UA();
+				isAuth = false;
+			}
+
+			if(name.length() > 0)
+			{
+				QQMussel mussel(name, m_name, isAuth);
+				if(!m_lastPosters.contains(mussel))
+					m_lastPosters.append(mussel);
+			}
+		}
+		else
+			break;
+	}
+	emit lastPostersUpdated();
 }
 
 /////////////////////////

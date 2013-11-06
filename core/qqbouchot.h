@@ -128,6 +128,7 @@ signals:
 	void destroyed(QQBouchot *bouchot);
 	void groupChanged(QQBouchot *bouchot, QString oldGroupName);
 	void refreshStarted();
+	void refreshError();
 	void lastPostersUpdated();
 
 protected slots:
@@ -139,6 +140,7 @@ protected slots:
 private:
 	void askPiniUpdate();
 	void checkGroupModified(const QString &oldGroupName);
+	void updateLastUsers();
 
 	QQListPostPtr m_history;
 	bool m_hasXPostId; //false = unknown

@@ -20,6 +20,7 @@ public:
 
 public slots:
 	void rearmRefreshPB();
+	void showRefreshError();
 	void toggleExpandedView();
 	void updateUserList();
 
@@ -27,8 +28,8 @@ private:
 	Ui::QQBoardInfo *m_ui;
 
 	QQBouchot *m_board;
-
 	QPropertyAnimation m_pctPollAnimation;
+	bool m_refreshFailed;
 };
 
 #endif // QQBOARDINFO_H
