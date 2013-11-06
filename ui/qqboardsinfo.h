@@ -13,6 +13,7 @@ class QQBoardsInfo : public QDockWidget
 	Q_OBJECT
 public:
 	explicit QQBoardsInfo(QWidget *parent = 0);
+	~QQBoardsInfo();
 
 public slots:
 	void updateBoardList();

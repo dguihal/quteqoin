@@ -24,6 +24,11 @@ QQBoardsInfo::QQBoardsInfo(QWidget *parent) :
 	m_ui->setupUi(this);
 }
 
+QQBoardsInfo::~QQBoardsInfo()
+{
+	delete m_ui;
+}
+
 void QQBoardsInfo::updateBoardList()
 {
 	QList<QQBouchot *> listBouchots = QQBouchot::listBouchots();
