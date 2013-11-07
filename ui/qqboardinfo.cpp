@@ -41,7 +41,7 @@ QQBoardInfo::QQBoardInfo(QQBouchot *board, QWidget *parent) :
 	m_pctPollAnimation.setPropertyName("value");
 	rearmRefreshPB();
 	connect(m_board, SIGNAL(lastPostersUpdated()), this, SLOT(updateUserList()));
-	connect(m_board, SIGNAL(refreshError()), this, SLOT(showRefreshError()));
+	connect(m_board, SIGNAL(refreshError(QString&)), this, SLOT(showRefreshError(QString&)));
 	connect(m_board, SIGNAL(refreshStarted()), this, SLOT(rearmRefreshPB()));
 }
 
@@ -59,6 +59,7 @@ void QQBoardInfo::rearmRefreshPB()
 									   .append(" ")
 									   .append(QPROGRESSBAR_CHUNK_SS)
 									   .arg(m_board->settings().color().name()));
+		m_ui->refreshPB->setToolTip("");
 		m_refreshFailed = false;
 	}
 	m_ui->refreshPB->setValue(0);
@@ -66,12 +67,13 @@ void QQBoardInfo::rearmRefreshPB()
 	m_pctPollAnimation.start();
 }
 
-void QQBoardInfo::showRefreshError()
+void QQBoardInfo::showRefreshError(QString &errMsg)
 {
 	m_ui->refreshPB->setStyleSheet(QString(QPROGRESSBAR_COLOR_KO_SS)
 								   .append(" ")
 								   .append(QPROGRESSBAR_CHUNK_SS)
 								   .arg(m_board->settings().color().name()));
+	m_ui->refreshPB->setToolTip(errMsg);
 	m_refreshFailed = true;
 }
 

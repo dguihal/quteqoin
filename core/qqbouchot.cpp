@@ -273,19 +273,17 @@ void QQBouchot::fetchBackend()
 ///
 void QQBouchot::slotSslErrors(const QList<QSslError> &errors)
 {
-	bool signalSend = false;
+	QString msgs;
 	foreach(QSslError err, errors)
 	{
 		if(err.error() != QSslError::NoError)
 		{
 			qWarning() << "QQNetworkAccessor::slotNetworkReplyError: " << err.errorString();
-			if(! signalSend)
-			{
-				emit refreshError();
-				signalSend = true;
-			}
+			msgs.append(err.errorString()).append("\n");
 		}
 	}
+	if(msgs.length() > 0)
+		emit refreshError(msgs);
 }
 
 //////////////////////////////////////////////////////////////
@@ -296,9 +294,10 @@ void QQBouchot::requestFinishedSlot(QNetworkReply *reply)
 {
 	if(reply->error() != QNetworkReply::NoError)
 	{
+		QString errMsg = reply->errorString();
 		qWarning() << "QQBouchot::requestFinishedSlot, error : " << reply->error()
 				   << ", msg : " << reply->errorString();
-		emit refreshError();
+		emit refreshError(errMsg);
 	}
 	else
 	{

@@ -20,7 +20,7 @@ public:
 
 public slots:
 	void rearmRefreshPB();
-	void showRefreshError();
+	void showRefreshError(QString &errMsg);
 	void toggleExpandedView();
 	void updateUserList();
 
