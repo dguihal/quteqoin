@@ -30,6 +30,109 @@ QQPostParser::QQPostParser(QObject *parent) :
 }
 
 //////////////////////////////////////////////////////////////
+/// \brief QQPostParser::formatMessage
+/// \param post
+/// \return
+///
+QTextDocumentFragment* QQPostParser::formatMessage(QQPost *post, QQMessageBlockUserData *userData)
+{
+	/*
+	QTextDocument doc;
+
+	QString message = applyMessageTransformFilters(post->message(), post->bouchot()->name());
+	doc.setHtml(message);
+
+	colorizeBigorno(doc, post, userData);
+	colorizeDuck(doc, userData);
+	colorizeNRef(doc, post, userData);
+	colorizeTableVolante(doc, userData);
+	colorizeTotoz(doc, userData);
+
+	return new QTextDocumentFragment(&doc);
+	*/
+	QList<QTextDocumentFragment> msgFragments = splitMessage(post->message(), post, userData);
+	applyMessageFragmentTransformFilters(msgFragments, post->bouchot()->name());
+	QTextDocument doc;
+	QTextCursor cursor(&doc);
+	foreach (QTextDocumentFragment fragment, msgFragments) {
+		cursor.insertFragment(fragment);
+	}
+
+	colorizeBigorno(doc, post, userData);
+	colorizeDuck(doc, userData);
+	colorizeTableVolante(doc, userData);
+	colorizeTotoz(doc, userData);
+
+	return new QTextDocumentFragment(&doc);
+}
+
+//////////////////////////////////////////////////////////
+/// \brief QQPostParser::splitMessage
+/// \param message
+/// \param post
+/// \param userData
+/// \return
+///
+QList<QTextDocumentFragment> QQPostParser::splitMessage(const QString &message, QQPost *post, QQMessageBlockUserData *userData)
+{
+	QList<QTextDocumentFragment> res;
+
+	if(message.length() > 0)
+	{
+		QTextDocument doc;
+		doc.setHtml(message);
+		QTextCursor docFragmentCursor(&doc);
+		QTextCursor norlogeCursor(&doc);
+
+		QTextCharFormat repFmt = norlogeCursor.blockCharFormat();
+		repFmt.setForeground(QColor(NORLOGE_REP_COLOR));
+		repFmt.setFontWeight(QFont::DemiBold);
+
+		QTextCharFormat fmt = norlogeCursor.blockCharFormat();
+		fmt.setForeground(QColor(NORLOGE_COLOR));
+
+		QRegExp norlogeReg = QQNorlogeRef::norlogeRegexp();
+		while(! (norlogeCursor = doc.find(norlogeReg, norlogeCursor)).isNull())
+		{
+			QQNorlogeRef nRef = QQNorlogeRef(post->bouchot()->name(),
+											 post->norloge(),
+											 norlogeCursor.selectedText(),
+											 m_indexShit + norlogeCursor.selectionStart());
+			linkNorlogeRef(&nRef);
+			userData->addNorlogeRefZone(nRef);
+
+			norlogeCursor.mergeCharFormat(nRef.isReponse() ? repFmt : fmt);
+
+			if(norlogeCursor.selectionStart() != 0)
+			{
+				docFragmentCursor.setPosition(norlogeCursor.selectionStart(), QTextCursor::KeepAnchor);
+				if(! docFragmentCursor.selection().isEmpty())
+					res.append(docFragmentCursor.selection());
+				docFragmentCursor.setPosition(norlogeCursor.selectionStart(), QTextCursor:: MoveAnchor);
+			}
+		}
+		docFragmentCursor.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
+		if(! docFragmentCursor.selection().isEmpty())
+			res.append(docFragmentCursor.selection());
+	}
+	else
+		res.append(QTextDocumentFragment());
+
+	return res;
+}
+
+//////////////////////////////////////////////////////////
+/// \brief QQPostParser::applyMessageFragmentTransformFilters
+/// \param listMsgFragments
+/// \param bouchot
+///
+void QQPostParser::applyMessageFragmentTransformFilters(QList<QTextDocumentFragment> &listMsgFragments, const QString &bouchot)
+{
+	Q_UNUSED(listMsgFragments);
+	Q_UNUSED(bouchot);
+}
+
+//////////////////////////////////////////////////////////
 /// \brief QQPostParser::applyMessageTransformFilters
 /// \param message
 /// \param bouchot
@@ -47,26 +150,6 @@ QString QQPostParser::applyMessageTransformFilters(const QString &message, const
 	return newMessage;
 }
 
-//////////////////////////////////////////////////////////////
-/// \brief QQPostParser::formatMessage
-/// \param post
-/// \return
-///
-QTextDocumentFragment* QQPostParser::formatMessage(QQPost *post, QQMessageBlockUserData *userData)
-{
-	QTextDocument doc;
-
-	QString message = applyMessageTransformFilters(post->message(), post->bouchot()->name());
-	doc.setHtml(message);
-
-	colorizeBigorno(doc, post, userData);
-	colorizeDuck(doc, userData);
-	colorizeNRef(doc, post, userData);
-	colorizeTableVolante(doc, userData);
-	colorizeTotoz(doc, userData);
-
-	return new QTextDocumentFragment(&doc);
-}
 
 //////////////////////////////////////////////////////////////
 /// \brief QQPostParser::colorizeBigorno

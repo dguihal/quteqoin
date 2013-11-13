@@ -27,6 +27,9 @@ signals:
 public slots:
 
 private:
+	QList<QTextDocumentFragment> splitMessage(const QString &message, QQPost *post, QQMessageBlockUserData *userData);
+	void applyMessageFragmentTransformFilters(QList<QTextDocumentFragment> &listMsgFragments, const QString &bouchot);
+
 	QString applyMessageTransformFilters(const QString &message, const QString &bouchot);
 
 	void colorizeBigorno(QTextDocument &doc, QQPost *post, QQMessageBlockUserData *userData);
