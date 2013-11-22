@@ -135,20 +135,26 @@ void QQPalmiLineEdit::keyPressEvent(QKeyEvent *e)
 	int keyInt = e->key();
 	Qt::Key key = static_cast<Qt::Key>(keyInt);
 
-	if(e->modifiers() == Qt::AltModifier &&
-	   key >= SETTINGS_PALMI_SHORTCUTS_MIN_KEY &&
-	   key <= SETTINGS_PALMI_SHORTCUTS_MAX_KEY)
+	if(e->modifiers() == Qt::AltModifier)
 	{
-		QChar keyChr = QChar(keyInt).toLower();
-		for(int i = 0; i < palmishortcuts.size(); i++)
+		if(key >= SETTINGS_PALMI_SHORTCUTS_MIN_KEY &&
+			key <= SETTINGS_PALMI_SHORTCUTS_MAX_KEY)
 		{
-			if(keyChr == palmishortcuts.at(i).first)
+			QChar keyChr = QChar(keyInt).toLower();
+			for(int i = 0; i < palmishortcuts.size(); i++)
 			{
-				insertText(palmishortcuts.at(i).second);
+				if(keyChr == palmishortcuts.at(i).first)
+				{
+					insertText(palmishortcuts.at(i).second);
 
-				eventManaged = true;
-				break;
+					eventManaged = true;
+					break;
+				}
 			}
+		}
+		else if(key == Qt::Key_Up || key == Qt::Key_Down)
+		{
+			emit changeBoard(key == Qt::Key_Down);
 		}
 	}
 	else if(e->modifiers() == Qt::NoModifier &&
