@@ -31,6 +31,7 @@ signals:
 	void postMessage(const QString & bouchot, const QString & message);
 
 public slots:
+	void changeBoard(bool next);
 	void insertReplaceText(const QString &bouchot, const QString &tag);
 	void insertReplaceText(const QString &tag);
 	virtual void setVisible(bool visible);

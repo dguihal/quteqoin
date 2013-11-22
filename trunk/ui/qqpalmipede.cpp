@@ -45,6 +45,8 @@ QQPalmipede::QQPalmipede(QWidget *parent) :
 			this, SLOT(postPushButtonClicked()));
 	connect(m_ui->postLineEdit, SIGNAL(returnPressed()),
 			m_ui->postPushButton, SLOT(animateClick()));
+	connect(m_ui->postLineEdit, SIGNAL(changeBoard(bool)),
+			this, SLOT(changeBoard(bool)));
 
 	m_ui->boardSelectorComboBoxMin->setVisible(this->m_minimal);
 }
@@ -178,6 +180,21 @@ void QQPalmipede::setMinimal(bool minimal)
 		height += m_ui->cmdGrpWidget->height();
 
 	m_ui->dockWidgetContents->setMaximumHeight(height);
+}
+
+void QQPalmipede::changeBoard(bool next)
+{
+	int index = m_ui->boardSelectorComboBox->currentIndex();
+	int num = m_ui->boardSelectorComboBox->count();
+
+	if(next)
+		index = (index + 1) % num;
+	else
+		index = (index == 0) ? (num - 1) :  (index - 1);
+
+	m_ui->boardSelectorComboBox->setCurrentIndex(index);
+	m_ui->boardSelectorComboBoxMin->setCurrentIndex(index);
+	bouchotSelectorActivated(index);
 }
 
 void QQPalmipede::blamPafActivated(const QString & text)

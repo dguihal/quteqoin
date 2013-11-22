@@ -15,6 +15,7 @@ public:
 	explicit QQPalmiLineEdit(QWidget *parent = 0);
 
 signals:
+	void changeBoard(bool next);
 
 public slots:
 	void changeColor(const QColor &newColor);
