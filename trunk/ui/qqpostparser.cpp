@@ -36,21 +36,8 @@ QQPostParser::QQPostParser(QObject *parent) :
 ///
 QTextDocumentFragment* QQPostParser::formatMessage(QQPost *post, QQMessageBlockUserData *userData)
 {
-	/*
-	QTextDocument doc;
-
 	QString message = applyMessageTransformFilters(post->message(), post->bouchot()->name());
-	doc.setHtml(message);
-
-	colorizeBigorno(doc, post, userData);
-	colorizeDuck(doc, userData);
-	colorizeNRef(doc, post, userData);
-	colorizeTableVolante(doc, userData);
-	colorizeTotoz(doc, userData);
-
-	return new QTextDocumentFragment(&doc);
-	*/
-	QList<QTextDocumentFragment> msgFragments = splitMessage(post->message(), post, userData);
+	QList<QTextDocumentFragment> msgFragments = splitMessage(message, post, userData);
 	applyMessageFragmentTransformFilters(msgFragments, post->bouchot()->name());
 	QTextDocument doc;
 	QTextCursor cursor(&doc);
