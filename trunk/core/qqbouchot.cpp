@@ -44,7 +44,7 @@ QQBouchotDef bouchotsDef[] =
 	  "#d0d0ff", "euro,euroxers", "", QQBouchot::SlipTagsEncoded },
 	{ "finss", "http://finss.fr/drupal/node/95/xml", "http://finss.fr/drupal/node/95/post", "message=%m",
 	  "#d0ffd0", "finss", "", QQBouchot::SlipTagsRaw },
-	{ "shoop", "http://dax.sveetch.net/tribune/remote.xml?last=%i", "http://dax.sveetch.net/tribune/post.xml", "content=%m",
+	{ "shoop", "http://www.sveetch.net/tribune/remote/xml/?last=%i", "http://www.sveetch.net/tribune/post/xml", "content=%m",
 	  "#ededdb", "sveetch,dax", "shoop_sessionid=", QQBouchot::SlipTagsEncoded },
 	{ "moules", "http://moules.org/board/backend", "http://moules.org/board/add", "message=%m",
 	  "#ffe3c9", "", "", QQBouchot::SlipTagsEncoded },
