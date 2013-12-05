@@ -111,7 +111,7 @@ void QQPinipede::addPiniTab(const QString &groupName)
 	m_textBrowserHash.insert(groupName, textBrowser);
 
 	connect(textBrowser, SIGNAL(duckClicked(QString,QString)), m_huntingView, SLOT(launchDuck(QString,QString)));
-	connect(textBrowser, SIGNAL(shotDuck()), m_huntingView, SLOT(killDuck()));
+	connect(textBrowser, SIGNAL(shotDuck(bool)), m_huntingView, SLOT(killDuck(bool)));
 	connect(textBrowser, SIGNAL(norlogeClicked(QString, QQNorloge)), this, SLOT(norlogeClicked(QString, QQNorloge)));
 	connect(textBrowser, SIGNAL(norlogeRefClicked(QString, QQNorlogeRef)), this, SLOT(norlogeRefClicked(QString, QQNorlogeRef)));
 	connect(textBrowser, SIGNAL(loginClicked(QString, QString)), this, SLOT(loginClicked(QString, QString)));

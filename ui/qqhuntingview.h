@@ -18,7 +18,7 @@ signals:
 
 public slots:
 	void launchDuck(QString srcBouchot, QString postId);
-	void killDuck();
+	void killDuck(bool forceSilent);
 
 protected:
 	virtual void resizeEvent(QResizeEvent *event);

@@ -472,7 +472,7 @@ void QQTextBrowser::mouseReleaseEvent(QMouseEvent * event)
 			}
 		}
 		if(!duckLaunched)
-			emit shotDuck();
+			emit shotDuck(event->button() == Qt::MiddleButton);
 	}
 }
 
