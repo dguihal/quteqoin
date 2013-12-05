@@ -30,7 +30,7 @@ public slots:
 
 signals:
 	void duckClicked(QString srcBouchot, QString postId);
-	void shotDuck();
+	void shotDuck(bool forceSilent);
 	void norlogeClicked(QString srcBouchot, QQNorloge norloge);
 	void norlogeRefClicked(QString srcBouchot, QQNorlogeRef nRef);
 	void norlogeRefHovered(QQNorlogeRef norloge);

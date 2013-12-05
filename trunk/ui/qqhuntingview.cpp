@@ -76,8 +76,9 @@ void QQHuntingView::launchDuck(QString srcBouchot, QString postId)
 
 //////////////////////////////////////////////////////////////
 /// \brief QQHuntingView::killDuck
+/// \param forceSilent
 ///
-void QQHuntingView::killDuck()
+void QQHuntingView::killDuck(bool forceSilent)
 {
 	QPoint shotPoint = mapFromGlobal(QCursor::pos());
 	QPointF shotPointF(shotPoint);
@@ -90,7 +91,7 @@ void QQHuntingView::killDuck()
 		   shotPointF.y() >= itemPos.y() && shotPointF.y() <= (itemPos.y() + itemRect.height()))
 		{
 			QQSettings settings;
-			if(! settings.value(SETTINGS_HUNT_SILENT_ENABLED, DEFAULT_HUNT_SILENT_ENABLED).toBool())
+			if(! (forceSilent || settings.value(SETTINGS_HUNT_SILENT_ENABLED, DEFAULT_HUNT_SILENT_ENABLED).toBool()))
 				emit duckKilled(duck->bouchotName(), duck->postId());
 
 			m_duckList.removeOne(duck);
