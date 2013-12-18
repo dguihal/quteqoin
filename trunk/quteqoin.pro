@@ -60,7 +60,8 @@ SOURCES += main.cpp\
 	ui/settingsmanager/qqhuntsettings.cpp \
 	ui/qqboardsinfo.cpp \
 	ui/qqboardinfo.cpp \
-	core/qqmussel.cpp
+	core/qqmussel.cpp \
+	ui/qqmusselinfo.cpp
 
 HEADERS  += mainwindow.h \
 	core/qqsettings.h \
@@ -108,7 +109,8 @@ HEADERS  += mainwindow.h \
 	ui/settingsmanager/qqhuntsettings.h \
 	ui/qqboardsinfo.h \
 	ui/qqboardinfo.h \
-	core/qqmussel.h
+	core/qqmussel.h \
+	ui/qqmusselinfo.h
 
 FORMS += mainwindow.ui \
 	ui/qqpalmipede.ui \

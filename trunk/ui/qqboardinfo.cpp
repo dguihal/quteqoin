@@ -2,6 +2,7 @@
 #include "ui_qqboardinfo.h"
 
 #include "core/qqbouchot.h"
+#include "ui/qqmusselinfo.h"
 
 #include <QtDebug>
 
@@ -48,6 +49,10 @@ QQBoardInfo::QQBoardInfo(QQBouchot *board, QWidget *parent) :
 QQBoardInfo::~QQBoardInfo()
 {
 	delete m_ui;
+}
+
+void QQBoardInfo::musselSelected(QQMussel mussel)
+{
 }
 
 void QQBoardInfo::rearmRefreshPB()
@@ -110,12 +115,9 @@ void QQBoardInfo::updateUserList()
 
 		int vSpace = 0;
 		for(int i = 0; i < lastPosters.size(); i++)
-		{
-			QString name = lastPosters.at(i).name();
-			if(! lastPosters.at(i).isAuth())
-				name.prepend("<i>").append("</i>");
-
-			QLabel *lbl = new QLabel(name, boardInfoWidget);
+        {
+            QQMusselInfo *lbl = new QQMusselInfo(lastPosters.at(i), boardInfoWidget);
+            connect(lbl, SIGNAL(selected(QQMussel)), this, SLOT(musselSelected(QQMussel)));
 			lbl->setSizePolicy(policy);
 			lastPostersWidgetLayout->addWidget(lbl);
 			if(i < MAX_ITEMS)
