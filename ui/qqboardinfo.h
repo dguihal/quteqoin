@@ -1,6 +1,8 @@
 #ifndef QQBOARDINFO_H
 #define QQBOARDINFO_H
 
+#include "core/qqmussel.h"
+
 #include <QPropertyAnimation>
 #include <QWidget>
 
@@ -19,10 +21,11 @@ public:
 	~QQBoardInfo();
 
 public slots:
+    void musselSelected(QQMussel mussel);
 	void rearmRefreshPB();
 	void showRefreshError(QString &errMsg);
 	void toggleExpandedView();
-	void updateUserList();
+    void updateUserList();
 
 private:
 	Ui::QQBoardInfo *m_ui;
