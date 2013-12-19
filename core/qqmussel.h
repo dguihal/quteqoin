@@ -16,10 +16,15 @@ public:
 	bool equals(const QQMussel mussel) const;
 	bool operator== (const QQMussel mussel) const { return this->equals(mussel); }
 
+	uint hash() const;
+
 private:
 	QString m_name;
 	QString m_board;
 	bool m_isAuth;
 };
 
+inline uint qHash(const QQMussel &c) {
+	   return (c.hash());
+}
 #endif // QQMUSSEL_H
