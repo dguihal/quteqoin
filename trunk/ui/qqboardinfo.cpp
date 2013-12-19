@@ -5,6 +5,7 @@
 #include "ui/qqmusselinfo.h"
 
 #include <QtDebug>
+#include <QFontMetrics>
 
 #define QPROGRESSBAR_COLOR_OK_SS "QProgressBar { border: none; background-color: rgba(0, 0, 0, 0%);}"
 #define QPROGRESSBAR_COLOR_KO_SS "QProgressBar { border: none; background-color: rgba(0, 0, 0, 0%); color: red}"
@@ -22,6 +23,8 @@ QQBoardInfo::QQBoardInfo(QQBouchot *board, QWidget *parent) :
 
 	m_ui->setupUi(this);
 
+	m_ui->usrDspSA->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+	m_ui->usrDspSA->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
 
 	m_ui->bodyWidget->hide();
 	m_ui->showBtn->setText("+");
@@ -49,6 +52,14 @@ QQBoardInfo::QQBoardInfo(QQBouchot *board, QWidget *parent) :
 QQBoardInfo::~QQBoardInfo()
 {
 	delete m_ui;
+}
+
+
+QSize QQBoardInfo::sizeHint() const
+{
+	QFontMetrics fm = m_ui->usrDspSA->fontMetrics();
+	int minWidth = fm.boundingRect("moules").width();
+	return QSize(minWidth + m_ui->labelUsers->minimumWidth(), m_ui->labelUsers->minimumHeight());
 }
 
 void QQBoardInfo::musselSelected(QQMussel mussel)
@@ -103,8 +114,11 @@ void QQBoardInfo::updateUserList()
 
 	QWidget *boardInfoWidget = new QWidget(m_ui->usrDspSA);
 
+	QHash<QQMussel, QQMusselInfo *> newMusselInfoHash;
+
 	if(! lastPosters.isEmpty())
 	{
+
 		QVBoxLayout *lastPostersWidgetLayout = new QVBoxLayout(boardInfoWidget);
 		lastPostersWidgetLayout->setSpacing(1);
 		lastPostersWidgetLayout->setContentsMargins(0, 0, 0, 0);
@@ -116,12 +130,21 @@ void QQBoardInfo::updateUserList()
 		int vSpace = 0;
 		for(int i = 0; i < lastPosters.size(); i++)
         {
-            QQMusselInfo *lbl = new QQMusselInfo(lastPosters.at(i), boardInfoWidget);
-            connect(lbl, SIGNAL(selected(QQMussel)), this, SLOT(musselSelected(QQMussel)));
-			lbl->setSizePolicy(policy);
-			lastPostersWidgetLayout->addWidget(lbl);
+			QQMussel mussel = lastPosters.at(i);
+			QQMusselInfo *mi = NULL;
+			if((mi = m_musselInfoHash.value(mussel, NULL)) != NULL)
+				mi->setParent(boardInfoWidget);
+			else
+			{
+				mi = new QQMusselInfo(mussel);
+				connect(mi, SIGNAL(selected(QQMussel)), this, SLOT(musselSelected(QQMussel)));
+				mi->setSizePolicy(policy);
+			}
+
+			newMusselInfoHash.insert(mussel, mi);
+			lastPostersWidgetLayout->addWidget(mi);
 			if(i < MAX_ITEMS)
-				vSpace += lbl->sizeHint().height() + 1;
+				vSpace += mi->sizeHint().height() + 1;
 		}
 
 		QWidget *old = m_ui->usrDspSA->takeWidget();
@@ -139,4 +162,7 @@ void QQBoardInfo::updateUserList()
 	{
 		m_ui->usrDspSA->hide();
 	}
+
+	m_musselInfoHash.clear();
+	m_musselInfoHash = newMusselInfoHash;
 }

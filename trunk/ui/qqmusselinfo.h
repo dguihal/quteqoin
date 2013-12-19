@@ -21,7 +21,7 @@ signals:
 public slots:
 
 protected:
-    virtual void mousePressEvent(QMouseEvent *event);
+	virtual void mousePressEvent(QMouseEvent *event);
     virtual void mouseReleaseEvent(QMouseEvent *event);
 
 private:
