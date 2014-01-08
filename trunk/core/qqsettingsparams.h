@@ -31,6 +31,9 @@
 #define DEFAULT_GENERAL_HIGHLIGHT_COLOR "#FFE940"
 
 // TOTOZ
+#define TOTOZ_BOOKMARKS_FILE "totozBookmarks"
+
+//Temporaire
 #define SETTINGS_TOTOZ_BOOKMARKLIST "totoz_bookmarklist"
 
 #define SETTINGS_TOTOZ_SERVER_URL "totoz_server_url"

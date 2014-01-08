@@ -2,6 +2,7 @@
 
 #include "core/qqnorlogeref.h"
 #include "core/qqsettings.h"
+#include "ui/qqtotozmanager.h"
 
 #include <QtDebug>
 #include <QFocusEvent>
@@ -211,8 +212,7 @@ void QQPalmiLineEdit::updateCloseButton(const QString& text)
 ///
 void QQPalmiLineEdit::updateTotozCompleter()
 {
-	QQSettings settings;
-	m_listTotoz = settings.value(SETTINGS_TOTOZ_BOOKMARKLIST).toStringList();
+	m_listTotoz = QQTotozManager::bookmarkedTotozIds();
 	m_listTotoz.sort();
 }
 
