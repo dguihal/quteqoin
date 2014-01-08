@@ -165,7 +165,8 @@ QStringList QQTotozManager::bookmarkedTotozIds()
 	QQSettings settings;
 	if(settings.contains(SETTINGS_TOTOZ_BOOKMARKLIST))
 	{
-		setBookmarkedTotozIds(settings.value(SETTINGS_TOTOZ_BOOKMARKLIST, "").toStringList());
+		m_bookmarkListCache = settings.value(SETTINGS_TOTOZ_BOOKMARKLIST, "").toStringList();
+		setBookmarkedTotozIds(m_bookmarkListCache);
 		settings.remove(SETTINGS_TOTOZ_BOOKMARKLIST);
 	}
 	//
