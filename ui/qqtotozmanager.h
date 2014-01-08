@@ -32,6 +32,9 @@ public slots:
 	void totozSearchCanceled();
 	void totozSearchEnabled(bool enabled);
 
+	static QStringList bookmarkedTotozIds();
+	static void setBookmarkedTotozIds(QStringList newList);
+
 signals:
 	void totozClicked(QString anchor);
 
@@ -53,6 +56,8 @@ private:
 	QQTotozDownloader *m_totozDownloader;
 	QWidget *m_totozServerSearchWidget;
 	QWidget *m_oldFocusWidget;
+
+	static QStringList m_bookmarkListCache;
 };
 
 #endif // QQTOTOZMANAGER_H

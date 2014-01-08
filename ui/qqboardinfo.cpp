@@ -118,7 +118,6 @@ void QQBoardInfo::updateUserList()
 
 	if(! lastPosters.isEmpty())
 	{
-
 		QVBoxLayout *lastPostersWidgetLayout = new QVBoxLayout(boardInfoWidget);
 		lastPostersWidgetLayout->setSpacing(1);
 		lastPostersWidgetLayout->setContentsMargins(0, 0, 0, 0);
