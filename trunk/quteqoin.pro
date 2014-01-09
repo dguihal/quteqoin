@@ -139,7 +139,7 @@ QMAKE_CXXFLAGS_RELEASE += -DQT_NO_DEBUG_OUTPUT
 
 unix {
 	isEmpty(PREFIX) {
-		 PREFIX = /usr/local
+		PREFIX = /usr/local
 	}
 
 	target.path = $$PREFIX/bin
@@ -152,6 +152,9 @@ unix {
 	icon.files += QuteQoin-Icon.png
 
 	INSTALLS += target desktop icon
+
+	CONFIG += link_pkgconfig
+	PKGCONFIG += libnotify
 }
 
 # vim: ts=4 sw=4 sts=4 noexpandtab
