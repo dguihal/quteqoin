@@ -21,8 +21,8 @@ public:
 	QTextDocumentFragment* formatMessage(QQPost *post, QQMessageBlockUserData *userData);
 
 signals:
-	void totozRequired(QString & totozId);
-	void notifyBigorno();
+	void totozRequired(QString &totozId);
+	void bigorNotify(QString &srcBouchot, QString &poster, bool global);
 
 public slots:
 

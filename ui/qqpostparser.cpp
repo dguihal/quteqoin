@@ -168,7 +168,16 @@ void QQPostParser::colorizeBigorno(QTextDocument &doc, QQPost *post, QQMessageBl
 		QQBigornoItem bigItem(m_indexShit + cursor.selectionStart(), cursor.selectedText());
 		userData->addBigornoZone(bigItem);
 
-		emit notifyBigorno();
+		QString callerId = post->login();
+		if(callerId.length() == 0)
+			callerId = post->UA();
+
+		bool global = false;
+		if(cursor.selectedText() == "moules<")
+			global = true;
+
+		QString name = post->bouchot()->name();
+		emit bigorNotify(name, callerId, global);
 	}
 }
 

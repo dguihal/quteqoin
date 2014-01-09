@@ -71,7 +71,7 @@ public slots:
 	void hideTotozViewer();
 	void loginClicked(QString bouchot, QString login);
 	void newPostsAcknowledged(QString groupName);
-	void notify();
+	void bigorNotify(QString &srcBouchot, QString &poster, bool global);
 	void searchText(const QString &text, bool forward = true);
 
 signals:

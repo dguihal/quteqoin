@@ -13,6 +13,11 @@
 #include "ui/qqtotozmanager.h"
 #include "ui/qqtotozviewer.h"
 
+#ifdef Q_OS_UNIX
+#undef signals
+#include <libnotify/notify.h>
+#endif
+
 #include <QtAlgorithms>
 #include <QApplication>
 #include <QContextMenuEvent>
@@ -47,8 +52,8 @@ QQPinipede::QQPinipede(QWidget * parent) :
 	m_postparser = new QQPostParser(this);
 	connect(m_postparser, SIGNAL(totozRequired(QString &)),
 			m_totozDownloader, SLOT(fetchTotoz(QString &)));
-	connect(m_postparser, SIGNAL(notifyBigorno()),
-			this, SLOT(notify()));
+	connect(m_postparser, SIGNAL(bigorNotify(QString &, QString &, bool)),
+			this, SLOT(bigorNotify(QString &, QString &, bool)));
 
 	m_hiddenPostViewerLabelSSheet = QString::fromLatin1("border: 2px solid black; border-radius: 4px;");
 	m_hiddenPostViewerLabel = new QLabel(this);
@@ -333,10 +338,34 @@ void QQPinipede::newPostsAcknowledged(QString groupName)
 //////////////////////////////////////////////////////////////
 /// \brief QQPinipede::notify
 ///
-void QQPinipede::notify()
+void QQPinipede::bigorNotify(QString &srcBouchot, QString &poster, bool global)
 {
 	QIcon icon = QIcon(QString::fromLatin1(":/img/Point_exclamation_rouge.svg"));
 	window()->setWindowIcon(icon);
+
+#ifdef Q_OS_UNIX
+	const char name[] = "QuteQoin";
+	notify_init(name);
+
+	QString msg;
+	if(global)
+		msg = QString(tr("%1 called everyone on %2 board")).arg(poster).arg(srcBouchot);
+	else
+		msg = QString(tr("%1 called you on %2 board")).arg(poster).arg(srcBouchot);
+
+	NotifyNotification *notification = notify_notification_new(name, msg.toUtf8(), NULL);
+	if (notification)
+	{
+		notify_notification_set_timeout(notification, 3000);
+		if (!notify_notification_show(notification, NULL))
+			qDebug("Failed to send notification");
+
+		/* Clean up the memory */
+		g_object_unref(notification);
+	}
+	else
+		qDebug("Failed to create notification");
+#endif
 }
 
 //////////////////////////////////////////////////////////////
