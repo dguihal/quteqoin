@@ -75,6 +75,7 @@
 #define SETTINGS_BOUCHOT_POSTDATA "postData"
 #define SETTINGS_BOUCHOT_GROUP "group"
 #define SETTINGS_BOUCHOT_SLIPTYPE "slipType"
+#define SETTINGS_BOUCHOT_STRICTHTTPSCERTIF "strictHttpsCertif"
 
 // PALMI
 #define SETTINGS_PALMI_MINI "palmi_minimized"

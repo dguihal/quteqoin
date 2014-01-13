@@ -18,7 +18,7 @@ class QQBouchotSettingsDialog : public QDialog
 
 public:
 	QQBouchotSettingsDialog(QWidget *parent = 0);
-	QQBouchotSettingsDialog(QString, QQBouchot::QQBouchotSettings, QWidget *parent = 0);
+	QQBouchotSettingsDialog(QString bouchotName, QQBouchot::QQBouchotSettings bouchotSettings, QWidget *parent = 0);
 	~QQBouchotSettingsDialog();
 
 	QQBouchot::QQBouchotSettings bouchotSettings() { return m_bouchotSettings; }
@@ -38,8 +38,8 @@ private:
 	void setBouchot();
 
 	Ui::QQBouchotSettingsDialog *ui;
-	QQBouchot::QQBouchotSettings m_bouchotSettings;
 	QString m_bouchotName;
+	QQBouchot::QQBouchotSettings m_bouchotSettings;
 	QStringList m_listNames;
 };
 

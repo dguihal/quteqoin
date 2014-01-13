@@ -24,7 +24,9 @@ QQBouchotSettingsDialog::QQBouchotSettingsDialog(QWidget *parent) :
 
 QQBouchotSettingsDialog::QQBouchotSettingsDialog(QString bouchotName, QQBouchot::QQBouchotSettings bouchotSettings, QWidget * parent):
 	QDialog(parent),
-	ui(new Ui::QQBouchotSettingsDialog)
+	ui(new Ui::QQBouchotSettingsDialog),
+	m_bouchotName(bouchotName),
+	m_bouchotSettings(bouchotSettings)
 {
 	ui->setupUi(this);
 	connect(ui->presetPushButton, SIGNAL(clicked()), this, SLOT(usePresetPressed()));
@@ -36,8 +38,6 @@ QQBouchotSettingsDialog::QQBouchotSettingsDialog(QString bouchotName, QQBouchot:
 	ui->colorLineEdit->setValidator(new QRegExpValidator(reg, this));
 	ui->presetComboBox->addItems(QQBouchot::getBouchotDefNameList());
 
-	m_bouchotSettings = bouchotSettings;
-	m_bouchotName = bouchotName;
 	setBouchot();
 	ui->nameLineEdit->setReadOnly(true);
 }
@@ -55,8 +55,6 @@ void QQBouchotSettingsDialog::setGroups(QStringList listGroups)
 
 void QQBouchotSettingsDialog::setBouchot()
 {
-	qDebug() << "QQBouchotSettingsDialog::setBouchot";
-
 	//On ne change pas un nom de bouchot
 	ui->nameLineEdit->setText(m_bouchotName);
 	ui->nameLineEdit->setReadOnly(true);
@@ -73,6 +71,9 @@ void QQBouchotSettingsDialog::setBouchot()
 	ui->urlBackendLineEdit->setText(m_bouchotSettings.backendUrl());
 	ui->postDataLineEdit->setText(m_bouchotSettings.postData());
 	ui->slipTypeComboBox->setCurrentIndex(m_bouchotSettings.slipType());
+
+	//Adv.
+	ui->disStrictCertifCB->setChecked(! m_bouchotSettings.isStrictHttpsCertif());
 }
 
 void QQBouchotSettingsDialog::usePresetPressed()
@@ -146,6 +147,9 @@ void QQBouchotSettingsDialog::accept()
 		m_bouchotSettings.setBackendUrl(ui->urlBackendLineEdit->text());
 		m_bouchotSettings.setPostData(ui->postDataLineEdit->text());
 		m_bouchotSettings.setSlipType((QQBouchot::TypeSlip) ui->slipTypeComboBox->currentIndex());
+
+		//Adv.
+		m_bouchotSettings.setStrictHttpsCertif(! ui->disStrictCertifCB->isChecked());
 
 		m_bouchotName = ui->nameLineEdit->text();
 		QDialog::accept();
