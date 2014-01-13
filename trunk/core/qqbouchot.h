@@ -29,7 +29,6 @@ public:
 
 	class QQBouchotSettings
 	{
-
 	public:
 		QStringList aliases() const { return m_aliases; }
 		void setAliases(const QStringList &newAliases) { m_aliases = newAliases; }
@@ -72,6 +71,9 @@ public:
 		QString group() const { return m_group; }
 		void setGroup(const QString & newGroup) { m_group = newGroup; }
 
+		bool isStrictHttpsCertif() const { return m_strictHttpsCertif; }
+		void setStrictHttpsCertif(bool strictHttpsCertif) { m_strictHttpsCertif = strictHttpsCertif; }
+
 	private:
 		QStringList m_aliases;
 		QString m_backendUrl;
@@ -84,6 +86,7 @@ public:
 		TypeSlip m_slipType;
 		QString m_ua;
 		QString m_group;
+		bool m_strictHttpsCertif;
 
 		static const char Separator = ',';
 	};

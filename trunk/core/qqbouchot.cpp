@@ -259,7 +259,7 @@ void QQBouchot::fetchBackend()
 	if(m_bSettings.cookie().isEmpty() == false)
 		request.setRawHeader(QString::fromLatin1("Cookie").toLatin1(), m_bSettings.cookie().toLatin1());
 
-	QNetworkReply * reply = httpGet(request);
+	QNetworkReply *reply = httpGet(request);
 	connect(reply, SIGNAL(sslErrors(const QList<QSslError>&)), this, SLOT(slotSslErrors(const QList<QSslError>&)));
 
 	emit refreshStarted();
@@ -276,14 +276,23 @@ void QQBouchot::slotSslErrors(const QList<QSslError> &errors)
 	QString msgs;
 	foreach(QSslError err, errors)
 	{
-		if(err.error() != QSslError::NoError)
-		{
-			qWarning() << "QQNetworkAccessor::slotNetworkReplyError: " << err.errorString();
-			msgs.append(err.errorString()).append("\n");
+		switch (err.error()) {
+			case QSslError::SelfSignedCertificate:
+			case QSslError::CertificateUntrusted:
+				if(m_bSettings.isStrictHttpsCertif() == true)
+					msgs.append(err.errorString()).append("\n");
+				break;
+			case QSslError::NoError:
+				break;
+			default:
+				msgs.append(err.errorString()).append("\n");
+				break;
 		}
 	}
 	if(msgs.length() > 0)
 		emit refreshError(msgs);
+	else
+		((QNetworkReply *)sender())->ignoreSslErrors();
 }
 
 //////////////////////////////////////////////////////////////

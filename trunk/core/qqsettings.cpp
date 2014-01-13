@@ -109,6 +109,7 @@ void QQSettings::saveBouchot(const QString &name, const QQBouchot::QQBouchotSett
 	setValue(SETTINGS_BOUCHOT_POSTDATA, bouchotSettings.postData());
 	setValue(SETTINGS_BOUCHOT_GROUP, bouchotSettings.group());
 	setValue(SETTINGS_BOUCHOT_SLIPTYPE, bouchotSettings.slipType());
+	setValue(SETTINGS_BOUCHOT_STRICTHTTPSCERTIF, bouchotSettings.isStrictHttpsCertif());
 
 	endGroup();
 	endGroup();
@@ -141,6 +142,7 @@ QQBouchot * QQSettings::loadBouchot(const QString &name)
 	newBouchotSettings.setPostData(value(SETTINGS_BOUCHOT_POSTDATA, "").toString());
 	newBouchotSettings.setGroup(value(SETTINGS_BOUCHOT_GROUP, "").toString());
 	newBouchotSettings.setSlipType((QQBouchot::TypeSlip) value(SETTINGS_BOUCHOT_SLIPTYPE, "").toInt());
+	newBouchotSettings.setStrictHttpsCertif(value(SETTINGS_BOUCHOT_STRICTHTTPSCERTIF, true).toBool());
 
 	endGroup(); //beginGroup(name);
 	endGroup(); //beginGroup(QString::fromLatin1("bouchot"));
