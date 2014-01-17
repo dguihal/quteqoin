@@ -18,12 +18,12 @@ class QQHuntPixmapItem : public QObject, public QGraphicsPixmapItem
 	Q_OBJECT
 	Q_PROPERTY(QPointF pos READ pos WRITE setPos)
 public:
-	explicit QQHuntPixmapItem(QString srcBouchot, QString postId, QObject *parent = 0);
+	explicit QQHuntPixmapItem(QString srcBouchot, QString postId, bool selfItem, QObject *parent = 0);
 	~QQHuntPixmapItem();
-
 
 	QString bouchotName() const { return m_srcBouchot; }
 	QString postId() const { return m_postId; }
+	bool isSelfItem() const { return m_isSelfItem; }
 
 signals:
 
@@ -64,6 +64,7 @@ protected:
 
 	QString m_srcBouchot;
 	QString m_postId;
+	bool m_isSelfItem;
 };
 
 #endif // QQHUNTPIXMAPITEM_H

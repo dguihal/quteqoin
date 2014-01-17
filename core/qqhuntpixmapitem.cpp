@@ -10,12 +10,13 @@
 
 #define BASE_ANIM_PIX QString(":/anims/")
 
-QQHuntPixmapItem::QQHuntPixmapItem(QString srcBouchot, QString postId, QObject *parent) :
-	QObject(parent)
+QQHuntPixmapItem::QQHuntPixmapItem(QString srcBouchot, QString postId, bool selfItem, QObject *parent) :
+	QObject(parent),
+	m_srcBouchot(srcBouchot),
+	m_postId(postId),
+	m_isSelfItem(selfItem)
 {
 	setCacheMode(ItemCoordinateCache);
-	m_srcBouchot = srcBouchot;
-	m_postId = postId;
 
 	m_animation = new QSequentialAnimationGroup(this);
 	connect(m_animation, SIGNAL(finished()), this, SLOT(animate()));

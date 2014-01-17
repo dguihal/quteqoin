@@ -2,8 +2,8 @@
 
 #include <qmath.h>
 
-QQDuckPixmapItem::QQDuckPixmapItem(QString srcBouchot, QString postId, QObject *parent)
-	: QQHuntPixmapItem(srcBouchot, postId, parent)
+QQDuckPixmapItem::QQDuckPixmapItem(QString srcBouchot, QString postId, bool selfDuck, QObject *parent)
+	: QQHuntPixmapItem(srcBouchot, postId, selfDuck, parent)
 {
 	m_maxAnimPixmapNumInc = 3;
 }

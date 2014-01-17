@@ -57,15 +57,15 @@ void QQHuntingView::resizeEvent(QResizeEvent *event)
 /// \param srcBouchot
 /// \param postId
 ///
-void QQHuntingView::launchDuck(QString srcBouchot, QString postId)
+void QQHuntingView::launchDuck(QString srcBouchot, QString postId, bool selfDuck)
 {
 	QQSettings settings;
 
-	if(settings.value(SETTINGS_HUNT_MODE, DEFAULT_HUNT_MODE).toInt() == QuteQoin::Disabled ||
+	if(settings.value(SETTINGS_HUNT_MODE, DEFAULT_HUNT_MODE).toInt() == QuteQoin::HuntMode_Disabled ||
 	   settings.value(SETTINGS_HUNT_MAX_ITEMS, DEFAULT_HUNT_MAX_ITEMS).toInt() <= m_duckList.size())
 		return;
 
-	QQDuckPixmapItem *duck = new QQDuckPixmapItem(srcBouchot, postId);
+	QQDuckPixmapItem *duck = new QQDuckPixmapItem(srcBouchot, postId, selfDuck);
 	duck->setPos(mapFromGlobal(QCursor::pos()));
 	scene()->addItem(duck);
 
@@ -91,7 +91,9 @@ void QQHuntingView::killDuck(bool forceSilent)
 		   shotPointF.y() >= itemPos.y() && shotPointF.y() <= (itemPos.y() + itemRect.height()))
 		{
 			QQSettings settings;
-			if(! (forceSilent || settings.value(SETTINGS_HUNT_SILENT_ENABLED, DEFAULT_HUNT_SILENT_ENABLED).toBool()))
+			if(! (forceSilent
+				  || settings.value(SETTINGS_HUNT_SILENT_ENABLED, DEFAULT_HUNT_SILENT_ENABLED).toBool()
+				  || duck->isSelfItem()))
 				emit duckKilled(duck->bouchotName(), duck->postId());
 
 			m_duckList.removeOne(duck);
