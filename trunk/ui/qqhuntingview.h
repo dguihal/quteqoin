@@ -17,7 +17,7 @@ signals:
 	void duckKilled(QString srcBouchot, QString postId);
 
 public slots:
-	void launchDuck(QString srcBouchot, QString postId);
+	void launchDuck(QString srcBouchot, QString postId, bool selfDuck);
 	void killDuck(bool forceSilent);
 
 protected:

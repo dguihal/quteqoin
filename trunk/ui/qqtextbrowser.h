@@ -29,7 +29,7 @@ public slots:
 	void updateNotifArea(int);
 
 signals:
-	void duckClicked(QString srcBouchot, QString postId);
+	void duckClicked(QString srcBouchot, QString postId, bool isSelfPost);
 	void shotDuck(bool forceSilent);
 	void norlogeClicked(QString srcBouchot, QQNorloge norloge);
 	void norlogeRefClicked(QString srcBouchot, QQNorlogeRef nRef);

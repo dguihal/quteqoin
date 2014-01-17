@@ -115,7 +115,7 @@ void QQPinipede::addPiniTab(const QString &groupName)
 
 	m_textBrowserHash.insert(groupName, textBrowser);
 
-	connect(textBrowser, SIGNAL(duckClicked(QString,QString)), m_huntingView, SLOT(launchDuck(QString,QString)));
+	connect(textBrowser, SIGNAL(duckClicked(QString,QString,bool)), m_huntingView, SLOT(launchDuck(QString,QString,bool)));
 	connect(textBrowser, SIGNAL(shotDuck(bool)), m_huntingView, SLOT(killDuck(bool)));
 	connect(textBrowser, SIGNAL(norlogeClicked(QString, QQNorloge)), this, SLOT(norlogeClicked(QString, QQNorloge)));
 	connect(textBrowser, SIGNAL(norlogeRefClicked(QString, QQNorlogeRef)), this, SLOT(norlogeRefClicked(QString, QQNorlogeRef)));
@@ -869,7 +869,7 @@ void QQPinipede::newPostsAvailable(QString groupName)
 	QQSettings settings;
 	//On ne peut pas vérifier la valeur dans le "printPostAtCursor", trop couteux, du coup on la met a jour ici
 	m_duckAutolaunchEnabled =
-			(((QuteQoin::QQHuntMode) settings.value(SETTINGS_HUNT_MODE, DEFAULT_HUNT_MODE).toInt()) == QuteQoin::Auto);
+			(((QuteQoin::QQHuntMode) settings.value(SETTINGS_HUNT_MODE, DEFAULT_HUNT_MODE).toInt()) == QuteQoin::HuntMode_Auto);
 
 	int maxHistorySize = settings.value(SETTINGS_GENERAL_MAX_HISTLEN, DEFAULT_GENERAL_MAX_HISTLEN).toInt();
 	//Il ne sert a rien d'insérer plus que de posts que le max de l'historique
@@ -1121,8 +1121,8 @@ bool QQPinipede::printPostAtCursor(QTextCursor &cursor, QQPost *post)
 	block.setUserData(data);
 
 	//Duck autolaunch
-	if(m_duckAutolaunchEnabled && data->duckIndexes().size() > 0)
-		m_huntingView->launchDuck(post->bouchot()->name(), post->id());
+	if(m_duckAutolaunchEnabled && !post->isSelfPost() && data->duckIndexes().size() > 0)
+		m_huntingView->launchDuck(post->bouchot()->name(), post->id(), post->isSelfPost());
 
 	return true;
 }

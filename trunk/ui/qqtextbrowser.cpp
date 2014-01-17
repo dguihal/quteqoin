@@ -466,8 +466,7 @@ void QQTextBrowser::mouseReleaseEvent(QMouseEvent * event)
 				if(duck.first >= 0)
 				{
 					duckLaunched = true;
-					qDebug() << blockData->post()->bouchot()->name() << blockData->post()->id();
-					emit duckClicked(blockData->post()->bouchot()->name(), blockData->post()->id());
+					emit duckClicked(blockData->post()->bouchot()->name(), blockData->post()->id(), blockData->post()->isSelfPost());
 				}
 			}
 		}

@@ -18,7 +18,9 @@ public:
 	~QQHuntSettings();
 
 	QuteQoin::QQHuntMode huntMode() { return m_huntMode; }
-	void sethuntMode(QuteQoin::QQHuntMode huntMode);
+	void setHuntMode(QuteQoin::QQHuntMode huntMode);
+	QuteQoin::QQSLHuntMode slHuntMode() { return m_slHuntMode; }
+	void setSlHuntMode(QuteQoin::QQSLHuntMode slHuntMode);
 
 	bool silentHuntEnabled() { return m_isSilentHunt; }
 
@@ -30,11 +32,15 @@ public slots:
 
 protected slots:
 	void huntModeChanged();
+	void slHuntModeChanged();
 
 private:
+	void setWidgetsVisibility();
+
 	Ui::QQHuntSettings *ui;
 
 	QuteQoin::QQHuntMode m_huntMode;
+	QuteQoin::QQSLHuntMode m_slHuntMode;
 	bool m_isSilentHunt;
 	unsigned int m_maxHuntableItems;
 };

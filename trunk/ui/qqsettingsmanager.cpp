@@ -281,7 +281,10 @@ void QQSettingsManager::initHuntSettings()
 	QQSettings settings;
 
 	QuteQoin::QQHuntMode huntMode = (QuteQoin::QQHuntMode) settings.value(SETTINGS_HUNT_MODE, DEFAULT_HUNT_MODE).toInt();
-	m_huntSettingsW->sethuntMode(huntMode);
+	m_huntSettingsW->setHuntMode(huntMode);
+
+	QuteQoin::QQSLHuntMode slHuntMode = (QuteQoin::QQSLHuntMode) settings.value(SETTINGS_SL_HUNT_MODE, DEFAULT_SL_HUNT_MODE).toInt();
+	m_huntSettingsW->setSlHuntMode(slHuntMode);
 
 	bool silentHuntEnable = settings.value(SETTINGS_HUNT_SILENT_ENABLED, DEFAULT_HUNT_SILENT_ENABLED).toBool();
 	m_huntSettingsW->setSilentHunt(silentHuntEnable);
@@ -296,6 +299,9 @@ void QQSettingsManager::saveHuntSettings()
 
 	QuteQoin::QQHuntMode huntMode = m_huntSettingsW->huntMode();
 	settings.setValueWithDefault(SETTINGS_HUNT_MODE, huntMode, DEFAULT_HUNT_MODE);
+
+	QuteQoin::QQSLHuntMode slHuntMode = m_huntSettingsW->slHuntMode();
+	settings.setValueWithDefault(SETTINGS_SL_HUNT_MODE, slHuntMode, DEFAULT_SL_HUNT_MODE);
 
 	bool silentHuntEnable = m_huntSettingsW->silentHuntEnabled();
 	settings.setValueWithDefault(SETTINGS_HUNT_SILENT_ENABLED, silentHuntEnable, DEFAULT_HUNT_SILENT_ENABLED);

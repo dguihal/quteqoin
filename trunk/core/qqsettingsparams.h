@@ -93,7 +93,10 @@
 
 // HUNT
 #define SETTINGS_HUNT_MODE "hunt_mode"
-#define DEFAULT_HUNT_MODE QuteQoin::Manual
+#define DEFAULT_HUNT_MODE QuteQoin::HuntMode_Manual
+
+#define SETTINGS_SL_HUNT_MODE "sl_hunt_mode"
+#define DEFAULT_SL_HUNT_MODE QuteQoin::SLHuntMode_Disabled
 
 #define SETTINGS_HUNT_SILENT_ENABLED "hunt_silent_enabled"
 #define DEFAULT_HUNT_SILENT_ENABLED false
