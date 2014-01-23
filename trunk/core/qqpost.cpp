@@ -15,6 +15,7 @@
  */
 
 #include "core/qqbouchot.h"
+#include "core/qqnorloge.h"
 #include "core/qqpost.h"
 #include "core/qqsettings.h"
 
@@ -104,6 +105,16 @@ bool QQPost::isSelfPost()
 bool QQPost::isReponse()
 {
 	return false;
+}
+
+QQNorloge QQPost::norlogeObj() const
+{
+	QQNorloge targetN(bouchot()->name(),
+					  norloge());
+	if(isNorlogeMultiple())
+		targetN.setNorlogeIndex(norlogeIndex());
+
+	return targetN;
 }
 
 QString QQPost::norlogeComplete() const

@@ -24,6 +24,7 @@
 #include <QString>
 
 class QQBouchot;
+class QQNorloge;
 class QQPost;
 
 typedef QPointer<QQPost> QQPostPtr;
@@ -48,12 +49,13 @@ public:
 	//////////////////////////////////////////////////////////////////////////
 	////////////             Accesseurs          /////////////////////////////
 	//////////////////////////////////////////////////////////////////////////
-	QQBouchot * bouchot() { return (QQBouchot *)( this->parent() ); }
+	QQBouchot * bouchot() const { return (QQBouchot *)( this->parent() ); }
 
 	QString login() const { return this->m_login; }
 	void setLogin( const QString& login ) { this->m_login = login; }
 
 	QString norloge() const { return this->m_norloge; }
+	QQNorloge norlogeObj() const;
 	QString norlogeComplete() const;
 	QString norlogeFormatee() const;
 	void setNorloge( const QString& norloge ) { this->m_norloge = norloge; }
@@ -62,7 +64,7 @@ public:
 	int norlogeIndex() const { return this->m_norlogeIndex; }
 	void setNorlogeIndex(const int index) { this->m_norlogeIndex = index; }
 	void incrIndex() { this->m_norlogeIndex ++; }
-	bool isNorlogeMultiple() { return this->m_isNorlogeMultiple || this->m_norlogeIndex > 1; }
+	bool isNorlogeMultiple() const { return this->m_isNorlogeMultiple || this->m_norlogeIndex > 1; }
 	void setNorlogeMultiple(const bool isNorlogeMultiple) { this->m_isNorlogeMultiple = isNorlogeMultiple; }
 
 	QString id() const { return this->m_id; }

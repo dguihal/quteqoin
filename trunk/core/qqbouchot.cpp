@@ -446,17 +446,14 @@ void QQBouchot::updateLastUsers()
 		if(qAbs(currentDateTime.secsTo(postDateTime)) < MAX_TIME_USER_ACTIVE_S)
 		{
 			QString name;
-			bool isAuth;
+			bool isAuth = false;
 			if(post->login().size() > 0)
 			{
 				name = post->login();
 				isAuth = true;
 			}
 			else if((post->UA().size() > 0) && ! post->UA().contains('/'))
-			{
 				name = post->UA();
-				isAuth = false;
-			}
 
 			if(name.length() > 0)
 			{

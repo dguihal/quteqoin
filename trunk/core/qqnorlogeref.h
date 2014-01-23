@@ -47,21 +47,20 @@ public:
 	int getPosInMessage() const { return m_posInMessage; }
 
 	QString dstBouchot() const;
-	QString dstNorloge() const;
 
-	bool matchesPost(QQPost * post);
-	bool matchesNRef(const QQNorlogeRef & other);
+	bool matchesPost(QQPost* post);
+	bool matchesNRef(QQNorlogeRef &other);
 	bool isReponse();
 
 	bool isValid() const { return m_valid; }
 
-	QString toString() const;
+	QString nRefId();
 
 private:
+
 	QString m_dstBouchot;
 
 	QString m_origNRef;
-	QString m_nRefCmp;
 	int m_posInMessage;
 
 	QList< QPointer<QQPost> > m_listPostTarget;
@@ -73,6 +72,8 @@ private:
 
 	bool m_isReponseDefined;
 	bool m_isResponse;
+
+	QString m_refId;
 };
 
 #endif // QQNORLOGEREF_H

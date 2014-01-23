@@ -554,7 +554,7 @@ void QQPinipede::loginClicked(QString bouchot, QString login)
 ///
 void QQPinipede::norlogeRefHovered(QQNorlogeRef norlogeRef)
 {
-	qDebug() << "QQPinipede::norlogeRefHovered, value =" << norlogeRef.toString();
+	qDebug() << "QQPinipede::norlogeRefHovered, value =" << norlogeRef.nRefId() << norlogeRef.dstBouchot();
 
 	QStringList groups;
 
