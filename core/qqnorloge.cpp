@@ -5,49 +5,69 @@
 #include <QStringList>
 
 
-QQNorloge::QQNorloge()
+QQNorloge::QQNorloge() :
+	m_norlogeIndex(0)
 {
-	m_srcBouchot = QString();
-
-	m_dateYearPart = QString();
-	m_dateMonthPart = QString();
-	m_dateDayPart = QString();
-	m_dateHourPart = QString();
-	m_dateMinutePart = QString();
-	m_dateSecondPart = QString();
-
-	m_norlogeIndex = 0;
 }
 
 //m_date = QDateTime::fromString(dateh.left(14), QString::fromUtf8("yyyyMMddHHmmss"));
-QQNorloge::QQNorloge(QString bouchot, QString dateh)
+QQNorloge::QQNorloge(QString bouchot, QString dateh) :
+	m_srcBouchot(bouchot),
+	m_dateYearPart(dateh.left(4)),
+	m_dateMonthPart(dateh.mid(4, 2)),
+	m_dateDayPart(dateh.mid(6, 2)),
+	m_dateHourPart(dateh.mid(8, 2)),
+	m_dateMinutePart(dateh.mid(10, 2)),
+	m_dateSecondPart(dateh.mid(12, 2)),
+	m_norlogeIndex(0)
 {
-	m_srcBouchot = bouchot;
-
-	m_dateYearPart = dateh.left(4);
-	m_dateMonthPart = dateh.mid(4, 2);
-	m_dateDayPart = dateh.mid(6, 2);
-	m_dateHourPart = dateh.mid(8, 2);
-	m_dateMinutePart = dateh.mid(10, 2);
-	m_dateSecondPart = dateh.mid(12, 2);
-
-	m_norlogeIndex = 0;
 }
 
-QQNorloge::QQNorloge(const QQNorloge& norloge)
+QQNorloge::QQNorloge(const QQNorloge& norloge) :
+	m_srcBouchot(norloge.m_srcBouchot),
+	m_dateYearPart(norloge.m_dateYearPart),
+	m_dateMonthPart(norloge.m_dateMonthPart),
+	m_dateDayPart(norloge.m_dateDayPart),
+	m_dateHourPart(norloge.m_dateHourPart),
+	m_dateMinutePart(norloge.m_dateMinutePart),
+	m_dateSecondPart(norloge.m_dateSecondPart),
+	m_norlogeIndex(norloge.m_norlogeIndex)
 {
-	m_srcBouchot = norloge.m_srcBouchot;
-
-	m_dateYearPart = norloge.m_dateYearPart;
-	m_dateMonthPart = norloge.m_dateMonthPart;
-	m_dateDayPart = norloge.m_dateDayPart;
-	m_dateHourPart = norloge.m_dateHourPart;
-	m_dateMinutePart = norloge.m_dateMinutePart;
-	m_dateSecondPart = norloge.m_dateSecondPart;
-
-	m_norlogeIndex = norloge.m_norlogeIndex;
 }
 
+QStringList QQNorloge::matchingNRefsId() const
+{
+	QStringList rep;
+	QString baseHmStr = QString(m_dateHourPart).append("h").append(m_dateMinutePart).append("m");
+	rep.append(baseHmStr);
+
+	QString baseHmsStr = QString(baseHmStr).append(m_dateSecondPart).append("s");
+	rep.append(baseHmsStr);
+
+	QString baseMDhmsStr = QString(m_dateMonthPart).append("M")
+			.append(m_dateDayPart).append("D")
+			.append(baseHmsStr);
+	rep.append(baseMDhmsStr);
+
+	QString baseYMDhmsStr = QString(m_dateYearPart).append("Y")
+			.append(baseMDhmsStr);
+	rep.append(baseYMDhmsStr);
+
+	if(m_norlogeIndex > 0)
+	{
+		QString norlogeIndexStr = QString::number(m_norlogeIndex);
+		rep.append(baseHmsStr + QString(norlogeIndexStr).append("i"));
+		rep.append(baseMDhmsStr + QString(norlogeIndexStr).append("i"));
+		rep.append(baseYMDhmsStr + QString(norlogeIndexStr).append("i"));
+	}
+	else
+	{
+		rep.append(baseHmsStr + QString("1i"));
+		rep.append(baseMDhmsStr + QString("1i"));
+		rep.append(baseYMDhmsStr + QString("1i"));
+	}
+	return rep;
+}
 
 QString QQNorloge::toStringPalmi()
 {
@@ -77,7 +97,6 @@ QString QQNorloge::toStringPalmi()
 			.append(QString::fromUtf8(":"))
 			.append(m_dateSecondPart);
 
-	//TODO index à placer ici
 	switch (m_norlogeIndex)
 	{
 	case 0:
@@ -92,23 +111,10 @@ QString QQNorloge::toStringPalmi()
 		rep.append(QString::fromUtf8("³"));
 		break;
 	default:
-		rep.append(QString("^%d").arg(m_norlogeIndex));
+		rep.append(QString("^%1").arg(m_norlogeIndex));
 	}
 
 	rep.append(QString::fromUtf8("@")).append(m_srcBouchot);
 
-	return rep;
-}
-
-QString QQNorloge::toStringPini()
-{
-	QString rep = QString::fromUtf8("[");
-
-	rep.append(m_dateHourPart)
-			.append(QString::fromUtf8(":"))
-			.append(m_dateDayPart)
-			.append(QString::fromUtf8(":"))
-			.append(m_dateSecondPart)
-			.append(QString::fromUtf8("]"));
 	return rep;
 }

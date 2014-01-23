@@ -7,27 +7,33 @@
 
 
 QQNorlogeRef::QQNorlogeRef() :
-	QQNorloge()
+	QQNorloge(),
+	m_dstBouchot(QString()),
+	m_origNRef(QString()),
+	m_posInMessage(-1),
+	m_listPostTarget(QList< QPointer<QQPost> >()),
+	m_valid(false),
+	m_hasDate(false),
+	m_hasSec(false),
+	m_isReponseDefined(false),
+	m_isResponse(false),
+	m_refId(QString())
 {
-	m_posInMessage = -1;
-	m_norlogeIndex = 0;
-	m_valid = false;
-	m_hasDate = false;
-	m_hasSec = false;
-	m_isReponseDefined = false;
-	m_isResponse = false;
 }
 
 QQNorlogeRef::QQNorlogeRef(const QString &bouchot, const QString &dateh, const QString &norlogeRef, int posInMessage) :
-	QQNorloge(bouchot, dateh)
+	QQNorloge(bouchot, dateh),
+	m_dstBouchot(QString()),
+	m_origNRef(norlogeRef),
+	m_posInMessage(posInMessage),
+	m_listPostTarget(QList< QPointer<QQPost> >()),
+	m_valid(true),
+	m_hasDate(true),
+	m_hasSec(true),
+	m_isReponseDefined(false),
+	m_isResponse(false),
+	m_refId(QString())
 {
-	//On sauve la chaine de reference pour highlighter les semblables
-	m_origNRef = norlogeRef;
-	m_posInMessage = posInMessage;
-	m_valid = true;
-	m_hasDate = true;
-	m_hasSec = true;
-
 	QRegExp reg = norlogeRegexp();
 
 	m_norlogeIndex = 0; //tous les correspondants par défaut
@@ -83,27 +89,22 @@ QQNorlogeRef::QQNorlogeRef(const QString &bouchot, const QString &dateh, const Q
 		//supression du @ initial
 		m_dstBouchot.remove(QChar::fromLatin1('@'));
 	}
-	m_isReponseDefined = false;
-	m_isResponse = false;
 }
 
 
 QQNorlogeRef::QQNorlogeRef(const QQNorlogeRef & norlogeRef) :
-	QQNorloge(norlogeRef)
+	QQNorloge(norlogeRef),
+	m_dstBouchot(norlogeRef.m_dstBouchot),
+	m_origNRef(norlogeRef.m_origNRef),
+	m_posInMessage(norlogeRef.m_posInMessage),
+	m_listPostTarget(norlogeRef.m_listPostTarget),
+	m_valid(norlogeRef.m_valid),
+	m_hasDate(norlogeRef.m_hasDate),
+	m_hasSec(norlogeRef.m_hasSec),
+	m_isReponseDefined(norlogeRef.m_isReponseDefined),
+	m_isResponse(norlogeRef.m_isResponse),
+	m_refId(norlogeRef.m_refId)
 {
-	m_listPostTarget.append(norlogeRef.m_listPostTarget);
-
-	m_dstBouchot = norlogeRef.m_dstBouchot;
-
-	m_origNRef = norlogeRef.m_origNRef;
-	m_posInMessage = norlogeRef.m_posInMessage;
-
-	m_valid = norlogeRef.m_valid;
-	m_hasDate = norlogeRef.m_hasDate;
-	m_hasSec = norlogeRef.m_hasSec;
-
-	m_isReponseDefined = norlogeRef.m_isReponseDefined;
-	m_isResponse = norlogeRef.m_isResponse;
 }
 
 QString QQNorlogeRef::dstBouchot() const
@@ -111,25 +112,7 @@ QString QQNorlogeRef::dstBouchot() const
 	return (m_dstBouchot.size() > 0) ? m_dstBouchot : m_srcBouchot;
 }
 
-QString QQNorlogeRef::dstNorloge() const
-{
-	QString dstNorloge;
-
-	if(m_hasDate)
-	{
-		dstNorloge.append(m_dateYearPart);
-		dstNorloge.append(m_dateMonthPart);
-		dstNorloge.append(m_dateDayPart);
-	}
-	dstNorloge.append(m_dateHourPart);
-	dstNorloge.append(m_dateMinutePart);
-	if(m_hasSec)
-		dstNorloge.append(m_dateSecondPart);
-
-	return dstNorloge;
-}
-
-bool QQNorlogeRef::matchesPost(QQPost * post)
+bool QQNorlogeRef::matchesPost(QQPost* post)
 {
 	if(! m_valid)
 		return false;
@@ -152,28 +135,17 @@ bool QQNorlogeRef::matchesPost(QQPost * post)
 		}
 	}
 
+
 	if(! found)
 	{
 		QString dstB = dstBouchot();
 		if(dstB == post->bouchot()->name() ||
 		   post->bouchot()->settings().containsAlias(dstB))
 		{
-			QString postN = post->norloge();
-			QString dstN = dstNorloge();
-
-			//Suppression des secondes pour verif en cas de norloge raccourcie
-			if(! m_hasSec)
-				postN = postN.left(postN.length() - 2);
-
-			if(postN.endsWith(dstN))
+			if(post->norlogeObj().matchingNRefsId().contains(nRefId()))
 			{
-				//qDebug() << "QNorlogeRef::matchesPost : " << m_norlogeIndex << ", " << post->norlogeIndex();
-				if(m_norlogeIndex == 0 ||
-				   (m_norlogeIndex == post->norlogeIndex()))
-				{
-					m_listPostTarget.append(QPointer<QQPost>(post));
-					found = true;
-				}
+				m_listPostTarget.append(QPointer<QQPost>(post));
+				found = true;
 			}
 		}
 	}
@@ -181,7 +153,7 @@ bool QQNorlogeRef::matchesPost(QQPost * post)
 	return found;
 }
 
-bool QQNorlogeRef::matchesNRef(const QQNorlogeRef & other)
+bool QQNorlogeRef::matchesNRef(QQNorlogeRef& other)
 {
 	if(! m_valid || ! other.isValid())
 		return false;
@@ -189,20 +161,10 @@ bool QQNorlogeRef::matchesNRef(const QQNorlogeRef & other)
 	if(QString::compare(this->dstBouchot(), other.dstBouchot()) != 0)
 		return false;
 
-	QString selfNorloge = dstNorloge();
-	QString otherNorloge = other.dstNorloge();
+	QString selfNorlogeId = nRefId();
+	QString otherNorlogeId = other.nRefId();
 
-	if(! m_hasDate && ! otherNorloge.endsWith(selfNorloge))
-		return false;
-	else if(! selfNorloge.endsWith(otherNorloge))
-		return false;
-
-	else if(m_norlogeIndex != 0 &&
-			other.m_norlogeIndex != 0 &&
-			m_norlogeIndex != other.m_norlogeIndex)
-		return false;
-
-	return true;
+	return otherNorlogeId.contains(selfNorlogeId) || selfNorlogeId.contains(otherNorlogeId);
 }
 
 bool QQNorlogeRef::isReponse()
@@ -236,15 +198,28 @@ bool QQNorlogeRef::isReponse()
 	return m_isResponse;
 }
 
-QString QQNorlogeRef::toString() const
+
+QString QQNorlogeRef::nRefId()
 {
-	QString res;
-	if(isValid())
+	QString res = m_refId;
+	if(res.size() == 0 && isValid())
 	{
-		res.append(dstNorloge());
-		if(m_norlogeIndex > 0)
-			res.append('^').append(QString::number(m_norlogeIndex));
-		res.append('@').append(dstBouchot());
+		if(m_hasDate)
+		{
+			if(m_dateYearPart.size() > 0)
+				res.append(m_dateYearPart).append("Y");
+			res.append(m_dateMonthPart).append("M");
+			res.append(m_dateDayPart).append("D");
+		}
+		res.append(m_dateHourPart).append("h");
+		res.append(m_dateMinutePart).append("m");
+		if(m_hasSec)
+		{
+			res.append(m_dateSecondPart).append("s");
+			if(m_norlogeIndex > 0)
+				res.append(QString::number(m_norlogeIndex)).append("i");
+		}
+		m_refId = res;
 	}
 	return res;
 }

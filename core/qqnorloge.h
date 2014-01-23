@@ -11,8 +11,9 @@ public:
 	QQNorloge(QString bouchot, QString dateh);
 	QQNorloge(const QQNorloge& norloge);
 
+	QStringList matchingNRefsId() const;
+
 	QString toStringPalmi();
-	QString toStringPini();
 	QString srcBouchot() { return m_srcBouchot; }
 
 	void setNorlogeIndex(int index) { m_norlogeIndex = index;}

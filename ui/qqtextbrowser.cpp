@@ -195,11 +195,12 @@ void QQTextBrowser::updateNotifArea(int)
 
 void QQTextBrowser::highlightNorloge(QQNorlogeRef nRef)
 {
-	if(nRef.toString() != m_highlightedNorlogeRef)
+	QString id = nRef.nRefId().append("@").append(nRef.dstBouchot());
+	if(id != m_highlightedNorlogeRef)
 	{
 		unHighlightNorloge();
 		emit norlogeRefHovered(nRef);
-		m_highlightedNorlogeRef = nRef.toString();
+		m_highlightedNorlogeRef = id;
 	}
 }
 

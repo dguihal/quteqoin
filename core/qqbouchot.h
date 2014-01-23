@@ -94,8 +94,8 @@ public:
 	QQBouchot(const QString &name, QObject *parent = 0);
 	~QQBouchot();
 
-	QString name() { return m_name; }
-	QList<QQMussel> lastPosters() { return m_lastPosters; }
+	QString name() const { return m_name; }
+	QList<QQMussel> lastPosters() const { return m_lastPosters; }
 
 	void parseBackend(const QByteArray &data);
 	void postMessage(const QString &message);
