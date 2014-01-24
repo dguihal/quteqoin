@@ -157,4 +157,9 @@ unix {
 	PKGCONFIG += libnotify
 }
 
+win32 {
+RC_FILE = rc/quteqoin_win.rc
+}
+
+
 # vim: ts=4 sw=4 sts=4 noexpandtab
