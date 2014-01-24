@@ -42,7 +42,9 @@ int main(int argc, char *argv[])
 
 	purgeCache();
 
+#ifdef Q_OS_UNIX
 	notify_init(notif_name);
+#endif
 
 	MainWindow w;
 	w.show();

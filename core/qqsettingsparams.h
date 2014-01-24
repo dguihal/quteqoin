@@ -3,7 +3,9 @@
 
 #include "core/qqtypes.h"
 
+#ifdef Q_OS_UNIX
 const char notif_name[] = "QuteQoin";
+#endif
 
 #define MAX_CACHE_AGE_DAYS 60
 
