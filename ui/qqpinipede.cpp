@@ -340,6 +340,12 @@ void QQPinipede::newPostsAcknowledged(QString groupName)
 ///
 void QQPinipede::bigorNotify(QString &srcBouchot, QString &poster, bool global)
 {
+#ifndef Q_OS_UNIX
+	Q_UNUSED(srcBouchot)
+	Q_UNUSED(poster)
+	Q_UNUSED(global)
+#endif
+
 	QIcon icon = QIcon(QString::fromLatin1(":/img/Point_exclamation_rouge.svg"));
 	window()->setWindowIcon(icon);
 
@@ -365,6 +371,7 @@ void QQPinipede::bigorNotify(QString &srcBouchot, QString &poster, bool global)
 	}
 	else
 		qDebug("Failed to create notification");
+
 #endif
 }
 

@@ -64,6 +64,7 @@ QSize QQBoardInfo::sizeHint() const
 
 void QQBoardInfo::musselSelected(QQMussel mussel)
 {
+	Q_UNUSED(mussel)
 }
 
 void QQBoardInfo::rearmRefreshPB()
