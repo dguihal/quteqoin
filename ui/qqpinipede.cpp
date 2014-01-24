@@ -40,6 +40,10 @@
 #define UA_COLOR "#883333"
 #define UNKNOWN_POSTER_COLOR "#BB3333"
 
+//////////////////////////////////////////////////////////////
+/// \brief QQPinipede::QQPinipede
+/// \param parent
+///
 QQPinipede::QQPinipede(QWidget * parent) :
 	QTabWidget(parent)
 {
@@ -81,6 +85,9 @@ QQPinipede::QQPinipede(QWidget * parent) :
 	setMovable(true);
 }
 
+//////////////////////////////////////////////////////////////
+/// \brief QQPinipede::~QQPinipede
+///
 QQPinipede::~QQPinipede()
 {
 	delete m_totozDownloader;
@@ -94,11 +101,19 @@ QQPinipede::~QQPinipede()
 	}
 }
 
-void QQPinipede::setToolButton(QToolButton *toolButton)
+//////////////////////////////////////////////////////////////
+/// \brief QQPinipede::setToolButton
+/// \param toolButton
+///
+void QQPinipede::setToolButton(QWidget *toolButton)
 {
 	setCornerWidget(toolButton, Qt::TopRightCorner);
 }
 
+//////////////////////////////////////////////////////////////
+/// \brief QQPinipede::addPiniTab
+/// \param groupName
+///
 void QQPinipede::addPiniTab(const QString &groupName)
 {
 	if(count() == 1 && this->m_textBrowserHash.size() == 0)
@@ -128,6 +143,10 @@ void QQPinipede::addPiniTab(const QString &groupName)
 	connect(textBrowser, SIGNAL(displayTotozContextMenu(QPoint &)), m_totozViewer, SLOT(displayContextMenu(QPoint &)));
 }
 
+//////////////////////////////////////////////////////////////
+/// \brief QQPinipede::clearPiniTab
+/// \param groupName
+///
 void  QQPinipede::clearPiniTab(const QString &groupName)
 {
 	QQTextBrowser *textBrowser = m_textBrowserHash.value(groupName);
@@ -135,6 +154,10 @@ void  QQPinipede::clearPiniTab(const QString &groupName)
 		textBrowser->clear();
 }
 
+//////////////////////////////////////////////////////////////
+/// \brief QQPinipede::removePiniTab
+/// \param groupName
+///
 void QQPinipede::removePiniTab(const QString &groupName)
 {
 	QQTextBrowser *textBrowser = m_textBrowserHash.value(groupName);
@@ -151,6 +174,10 @@ void QQPinipede::removePiniTab(const QString &groupName)
 		addTab(new QWidget(), "(void)");
 }
 
+//////////////////////////////////////////////////////////////
+/// \brief QQPinipede::repaintPiniTab
+/// \param groupName
+///
 void QQPinipede::repaintPiniTab(const QString &groupName)
 {
 	QQTextBrowser *textBrowser = m_textBrowserHash.value(groupName);
@@ -197,12 +224,22 @@ void QQPinipede::repaintPiniTab(const QString &groupName)
 	newPostsAvailableMutex.unlock();
 }
 
-
+//////////////////////////////////////////////////////////////
+/// \brief QQPinipede::purgePiniTab
+/// \param groupName
+/// \param bouchotName
+///
 void QQPinipede::purgePiniTab(const QString &groupName, const QString &bouchotName)
 {
 	purgePinitab(groupName, bouchotName, INT_MAX);
 }
 
+//////////////////////////////////////////////////////////////
+/// \brief QQPinipede::purgePinitab
+/// \param groupName
+/// \param bouchotName
+/// \param max
+///
 void QQPinipede::purgePinitab(const QString &groupName, const QString &bouchotName, unsigned int max)
 {
 	QQTextBrowser *textBrowser = m_textBrowserHash.value(groupName);

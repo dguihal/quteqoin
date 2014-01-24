@@ -61,7 +61,8 @@ SOURCES += main.cpp\
 	ui/qqboardsinfo.cpp \
 	ui/qqboardinfo.cpp \
 	core/qqmussel.cpp \
-	ui/qqmusselinfo.cpp
+	ui/qqmusselinfo.cpp \
+    ui/qqcmdtoolbuttons.cpp
 
 HEADERS  += mainwindow.h \
 	core/qqsettings.h \
@@ -110,7 +111,8 @@ HEADERS  += mainwindow.h \
 	ui/qqboardsinfo.h \
 	ui/qqboardinfo.h \
 	core/qqmussel.h \
-	ui/qqmusselinfo.h
+	ui/qqmusselinfo.h \
+    ui/qqcmdtoolbuttons.h
 
 FORMS += mainwindow.ui \
 	ui/qqpalmipede.ui \
@@ -126,7 +128,8 @@ FORMS += mainwindow.ui \
 	ui/qqpinisearchwidget.ui \
 	ui/settingsmanager/qqhuntsettings.ui \
 	ui/qqboardsinfo.ui \
-	ui/qqboardinfo.ui
+	ui/qqboardinfo.ui \
+    ui/qqcmdtoolbuttons.ui
 
 OTHER_FILES +=
 

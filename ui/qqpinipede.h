@@ -43,7 +43,7 @@ public:
 	explicit QQPinipede(QWidget *parent = 0);
 	~QQPinipede();
 
-	void setToolButton(QToolButton *toolButton);
+	void setToolButton(QWidget *toolButton);
 
 	void addPiniTab(const QString &groupName);
 	void clearPiniTab(const QString &groupName);

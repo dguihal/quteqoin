@@ -8,6 +8,7 @@
 #include "ui/qqpinisearchwidget.h"
 #include "ui/qqsettingsmanager.h"
 #include "ui/qqtotozmanager.h"
+#include "ui/qqcmdtoolbuttons.h"
 
 #include <QtDebug>
 #include <QCloseEvent>
@@ -58,13 +59,20 @@ MainWindow::MainWindow(QWidget *parent) :
 	QAction *actionBoardInfo = m_boardsInfo->toggleViewAction();
 	actionBoardInfo->setShortcut(Qt::ControlModifier + Qt::Key_I);
 	// Setup du bouton d'options
+
+	/*
 	QToolButton *toolButton = new QToolButton();
 	toolButton->setIcon(QIcon(":/img/settings-icon.png"));
 	toolButton->addAction(actionBoardInfo);
 	toolButton->addAction(actionPalmi);
 	toolButton->addAction(actionTotozManager);
+	*/
+	QQCmdToolButtons *cmdToolsBtn = new QQCmdToolButtons(this);
+	cmdToolsBtn->addAction(actionBoardInfo);
+	cmdToolsBtn->addAction(actionPalmi);
+	cmdToolsBtn->addAction(actionTotozManager);
 
-	connect(toolButton, SIGNAL(clicked()), this, SLOT(displayOptions()));
+	connect(cmdToolsBtn, SIGNAL(showOptions()), this, SLOT(displayOptions()));
 
 	// Setup du pini
 	QWidget *centralWidget = new QWidget(this);
@@ -72,7 +80,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	layout->setContentsMargins(1, 1, 1, 1);
 
 	m_pini = new QQPinipede(this);
-	m_pini->setToolButton(toolButton);
+	m_pini->setToolButton(cmdToolsBtn);
 	m_pini->setTotozManager(m_totozManager);
 	connect(m_pini, SIGNAL(insertTextPalmi(QString, QString)), m_palmi, SLOT(insertReplaceText(QString, QString)));
 	layout->addWidget(m_pini);
@@ -90,7 +98,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	actionSearch->setShortcut(Qt::ControlModifier + Qt::Key_F);
 	actionSearch->setCheckable(true);
 	connect(actionSearch, SIGNAL(triggered(bool)), m_pSearchW, SLOT(setVisible(bool)));
-	toolButton->addAction(actionSearch);
+	cmdToolsBtn->addAction(actionSearch);
 
 	QQSettings settings;
 	if(settings.contains(SETTINGS_MAINWINDOW_GEOMETRY))
