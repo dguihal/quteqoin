@@ -3,6 +3,8 @@
 
 #include "core/qqtypes.h"
 
+const char notif_name[] = "QuteQoin";
+
 #define MAX_CACHE_AGE_DAYS 60
 
 #define SETTINGS_TOTOZ_PRESETS_PATH ":/totoz"

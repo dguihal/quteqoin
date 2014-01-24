@@ -11,6 +11,11 @@
 #include <QDir>
 #include <QSettings>
 
+#ifdef Q_OS_UNIX
+#undef signals
+#include <libnotify/notify.h>
+#endif
+
 void purgeCache()
 {
 #if(QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
@@ -36,6 +41,8 @@ int main(int argc, char *argv[])
 	QSettings::setDefaultFormat(QSettings::IniFormat);
 
 	purgeCache();
+
+	notify_init(notif_name);
 
 	MainWindow w;
 	w.show();

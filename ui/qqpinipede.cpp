@@ -387,17 +387,14 @@ void QQPinipede::bigorNotify(QString &srcBouchot, QString &poster, bool global)
 	window()->setWindowIcon(icon);
 
 #ifdef Q_OS_UNIX
-	const char name[] = "QuteQoin";
-	notify_init(name);
-
 	QString msg;
 	if(global)
 		msg = QString(tr("%1 called everyone on %2 board")).arg(poster).arg(srcBouchot);
 	else
 		msg = QString(tr("%1 called you on %2 board")).arg(poster).arg(srcBouchot);
 
-	NotifyNotification *notification = notify_notification_new(name, msg.toUtf8(), NULL);
-	if (notification)
+	NotifyNotification *notification = notify_notification_new(notif_name, msg.toUtf8(), NULL);
+	if(notification)
 	{
 		notify_notification_set_timeout(notification, 3000);
 		if (!notify_notification_show(notification, NULL))
@@ -408,7 +405,6 @@ void QQPinipede::bigorNotify(QString &srcBouchot, QString &poster, bool global)
 	}
 	else
 		qDebug("Failed to create notification");
-
 #endif
 }
 
@@ -1021,6 +1017,7 @@ void QQPinipede::newPostsAvailable(QString groupName)
 
 	//Remise en place de l'ancienne forme du pointeur
 	QApplication::restoreOverrideCursor();
+	QApplication::alert(this->parentWidget(), 0);
 
 	//Signalement de nouveaux posts dans le nom du Tab
 	QString tabName = groupName;
