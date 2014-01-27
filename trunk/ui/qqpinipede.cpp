@@ -620,14 +620,19 @@ void QQPinipede::norlogeRefHovered(QQNorlogeRef norlogeRef)
 		{
 			// Get the cursor position near the top left corner of the current viewport.
 			QTextCursor cursor = textBrowser->cursorForPosition(QPoint(0, 0));
-			// Get the cursor position near the bottom left corner of the current viewport.
-			int endBlockPos = (textBrowser->cursorForPosition(QPoint(textBrowser->viewport()->width(), textBrowser->viewport()->height()))).blockNumber();
 
 			QList<QTextEdit::ExtraSelection> extraSelections;
 			extraSelections.clear();
-			while(cursor.movePosition(QTextCursor::NextBlock) && cursor.blockNumber() <= endBlockPos)
+			while(cursor.movePosition(QTextCursor::NextBlock))
 			{
-				QQMessageBlockUserData * userData = (QQMessageBlockUserData *) cursor.block().userData();
+				QTextBlock currBlock = cursor.block();
+				if(! currBlock.isVisible())
+					break;
+
+				QQMessageBlockUserData* userData = (QQMessageBlockUserData *) currBlock.userData();
+				if(userData == NULL)
+					continue;
+
 				if(norlogeRef.matchesPost(userData->post()))
 				{
 					QColor highlightColor;
@@ -687,6 +692,8 @@ void QQPinipede::norlogeRefHovered(QQNorlogeRef norlogeRef)
 		do
 		{
 			QQMessageBlockUserData * userData = (QQMessageBlockUserData *) (cursor.block().userData());
+			if(userData == NULL)
+				continue;
 
 			if(norlogeRef.matchesPost(userData->post()))
 			{
