@@ -35,8 +35,9 @@ signals:
 	void norlogeRefClicked(QString srcBouchot, QQNorlogeRef nRef);
 	void norlogeRefHovered(QQNorlogeRef norloge);
 	void unHighlight(QQTextBrowser *);
-	void displayTotoz(QString &totozId);
-	void concealTotoz();
+	void displayTotoz(const QString &totozId);
+	void displayWebImage(const QUrl &url);
+	void hideViewers();
 	void displayTotozContextMenu(QPoint &pos);
 	void loginClicked(QString bouchot, QString login);
 	void newPostsAcknowledged(QString groupName);
@@ -56,7 +57,7 @@ protected slots:
 	void handleContentTypeAvailable(QUrl &url, QString &contentType);
 
 private:
-	void hideTotoz();
+	void clearViewers();
 	void highlightNorloge(QQNorlogeRef nRef);
 	void showTotoz(QString &totozId);
 	void unHighlightNorloge();

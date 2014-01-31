@@ -27,6 +27,7 @@ class QQPostDisplayFilter;
 class QQPostParser;
 class QQTotozDownloader;
 class QQTotozViewer;
+class QQWebImageViewer;
 
 class QLabel;
 class QLineEdit;
@@ -67,8 +68,9 @@ public slots:
 	void norlogeRefClicked(QString srcBouchot, QQNorlogeRef nRef);
 	void norlogeRefHovered(QQNorlogeRef norlogeRef);
 	void unHighlight(QQTextBrowser *tBrowser);
-	void showTotozViewer(QString &totozId);
-	void hideTotozViewer();
+	void showWebImageViewer(const QUrl &url);
+	void showTotozViewer(const QString &totozId);
+	void hideViewers();
 	void loginClicked(QString bouchot, QString login);
 	void newPostsAcknowledged(QString groupName);
 	void bigorNotify(QString &srcBouchot, QString &poster, bool global);
@@ -91,6 +93,7 @@ private:
 	QQTotozDownloader *m_totozDownloader;
 	QQTotozManager *m_totozManager;
 	QQTotozViewer *m_totozViewer;
+	QQWebImageViewer *m_webImageViewer;
 	QLabel *m_hiddenPostViewerLabel;
 	QBuffer m_totozData;
 	QString m_hiddenPostViewerLabelSSheet;

@@ -12,6 +12,7 @@
 #include "ui/qqtextbrowser.h"
 #include "ui/qqtotozmanager.h"
 #include "ui/qqtotozviewer.h"
+#include "ui/qqwebimageviewer.h"
 
 #ifdef Q_OS_UNIX
 #undef signals
@@ -71,10 +72,14 @@ QQPinipede::QQPinipede(QWidget * parent) :
 
 	m_totozViewer = new QQTotozViewer("", this);
 	m_totozViewer->hide();
-	m_totozViewer->setAttribute(Qt::WA_TransparentForMouseEvents);
-	m_totozViewer->setScaledContents(false);
 	m_totozViewer->setTotozDownloader(m_totozDownloader);
 	m_totozViewer->enableBookmarksAdd();
+	m_totozViewer->setAttribute(Qt::WA_TransparentForMouseEvents);
+
+	m_webImageViewer = new QQWebImageViewer(this);
+	m_webImageViewer->setImgMaxSize(QSize(50, 50));
+	m_webImageViewer->hide();
+	m_webImageViewer->setAttribute(Qt::WA_TransparentForMouseEvents);
 
 	addTab(new QWidget(), "(void)");
 
@@ -137,8 +142,9 @@ void QQPinipede::addPiniTab(const QString &groupName)
 	connect(textBrowser, SIGNAL(loginClicked(QString, QString)), this, SLOT(loginClicked(QString, QString)));
 	connect(textBrowser, SIGNAL(norlogeRefHovered(QQNorlogeRef)), this, SLOT(norlogeRefHovered(QQNorlogeRef)));
 	connect(textBrowser, SIGNAL(unHighlight(QQTextBrowser *)), this, SLOT(unHighlight(QQTextBrowser *)));
-	connect(textBrowser, SIGNAL(displayTotoz(QString &)), this, SLOT(showTotozViewer(QString &)));
-	connect(textBrowser, SIGNAL(concealTotoz()), this, SLOT(hideTotozViewer()));
+	connect(textBrowser, SIGNAL(displayTotoz(const QString &)), this, SLOT(showTotozViewer(const QString &)));
+	connect(textBrowser, SIGNAL(displayWebImage(const QUrl &)), this, SLOT(showWebImageViewer(const QUrl &)));
+	connect(textBrowser, SIGNAL(hideViewers()), this, SLOT(hideViewers()));
 	connect(textBrowser, SIGNAL(newPostsAcknowledged(QString)), this, SLOT(newPostsAcknowledged(QString)));
 	connect(textBrowser, SIGNAL(displayTotozContextMenu(QPoint &)), m_totozViewer, SLOT(displayContextMenu(QPoint &)));
 }
@@ -185,12 +191,12 @@ void QQPinipede::repaintPiniTab(const QString &groupName)
 		return;
 
 	while(! newPostsAvailableMutex.tryLock(1000))
-		qWarning() << "repaintPiniTab " << groupName << "tryLock timeout";
+		qWarning() << Q_FUNC_INFO << groupName << "tryLock timeout";
 
 	QApplication::setOverrideCursor(Qt::BusyCursor);
 	int sliderPos = textBrowser->verticalScrollBar()->sliderPosition();
 
-	qDebug() << textBrowser->document()->blockCount();
+	qDebug() << Q_FUNC_INFO << textBrowser->document()->blockCount();
 
 	QTextCursor cursor(textBrowser->document());
 	cursor.movePosition(QTextCursor::End);
@@ -257,11 +263,11 @@ void QQPinipede::purgePinitab(const QString &groupName, const QString &bouchotNa
 	QQPost *post = NULL;
 	do
 	{
-		qDebug() << "QQPinipede::purgePiniTab block num=" << cursor.block().blockNumber()
+		qDebug() << Q_FUNC_INFO << "block num=" << cursor.block().blockNumber()
 				 << ", doc->blockCount()=" << textBrowser->document()->blockCount();
 
 		QQMessageBlockUserData * userData = (QQMessageBlockUserData *) (cursor.block().userData());
-		qDebug() << "QQPinipede::purgePiniTab userData->post()->bouchot()->name()=" << userData->post()->bouchot()->name()
+		qDebug() << Q_FUNC_INFO << "userData->post()->bouchot()->name()=" << userData->post()->bouchot()->name()
 				 << ", bouchotName=" << bouchotName;
 		post = userData->post();
 		if(post->bouchot()->name() == bouchotName)
@@ -398,13 +404,13 @@ void QQPinipede::bigorNotify(QString &srcBouchot, QString &poster, bool global)
 	{
 		notify_notification_set_timeout(notification, 3000);
 		if (!notify_notification_show(notification, NULL))
-			qDebug("Failed to send notification");
+			qDebug() << Q_FUNC_INFO << "Failed to send notification";
 
 		/* Clean up the memory */
 		g_object_unref(notification);
 	}
 	else
-		qDebug("Failed to create notification");
+		qDebug() << Q_FUNC_INFO << "Failed to create notification";
 #endif
 }
 
@@ -594,7 +600,7 @@ void QQPinipede::loginClicked(QString bouchot, QString login)
 ///
 void QQPinipede::norlogeRefHovered(QQNorlogeRef norlogeRef)
 {
-	qDebug() << "QQPinipede::norlogeRefHovered, value =" << norlogeRef.nRefId() << norlogeRef.dstBouchot();
+	qDebug() << Q_FUNC_INFO << "value =" << norlogeRef.nRefId() << norlogeRef.dstBouchot();
 
 	QStringList groups;
 
@@ -697,7 +703,6 @@ void QQPinipede::norlogeRefHovered(QQNorlogeRef norlogeRef)
 
 			if(norlogeRef.matchesPost(userData->post()))
 			{
-				//qDebug() << "QQPinipede::norlogeRefHovered cursor.blockNumber()=" << cursor.blockNumber();
 				cursor.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
 				QTextDocumentFragment fragment = cursor.selection();
 				if(! destCursor.atBlockStart())
@@ -745,15 +750,33 @@ void QQPinipede::unHighlight(QQTextBrowser *tBrowser)
 }
 
 //////////////////////////////////////////////////////////////
+/// \brief QQPinipede::showWebImageViewer
+/// \param totozId
+///
+void QQPinipede::showWebImageViewer(const QUrl &url)
+{
+	hideViewers();
+
+	QQSettings settings;
+	if(! settings.value(SETTINGS_WEB_IMAGE_VIEWER_ENABLED, DEFAULT_WEB_IMAGE_VIEWER_ENABLED).toBool())
+		return;
+
+	m_webImageViewer->setParent(currentWidget());
+	m_webImageViewer->showImg(url);
+	m_webImageViewer->show();
+}
+
+//////////////////////////////////////////////////////////////
 /// \brief QQPinipede::showTotozViewer
 /// \param totozId
 ///
-void QQPinipede::showTotozViewer(QString & totozId)
+void QQPinipede::showTotozViewer(const QString &totozId)
 {
-	hideTotozViewer();
+	hideViewers();
 
 	QQSettings settings;
-	if(settings.value(SETTINGS_TOTOZ_VISUAL_MODE, DEFAULT_TOTOZ_VISUAL_MODE).toString() == TOTOZ_VISUAL_MODE_DISABLED)
+	if(settings.value(SETTINGS_TOTOZ_VISUAL_MODE, DEFAULT_TOTOZ_VISUAL_MODE).toString() ==
+			TOTOZ_VISUAL_MODE_DISABLED)
 		return;
 
 	m_totozViewer->setParent(currentWidget());
@@ -762,12 +785,14 @@ void QQPinipede::showTotozViewer(QString & totozId)
 }
 
 //////////////////////////////////////////////////////////////
-/// \brief QQPinipede::hideTotozViewer
+/// \brief QQPinipede::hideViewers
 ///
-void QQPinipede::hideTotozViewer()
+void QQPinipede::hideViewers()
 {
 	m_totozViewer->hide();
 	m_totozViewer->setParent(this);
+	m_webImageViewer->hide();
+	m_webImageViewer->setParent(this);
 }
 
 //////////////////////////////////////////////////////////////
@@ -885,12 +910,12 @@ unsigned int QQPinipede::insertPostToList(QQListPostPtr *listPosts, QQPost *post
 ///
 void QQPinipede::newPostsAvailable(QString groupName)
 {
-	qDebug() << "QQPinipede::newPostsAvailable from : " << groupName;
+	qDebug() << Q_FUNC_INFO << "from : " << groupName;
 
 	//On est obligé de locker pour éviter la pagaille dans le pini.
 	// un locking plus fin pourrait être obtenu en implémentant un lock par groupe
 	while(! newPostsAvailableMutex.tryLock(1000))
-		qWarning() << "newPostsAvailable " << groupName << "tryLock timeout";
+		qWarning() << Q_FUNC_INFO << groupName << "tryLock timeout";
 
 	QQTextBrowser * textBrowser = m_textBrowserHash.value(groupName);
 	bool wasAtEnd = (textBrowser->verticalScrollBar()->sliderPosition() == textBrowser->verticalScrollBar()->maximum());
@@ -901,7 +926,7 @@ void QQPinipede::newPostsAvailable(QString groupName)
 		QQListPostPtr newPostsBouchot = b->takeNewPosts();
 		if(newPostsBouchot.size() > 0)
 		{
-			qDebug() << "QQPinipede::newPostsAvailable, newPosts from :" << b->name();
+			qDebug() << Q_FUNC_INFO << "newPosts from :" << b->name();
 			newPosts.append(newPostsBouchot);
 		}
 	}

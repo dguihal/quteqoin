@@ -10,6 +10,7 @@
 #include <QApplication>
 #include <QCursor>
 #include <QFontMetrics>
+#include <QLabel>
 #include <QMenu>
 #include <QMouseEvent>
 #include <QNetworkReply>
@@ -27,7 +28,11 @@
 #define ITEM_AREA_WIDTH 6 //Px
 
 QQTextBrowser::QQTextBrowser(QString groupName, QQPinipede *parent) :
-	QTextBrowser(parent)
+	QTextBrowser(parent),
+	m_notifArea(new QQNotifArea(this)),
+	m_urlHelper(new QQPiniUrlHelper(this)),
+	m_mouseClick(false),
+	m_groupName(groupName)
 {
 	QQSettings settings;
 
@@ -35,10 +40,6 @@ QQTextBrowser::QQTextBrowser(QString groupName, QQPinipede *parent) :
 	setReadOnly(true);
 	setOpenExternalLinks(true);
 
-	m_groupName = groupName;
-	m_highlightedNorlogeRef.clear();
-	m_mouseClick = false;
-	m_urlHelper = new QQPiniUrlHelper(this);
 	connect(m_urlHelper, SIGNAL(contentTypeAvailable(QUrl&,QString&)), this, SLOT(handleContentTypeAvailable(QUrl&,QString&)));
 
 	QTextDocument * doc = document();
@@ -74,7 +75,6 @@ QQTextBrowser::QQTextBrowser(QString groupName, QQPinipede *parent) :
 	viewport()->setCursor(Qt::ArrowCursor);
 	setViewportMargins(notifAreaWidth(), 0, 0, 0);
 
-	m_notifArea = new QQNotifArea(this);
 	connect(this->verticalScrollBar(), SIGNAL(valueChanged(int)), this, SLOT(updateNotifArea(int)));
 
 	verticalScrollBar()->setInvertedControls(true);
@@ -111,7 +111,7 @@ void QQTextBrowser::notifAreaPaintEvent(QPaintEvent * event)
 
 	// Pour le bigorno
 	QColor bigornoBrushColor(255, 0, 0, 100);
-	QColor  bigornoPenColor(100, 0, 0);
+	QColor bigornoPenColor(100, 0, 0);
 
 	// Recuperation du premier bloc a dessiner
 	QTextBlock block = cursorForPosition(
@@ -240,6 +240,11 @@ void QQTextBrowser::handleContentTypeAvailable(QUrl &url, QString &contentType)
 			ttText.append(" (").append(contentType).append(")");
 			QToolTip::showText(QCursor::pos(), ttText, this);
 		}
+
+		if(contentType.startsWith("image/"))
+		{
+			emit displayWebImage(url);
+		}
 	}
 }
 
@@ -257,13 +262,19 @@ void QQTextBrowser::webSearchActionTriggered()
 	}
 }
 
-void QQTextBrowser::hideTotoz()
+void QQTextBrowser::clearViewers()
 {
+	bool emitSignal = false;
 	if(m_displayedTotozId.length() > 0)
 	{
 		m_displayedTotozId.clear();
-		emit concealTotoz();
+		emitSignal = true;
 	}
+	if(! QToolTip::isVisible())
+		emitSignal = true;
+
+	if(emitSignal)
+		emit hideViewers();
 }
 
 /*
@@ -277,7 +288,7 @@ void QQTextBrowser::leaveEvent(QEvent * event)
 	// On masque les élements d'affichage dynamiques
 	unHighlightNorloge();
 	QToolTip::hideText();
-	hideTotoz();
+	clearViewers();
 }
 
 void QQTextBrowser::mouseMoveEvent(QMouseEvent * event)
@@ -311,6 +322,7 @@ void QQTextBrowser::mouseMoveEvent(QMouseEvent * event)
 #endif
 		if(blockData->isIndexInZRange(posInBlock, QQMessageBlockUserData::MESSAGE))
 		{
+			bool triggerClearViewers = true;
 			//Est-on au dessus d'une url
 			// Ouverture l'url si on est au dessus d'un lien
 			if(httpAnchor.length() > 0)
@@ -322,6 +334,7 @@ void QQTextBrowser::mouseMoveEvent(QMouseEvent * event)
 
 					m_urlHelper->getContentType(QUrl(httpAnchor));
 				}
+				triggerClearViewers = false;
 			}
 			else
 				QToolTip::hideText();
@@ -336,9 +349,13 @@ void QQTextBrowser::mouseMoveEvent(QMouseEvent * event)
 			//Gestion des Totoz
 			QString totozId = blockData->totozIdForIndex(posInBlock);
 			if(totozId.length() > 0)
+			{
 				showTotoz(totozId);
-			else //il faut cacher l'affichage du Totoz puisqu'on n'en survole pas
-				hideTotoz();
+				triggerClearViewers = false;
+			}
+
+			if(triggerClearViewers)
+				clearViewers();
 
 		}
 		else if(blockData->isIndexInZRange(posInBlock, QQMessageBlockUserData::NORLOGE))
@@ -356,7 +373,7 @@ void QQTextBrowser::mouseMoveEvent(QMouseEvent * event)
 		{
 			// Il faut unhilighter puisqu'on ne survole pas de zone de norloge ni de zone de message
 			unHighlightNorloge();
-			hideTotoz();
+			hideViewers();
 		}
 	}
 }
