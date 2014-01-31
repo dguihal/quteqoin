@@ -5,22 +5,25 @@
 #include <QApplication>
 #include <QAuthenticator>
 #include <QNetworkProxyFactory>
+#include <QTimer>
 
-QQNetworkAccessor::QQNetworkAccessor(QObject * parent) :
+#define NETWORK_REQUEST_TIMEOUT_MS 60000
+
+QQNetworkAccessor::QQNetworkAccessor(QObject *parent) :
 	QObject(parent)
 {
 	m_qnam = createQNAM();
 
-	connect(m_qnam, SIGNAL(finished(QNetworkReply*)),
-			this, SLOT(requestFinishedSlot(QNetworkReply*)));
+	connect(m_qnam, SIGNAL(finished(QNetworkReply *)),
+			this, SLOT(requestFinishedSlot(QNetworkReply *)));
 
-	connect(m_qnam, SIGNAL(proxyAuthenticationRequired(QNetworkProxy, QAuthenticator*)),
-			this, SLOT(proxyAuthenticationRequired(QNetworkProxy, QAuthenticator*)));
+	connect(m_qnam, SIGNAL(proxyAuthenticationRequired(QNetworkProxy, QAuthenticator *)),
+			this, SLOT(onProxyAuthenticationRequired(QNetworkProxy, QAuthenticator *)));
 }
 
 QNetworkAccessManager * QQNetworkAccessor::createQNAM()
 {
-	QNetworkAccessManager * qnam = new QNetworkAccessManager(this);
+	QNetworkAccessManager *qnam = new QNetworkAccessManager(this);
 
 	qnam->proxyFactory()->setUseSystemConfiguration(true);
 
@@ -110,16 +113,42 @@ QDateTime QQNetworkAccessor::parseRC822(QString string)
 	return datetime;
 }
 
+QNetworkReply * QQNetworkAccessor::httpGet(const QNetworkRequest &request)
+{
+	QTimer *replyTimer = new QTimer(this);
+	replyTimer->setSingleShot(true);
+
+	QNetworkReply *reply = m_qnam->get(request);
+	connect(replyTimer, SIGNAL(timeout()), this, SLOT(onRequestTimeout()));
+	connect(reply, SIGNAL(finished()), replyTimer, SLOT(stop()));
+	connect(reply, SIGNAL(downloadProgress(qint64,qint64)), replyTimer, SLOT(start()));
+	connect(reply, SIGNAL(destroyed(QObject*)), this, SLOT(onRemoveTimer(QObject*)));
+	replyTimer->start(NETWORK_REQUEST_TIMEOUT_MS);
+	m_replyTimers.insert(reply, replyTimer);
+
+	return reply;
+}
+
+QNetworkReply * QQNetworkAccessor::httpHead(const QNetworkRequest &request)
+{
+	return m_qnam->head(request);
+}
+
+QNetworkReply * QQNetworkAccessor::httpPost(const QNetworkRequest &request, const QByteArray &postData)
+{
+	return m_qnam->post(request, postData);
+}
+
 // Gestion du proxy
 QMutex QQNetworkAccessor::m_proxyPopupMutex;
 QString QQNetworkAccessor::m_proxyUser;
 QString QQNetworkAccessor::m_proxyPasswd;
 
-void QQNetworkAccessor::proxyAuthenticationRequired(const QNetworkProxy & proxy, QAuthenticator * authenticator)
+void QQNetworkAccessor::onProxyAuthenticationRequired(const QNetworkProxy &proxy, QAuthenticator *authenticator)
 {
 	Q_UNUSED(proxy)
 
-	qDebug() << "QQSettings::proxyAuthenticationRequired";
+	qDebug() << Q_FUNC_INFO << "enter";
 	//Premier echec
 	if(QQNetworkAccessor::m_proxyUser.size() != 0 &&
 			authenticator->user() != QQNetworkAccessor::m_proxyUser)
@@ -131,7 +160,7 @@ void QQNetworkAccessor::proxyAuthenticationRequired(const QNetworkProxy & proxy,
 	{
 		if(QQNetworkAccessor::m_proxyPopupMutex.tryLock())
 		{
-			QQProxyAuthDialog * proxyDialog = new QQProxyAuthDialog();
+			QQProxyAuthDialog* proxyDialog = new QQProxyAuthDialog();
 			proxyDialog->setLogin(QQNetworkAccessor::m_proxyUser);
 			proxyDialog->setPasswd(QQNetworkAccessor::m_proxyPasswd);
 			if(proxyDialog->exec() == QDialog::Accepted)
@@ -152,19 +181,28 @@ void QQNetworkAccessor::proxyAuthenticationRequired(const QNetworkProxy & proxy,
 	}
 }
 
-QNetworkReply * QQNetworkAccessor::httpGet(const QNetworkRequest & request)
+void QQNetworkAccessor::onRemoveTimer(QObject *obj)
 {
-	return m_qnam->get(request);
+	qDebug() << Q_FUNC_INFO << obj;
+	QTimer *timer = m_replyTimers.take((QNetworkReply *) obj);
+	if(timer != NULL)
+		delete timer;
 }
 
-QNetworkReply * QQNetworkAccessor::httpHead(const QNetworkRequest & request)
+void QQNetworkAccessor::onRequestTimeout()
 {
-	return m_qnam->head(request);
-}
-
-QNetworkReply * QQNetworkAccessor::httpPost(const QNetworkRequest & request, const QByteArray &postData)
-{
-	return m_qnam->post(request, postData);
+	foreach(QNetworkReply *reply, m_replyTimers.keys())
+	{
+		QTimer *timer = m_replyTimers.value(reply);
+		if(! timer->isActive())
+		{
+			reply->abort();
+			qDebug() << Q_FUNC_INFO << reply->url() << "aborted";
+			m_replyTimers.remove(reply);
+			reply->deleteLater();
+			timer->deleteLater();
+		}
+	}
 }
 
 

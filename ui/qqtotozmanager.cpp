@@ -344,6 +344,7 @@ void QQTotozManager::createViewer(QScrollArea *dest, const QStringList &ids, QQT
 			viewer->enableBookmarksAdd();
 		else if(action == QQTotoz::REMOVE)
 			viewer->enableBookmarksRem();
+		viewer->setShowAtMousePos(false);
 
 		viewer->setTotozId(ids.at(i));
 		connect(viewer, SIGNAL(totozBookmarkAct(QString,QQTotoz::TotozBookmarkAction)), this, SLOT(totozBookmarkDo(QString,QQTotoz::TotozBookmarkAction)));

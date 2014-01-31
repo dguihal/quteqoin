@@ -2,23 +2,21 @@
 #define QQTMLABEL_H
 
 #include "core/qqtotoz.h"
+#include "ui/qqimageviewer.h"
 
-#include <QBuffer>
-#include <QLabel>
-#include <QMovie>
 #include <QString>
 
 class QQTotozDownloader;
 
 class QMovie;
 
-class QQTotozViewer : public QLabel
+class QQTotozViewer : public QQImageViewer
 {
 	Q_OBJECT
 
 public:
-	QQTotozViewer(QWidget *parent = 0) : QLabel(parent) { init(""); }
-	QQTotozViewer(const QString &totozId = "", QWidget *parent = 0) : QLabel(parent) { init(totozId); }
+	QQTotozViewer(QWidget *parent = 0) : QQImageViewer(parent) { init(""); }
+	QQTotozViewer(const QString &totozId = "", QWidget *parent = 0) : QQImageViewer(parent) { init(totozId); }
 	~QQTotozViewer();
 
 	void enableBookmarksAdd(const bool enableBmAdd = true) { m_bookmarkAddEnabled = enableBmAdd; }
@@ -28,34 +26,28 @@ public:
 
 public slots:
 	void displayContextMenu(QPoint &pos);
-	void totozAvailable(QString &totozId, bool success, QString &errMsg);
 
 signals:
 	void totozClicked(QString anchor);
 	void totozBookmarkAct(QString anchor, QQTotoz::TotozBookmarkAction);
 
 protected:
-	void updateImg();
+	void updateTotoz();
 	virtual void contextMenuEvent(QContextMenuEvent *ev);
 	virtual void enterEvent(QEvent *event);
-	virtual void hideEvent(QHideEvent *event);
 	virtual void leaveEvent(QEvent *event);
 	virtual void mousePressEvent(QMouseEvent *ev);
 	virtual void mouseReleaseEvent(QMouseEvent *ev);
-	virtual void showEvent(QShowEvent *event);
+
+protected slots:
+	void totozAvailable(QString &totozId, bool success, QString &errMsg);
 
 private:
-	void displayText(QString text);
-	void displayMovie();
-	void displayImage(QImage &image);
 	QString getAnchor();
+	void handleInvalidTotozData();
 	void init(const QString &totozId);
-	void setPos();
 
 	QString m_totozId;
-
-	QMovie m_totozMovie;
-	QBuffer m_totozDataBuffer;
 
 	QQTotozDownloader *m_downloader;
 

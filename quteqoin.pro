@@ -12,6 +12,15 @@ greaterThan(QT_MAJOR_VERSION, 4) {
 	QT += declarative
 }
 
+# A Tester
+#linux-g++ {
+#    system( g++ --version | grep -e "\<4.[8-9]" ) {
+#        message( g++ version > 4.8found )
+#        QMAKE_CXXFLAGS_DEBUG += -fsanitize=address -Og
+#    }
+#}
+#QMAKE_CXXFLAGS_RELEASE += -O2
+
 TARGET = quteqoin
 TEMPLATE = app
 
@@ -62,7 +71,10 @@ SOURCES += main.cpp\
 	ui/qqboardinfo.cpp \
 	core/qqmussel.cpp \
 	ui/qqmusselinfo.cpp \
-    ui/qqcmdtoolbuttons.cpp
+        ui/qqcmdtoolbuttons.cpp \
+        ui/qqimageviewer.cpp \
+        ui/qqwebimageviewer.cpp \
+        core/qqwebimagedownloader.cpp
 
 HEADERS  += mainwindow.h \
 	core/qqsettings.h \
@@ -112,7 +124,10 @@ HEADERS  += mainwindow.h \
 	ui/qqboardinfo.h \
 	core/qqmussel.h \
 	ui/qqmusselinfo.h \
-    ui/qqcmdtoolbuttons.h
+        ui/qqcmdtoolbuttons.h \
+        ui/qqimageviewer.h \
+        ui/qqwebimageviewer.h \
+        core/qqwebimagedownloader.h
 
 FORMS += mainwindow.ui \
 	ui/qqpalmipede.ui \
@@ -129,7 +144,7 @@ FORMS += mainwindow.ui \
 	ui/settingsmanager/qqhuntsettings.ui \
 	ui/qqboardsinfo.ui \
 	ui/qqboardinfo.ui \
-    ui/qqcmdtoolbuttons.ui
+        ui/qqcmdtoolbuttons.ui
 
 OTHER_FILES +=
 
