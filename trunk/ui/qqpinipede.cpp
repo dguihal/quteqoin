@@ -616,13 +616,16 @@ void QQPinipede::norlogeRefHovered(QQNorlogeRef norlogeRef)
 		{
 			// Get the cursor position near the top left corner of the current viewport.
 			QTextCursor cursor = textBrowser->cursorForPosition(QPoint(0, 0));
+			//last visible block number
+			QPoint bRP(textBrowser->viewport()->width(), textBrowser->viewport()->height());
+			int lastBlkNum = textBrowser->cursorForPosition(bRP).block().blockNumber();
 
 			QList<QTextEdit::ExtraSelection> extraSelections;
 			extraSelections.clear();
 			while(cursor.movePosition(QTextCursor::NextBlock))
 			{
 				QTextBlock currBlock = cursor.block();
-				if(! currBlock.isVisible())
+				if(currBlock.blockNumber() > lastBlkNum)
 					break;
 
 				QQMessageBlockUserData* userData = (QQMessageBlockUserData *) currBlock.userData();
