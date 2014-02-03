@@ -145,7 +145,7 @@ void QQPinipede::addPiniTab(const QString &groupName)
 	connect(textBrowser, SIGNAL(displayTotoz(const QString &)), this, SLOT(showTotozViewer(const QString &)));
 	connect(textBrowser, SIGNAL(displayWebImage(const QUrl &)), this, SLOT(showWebImageViewer(const QUrl &)));
 	connect(textBrowser, SIGNAL(hideViewers()), this, SLOT(hideViewers()));
-	connect(textBrowser, SIGNAL(newPostsAcknowledged(QString)), this, SLOT(newPostsAcknowledged(QString)));
+	connect(textBrowser, SIGNAL(newPostsAcknowledged(QString)), this, SLOT(onNewPostsAcknowledged(QString)));
 	connect(textBrowser, SIGNAL(displayTotozContextMenu(QPoint &)), m_totozViewer, SLOT(displayContextMenu(QPoint &)));
 }
 
@@ -198,19 +198,11 @@ void QQPinipede::repaintPiniTab(const QString &groupName)
 
 	qDebug() << Q_FUNC_INFO << textBrowser->document()->blockCount();
 
-	QTextCursor cursor(textBrowser->document());
-	cursor.movePosition(QTextCursor::End);
-	do
-	{
-		QQMessageBlockUserData *uData = (QQMessageBlockUserData *) cursor.block().userData();
-		if(uData->isNew())
-			break;
-	} while(cursor.movePosition(QTextCursor::PreviousBlock));
-	int lastNew = cursor.blockNumber();
 
 	clearPiniTab(groupName);
 
 	QQListPostPtr *posts = m_listPostsTabMap.value(groupName);
+	QTextCursor cursor(textBrowser->document());
 	cursor.beginEditBlock();
 	bool postwasPrinted = printPostAtCursor(cursor, posts->at(0));
 	for(int i = 1; i < posts->size(); i++)
@@ -218,8 +210,6 @@ void QQPinipede::repaintPiniTab(const QString &groupName)
 		if(postwasPrinted)
 			cursor.insertBlock();
 		printPostAtCursor(cursor, posts->at(i));
-		if(i < lastNew)
-			((QQMessageBlockUserData *) cursor.block().userData())->setAcknowledged();
 	}
 	cursor.endEditBlock();
 
@@ -369,10 +359,10 @@ bool QQPinipede::event(QEvent *e)
 }
 
 //////////////////////////////////////////////////////////////
-/// \brief QQPinipede::newPostsAcknowledged
+/// \brief QQPinipede::onNewPostsAcknowledged
 /// \param groupName
 ///
-void QQPinipede::newPostsAcknowledged(QString groupName)
+void QQPinipede::onNewPostsAcknowledged(QString groupName)
 {
 	QQTextBrowser * textBrowser = m_textBrowserHash.value(groupName);
 	setTabText(indexOf(textBrowser), groupName);
@@ -512,7 +502,7 @@ void QQPinipede::duckKilled(QString board, QString postId)
 {
 	QQBouchot *bouchotDest = QQBouchot::bouchot(board);
 	QString message;
-	foreach(QQPost *post, bouchotDest->getPostsHistory())
+	foreach(QQPost *post, bouchotDest->postsHistory())
 	{
 		if(post->id() == postId)
 		{

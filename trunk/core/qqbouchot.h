@@ -108,7 +108,7 @@ public:
 	void stopRefresh();
 
 	QQListPostPtr takeNewPosts();
-	QQListPostPtr getPostsHistory() { return m_history; }
+	QQListPostPtr postsHistory() { return m_history; }
 	void setNewPostsFromHistory();
 
 	void setPiniWidget(QWidget *widget) { m_piniWidget = widget; }

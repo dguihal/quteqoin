@@ -262,14 +262,14 @@ void QQPostParser::linkNorlogeRef(QQNorlogeRef *nRef)
 	if(bouchot == NULL)
 		return;
 
-	QQListPostPtr history = bouchot->getPostsHistory();
+	QQListPostPtr history = bouchot->postsHistory();
 
 	// Parcourir du plus recent au plus ancien devrait etre plus rapide car
 	// les reponse sont souvent proches du poste d'origine;
 	bool targetFound = false;
 	for(int i = history.length() - 1; i >= 0; i--)
 	{
-		QQPost * post = history.at(i);
+		QQPost *post = history.at(i);
 
 		if(nRef->matchesPost(post))
 			targetFound = true;
