@@ -32,6 +32,9 @@ QQTextBrowser::QQTextBrowser(QString groupName, QQPinipede *parent) :
 	m_notifArea(new QQNotifArea(this)),
 	m_urlHelper(new QQPiniUrlHelper(this)),
 	m_mouseClick(false),
+	m_highlightedNorlogeRef(""),
+	m_displayedTotozId(""),
+	m_tooltipedUrl(),
 	m_groupName(groupName)
 {
 	QQSettings settings;
@@ -144,7 +147,7 @@ void QQTextBrowser::notifAreaPaintEvent(QPaintEvent * event)
 			///////////////////////////////////////////////////////////////////
 			/////        LES NOUVEAUX POSTS                   /////////////////
 			///////////////////////////////////////////////////////////////////
-			if(uData->isNew())
+			if(uData->post()->isUnread())
 			{
 				painter.setBrush(newPostsBrushColor);
 				painter.setPen(QPen(QBrush(newPostsPenColor), 0.6));
@@ -224,22 +227,11 @@ void QQTextBrowser::showTotoz(QString & totozId)
 
 void QQTextBrowser::handleContentTypeAvailable(QUrl &url, QString &contentType)
 {
-	if(QToolTip::isVisible())
+	QString ttText = QToolTip::text();
+	if(ttText.length() > 0 && url == m_tooltipedUrl)
 	{
-		QString ttText = QToolTip::text();
-		QString compUrl;
-
-		int indexElide = ttText.indexOf(QString::fromUtf8("\u2026")); //…
-		if(indexElide >= 0)
-			compUrl = ttText.left(indexElide);
-		else
-			compUrl = ttText;
-
-		if(url.toString().startsWith(compUrl))
-		{
-			ttText.append(" (").append(contentType).append(")");
-			QToolTip::showText(QCursor::pos(), ttText, this);
-		}
+		ttText.append(" (").append(contentType).append(")");
+		QToolTip::showText(QCursor::pos(), ttText, this);
 
 		if(contentType.startsWith("image/"))
 		{
@@ -264,17 +256,16 @@ void QQTextBrowser::webSearchActionTriggered()
 
 void QQTextBrowser::clearViewers()
 {
-	bool emitSignal = false;
 	if(m_displayedTotozId.length() > 0)
 	{
 		m_displayedTotozId.clear();
-		emitSignal = true;
+		emit hideViewers();
 	}
 	if(! QToolTip::isVisible())
-		emitSignal = true;
-
-	if(emitSignal)
+	{
+		m_tooltipedUrl.clear();
 		emit hideViewers();
+	}
 }
 
 /*
@@ -327,12 +318,15 @@ void QQTextBrowser::mouseMoveEvent(QMouseEvent * event)
 			// Ouverture l'url si on est au dessus d'un lien
 			if(httpAnchor.length() > 0)
 			{
-				if(! QToolTip::isVisible())
+				QUrl nUrl = QUrl(httpAnchor);
+				if(nUrl != m_tooltipedUrl)
 				{
+					m_tooltipedUrl = nUrl;
+
 					QFontMetrics fm(QToolTip::font());
 					QToolTip::showText(event->globalPos(), fm.elidedText(httpAnchor, Qt::ElideMiddle, 500), this);
 
-					m_urlHelper->getContentType(QUrl(httpAnchor));
+					m_urlHelper->getContentType(m_tooltipedUrl);
 				}
 				triggerClearViewers = false;
 			}
@@ -412,21 +406,23 @@ void QQTextBrowser::mouseReleaseEvent(QMouseEvent * event)
 	window()->setWindowIcon(icon);
 
 	// Marquage des posts comme lus
-	QTextBlock block = document()->firstBlock();
-	QQMessageBlockUserData * blockData = NULL;
 	bool needUpdate = false;
-	while(block.isValid())
+	foreach(QQBouchot *b, QQBouchot::listBouchotsGroup(m_groupName))
 	{
-		blockData = (QQMessageBlockUserData *) block.userData();
-		if(blockData != NULL && blockData->isNew())
+		QListIterator<QQPostPtr> pI(b->postsHistory());
+		pI.toBack();
+		while(pI.hasPrevious())
 		{
-			needUpdate = true;
-			blockData->setAcknowledged();
+			QQPost *p = pI.previous();
+			if(p->isUnread())
+			{
+				p->setRead();
+				needUpdate = true;
+			}
+			else
+				break;
 		}
-
-		block = block.next();
 	}
-
 	if(needUpdate)
 	{
 		m_notifArea->update();
@@ -435,8 +431,8 @@ void QQTextBrowser::mouseReleaseEvent(QMouseEvent * event)
 
 	// Gestion du clic sur une norloge ou un login
 	QTextCursor cursor = cursorForPosition(event->pos());
-	block = cursor.block();
-	blockData = (QQMessageBlockUserData *) block.userData();
+	QTextBlock block = cursor.block();
+	QQMessageBlockUserData *blockData = (QQMessageBlockUserData *) block.userData();
 
 	if(blockData != NULL)
 	{

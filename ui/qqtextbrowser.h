@@ -6,8 +6,9 @@
 #include "core/qqtotoz.h"
 #include "ui/qqpinipede.h"
 
-#include <QTextBrowser>
 #include <QPoint>
+#include <QTextBrowser>
+#include <QUrl>
 
 class QQMessageBlockUserData;
 class QNetworkReply;
@@ -85,6 +86,7 @@ private:
 
 	QString m_highlightedNorlogeRef;
 	QString m_displayedTotozId;
+	QUrl m_tooltipedUrl;
 
 	QString m_groupName;
 };

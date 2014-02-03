@@ -22,28 +22,24 @@
 #include <QtDebug>
 
 //
-QQPost::QQPost(QQBouchot * parent)
-	: QObject(parent)
+QQPost::QQPost(QQBouchot * parent) :
+	QObject(parent)
 {
 	reset();
 }
 
 //
-QQPost::QQPost( const QQPost& post )
-	: QObject( )
-{
-	m_login = post.m_login;
-	m_norloge = post.m_norloge;
-	m_id = post.m_id;
-	m_ua = post.m_ua;
-	m_message = post.m_message;
-	m_norlogeIndex = post.m_norlogeIndex;
-	m_isNorlogeMultiple = post.m_isNorlogeMultiple;
-	m_isSelfPost = post.m_isSelfPost;
-}
-
-//
-QQPost::~QQPost()
+QQPost::QQPost(const QQPost& post) :
+	QObject(post.parent()),
+	m_norloge(post.m_norloge),
+	m_isNorlogeMultiple(post.m_isNorlogeMultiple),
+	m_norlogeIndex(post.m_norlogeIndex),
+	m_login(post.m_login),
+	m_ua(post.m_ua),
+	m_isSelfPost(post.m_isSelfPost),
+	m_message(post.m_message),
+	m_id(post.m_id),
+	m_unread(post.m_unread)
 {
 }
 
@@ -51,19 +47,16 @@ QQPost::~QQPost()
 QString QQPost::toText()
 {
 	QString tmp(m_login);
-	tmp.append(QString(" "));
-	tmp.append(norlogeFormatee());
-	tmp.append(QString(" "));
-	tmp.append(m_message);
+	tmp.append(QString(" "))
+			.append(norlogeFormatee())
+			.append(QString(" "))
+			.append(m_message);
 	return tmp;
 }
 
 void QQPost::setSelfPost(bool selfPost)
 {
-	if(selfPost)
-		m_isSelfPost = True;
-	else
-		m_isSelfPost = False;
+	m_isSelfPost = selfPost ? True : False;
 }
 
 bool QQPost::isSelfPost()
@@ -150,22 +143,24 @@ bool QQPost::operator== (QQPost &b)
 //
 bool QQPost::operator< (QQPost &b)
 {
-	if(bouchot()->name() == b.bouchot()->name())
-		return m_id.toInt() < b.m_id.toInt();
-	else
-		return m_norloge < b.m_norloge;
+	return (bouchot()->name() == b.bouchot()->name()) ?
+				m_id.toInt() < b.m_id.toInt() :
+				m_norloge < b.m_norloge;
 }
 
 void QQPost::reset()
 {
-	m_login.clear();
 	m_norloge.clear();
-	m_ua.clear();
-	m_message.clear();
-	m_id.clear();
 	m_norlogeIndex = 1;
 	m_isNorlogeMultiple = false;
+
+	m_login.clear();
+	m_ua.clear();
 	m_isSelfPost = Unknown;
+
+	m_message.clear();
+	m_id.clear();
+	m_unread = true;
 }
 
 //////////////////////////////////////////////////////////////////////////

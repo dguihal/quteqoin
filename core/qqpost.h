@@ -38,27 +38,22 @@ public:
 	//////////////////////////////////////////////////////////////////////////
 	////////////            Constructeurs        /////////////////////////////
 	//////////////////////////////////////////////////////////////////////////
-	QQPost( QQBouchot * parent = 0 );
-	QQPost( const QQPost& post );
-
-	//////////////////////////////////////////////////////////////////////////
-	////////////             Destructeurs        /////////////////////////////
-	//////////////////////////////////////////////////////////////////////////
-	virtual ~QQPost();
+	QQPost(QQBouchot * parent = 0);
+	QQPost(const QQPost& post);
 
 	//////////////////////////////////////////////////////////////////////////
 	////////////             Accesseurs          /////////////////////////////
 	//////////////////////////////////////////////////////////////////////////
-	QQBouchot * bouchot() const { return (QQBouchot *)( this->parent() ); }
+	QQBouchot * bouchot() const { return (QQBouchot *) parent(); }
 
 	QString login() const { return this->m_login; }
-	void setLogin( const QString& login ) { this->m_login = login; }
+	void setLogin(const QString& login) { this->m_login = login; }
 
 	QString norloge() const { return this->m_norloge; }
 	QQNorloge norlogeObj() const;
 	QString norlogeComplete() const;
 	QString norlogeFormatee() const;
-	void setNorloge( const QString& norloge ) { this->m_norloge = norloge; }
+	void setNorloge(const QString& norloge) { this->m_norloge = norloge; }
 
 	/* Gestion des index de norloges en cas de post a horodatage identique */
 	int norlogeIndex() const { return this->m_norlogeIndex; }
@@ -67,14 +62,17 @@ public:
 	bool isNorlogeMultiple() const { return this->m_isNorlogeMultiple || this->m_norlogeIndex > 1; }
 	void setNorlogeMultiple(const bool isNorlogeMultiple) { this->m_isNorlogeMultiple = isNorlogeMultiple; }
 
-	QString id() const { return this->m_id; }
-	void setId( const QString& id ) { this->m_id = id; }
-
 	QString UA() const { return this->m_ua; }
-	void setUA( const QString& ua ) { this->m_ua = ua; }
+	void setUA(const QString& ua) { this->m_ua = ua; }
 
 	QString message() const { return this->m_message; }
-	void setMessage( const QString& message ) { this->m_message = message; }
+	void setMessage(const QString& message) { this->m_message = message; }
+
+	QString id() const { return this->m_id; }
+	void setId( const QString& id) { this->m_id = id; }
+
+	bool isUnread() const { return m_unread; }
+	void setRead() { m_unread = false; }
 
 	//////////////////////////////////////////////////////////////////////////
 	////////////                                 /////////////////////////////
@@ -96,12 +94,16 @@ private:
 
 	QString m_norloge;
 	bool m_isNorlogeMultiple;
-	IsSelfPost m_isSelfPost;
 	int m_norlogeIndex;
+
 	QString m_login;
 	QString m_ua;
+	IsSelfPost m_isSelfPost;
+
 	QString m_message;
 	QString m_id;
+
+	bool m_unread;
 };
 
 bool postComp(QQPost * left, QQPost * right);

@@ -2,46 +2,27 @@
 
 #include <QtDebug>
 
-QQMessageBlockUserData::QQMessageBlockUserData()
+QQMessageBlockUserData::QQMessageBlockUserData() :
+	QTextBlockUserData(),
+	m_wasParsed(false),
+	m_post(QPointer<QQPost>())
 {
-	m_wasParsed = false;
-	m_isHighlighted = false;
-	m_isNew = true;
-	m_post = NULL;
 }
 
-QQMessageBlockUserData::QQMessageBlockUserData(const QQMessageBlockUserData & userData)
+QQMessageBlockUserData::QQMessageBlockUserData(const QQMessageBlockUserData & userData) :
+	QTextBlockUserData((QTextBlockUserData) userData),
+	m_listNRef(userData.m_listNRef),
+	m_listBigorno(userData.m_listBigorno),
+	m_mapTotozId(userData.m_mapTotozId),
+	m_mapDuck(userData.m_mapDuck),
+	m_mapTableV(userData.m_mapTableV),
+	m_wasParsed(userData.m_wasParsed),
+	m_ranges(userData.m_ranges),
+	m_post(userData.m_post)
 {
-	m_wasParsed = userData.m_wasParsed;
-	m_isHighlighted = userData.m_isHighlighted;
-	m_isNew = userData.m_isNew;
-	m_post = userData.m_post;
-	m_listNRef = userData.m_listNRef;
-	m_mapTotozId = userData.m_mapTotozId;
-	m_mapDuck = userData.m_mapDuck;
-	m_mapTableV = userData.m_mapTableV;
-	m_listBigorno = userData.m_listBigorno;
-	m_ranges = userData.m_ranges;
 }
 
-QQMessageBlockUserData::~QQMessageBlockUserData()
-{
-	m_listNRef.clear();
-	m_mapTotozId.clear();
-	m_mapDuck.clear();
-	m_mapTableV.clear();
-	m_ranges.clear();
-	m_listBigorno.clear();
-	m_post = NULL;
-}
-
-bool QQMessageBlockUserData::isIndexInZRange( const int index, const zoneRangeID zrId )
-{
-	ZoneRange range = zRangeForID(zrId);
-	return range.isInRange(index);
-}
-
-QQNorlogeRef QQMessageBlockUserData::norlogeRefForIndex(int index)
+QQNorlogeRef QQMessageBlockUserData::norlogeRefForIndex(const int index) const
 {
 	int i = 0;
 	while(i < m_listNRef.size())
@@ -65,7 +46,7 @@ bool QQMessageBlockUserData::hasNRefToSelfPost() const
 	return false;
 }
 
-QPair<int, QString> QQMessageBlockUserData::stringForIndex(int index, const QMap<int, QString> & map)
+QPair<int, QString> QQMessageBlockUserData::stringForIndex(int index, const QMap<int, QString> & map) const
 {
 	QList<int> startIndexes = map.uniqueKeys();
 	int i = 0;
@@ -80,7 +61,7 @@ QPair<int, QString> QQMessageBlockUserData::stringForIndex(int index, const QMap
 	return qMakePair(-1, QString::fromLatin1(""));
 }
 
-bool QQMessageBlockUserData::isIndexInString(int index, int stringIndexStart, const QString & string)
+bool QQMessageBlockUserData::isIndexInString(int index, int stringIndexStart, const QString & string) const
 {
 	return (index >= stringIndexStart && index < stringIndexStart + string.length());
 }
