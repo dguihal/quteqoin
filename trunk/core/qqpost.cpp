@@ -95,11 +95,6 @@ bool QQPost::isSelfPost()
 	return m_isSelfPost == True;
 }
 
-bool QQPost::isReponse()
-{
-	return false;
-}
-
 QQNorloge QQPost::norlogeObj() const
 {
 	QQNorloge targetN(bouchot()->name(),

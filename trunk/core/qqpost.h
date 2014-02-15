@@ -81,7 +81,6 @@ public:
 
 	void setSelfPost(bool selfPost = true);
 	bool isSelfPost();
-	bool isReponse();
 
 	bool equal( QQPost &b );
 	bool operator==( QQPost& );
