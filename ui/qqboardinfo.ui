@@ -16,14 +16,20 @@
     <verstretch>0</verstretch>
    </sizepolicy>
   </property>
-  <property name="windowTitle">
-   <string>Form</string>
-  </property>
   <layout class="QVBoxLayout" name="verticalLayout_2">
    <property name="spacing">
     <number>1</number>
    </property>
-   <property name="margin">
+   <property name="leftMargin">
+    <number>1</number>
+   </property>
+   <property name="topMargin">
+    <number>1</number>
+   </property>
+   <property name="rightMargin">
+    <number>1</number>
+   </property>
+   <property name="bottomMargin">
     <number>1</number>
    </property>
    <item>
@@ -32,7 +38,16 @@
       <property name="spacing">
        <number>3</number>
       </property>
-      <property name="margin">
+      <property name="leftMargin">
+       <number>1</number>
+      </property>
+      <property name="topMargin">
+       <number>1</number>
+      </property>
+      <property name="rightMargin">
+       <number>1</number>
+      </property>
+      <property name="bottomMargin">
        <number>1</number>
       </property>
       <item>
@@ -67,10 +82,19 @@
       <property name="spacing">
        <number>3</number>
       </property>
-      <property name="margin">
+      <property name="leftMargin">
        <number>1</number>
       </property>
-      <item alignment="Qt::AlignLeft|Qt::AlignTop">
+      <property name="topMargin">
+       <number>1</number>
+      </property>
+      <property name="rightMargin">
+       <number>1</number>
+      </property>
+      <property name="bottomMargin">
+       <number>1</number>
+      </property>
+      <item>
        <widget class="QLabel" name="labelUsers">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
@@ -80,6 +104,9 @@
         </property>
         <property name="text">
          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Users :&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
         </property>
         <property name="wordWrap">
          <bool>true</bool>
@@ -111,8 +138,8 @@
           <rect>
            <x>0</x>
            <y>0</y>
-           <width>207</width>
-           <height>72</height>
+           <width>201</width>
+           <height>68</height>
           </rect>
          </property>
         </widget>
