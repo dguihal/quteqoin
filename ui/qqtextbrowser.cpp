@@ -146,32 +146,35 @@ void QQTextBrowser::notifAreaPaintEvent(QPaintEvent * event)
 
 			///////////////////////////////////////////////////////////////////
 			/////        LES NOUVEAUX POSTS                   /////////////////
-			///////////////////////////////////////////////////////////////////
-			if(uData->post()->isUnread())
-			{
-				painter.setBrush(newPostsBrushColor);
-				painter.setPen(QPen(QBrush(newPostsPenColor), 0.6));
-				QRect drawRect(0, posY, ITEM_AREA_WIDTH, height);
-				painter.drawRect(drawRect);
-			}
-			offset += ITEM_AREA_WIDTH;
-
-			///////////////////////////////////////////////////////////////////
 			/////        LE TRACKING DES POSTS                /////////////////
 			///////////////////////////////////////////////////////////////////
 			if(post->isSelfPost())
 			{
+				offset += ITEM_AREA_WIDTH;
 				painter.setBrush(selfPostsBrushColor);
 				painter.setPen(QPen(QBrush(selfPostsPenColor), 0.6));
 				QRect drawRect(offset, posY, ITEM_AREA_WIDTH, height);
 				painter.drawRect(drawRect);
 			}
-			else if(uData->hasNRefToSelfPost())
+			else
 			{
-				painter.setBrush(repPostsBrushColor);
-				painter.setPen(QPen(QBrush(repPostsPenColor), 0.6));
-				QRect drawRect(offset, posY, ITEM_AREA_WIDTH, height);
-				painter.drawRect(drawRect);
+				if(post->isUnread())
+				{
+					painter.setBrush(newPostsBrushColor);
+					painter.setPen(QPen(QBrush(newPostsPenColor), 0.6));
+					QRect drawRect(0, posY, ITEM_AREA_WIDTH, height);
+					painter.drawRect(drawRect);
+				}
+
+				offset += ITEM_AREA_WIDTH;
+
+				if(uData->hasNRefToSelfPost())
+				{
+					painter.setBrush(repPostsBrushColor);
+					painter.setPen(QPen(QBrush(repPostsPenColor), 0.6));
+					QRect drawRect(offset, posY, ITEM_AREA_WIDTH, height);
+					painter.drawRect(drawRect);
+				}
 			}
 			offset += ITEM_AREA_WIDTH;
 

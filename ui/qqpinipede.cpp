@@ -1042,7 +1042,6 @@ void QQPinipede::newPostsAvailable(QString groupName)
 
 	//Remise en place de l'ancienne forme du pointeur
 	QApplication::restoreOverrideCursor();
-	QApplication::alert(this->parentWidget(), 0);
 
 	//Signalement de nouveaux posts dans le nom du Tab
 	QString tabName = groupName;
@@ -1189,6 +1188,10 @@ bool QQPinipede::printPostAtCursor(QTextCursor &cursor, QQPost *post)
 	//Duck autolaunch
 	if(m_duckAutolaunchEnabled && !post->isSelfPost() && data->duckIndexes().size() > 0)
 		m_huntingView->launchDuck(post->bouchot()->name(), post->id(), post->isSelfPost());
+
+	//Alerte en cas de réponse
+	if(!post->isSelfPost() && data->hasNRefToSelfPost())
+		QApplication::alert(this->parentWidget(), 0);
 
 	return true;
 }
