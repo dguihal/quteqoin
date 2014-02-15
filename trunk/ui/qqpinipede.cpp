@@ -958,7 +958,7 @@ void QQPinipede::newPostsAvailable(QString groupName)
 	{
 		// Cas du pini vide, il contient déjà un bloc vide, on
 		//  a juste a afficher le premier post;
-		QQPost * firstPost = newPosts.takeFirst();
+		QQPost *firstPost = newPosts.takeFirst();
 		destlistPosts = new QQListPostPtr();
 		destlistPosts->append(firstPost);
 		m_listPostsTabMap.insert(groupName, destlistPosts);
@@ -974,7 +974,7 @@ void QQPinipede::newPostsAvailable(QString groupName)
 	// Tant qu'il reste des posts a afficher
 	while(newPostsIndex < newPosts.size())
 	{
-		QQPost * newPost = newPosts.at(newPostsIndex);
+		QQPost *newPost = newPosts.at(newPostsIndex);
 
 		insertIndex = insertPostToList(destlistPosts, newPost, baseInsertIndex);
 
@@ -1044,9 +1044,16 @@ void QQPinipede::newPostsAvailable(QString groupName)
 	QApplication::restoreOverrideCursor();
 
 	//Signalement de nouveaux posts dans le nom du Tab
-	QString tabName = groupName;
-	tabName.append(" (*)");
-	setTabText(indexOf(textBrowser), tabName);
+	foreach (QQPost *p, newPosts)
+	{
+		if(!p->isSelfPost())
+		{
+			QString tabName = groupName;
+			tabName.append(" (*)");
+			setTabText(indexOf(textBrowser), tabName);
+			break;
+		}
+	}
 
 	newPostsAvailableMutex.unlock();
 }

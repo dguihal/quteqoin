@@ -131,10 +131,8 @@ void QQTotoz::load()
 			if(xml.isCDATA())
 #if(QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
 				m_totozData = QByteArray::fromBase64(xml.text().toLatin1());
-#elif(QT_VERSION >= QT_VERSION_CHECK(4, 8, 0))
-				m_totozData = QByteArray::fromBase64(xml.text().toAscii());
 #else
-				m_totozData = QByteArray::fromBase64(xml.text().toString().toAscii());
+				m_totozData = QByteArray::fromBase64(xml.text().toAscii());
 #endif
 			else
 				qDebug() << "QQTotoz::load unknown Characters :" << xml.text();
