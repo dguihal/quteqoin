@@ -1090,17 +1090,9 @@ bool QQPinipede::printPostAtCursor(QTextCursor &cursor, QQPost *post)
 	QString txt = post->norlogeFormatee();
 
 	QQMessageBlockUserData::ZoneRange rangeNorloge;
-#if(QT_VERSION >= QT_VERSION_CHECK(4, 7, 0))
 	rangeNorloge.begin = cursor.positionInBlock();
-#else
-	rangeNorloge.begin = cursor.position() - cursor.block().position();
-#endif
 	cursor.insertText(txt, norlogeFormat);
-#if(QT_VERSION >= QT_VERSION_CHECK(4, 7, 0))
 	rangeNorloge.end = cursor.positionInBlock();
-#else
-	rangeNorloge.end = cursor.position() - cursor.block().position();
-#endif
 	data->setZRange(QQMessageBlockUserData::NORLOGE, rangeNorloge);
 
 	QFontMetricsF fm = QFontMetricsF(norlogeFormat.font());
@@ -1119,11 +1111,7 @@ bool QQPinipede::printPostAtCursor(QTextCursor &cursor, QQPost *post)
 	loginUaFormat.setToolTip(post->UA());
 
 	QQMessageBlockUserData::ZoneRange rangeLoginUA;
-#if(QT_VERSION >= QT_VERSION_CHECK(4, 7, 0))
 	rangeLoginUA.begin = cursor.positionInBlock();
-#else
-	rangeLoginUA.begin = cursor.position() - cursor.block().position();
-#endif
 	if(post->login().size() != 0)
 	{
 		loginUaFormat.setForeground(QColor(LOGIN_COLOR));
@@ -1152,22 +1140,14 @@ bool QQPinipede::printPostAtCursor(QTextCursor &cursor, QQPost *post)
 
 	cursor.insertText(txt, loginUaFormat);
 
-#if(QT_VERSION >= QT_VERSION_CHECK(4, 7, 0))
 	rangeLoginUA.end = cursor.positionInBlock();
-#else
-	rangeLoginUA.end = cursor.position() - cursor.block().position();
-#endif
 
 	data->setZRange(QQMessageBlockUserData::LOGINUA, rangeLoginUA);
 
 	//message
 
 	QQMessageBlockUserData::ZoneRange rangeMsg;
-#if(QT_VERSION >= QT_VERSION_CHECK(4, 7, 0))
 	rangeMsg.begin = cursor.positionInBlock();
-#else
-	rangeMsg.begin = cursor.position() - cursor.block().position();
-#endif
 	cursor.setCharFormat(defaultFormat);
 
 	// Application des filtres de transformation du message
@@ -1177,11 +1157,7 @@ bool QQPinipede::printPostAtCursor(QTextCursor &cursor, QQPost *post)
 	cursor.insertFragment(* message);
 	delete message;
 
-#if(QT_VERSION >= QT_VERSION_CHECK(4, 7, 0))
 	rangeMsg.end = cursor.positionInBlock();
-#else
-	rangeMsg.end = cursor.position() - cursor.block().position();
-#endif
 	data->setZRange(QQMessageBlockUserData::MESSAGE, rangeMsg);
 	block.setUserData(data);
 

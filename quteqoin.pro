@@ -4,6 +4,12 @@
 #
 #-------------------------------------------------
 
+#version check qt
+contains(QT_VERSION, ^4\\.[0-7]\\..*) {
+	message("Cannot build Qt Creator with Qt version $${QT_VERSION}.")
+	error("Use at least Qt 4.8.")
+}
+
 QT += core gui network xml
 
 greaterThan(QT_MAJOR_VERSION, 4) {
@@ -71,10 +77,10 @@ SOURCES += main.cpp\
 	ui/qqboardinfo.cpp \
 	core/qqmussel.cpp \
 	ui/qqmusselinfo.cpp \
-        ui/qqcmdtoolbuttons.cpp \
-        ui/qqimageviewer.cpp \
-        ui/qqwebimageviewer.cpp \
-        core/qqwebimagedownloader.cpp
+		ui/qqcmdtoolbuttons.cpp \
+		ui/qqimageviewer.cpp \
+		ui/qqwebimageviewer.cpp \
+		core/qqwebimagedownloader.cpp
 
 HEADERS  += mainwindow.h \
 	core/qqsettings.h \
@@ -124,10 +130,10 @@ HEADERS  += mainwindow.h \
 	ui/qqboardinfo.h \
 	core/qqmussel.h \
 	ui/qqmusselinfo.h \
-        ui/qqcmdtoolbuttons.h \
-        ui/qqimageviewer.h \
-        ui/qqwebimageviewer.h \
-        core/qqwebimagedownloader.h
+		ui/qqcmdtoolbuttons.h \
+		ui/qqimageviewer.h \
+		ui/qqwebimageviewer.h \
+		core/qqwebimagedownloader.h
 
 FORMS += mainwindow.ui \
 	ui/qqpalmipede.ui \
@@ -144,7 +150,7 @@ FORMS += mainwindow.ui \
 	ui/settingsmanager/qqhuntsettings.ui \
 	ui/qqboardsinfo.ui \
 	ui/qqboardinfo.ui \
-        ui/qqcmdtoolbuttons.ui
+		ui/qqcmdtoolbuttons.ui
 
 OTHER_FILES +=
 

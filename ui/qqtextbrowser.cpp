@@ -61,14 +61,7 @@ QQTextBrowser::QQTextBrowser(QString groupName, QQPinipede *parent) :
 	m_timeUAAreaWidthPx = baseWidth * TIME_UA_AREA_WIDTH_CHAR;
 	qreal tabPosPx = baseWidth * (TIME_UA_AREA_WIDTH_CHAR + 1); // + margin
 
-#if(QT_VERSION >= QT_VERSION_CHECK(4, 7, 0))
 	QTextOption::Tab tab(tabPosPx, QTextOption::DelimiterTab, '\t');
-#else
-	QTextOption::Tab tab;
-	tab.position  = tabPosPx;
-	tab.type      = QTextOption::DelimiterTab;
-	tab.delimiter =  '\t';
-#endif
 	listTabs << tab;
 
 	opt.setTabs(listTabs);
@@ -309,11 +302,7 @@ void QQTextBrowser::mouseMoveEvent(QMouseEvent * event)
 	if(blockData != NULL)
 	{
 		//Zone message
-#if(QT_VERSION >= QT_VERSION_CHECK(4, 7, 0))
 		int posInBlock =  cursor.positionInBlock();
-#else
-		int posInBlock =  cursor.position() - cursor.block().position();
-#endif
 		if(blockData->isIndexInZRange(posInBlock, QQMessageBlockUserData::MESSAGE))
 		{
 			bool triggerClearViewers = true;
@@ -444,11 +433,7 @@ void QQTextBrowser::mouseReleaseEvent(QMouseEvent * event)
 
 		// Clic sur Norloge
 		//Zone message
-#if(QT_VERSION >= QT_VERSION_CHECK(4, 7, 0))
 		int posInBlock =  cursor.positionInBlock();
-#else
-		int posInBlock =  cursor.position() - cursor.block().position();
-#endif
 		bool duckLaunched = false;
 		if(blockData->isIndexInZRange(posInBlock, QQMessageBlockUserData::NORLOGE))
 		{
