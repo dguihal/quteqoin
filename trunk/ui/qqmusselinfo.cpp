@@ -48,6 +48,5 @@ void QQMusselInfo::updateStyleSheet()
 	else
 		style = style.arg("font-style: italic;");
 
-	qDebug() << style;
 	setStyleSheet(style);
 }
