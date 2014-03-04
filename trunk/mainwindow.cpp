@@ -19,6 +19,8 @@
 #include <QSpacerItem>
 #include <QToolButton>
 
+#define MAINWINDOW_STATE_CACHE_FILE "QuteQoin_Window_State"
+
 MainWindow::MainWindow(QWidget *parent) :
 	QMainWindow(parent),
 	m_ui(new Ui::MainWindow)
@@ -58,15 +60,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
 	QAction *actionBoardInfo = m_boardsInfo->toggleViewAction();
 	actionBoardInfo->setShortcut(Qt::ControlModifier + Qt::Key_I);
-	// Setup du bouton d'options
 
-	/*
-	QToolButton *toolButton = new QToolButton();
-	toolButton->setIcon(QIcon(":/img/settings-icon.png"));
-	toolButton->addAction(actionBoardInfo);
-	toolButton->addAction(actionPalmi);
-	toolButton->addAction(actionTotozManager);
-	*/
+	// Setup du bouton d'options
 	QQCmdToolButtons *cmdToolsBtn = new QQCmdToolButtons(this);
 	cmdToolsBtn->addAction(actionBoardInfo);
 	cmdToolsBtn->addAction(actionPalmi);
@@ -100,11 +95,32 @@ MainWindow::MainWindow(QWidget *parent) :
 	connect(actionSearch, SIGNAL(triggered(bool)), m_pSearchW, SLOT(setVisible(bool)));
 	cmdToolsBtn->addAction(actionSearch);
 
+#if(QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
+	QDir dirData(QStandardPaths::writableLocation(QStandardPaths::DataLocation));
+#else
+	QDir dirData(QDesktopServices::storageLocation(QDesktopServices::DataLocation));
+#endif
+
+	if(!dirData.exists())
+			dirData.mkpath(dirData.path());
+
+	QFile windowsStateCacheFile(dirData.filePath(MAINWINDOW_STATE_CACHE_FILE));
+	bool success = false;
+	if(windowsStateCacheFile.open(QIODevice::ReadWrite | QIODevice::Text))
+	{
+		success = restoreGeometry(QByteArray::fromBase64(QString(windowsStateCacheFile.readLine().trimmed()).toAscii()));
+		success &= restoreState(QByteArray::fromBase64(QString(windowsStateCacheFile.readLine().trimmed()).toAscii()));
+	}
+	windowsStateCacheFile.close();
+	if(!success)
+		windowsStateCacheFile.remove();
+
 	QQSettings settings;
+	//TODO : Remove later
 	if(settings.contains(SETTINGS_MAINWINDOW_GEOMETRY))
-		restoreGeometry(settings.value(SETTINGS_MAINWINDOW_GEOMETRY).toByteArray());
+		settings.remove(SETTINGS_MAINWINDOW_GEOMETRY);
 	if(settings.contains(SETTINGS_MAINWINDOW_STATE))
-		restoreState(settings.value(SETTINGS_MAINWINDOW_STATE).toByteArray());
+		settings.remove(SETTINGS_MAINWINDOW_STATE);
 
 	if(settings.value(SETTINGS_PALMI_MINI, DEFAULT_PALMI_MINI).toBool())
 		doTriggerMiniPalmi();
@@ -184,9 +200,24 @@ void MainWindow::palmiVisibilityChanged(bool visible)
 
 void MainWindow::closeEvent(QCloseEvent *event)
 {
-	QQSettings settings;
-	settings.setValue(SETTINGS_MAINWINDOW_GEOMETRY, saveGeometry());
-	settings.setValue(SETTINGS_MAINWINDOW_STATE, saveState());
+#if(QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
+	QDir dirData(QStandardPaths::writableLocation(QStandardPaths::DataLocation));
+#else
+	QDir dirData(QDesktopServices::storageLocation(QDesktopServices::DataLocation));
+#endif
+
+	if(!dirData.exists())
+			dirData.mkpath(dirData.path());
+
+	QFile windowsStateCacheFile(dirData.filePath(MAINWINDOW_STATE_CACHE_FILE));
+	if(windowsStateCacheFile.open(QIODevice::ReadWrite | QIODevice::Text))
+	{
+		windowsStateCacheFile.write(saveGeometry().toBase64());
+		windowsStateCacheFile.write("\n");
+		windowsStateCacheFile.write(saveState().toBase64());
+		windowsStateCacheFile.write("\n");
+	}
+	windowsStateCacheFile.close();
 
 	QMainWindow::closeEvent(event);
 }
