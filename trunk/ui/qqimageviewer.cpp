@@ -90,7 +90,7 @@ void QQImageViewer::displayImage(QImage &image)
 /// \brief QQImageViewer::updateImg
 /// \param imgData
 ///
-bool QQImageViewer::updateImg(const QByteArray &imgData, const QSize& maxSize)
+bool QQImageViewer::updateImg(const QByteArray &imgData, const QSize &maxSize)
 {
 	m_imgDataBuffer.close();
 	m_imgDataBuffer.setData(imgData);
@@ -116,7 +116,7 @@ bool QQImageViewer::updateImg(const QByteArray &imgData, const QSize& maxSize)
 	else
 		m_imgMovie.setScaledSize(QSize());
 
-	m_imgMovie.setDevice(& m_imgDataBuffer);
+	m_imgMovie.setDevice(&m_imgDataBuffer);
 
 	if(m_imgMovie.isValid())
 		displayMovie();

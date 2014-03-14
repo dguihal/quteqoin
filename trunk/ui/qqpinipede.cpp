@@ -754,6 +754,8 @@ void QQPinipede::showWebImageViewer(const QUrl &url)
 	if(! settings.value(SETTINGS_WEB_IMAGE_VIEWER_ENABLED, DEFAULT_WEB_IMAGE_VIEWER_ENABLED).toBool())
 		return;
 
+	int maxSize = settings.value(SETTINGS_WEB_IMAGE_PREVIEW_SIZE, DEFAULT_WEB_IMAGE_PREVIEW_SIZE).toInt();
+	m_webImageViewer->setImgMaxSize(QSize(maxSize, maxSize));
 	m_webImageViewer->setParent(currentWidget());
 	m_webImageViewer->showImg(url);
 	m_webImageViewer->show();

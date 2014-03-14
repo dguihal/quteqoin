@@ -165,6 +165,12 @@ void QQSettingsManager::initBoardsSettings()
 		mapBouchotSettings.insert(bouchot->name(), bouchot->settings());
 	}
 	m_boardsSettingsW->setBouchots(mapBouchotSettings);
+
+	QQSettings settings;
+	bool isWebUrlPreviewEnabled = settings.value(SETTINGS_WEB_IMAGE_VIEWER_ENABLED,  DEFAULT_WEB_IMAGE_VIEWER_ENABLED).toBool();
+	m_boardsSettingsW->setWebUrlPreviewEnabled(isWebUrlPreviewEnabled);
+	int webUrlPreviewSize = settings.value(SETTINGS_WEB_IMAGE_PREVIEW_SIZE,  DEFAULT_WEB_IMAGE_PREVIEW_SIZE).toInt();
+	m_boardsSettingsW->setWebUrlPreviewSize(webUrlPreviewSize);
 }
 
 void QQSettingsManager::saveBoardsSettings()
@@ -205,6 +211,11 @@ void QQSettingsManager::saveBoardsSettings()
 		settings.saveBouchot(bouchotName, mBouchots.value(bouchotName));
 		emit bouchotCreated(settings.loadBouchot(bouchotName));
 	}
+
+	bool isWebUrlPreviewEnabled = m_boardsSettingsW->isWebUrlPreviewEnabled();
+	settings.setValueWithDefault(SETTINGS_WEB_IMAGE_VIEWER_ENABLED, isWebUrlPreviewEnabled, DEFAULT_WEB_IMAGE_VIEWER_ENABLED);
+	int webUrlPreviewSize = m_boardsSettingsW->webUrlPreviewSize();
+	settings.setValueWithDefault(SETTINGS_WEB_IMAGE_PREVIEW_SIZE, webUrlPreviewSize, DEFAULT_WEB_IMAGE_PREVIEW_SIZE);
 }
 
 void QQSettingsManager::initFilterSettings()

@@ -16,6 +16,8 @@ QQBoardsSettings::QQBoardsSettings(QWidget *parent) :
 	connect(ui->addBouchotButton, SIGNAL(clicked()), this, SLOT(addBouchot()));
 	connect(ui->deleteBouchotButton, SIGNAL(clicked()), this, SLOT(deleteBouchot()));
 	connect(ui->editBouchotButton, SIGNAL(clicked()), this, SLOT(editBouchot()));
+	connect(ui->linkedImgPreviewCB, SIGNAL(clicked(bool)), this, SLOT(onWebUrlPreviewEnable(bool)));
+	connect(ui->linkedImgMaxSizeSB, SIGNAL(valueChanged(int)), this, SLOT(onWebUrlPreviewMaxSizeChanged(int)));
 }
 
 QQBoardsSettings::~QQBoardsSettings()
@@ -44,6 +46,41 @@ void QQBoardsSettings::setBouchots(const QMap<QString, QQBouchot::QQBouchotSetti
 
 		model->setData(model->index(index++), QVariant(i.key()));
 	}
+}
+
+bool QQBoardsSettings::isWebUrlPreviewEnabled()
+{
+	return ui->linkedImgPreviewCB->isChecked();
+}
+
+int QQBoardsSettings::webUrlPreviewSize()
+{
+	return ui->linkedImgMaxSizeSB->value();
+}
+
+void QQBoardsSettings::setWebUrlPreviewEnabled(bool enable)
+{
+	ui->linkedImgPreviewCB->setChecked(enable);
+	onWebUrlPreviewEnable(enable);
+}
+
+void QQBoardsSettings::setWebUrlPreviewSize(int size)
+{
+	ui->linkedImgMaxSizeSB->setValue(size);
+}
+
+void QQBoardsSettings::onWebUrlPreviewEnable(bool enabled)
+{
+	ui->linkedImgMaxSizeSB->setEnabled(enabled);
+	ui->linkedImgMaxSizeLbl->setEnabled(enabled);
+}
+
+void QQBoardsSettings::onWebUrlPreviewMaxSizeChanged(int newSize)
+{
+	if(newSize > 200)
+		ui->linkedImgMaxSizeSB->setStyleSheet("QSpinBox {color: red;}");
+	else
+		ui->linkedImgMaxSizeSB->setStyleSheet("QSpinBox {}");
 }
 
 void QQBoardsSettings::addBouchot()
