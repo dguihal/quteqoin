@@ -69,6 +69,9 @@ const char notif_name[] = "QuteQoin";
 #define SETTINGS_WEB_IMAGE_VIEWER_ENABLED "web_image_viewer_enabled"
 #define DEFAULT_WEB_IMAGE_VIEWER_ENABLED true
 
+#define SETTINGS_WEB_IMAGE_PREVIEW_SIZE "web_image_preview_size"
+#define DEFAULT_WEB_IMAGE_PREVIEW_SIZE 100
+
 // BOUCHOTS
 #define BOUCHOTS_SPLIT_CHAR ';'
 

@@ -24,10 +24,17 @@ public:
 	QMap<QString, QQBouchot::QQBouchotSettings> getModifBouchots() { return m_modifBouchots; }
 	QStringList getOldBouchots() { return m_oldBouchots; }
 
+	bool isWebUrlPreviewEnabled();
+	void setWebUrlPreviewEnabled(bool enable);
+	int webUrlPreviewSize();
+	void setWebUrlPreviewSize(int size);
+
 protected slots:
 	void addBouchot();
 	void deleteBouchot();
 	void editBouchot();
+	void onWebUrlPreviewEnable(bool enabled);
+	void onWebUrlPreviewMaxSizeChanged(int newSize);
 
 private:
 	Ui::QQBoardsSettings *ui;
