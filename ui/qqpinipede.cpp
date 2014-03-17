@@ -2,6 +2,7 @@
 
 #include "mainwindow.h"
 #include "core/qqbackendupdatedevent.h"
+#include "core/qqbakdisplayfilter.h"
 #include "core/qqbouchot.h"
 #include "core/qqpostdisplayfilter.h"
 #include "core/qqpurgebouchothistoevent.h"
@@ -88,6 +89,8 @@ QQPinipede::QQPinipede(QWidget * parent) :
 	connect(m_huntingView, SIGNAL(duckKilled(QString,QString)), this, SLOT(duckKilled(QString,QString)));
 
 	setMovable(true);
+
+	m_listpostDisplayFilters.append(new QQBakDisplayFilter());
 }
 
 //////////////////////////////////////////////////////////////
@@ -103,6 +106,12 @@ QQPinipede::~QQPinipede()
 	{
 		for(int i = 0; i < listTabs.size(); i++)
 			delete m_listPostsTabMap.take(tab);
+	}
+
+	foreach(QQPostDisplayFilter *df, m_listpostDisplayFilters)
+	{
+		if(df != NULL)
+			delete df;
 	}
 }
 
@@ -209,7 +218,7 @@ void QQPinipede::repaintPiniTab(const QString &groupName)
 	{
 		if(postwasPrinted)
 			cursor.insertBlock();
-		printPostAtCursor(cursor, posts->at(i));
+		postwasPrinted = printPostAtCursor(cursor, posts->at(i));
 	}
 	cursor.endEditBlock();
 
@@ -554,11 +563,11 @@ void QQPinipede::norlogeRefClicked(QString srcBouchot, QQNorlogeRef nRef)
 	{
 		QQMessageBlockUserData * userData = (QQMessageBlockUserData *) (cursor.block().userData());
 
-		if(nRef.matchesPost(userData->post()))
+		if(userData == NULL)
+			continue;
+		else if(nRef.matchesPost(userData->post()))
 			found = true;
-		else if(found == true) // remonte jusqu'au premier post correspondant en cas de multiple
-			break;
-	} while(cursor.movePosition(QTextCursor::PreviousBlock));
+	} while(cursor.movePosition(QTextCursor::PreviousBlock) && !found);
 
 	// Si non trouve, aucune raison de changer de tab
 	if(found)
@@ -590,7 +599,7 @@ void QQPinipede::loginClicked(QString bouchot, QString login)
 ///
 void QQPinipede::norlogeRefHovered(QQNorlogeRef norlogeRef)
 {
-	qDebug() << Q_FUNC_INFO << "value =" << norlogeRef.nRefId() << norlogeRef.dstBouchot();
+	//qDebug() << Q_FUNC_INFO << "value =" << norlogeRef.nRefId() << norlogeRef.dstBouchot();
 
 	QStringList groups;
 
@@ -862,10 +871,9 @@ void QQPinipede::resizeEvent(QResizeEvent *event)
 ///
 bool QQPinipede::applyPostDisplayFilters(QQPost *post)
 {
-	QList<QQPostDisplayFilter *> m_listpostDisplayFilters;
 	foreach(QQPostDisplayFilter *filter, m_listpostDisplayFilters)
 	{
-		if(! filter->filter(post))
+		if(filter->filterMatch(post))
 			return false;
 	}
 	return true;
@@ -921,7 +929,7 @@ void QQPinipede::newPostsAvailable(QString groupName)
 		QQListPostPtr newPostsBouchot = b->takeNewPosts();
 		if(newPostsBouchot.size() > 0)
 		{
-			qDebug() << Q_FUNC_INFO << "newPosts from :" << b->name();
+			//qDebug() << Q_FUNC_INFO << "newPosts from :" << b->name();
 			newPosts.append(newPostsBouchot);
 		}
 	}
@@ -1034,6 +1042,13 @@ void QQPinipede::newPostsAvailable(QString groupName)
 		}
 	}
 
+	if(!postWasPrinted) //remove last inserted bloc if not printed
+	{
+		cursor.movePosition(QTextCursor::PreviousBlock, QTextCursor::KeepAnchor);
+		cursor.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
+		cursor.removeSelectedText();
+	}
+
 	cursor.endEditBlock();
 
 	// Purge des anciens messages
@@ -1068,11 +1083,7 @@ void QQPinipede::newPostsAvailable(QString groupName)
 ///
 bool QQPinipede::printPostAtCursor(QTextCursor &cursor, QQPost *post)
 {
-	if(! applyPostDisplayFilters(post))
-		return false;
-
 	QTextBlock block = cursor.block();
-	QQTextBrowser * browser = m_textBrowserHash.value(post->bouchot()->settings().group());
 
 	QTextBlockFormat bFormat = cursor.blockFormat();
 	bFormat.setTabPositions(cursor.document()->defaultTextOption().tabs());
@@ -1081,6 +1092,15 @@ bool QQPinipede::printPostAtCursor(QTextCursor &cursor, QQPost *post)
 
 	QQMessageBlockUserData * data = new QQMessageBlockUserData();
 	data->setPost(post);
+
+	if(! applyPostDisplayFilters(post))
+	{
+		block.setUserData(data);
+
+		return false;
+	}
+
+	QQTextBrowser * browser = m_textBrowserHash.value(post->bouchot()->settings().group());
 
 	qreal textLen = 0;
 	QFont currFont = cursor.document()->defaultFont();

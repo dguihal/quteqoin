@@ -183,7 +183,6 @@ void QQNetworkAccessor::onProxyAuthenticationRequired(const QNetworkProxy &proxy
 
 void QQNetworkAccessor::onRemoveTimer(QObject *obj)
 {
-	qDebug() << Q_FUNC_INFO << obj;
 	QTimer *timer = m_replyTimers.take((QNetworkReply *) obj);
 	if(timer != NULL)
 		delete timer;

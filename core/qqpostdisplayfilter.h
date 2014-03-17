@@ -1,14 +1,15 @@
 #ifndef QQPOSTDISPLAYFILTER_H
 #define QQPOSTDISPLAYFILTER_H
 
-#include "core/qqpost.h"
+class QQPost;
 
 class QQPostDisplayFilter
 {
 public:
-	QQPostDisplayFilter();
+	QQPostDisplayFilter() {}
+	virtual ~QQPostDisplayFilter() {}
 
-	virtual bool filter(const QQPost *post) = 0;
+	virtual bool filterMatch(const QQPost *post) = 0;
 };
 
 #endif // QQPOSTDISPLAYFILTER_H

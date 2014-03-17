@@ -113,6 +113,13 @@ public:
 
 	void setPiniWidget(QWidget *widget) { m_piniWidget = widget; }
 
+	void addToBak(const QString &name, const bool isAuth);
+	bool isBaked(const QString &name, const bool isAuth) const;
+	void removeFromBak(const QString &name, const bool isAuth);
+	void addToPlopify(const QString &name, const bool isAuth);
+	bool isPlopified(const QString &name, const bool isAuth) const;
+	void removeFromPlopify(const QString &name, const bool isAuth);
+
 	virtual bool event(QEvent *e);
 
 	//static
@@ -160,6 +167,9 @@ private:
 
 	int m_deltaTimeH;
 	QList<QQMussel> m_lastPosters;
+
+	QList< QPair<QString, bool> > m_bakList;
+	QList< QPair<QString, bool> > m_plopifyList;
 
 	//static
 	static QHash<QString, QQBouchot *> s_hashBouchots;

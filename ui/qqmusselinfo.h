@@ -19,10 +19,15 @@ signals:
 	void selected(QQMussel mussel);
 
 public slots:
+	void toggleBak(bool baked);
+	void togglePlopify(bool plopified);
 
 protected:
-	virtual void mousePressEvent(QMouseEvent *event);
     virtual void mouseReleaseEvent(QMouseEvent *event);
+	virtual void contextMenuEvent(QContextMenuEvent *event);
+
+protected slots:
+	void onMenuSelection(QAction *action);
 
 private:
 	void updateStyleSheet();

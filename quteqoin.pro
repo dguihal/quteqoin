@@ -66,7 +66,6 @@ SOURCES += main.cpp\
 	core/qqbackendupdatedevent.cpp \
 	ui/qqpostparser.cpp \
 	ui/qqpinisearchwidget.cpp \
-	core/qqpostdisplayfilter.cpp \
 	core/qqsimplepostdisplayfilter.cpp \
 	ui/qqhuntingview.cpp \
 	ui/qqduckpixmapitem.cpp \
@@ -77,10 +76,11 @@ SOURCES += main.cpp\
 	ui/qqboardinfo.cpp \
 	core/qqmussel.cpp \
 	ui/qqmusselinfo.cpp \
-		ui/qqcmdtoolbuttons.cpp \
-		ui/qqimageviewer.cpp \
-		ui/qqwebimageviewer.cpp \
-		core/qqwebimagedownloader.cpp
+        ui/qqcmdtoolbuttons.cpp \
+        ui/qqimageviewer.cpp \
+        ui/qqwebimageviewer.cpp \
+        core/qqwebimagedownloader.cpp \
+        core/qqbakdisplayfilter.cpp
 
 HEADERS  += mainwindow.h \
 	core/qqsettings.h \
@@ -130,10 +130,11 @@ HEADERS  += mainwindow.h \
 	ui/qqboardinfo.h \
 	core/qqmussel.h \
 	ui/qqmusselinfo.h \
-		ui/qqcmdtoolbuttons.h \
-		ui/qqimageviewer.h \
-		ui/qqwebimageviewer.h \
-		core/qqwebimagedownloader.h
+        ui/qqcmdtoolbuttons.h \
+        ui/qqimageviewer.h \
+        ui/qqwebimageviewer.h \
+        core/qqwebimagedownloader.h \
+        core/qqbakdisplayfilter.h
 
 FORMS += mainwindow.ui \
 	ui/qqpalmipede.ui \
@@ -150,7 +151,7 @@ FORMS += mainwindow.ui \
 	ui/settingsmanager/qqhuntsettings.ui \
 	ui/qqboardsinfo.ui \
 	ui/qqboardinfo.ui \
-		ui/qqcmdtoolbuttons.ui
+        ui/qqcmdtoolbuttons.ui
 
 OTHER_FILES +=
 
