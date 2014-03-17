@@ -193,6 +193,75 @@ void QQBouchot::setNewPostsFromHistory()
 }
 
 //////////////////////////////////////////////////////////////
+/// \brief QQBouchot::addToBak
+/// \param name
+/// \param isAuth
+///
+void QQBouchot::addToBak(const QString &name, const bool isAuth)
+{
+	QPair<QString, bool> newItem = qMakePair(name, isAuth);
+	if(! m_bakList.contains(newItem))
+		m_bakList.append(newItem);
+}
+
+//////////////////////////////////////////////////////////////
+/// \brief QQBouchot::isBaked
+/// \param name
+/// \param isAuth
+///
+bool QQBouchot::isBaked(const QString &name, const bool isAuth) const
+{
+	QPair<QString, bool> newItem = qMakePair(name, isAuth);
+	//qDebug() << Q_FUNC_INFO << newItem << m_bakList.contains(newItem);
+	return m_bakList.contains(newItem);
+}
+
+//////////////////////////////////////////////////////////////
+/// \brief QQBouchot::removeFromBak
+/// \param name
+/// \param isAuth
+///
+void QQBouchot::removeFromBak( const QString &name, const bool isAuth)
+{
+	QPair<QString, bool> newItem = qMakePair(name, isAuth);
+	m_bakList.removeAll(newItem);
+}
+
+//////////////////////////////////////////////////////////////
+/// \brief QQBouchot::addToPlopify
+/// \param name
+/// \param isAuth
+///
+void QQBouchot::addToPlopify(const QString &name, const bool isAuth)
+{
+	QPair<QString, bool> newItem = qMakePair(name, isAuth);
+	if(! m_plopifyList.contains(newItem))
+		m_plopifyList.append(newItem);
+}
+
+//////////////////////////////////////////////////////////////
+/// \brief QQBouchot::isPlopified
+/// \param name
+/// \param isAuth
+///
+bool QQBouchot::isPlopified(const QString &name, const bool isAuth) const
+{
+	QPair<QString, bool> newItem = qMakePair(name, isAuth);
+	return m_plopifyList.contains(newItem);
+}
+
+//////////////////////////////////////////////////////////////
+/// \brief QQBouchot::removeFromPlopify
+/// \param name
+/// \param isAuth
+///
+void QQBouchot::removeFromPlopify(const QString &name, const bool isAuth)
+{
+	QPair<QString, bool> newItem = qMakePair(name, isAuth);
+	m_plopifyList.removeAll(newItem);
+}
+
+//////////////////////////////////////////////////////////////
 /// \brief QQBouchot::event
 /// \param e
 /// \return

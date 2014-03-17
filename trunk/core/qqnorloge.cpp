@@ -75,8 +75,8 @@ QString QQNorloge::toStringPalmi()
 	QString rep;
 
 	bool startPrint = false;
-	qDebug() << "QQNorloge::toStringPalmi currDateT.date().year()=" << currDateT.date().year();
-	if(m_dateYearPart.toInt() != currDateT.date().year())
+	qDebug() << Q_FUNC_INFO << "currDateT.date().year() =" << currDateT.date().year();
+	//if(m_dateYearPart.toInt() != currDateT.date().year())
 	{
 		rep.append(m_dateYearPart)
 				.append(QString::fromUtf8("/"));

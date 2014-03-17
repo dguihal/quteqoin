@@ -11,7 +11,11 @@
 #define QPROGRESSBAR_COLOR_KO_SS "QProgressBar { border: none; background-color: rgba(0, 0, 0, 0%); color: red}"
 #define QPROGRESSBAR_CHUNK_SS "QProgressBar::chunk {background-color: %1; width: 5px; margin: 0.5px;}"
 
-
+//////////////////////////////////////////////////////////////
+/// \brief QQBoardInfo::QQBoardInfo
+/// \param board
+/// \param parent
+///
 QQBoardInfo::QQBoardInfo(QQBouchot *board, QWidget *parent) :
 	QWidget(parent),
 	m_ui(new Ui::QQBoardInfo),
@@ -49,12 +53,18 @@ QQBoardInfo::QQBoardInfo(QQBouchot *board, QWidget *parent) :
 	connect(m_board, SIGNAL(refreshStarted()), this, SLOT(rearmRefreshPB()));
 }
 
+//////////////////////////////////////////////////////////////
+/// \brief QQBoardInfo::~QQBoardInfo
+///
 QQBoardInfo::~QQBoardInfo()
 {
 	delete m_ui;
 }
 
-
+//////////////////////////////////////////////////////////////
+/// \brief QQBoardInfo::sizeHint
+/// \return
+///
 QSize QQBoardInfo::sizeHint() const
 {
 	QFontMetrics fm = m_ui->usrDspSA->fontMetrics();
@@ -62,11 +72,18 @@ QSize QQBoardInfo::sizeHint() const
 	return QSize(minWidth + m_ui->labelUsers->minimumWidth(), m_ui->labelUsers->minimumHeight());
 }
 
+//////////////////////////////////////////////////////////////
+/// \brief QQBoardInfo::musselSelected
+/// \param mussel
+///
 void QQBoardInfo::musselSelected(QQMussel mussel)
 {
 	Q_UNUSED(mussel)
 }
 
+//////////////////////////////////////////////////////////////
+/// \brief QQBoardInfo::rearmRefreshPB
+///
 void QQBoardInfo::rearmRefreshPB()
 {
 	m_pctPollAnimation.stop();
@@ -84,6 +101,10 @@ void QQBoardInfo::rearmRefreshPB()
 	m_pctPollAnimation.start();
 }
 
+//////////////////////////////////////////////////////////////
+/// \brief QQBoardInfo::showRefreshError
+/// \param errMsg
+///
 void QQBoardInfo::showRefreshError(QString &errMsg)
 {
 	m_ui->refreshPB->setStyleSheet(QString(QPROGRESSBAR_COLOR_KO_SS)
@@ -94,6 +115,9 @@ void QQBoardInfo::showRefreshError(QString &errMsg)
 	m_refreshFailed = true;
 }
 
+//////////////////////////////////////////////////////////////
+/// \brief QQBoardInfo::toggleExpandedView
+///
 void QQBoardInfo::toggleExpandedView()
 {
 	if(m_ui->bodyWidget->isVisible())
@@ -109,6 +133,9 @@ void QQBoardInfo::toggleExpandedView()
 }
 
 #define MAX_ITEMS 10
+//////////////////////////////////////////////////////////////
+/// \brief QQBoardInfo::updateUserList
+///
 void QQBoardInfo::updateUserList()
 {
 	QList<QQMussel> lastPosters = m_board->lastPosters();
