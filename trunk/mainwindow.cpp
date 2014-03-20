@@ -108,8 +108,8 @@ MainWindow::MainWindow(QWidget *parent) :
 	bool success = false;
 	if(windowsStateCacheFile.open(QIODevice::ReadWrite | QIODevice::Text))
 	{
-		success = restoreGeometry(QByteArray::fromBase64(QString(windowsStateCacheFile.readLine().trimmed()).toAscii()));
-		success &= restoreState(QByteArray::fromBase64(QString(windowsStateCacheFile.readLine().trimmed()).toAscii()));
+		success = restoreGeometry(QByteArray::fromBase64(QString(windowsStateCacheFile.readLine().trimmed()).toUtf8()));
+		success &= restoreState(QByteArray::fromBase64(QString(windowsStateCacheFile.readLine().trimmed()).toUtf8()));
 	}
 	windowsStateCacheFile.close();
 	if(!success)
