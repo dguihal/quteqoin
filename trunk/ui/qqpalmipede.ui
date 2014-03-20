@@ -258,7 +258,7 @@
   <customwidget>
    <class>QQPalmiLineEdit</class>
    <extends>QLineEdit</extends>
-   <header>ui/qqpalmilineedit.h</header>
+   <header>ui/palmipede/qqpalmilineedit.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

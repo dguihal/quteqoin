@@ -1,6 +1,8 @@
 #ifndef QQPALMILINEEDIT_H
 #define QQPALMILINEEDIT_H
 
+#include "qqpalmifileposter.h"
+
 #include <QLineEdit>
 #include <QStringList>
 
@@ -29,9 +31,12 @@ public slots:
 	void strike();
 	void underline();
 
+	void joinFile(QString fileName = QString(""));
+
 protected:
-	virtual void keyPressEvent(QKeyEvent *e);
+	virtual void dropEvent(QDropEvent *event);
 	virtual void focusInEvent(QFocusEvent *e);
+	virtual void keyPressEvent(QKeyEvent *e);
 	virtual void resizeEvent(QResizeEvent *e);
 
 private slots:
@@ -40,6 +45,8 @@ private slots:
 private:
 	void updateTotozCompleter();
 	void completeTotoz();
+
+	QQPalmiFilePoster m_fPoster;
 
 	QStringList m_listTotoz;
 	QToolButton *m_clearButton;

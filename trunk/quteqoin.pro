@@ -46,7 +46,7 @@ SOURCES += main.cpp\
 	core/qqtotoz.cpp \
 	core/qqtotozdownloader.cpp \
 	core/qqnetworkaccessor.cpp \
-	ui/qqpalmilineedit.cpp \
+	ui/palmipede/qqpalmilineedit.cpp \
 	core/qqpurgebouchothistoevent.cpp \
 	core/qqbigornoitem.cpp \
 	ui/qqtotozmanager.cpp \
@@ -80,7 +80,8 @@ SOURCES += main.cpp\
         ui/qqimageviewer.cpp \
         ui/qqwebimageviewer.cpp \
         core/qqwebimagedownloader.cpp \
-        core/qqbakdisplayfilter.cpp
+        core/qqbakdisplayfilter.cpp \
+	ui/palmipede/qqpalmifileposter.cpp
 
 HEADERS  += mainwindow.h \
 	core/qqsettings.h \
@@ -97,7 +98,7 @@ HEADERS  += mainwindow.h \
 	core/qqtotoz.h \
 	core/qqtotozdownloader.h \
 	core/qqnetworkaccessor.h \
-	ui/qqpalmilineedit.h \
+	ui/palmipede/qqpalmilineedit.h \
 	core/qqpurgebouchothistoevent.h \
 	core/qqbigornoitem.h \
 	ui/qqtotozmanager.h \
@@ -134,7 +135,8 @@ HEADERS  += mainwindow.h \
         ui/qqimageviewer.h \
         ui/qqwebimageviewer.h \
         core/qqwebimagedownloader.h \
-        core/qqbakdisplayfilter.h
+        core/qqbakdisplayfilter.h \
+	ui/palmipede/qqpalmifileposter.h
 
 FORMS += mainwindow.ui \
 	ui/qqpalmipede.ui \

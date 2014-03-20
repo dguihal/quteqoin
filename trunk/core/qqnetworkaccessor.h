@@ -30,7 +30,9 @@ protected:
 	QNetworkReply * httpGet(const QNetworkRequest &request);
 	QNetworkReply * httpHead(const QNetworkRequest &request);
 	QNetworkReply * httpPost(const QNetworkRequest &request,
-													 const QByteArray &postData);
+							 const QByteArray &postData);
+	QNetworkReply * httpPost(const QNetworkRequest &request,
+							 QHttpMultiPart *multiPart);
 	void setNetCacheManager(QAbstractNetworkCache *networkCache) { m_qnam->setCache(networkCache); }
 
 protected slots:
