@@ -1,13 +1,17 @@
 #include "qqpalmilineedit.h"
 
+#include "core/qqnetworkaccessor.h"
 #include "core/qqnorlogeref.h"
 #include "core/qqsettings.h"
 #include "ui/qqtotozmanager.h"
 
 #include <QtDebug>
+#include <QFileDialog>
 #include <QFocusEvent>
 #include <QFontMetrics>
+#include <QHttpMultiPart>
 #include <QKeyEvent>
+#include <QMimeData>
 #include <QToolButton>
 #include <QStyle>
 
@@ -16,7 +20,8 @@
 /// \param parent
 ///
 QQPalmiLineEdit::QQPalmiLineEdit(QWidget *parent) :
-	QLineEdit(parent)
+	QLineEdit(parent),
+	m_fPoster()
 {
 	m_clearButton = new QToolButton(this);
 	QFontMetrics fMetrics(font());
@@ -30,6 +35,8 @@ QQPalmiLineEdit::QQPalmiLineEdit(QWidget *parent) :
 	connect(this, SIGNAL(textChanged(const QString&)), this, SLOT(updateCloseButton(const QString&)));
 	int frameWidth = style()->pixelMetric(QStyle::PM_DefaultFrameWidth);
 	setStyleSheet(QString("QLineEdit { padding-right: %1px; } ").arg(m_clearButton->sizeHint().width() + frameWidth + 1));
+
+	connect(&m_fPoster, SIGNAL(finished(QString)), this, SLOT(insertText(QString)));
 }
 
 //////////////////////////////////////////////////////////////
@@ -122,6 +129,48 @@ void QQPalmiLineEdit::underline()
 	insertText(QString::fromLatin1("<u>%s</u>"));
 }
 
+
+//////////////////////////////////////////////////////////////
+/// \brief QQPalmiLineEdit::joinFile
+///
+void QQPalmiLineEdit::joinFile(QString fileName)
+{
+	if(fileName.isEmpty())
+		fileName = QFileDialog::getOpenFileName(this, tr("Open File"),
+												"", tr("Files (*.*)"));
+	if(QFile::exists(fileName))
+		m_fPoster.postFile(fileName);
+}
+
+//////////////////////////////////////////////////////////////
+/// \brief QQPalmiLineEdit::dropEvent
+/// \param e
+///
+void QQPalmiLineEdit::dropEvent(QDropEvent *event)
+{
+	if(event->mimeData()->hasUrls())
+	{
+		QUrl url = event->mimeData()->urls().at(0);
+		if(url.isLocalFile())
+		{
+			joinFile(url.toLocalFile());
+			event->accept();
+		}
+	}
+	else
+		QLineEdit::dropEvent(event);
+}
+
+//////////////////////////////////////////////////////////////
+/// \brief QQPalmiLineEdit::focusInEvent
+/// \param e
+///
+void QQPalmiLineEdit::focusInEvent(QFocusEvent *e)
+{
+	updateTotozCompleter();
+	QLineEdit::focusInEvent(e);
+}
+
 //////////////////////////////////////////////////////////////
 /// \brief QQPalmiLineEdit::keyPressEvent
 /// \param e
@@ -139,7 +188,7 @@ void QQPalmiLineEdit::keyPressEvent(QKeyEvent *e)
 	if(e->modifiers() == Qt::AltModifier)
 	{
 		if(key >= SETTINGS_PALMI_SHORTCUTS_MIN_KEY &&
-			key <= SETTINGS_PALMI_SHORTCUTS_MAX_KEY)
+				key <= SETTINGS_PALMI_SHORTCUTS_MAX_KEY)
 		{
 			QChar keyChr = QChar(keyInt).toLower();
 			for(int i = 0; i < palmishortcuts.size(); i++)
@@ -175,16 +224,6 @@ void QQPalmiLineEdit::keyPressEvent(QKeyEvent *e)
 }
 
 //////////////////////////////////////////////////////////////
-/// \brief QQPalmiLineEdit::focusInEvent
-/// \param e
-///
-void QQPalmiLineEdit::focusInEvent(QFocusEvent *e)
-{
-	updateTotozCompleter();
-	QLineEdit::focusInEvent(e);
-}
-
-//////////////////////////////////////////////////////////////
 /// \brief resizeEvent
 /// \param event
 ///
@@ -193,7 +232,7 @@ void QQPalmiLineEdit::resizeEvent(QResizeEvent *event)
 	QSize sz = m_clearButton->sizeHint();
 	int frameWidth = style()->pixelMetric(QStyle::PM_DefaultFrameWidth);
 	m_clearButton->move(rect().right() - frameWidth - sz.width(),
-					  (rect().bottom() + 1 - sz.height())/2);
+						(rect().bottom() + 1 - sz.height())/2);
 
 	QLineEdit::resizeEvent(event);
 }

@@ -139,6 +139,11 @@ QNetworkReply * QQNetworkAccessor::httpPost(const QNetworkRequest &request, cons
 	return m_qnam->post(request, postData);
 }
 
+QNetworkReply * QQNetworkAccessor::httpPost(const QNetworkRequest &request, QHttpMultiPart *multiPart)
+{
+	return m_qnam->post(request, multiPart);
+}
+
 // Gestion du proxy
 QMutex QQNetworkAccessor::m_proxyPopupMutex;
 QString QQNetworkAccessor::m_proxyUser;
