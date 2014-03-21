@@ -14,5 +14,6 @@
         <file>settings-icon.png</file>
         <file>delete-icon.png</file>
         <file>hunt-icon.png</file>
+        <file>attach.png</file>
     </qresource>
 </RCC>

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>650</width>
-    <height>103</height>
+    <width>592</width>
+    <height>109</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -15,12 +15,6 @@
     <horstretch>0</horstretch>
     <verstretch>0</verstretch>
    </sizepolicy>
-  </property>
-  <property name="minimumSize">
-   <size>
-    <width>408</width>
-    <height>0</height>
-   </size>
   </property>
   <property name="features">
    <set>QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable</set>
@@ -61,6 +55,17 @@
        <widget class="QPushButton" name="postPushButton">
         <property name="text">
          <string>Post</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QToolButton" name="attachButton">
+        <property name="text">
+         <string>...</string>
+        </property>
+        <property name="icon">
+         <iconset resource="../rc/quteqoin_img.qrc">
+          <normaloff>:/img/attach.png</normaloff>:/img/attach.png</iconset>
         </property>
        </widget>
       </item>
@@ -261,6 +266,8 @@
    <header>ui/palmipede/qqpalmilineedit.h</header>
   </customwidget>
  </customwidgets>
- <resources/>
+ <resources>
+  <include location="../rc/quteqoin_img.qrc"/>
+ </resources>
  <connections/>
 </ui>
