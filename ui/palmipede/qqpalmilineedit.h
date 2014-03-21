@@ -31,7 +31,7 @@ public slots:
 	void strike();
 	void underline();
 
-	void joinFile(QString fileName = QString(""));
+	void attachFile(QString fileName = QString(""));
 
 protected:
 	virtual void dropEvent(QDropEvent *event);

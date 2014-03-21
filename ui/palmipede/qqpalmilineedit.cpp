@@ -131,9 +131,9 @@ void QQPalmiLineEdit::underline()
 
 
 //////////////////////////////////////////////////////////////
-/// \brief QQPalmiLineEdit::joinFile
+/// \brief QQPalmiLineEdit::attachFile
 ///
-void QQPalmiLineEdit::joinFile(QString fileName)
+void QQPalmiLineEdit::attachFile(QString fileName)
 {
 	if(fileName.isEmpty())
 		fileName = QFileDialog::getOpenFileName(this, tr("Open File"),
@@ -153,7 +153,7 @@ void QQPalmiLineEdit::dropEvent(QDropEvent *event)
 		QUrl url = event->mimeData()->urls().at(0);
 		if(url.isLocalFile())
 		{
-			joinFile(url.toLocalFile());
+			attachFile(url.toLocalFile());
 			event->accept();
 		}
 	}

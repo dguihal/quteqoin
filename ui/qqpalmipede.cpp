@@ -47,6 +47,8 @@ QQPalmipede::QQPalmipede(QWidget *parent) :
 			m_ui->postPushButton, SLOT(animateClick()));
 	connect(m_ui->postLineEdit, SIGNAL(changeBoard(bool)),
 			this, SLOT(changeBoard(bool)));
+	connect(m_ui->attachButton, SIGNAL(clicked()),
+			m_ui->postLineEdit, SLOT(attachFile()));
 
 	m_ui->boardSelectorComboBoxMin->setVisible(this->m_minimal);
 }
