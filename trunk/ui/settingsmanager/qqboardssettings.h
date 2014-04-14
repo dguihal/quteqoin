@@ -24,8 +24,14 @@ public:
 	QMap<QString, QQBouchot::QQBouchotSettings> getModifBouchots() { return m_modifBouchots; }
 	QStringList getOldBouchots() { return m_oldBouchots; }
 
+#ifdef Q_OS_UNIX
+	bool isBigornotifyEnabled();
+	void setBigornotifyEnabled(bool enable);
+#endif
+
 	bool isWebUrlPreviewEnabled();
 	void setWebUrlPreviewEnabled(bool enable);
+
 	int webUrlPreviewSize();
 	void setWebUrlPreviewSize(int size);
 

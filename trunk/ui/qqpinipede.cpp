@@ -392,24 +392,28 @@ void QQPinipede::bigorNotify(QString &srcBouchot, QString &poster, bool global)
 	window()->setWindowIcon(icon);
 
 #ifdef Q_OS_UNIX
-	QString msg;
-	if(global)
-		msg = QString(tr("%1 called everyone on %2 board")).arg(poster).arg(srcBouchot);
-	else
-		msg = QString(tr("%1 called you on %2 board")).arg(poster).arg(srcBouchot);
-
-	NotifyNotification *notification = notify_notification_new(notif_name, msg.toUtf8(), NULL);
-	if(notification)
+	QQSettings settings;
+	if(settings.value(SETTINGS_BIGORNOTIFY_ENABLED, DEFAULT_BIGORNOTIFY_ENABLED).toBool())
 	{
-		notify_notification_set_timeout(notification, 3000);
-		if (!notify_notification_show(notification, NULL))
-			qDebug() << Q_FUNC_INFO << "Failed to send notification";
+		QString msg;
+		if(global)
+			msg = QString(tr("%1 called everyone on %2 board")).arg(poster).arg(srcBouchot);
+		else
+			msg = QString(tr("%1 called you on %2 board")).arg(poster).arg(srcBouchot);
 
-		/* Clean up the memory */
-		g_object_unref(notification);
+		NotifyNotification *notification = notify_notification_new(notif_name, msg.toUtf8(), NULL);
+		if(notification)
+		{
+			notify_notification_set_timeout(notification, 3000);
+			if (!notify_notification_show(notification, NULL))
+				qDebug() << Q_FUNC_INFO << "Failed to send notification";
+
+			/* Clean up the memory */
+			g_object_unref(notification);
+		}
+		else
+			qDebug() << Q_FUNC_INFO << "Failed to create notification";
 	}
-	else
-		qDebug() << Q_FUNC_INFO << "Failed to create notification";
 #endif
 }
 

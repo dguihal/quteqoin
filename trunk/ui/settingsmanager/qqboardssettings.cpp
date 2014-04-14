@@ -13,6 +13,11 @@ QQBoardsSettings::QQBoardsSettings(QWidget *parent) :
 	ui->setupUi(this);
 	ui->bouchotListView->setModel(new QStringListModel());
 
+#ifndef Q_OS_UNIX
+	ui->bigornotifLbl->hide();
+	ui->bigornotifCB->hide();
+#endif
+
 	connect(ui->addBouchotButton, SIGNAL(clicked()), this, SLOT(addBouchot()));
 	connect(ui->deleteBouchotButton, SIGNAL(clicked()), this, SLOT(deleteBouchot()));
 	connect(ui->editBouchotButton, SIGNAL(clicked()), this, SLOT(editBouchot()));
@@ -47,6 +52,18 @@ void QQBoardsSettings::setBouchots(const QMap<QString, QQBouchot::QQBouchotSetti
 		model->setData(model->index(index++), QVariant(i.key()));
 	}
 }
+
+#ifdef Q_OS_UNIX
+bool QQBoardsSettings::isBigornotifyEnabled()
+{
+	return ui->bigornotifCB->isChecked();
+}
+
+void QQBoardsSettings::setBigornotifyEnabled(bool enable)
+{
+	return ui->bigornotifCB->setChecked(enable);
+}
+#endif
 
 bool QQBoardsSettings::isWebUrlPreviewEnabled()
 {
