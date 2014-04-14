@@ -3,6 +3,8 @@
 
 #include "core/qqtypes.h"
 
+#include <QtGlobal>
+
 #ifdef Q_OS_UNIX
 const char notif_name[] = "QuteQoin";
 #endif
@@ -27,9 +29,6 @@ const char notif_name[] = "QuteQoin";
 
 #define SETTINGS_GENERAL_WEBSEARCH_URL "default_websearch_url"
 #define DEFAULT_GENERAL_WEBSEARCH_URL "http://www.google.fr/search?q=%s&ie=utf-8&oe=utf-8"
-
-#define SETTINGS_GENERAL_ENABLE_LINKED_IMG_PREVIEW "general_linked_img_preview_enabled"
-#define DEFAULT_GENERAL_ENABLE_LINKED_IMG_PREVIEW true
 
 #define SETTINGS_GENERAL_DEFAULT_FONT "default_font"
 #define DEFAULT_GENERAL_DEFAULT_FONT QFont().toString()
@@ -65,6 +64,11 @@ const char notif_name[] = "QuteQoin";
 //#define DEFAULT_TOTOZ_VISUAL_MODES (QStringList() << TOTOZ_VISUAL_MODE_DISABLED << TOTOZ_VISUAL_MODE_INLINE << TOTOZ_VISUAL_MODE_ON_HOVER)
 #define DEFAULT_TOTOZ_VISUAL_MODES (QStringList() << TOTOZ_VISUAL_MODE_DISABLED << TOTOZ_VISUAL_MODE_ON_HOVER)
 #define DEFAULT_TOTOZ_VISUAL_MODE TOTOZ_VISUAL_MODE_ON_HOVER
+
+#ifdef Q_OS_UNIX
+#define SETTINGS_BIGORNOTIFY_ENABLED "bigornotify_enabled"
+#define DEFAULT_BIGORNOTIFY_ENABLED true
+#endif
 
 #define SETTINGS_WEB_IMAGE_VIEWER_ENABLED "web_image_viewer_enabled"
 #define DEFAULT_WEB_IMAGE_VIEWER_ENABLED true

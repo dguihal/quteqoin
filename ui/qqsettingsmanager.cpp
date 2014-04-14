@@ -167,6 +167,11 @@ void QQSettingsManager::initBoardsSettings()
 	m_boardsSettingsW->setBouchots(mapBouchotSettings);
 
 	QQSettings settings;
+
+#ifdef Q_OS_UNIX
+	bool isBigornotifyEnabled = settings.value(SETTINGS_BIGORNOTIFY_ENABLED,  DEFAULT_BIGORNOTIFY_ENABLED).toBool();
+	m_boardsSettingsW->setBigornotifyEnabled(isBigornotifyEnabled);
+#endif
 	bool isWebUrlPreviewEnabled = settings.value(SETTINGS_WEB_IMAGE_VIEWER_ENABLED,  DEFAULT_WEB_IMAGE_VIEWER_ENABLED).toBool();
 	m_boardsSettingsW->setWebUrlPreviewEnabled(isWebUrlPreviewEnabled);
 	int webUrlPreviewSize = settings.value(SETTINGS_WEB_IMAGE_PREVIEW_SIZE,  DEFAULT_WEB_IMAGE_PREVIEW_SIZE).toInt();
@@ -212,6 +217,10 @@ void QQSettingsManager::saveBoardsSettings()
 		emit bouchotCreated(settings.loadBouchot(bouchotName));
 	}
 
+#ifdef Q_OS_UNIX
+	bool isBigornotifyEnabled = m_boardsSettingsW->isBigornotifyEnabled();
+	settings.setValueWithDefault(SETTINGS_BIGORNOTIFY_ENABLED, isBigornotifyEnabled, DEFAULT_BIGORNOTIFY_ENABLED);
+#endif
 	bool isWebUrlPreviewEnabled = m_boardsSettingsW->isWebUrlPreviewEnabled();
 	settings.setValueWithDefault(SETTINGS_WEB_IMAGE_VIEWER_ENABLED, isWebUrlPreviewEnabled, DEFAULT_WEB_IMAGE_VIEWER_ENABLED);
 	int webUrlPreviewSize = m_boardsSettingsW->webUrlPreviewSize();
