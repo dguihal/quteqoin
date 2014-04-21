@@ -11,6 +11,7 @@
 #include <QFontMetrics>
 #include <QHttpMultiPart>
 #include <QKeyEvent>
+#include <QMessageBox>
 #include <QMimeData>
 #include <QToolButton>
 #include <QStyle>
@@ -21,7 +22,7 @@
 ///
 QQPalmiLineEdit::QQPalmiLineEdit(QWidget *parent) :
 	QLineEdit(parent),
-	m_fPoster()
+	m_fPoster(this)
 {
 	m_clearButton = new QToolButton(this);
 	QFontMetrics fMetrics(font());
@@ -37,6 +38,7 @@ QQPalmiLineEdit::QQPalmiLineEdit(QWidget *parent) :
 	setStyleSheet(QString("QLineEdit { padding-right: %1px; } ").arg(m_clearButton->sizeHint().width() + frameWidth + 1));
 
 	connect(&m_fPoster, SIGNAL(finished(QString)), this, SLOT(insertText(QString)));
+	connect(&m_fPoster, SIGNAL(postErr(QString)), this, SLOT(joinFileErr(QString)));
 }
 
 //////////////////////////////////////////////////////////////
@@ -156,6 +158,8 @@ void QQPalmiLineEdit::dropEvent(QDropEvent *event)
 			attachFile(url.toLocalFile());
 			event->accept();
 		}
+		else
+			QLineEdit::dropEvent(event);
 	}
 	else
 		QLineEdit::dropEvent(event);
@@ -235,6 +239,20 @@ void QQPalmiLineEdit::resizeEvent(QResizeEvent *event)
 						(rect().bottom() + 1 - sz.height())/2);
 
 	QLineEdit::resizeEvent(event);
+}
+
+//////////////////////////////////////////////////////////////
+/// \brief QQPalmiLineEdit::joinFileErr
+/// \param errStr
+///
+void QQPalmiLineEdit::joinFileErr(const QString &errStr)
+{
+	QMessageBox *msgBox =  new QMessageBox(this);
+	msgBox->setText(tr("File upload service error."));
+	msgBox->setInformativeText(errStr);
+	msgBox->setStandardButtons(QMessageBox::Ok);
+	msgBox->setIcon(QMessageBox::Critical);
+	msgBox->exec();
 }
 
 //////////////////////////////////////////////////////////////

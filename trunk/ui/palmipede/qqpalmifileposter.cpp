@@ -4,13 +4,20 @@
 #include <QFile>
 #include <QFileInfo>
 #include <QHttpMultiPart>
+#if(QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
+#include <QJsonArray>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QMimeType>
+#include <QMimeDatabase>
+#endif
 
 //////////////////////////////////////////////////////////////
 /// \brief QQPalmiFilePoster::QQPalmiFilePoster
 /// \param parent
 ///
 QQPalmiFilePoster::QQPalmiFilePoster(QObject *parent) :
-    QQNetworkAccessor(parent)
+	QQNetworkAccessor(parent)
 {
 }
 
@@ -21,7 +28,6 @@ QQPalmiFilePoster::QQPalmiFilePoster(QObject *parent) :
 ///
 bool QQPalmiFilePoster::postFile(const QString &fileName)
 {
-
 	QFileInfo fi(fileName);
 
 	if(! (fi.exists() && fi.isReadable()))
@@ -32,8 +38,13 @@ bool QQPalmiFilePoster::postFile(const QString &fileName)
 	QHttpMultiPart *multiPart = new QHttpMultiPart(QHttpMultiPart::FormDataType);
 
 	QHttpPart filePart;
-	//TODO : Qt 5 : Determiner un vrai type mime ...
+#if(QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
+	QMimeDatabase mimeDatabase;
+	QMimeType mimeType = mimeDatabase.mimeTypeForFile(fi, QMimeDatabase::MatchDefault);
+	filePart.setHeader(QNetworkRequest::ContentTypeHeader, QVariant(mimeType.name()));
+#else
 	filePart.setHeader(QNetworkRequest::ContentTypeHeader, QVariant("application/octet-stream"));
+#endif
 	filePart.setHeader(QNetworkRequest::ContentDispositionHeader,
 					   QString("form-data; name=\"files[]\"; filename=\"%1\"").arg(fi.fileName()));
 	filePart.setBodyDevice(file);
@@ -65,6 +76,11 @@ void QQPalmiFilePoster::requestFinishedSlot(QNetworkReply *reply)
 	if(reply->error() == QNetworkReply::NoError &&
 			reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt() == 200)
 	{
+#if(QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
+		QJsonDocument d = QJsonDocument::fromJson(reply->readAll());
+		QJsonObject o = d.array().at(0).toObject();
+		emit finished(QString("http://pastelink.me/dl/") + o["key"].toString());
+#else
 		QString s = QString(reply->readAll()); //JSON mais non supporté par Qt 4 (Qt 5 ?)
 		int i = s.indexOf("\"key\":\"");
 		if(i >= 0)
@@ -74,6 +90,10 @@ void QQPalmiFilePoster::requestFinishedSlot(QNetworkReply *reply)
 			QString key = s.mid(start, j - start);
 			emit finished(QString("http://pastelink.me/dl/") + key);
 		}
+#endif
 	}
+	else
+		emit postErr(reply->errorString());
+
 	reply->deleteLater();
 }

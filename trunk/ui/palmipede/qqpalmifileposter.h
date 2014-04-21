@@ -14,6 +14,7 @@ public:
 
 signals:
 	void finished(QString url);
+	void postErr(const QString &errMsg);
 
 protected slots:
 	virtual void requestFinishedSlot(QNetworkReply *reply);
