@@ -39,6 +39,9 @@ protected:
 	virtual void keyPressEvent(QKeyEvent *e);
 	virtual void resizeEvent(QResizeEvent *e);
 
+protected slots:
+	void joinFileErr(const QString &errStr);
+
 private slots:
 	void updateCloseButton(const QString &text);
 
