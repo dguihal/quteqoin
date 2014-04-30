@@ -233,6 +233,17 @@ void QQTextBrowser::handleContentTypeAvailable(QUrl &url, QString &contentType)
 		{
 			emit displayWebImage(url);
 		}
+		else if(url.host().endsWith("youtube.com"))
+		{
+			QString query = url.query();
+			QRegExp rx("v=(\\w+)");
+			int pos = 0;
+			if((pos = rx.indexIn(query, pos)) != -1)
+			{
+				QString prevUrl = QString("http://i1.ytimg.com/vi/%1/hqdefault.jpg").arg(rx.cap(1)); //vZIbpk-vwy0
+				emit displayWebImage(prevUrl);
+			}
+		}
 	}
 }
 
