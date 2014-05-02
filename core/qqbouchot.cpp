@@ -345,8 +345,12 @@ void QQBouchot::slotSslErrors(const QList<QSslError> &errors)
 	QString msgs;
 	foreach(QSslError err, errors)
 	{
+		qDebug() << (int) err.error();
 		switch (err.error()) {
 			case QSslError::SelfSignedCertificate:
+			case QSslError::SelfSignedCertificateInChain:
+			case QSslError::UnableToGetLocalIssuerCertificate:
+			case QSslError::UnableToVerifyFirstCertificate:
 			case QSslError::CertificateUntrusted:
 				if(m_bSettings.isStrictHttpsCertif() == true)
 					msgs.append(err.errorString()).append("\n");
