@@ -138,6 +138,7 @@ signals:
 	void destroyed(QQBouchot *bouchot);
 	void groupChanged(QQBouchot *bouchot, QString oldGroupName);
 	void refreshStarted();
+	void refreshOK();
 	void refreshError(QString &errMsg);
 	void lastPostersUpdated();
 

@@ -25,11 +25,12 @@ public:
 	virtual QSize sizeHint() const;
 
 public slots:
-    void musselSelected(QQMussel mussel);
+	void musselSelected(QQMussel mussel);
 	void rearmRefreshPB();
+	void resetFromErrorState();
 	void showRefreshError(QString &errMsg);
 	void toggleExpandedView();
-    void updateUserList();
+	void updateUserList();
 
 protected:
 
