@@ -236,20 +236,6 @@ void QQTextBrowser::handleContentTypeAvailable(QUrl &url, QString &contentType)
 		{
 			emit displayWebImage(url);
 		}
-		else if(url.host().endsWith("youtube.com"))
-		{
-#if(QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
-			QUrlQuery urlQ(url);
-			QString vidId = urlQ.queryItemValue("v");
-#else
-			QString vidId = url.queryItemValue("v");
-#endif
-			if(! vidId.isEmpty())
-			{
-				QString prevUrl = QString("http://i1.ytimg.com/vi/%1/hqdefault.jpg").arg(vidId); //vZIbpk-vwy0
-				emit displayWebImage(prevUrl);
-			}
-		}
 	}
 }
 
@@ -335,7 +321,24 @@ void QQTextBrowser::mouseMoveEvent(QMouseEvent * event)
 					QFontMetrics fm(QToolTip::font());
 					QToolTip::showText(event->globalPos(), fm.elidedText(httpAnchor, Qt::ElideMiddle, 500), this);
 
-					m_urlHelper->getContentType(m_tooltipedUrl);
+					if(nUrl.host().endsWith("youtube.com"))
+					{
+#if(QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
+						QUrlQuery urlQ(nUrl);
+						QString vidId = urlQ.queryItemValue("v");
+#else
+						QString vidId = nUrl.queryItemValue("v");
+#endif
+						if(! vidId.isEmpty())
+						{
+							QString prevUrl = QString("http://i1.ytimg.com/vi/%1/hqdefault.jpg").arg(vidId); //vZIbpk-vwy0
+							emit displayWebImage(prevUrl);
+						}
+					}
+					else
+					{
+						m_urlHelper->getContentType(m_tooltipedUrl);
+					}
 				}
 				triggerClearViewers = false;
 			}
