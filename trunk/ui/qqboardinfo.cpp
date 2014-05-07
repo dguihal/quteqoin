@@ -49,8 +49,9 @@ QQBoardInfo::QQBoardInfo(QQBouchot *board, QWidget *parent) :
 	m_pctPollAnimation.setPropertyName("value");
 	rearmRefreshPB();
 	connect(m_board, SIGNAL(lastPostersUpdated()), this, SLOT(updateUserList()));
-	connect(m_board, SIGNAL(refreshError(QString&)), this, SLOT(showRefreshError(QString&)));
 	connect(m_board, SIGNAL(refreshStarted()), this, SLOT(rearmRefreshPB()));
+	connect(m_board, SIGNAL(refreshOK()), this, SLOT(resetFromErrorState()));
+	connect(m_board, SIGNAL(refreshError(QString&)), this, SLOT(showRefreshError(QString&)));
 }
 
 //////////////////////////////////////////////////////////////
@@ -87,18 +88,28 @@ void QQBoardInfo::musselSelected(QQMussel mussel)
 void QQBoardInfo::rearmRefreshPB()
 {
 	m_pctPollAnimation.stop();
-	if(m_refreshFailed)
-	{
-		m_ui->refreshPB->setStyleSheet(QString(QPROGRESSBAR_COLOR_OK_SS)
-									   .append(" ")
-									   .append(QPROGRESSBAR_CHUNK_SS)
-									   .arg(m_board->settings().color().name()));
-		m_ui->refreshPB->setToolTip("");
-		m_refreshFailed = false;
-	}
 	m_ui->refreshPB->setValue(0);
 	m_pctPollAnimation.setDuration(m_board->settings().refresh() * 1000);
 	m_pctPollAnimation.start();
+}
+
+
+//////////////////////////////////////////////////////////////
+/// \brief QQBoardInfo::resetFromErrorState
+///
+void QQBoardInfo::resetFromErrorState()
+{
+	if(! m_refreshFailed)
+		return;
+
+	m_ui->refreshPB->setStyleSheet(QString(QPROGRESSBAR_COLOR_OK_SS)
+								   .append(" ")
+								   .append(QPROGRESSBAR_CHUNK_SS)
+								   .arg(m_board->settings().color().name()));
+	m_ui->refreshPB->setToolTip("");
+
+	m_ui->refreshPB->setFormat(m_board->name());
+	m_refreshFailed = false;
 }
 
 //////////////////////////////////////////////////////////////
@@ -112,6 +123,9 @@ void QQBoardInfo::showRefreshError(QString &errMsg)
 								   .append(QPROGRESSBAR_CHUNK_SS)
 								   .arg(m_board->settings().color().name()));
 	m_ui->refreshPB->setToolTip(errMsg);
+	m_ui->refreshPB->setFormat(m_board->name().append(" ").append(QString::fromUtf8("\u26A0")));
+
+	connect(m_board, SIGNAL(refreshOK()), this, SLOT(rearmRefreshPB()));
 	m_refreshFailed = true;
 }
 
@@ -156,7 +170,7 @@ void QQBoardInfo::updateUserList()
 
 		int vSpace = 0;
 		for(int i = 0; i < lastPosters.size(); i++)
-        {
+		{
 			QQMussel mussel = lastPosters.at(i);
 			QQMusselInfo *mi = NULL;
 			if((mi = m_musselInfoHash.value(mussel, NULL)) != NULL)

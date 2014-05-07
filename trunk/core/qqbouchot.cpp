@@ -345,7 +345,6 @@ void QQBouchot::slotSslErrors(const QList<QSslError> &errors)
 	QString msgs;
 	foreach(QSslError err, errors)
 	{
-		qDebug() << (int) err.error();
 		switch (err.error()) {
 			case QSslError::SelfSignedCertificate:
 			case QSslError::SelfSignedCertificateInChain:
@@ -379,7 +378,16 @@ void QQBouchot::requestFinishedSlot(QNetworkReply *reply)
 		QString errMsg = reply->errorString();
 		qWarning() << "QQBouchot::requestFinishedSlot, error : " << reply->error()
 				   << ", msg : " << reply->errorString();
-		emit refreshError(errMsg);
+		switch(reply->request().attribute(QNetworkRequest::User, QQBouchot::UnknownRequest).toInt(0))
+		{
+			case QQBouchot::BackendRequest:
+				emit refreshError(errMsg);
+				break;
+			default:
+				qWarning() << Q_FUNC_INFO
+						   << reply->error()
+						   << "QQBouchot::requestFinishedSlot, reply->request().attribute(QNetworkRequest::User).toInt() unknown";
+		}
 	}
 	else
 	{
@@ -396,9 +404,11 @@ void QQBouchot::requestFinishedSlot(QNetworkReply *reply)
 			break;
 		case QQBouchot::BackendRequest:
 			parseBackend(reply->readAll());
+			emit refreshOK();
 			break;
-		default:
-			qWarning()  << "QQBouchot::requestFinishedSlot, reply->request().attribute(QNetworkRequest::User).toInt() unknown";
+			qWarning() << Q_FUNC_INFO
+					   << reply->error()
+					   << "QQBouchot::requestFinishedSlot, reply->request().attribute(QNetworkRequest::User).toInt() unknown";
 		}
 	}
 	reply->deleteLater();
