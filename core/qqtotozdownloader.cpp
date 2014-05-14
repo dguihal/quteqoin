@@ -49,7 +49,7 @@ void QQTotozDownloader::requestFinishedSlot(QNetworkReply * reply)
 	if(!redirectedURL.isEmpty() &&
 			redirectedURL != reply->url())
 	{
-		qDebug() << "QQTotozDownloader::requestFinishedSlot: Redirected to " << redirectedURL.toString();
+		qDebug() << Q_FUNC_INFO << "Redirected to " << redirectedURL.toString();
 		QNetworkRequest request(redirectedURL);
 		request.setAttribute(QNetworkRequest::CacheLoadControlAttribute,
 							 QNetworkRequest::PreferCache);
@@ -63,7 +63,8 @@ void QQTotozDownloader::requestFinishedSlot(QNetworkReply * reply)
 		QString statusCodeV = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toString();
 		QString errString = reply->attribute(QNetworkRequest::HttpReasonPhraseAttribute).toString();
 
-		qWarning() << "QQTotozDownloader::requestFinishedSlot, error : " << errString
+		qWarning() << Q_FUNC_INFO
+				   << "error : " << errString
 				   << "HTTP statusCode : " << statusCodeV;
 		emit fetchTotozFinished(totozId, false, errString);
 	} // Tout est OK on poursuit
@@ -82,7 +83,7 @@ void QQTotozDownloader::requestFinishedSlot(QNetworkReply * reply)
 			expire = QDateTime::currentDateTime();
 			expire.addDays(MAX_CACHE_AGE_DAYS);
 		}
-		qDebug() << "QQTotozDownloader::requestFinishedSlot, totozId =" << totozId;
+		qDebug() << Q_FUNC_INFO << "totozId =" << totozId;
 		totoz.setCacheExpireDate(expire);
 		totoz.save();
 		QString errStr;
