@@ -81,7 +81,8 @@ SOURCES += main.cpp\
         ui/qqwebimageviewer.cpp \
         core/qqwebimagedownloader.cpp \
         core/qqbakdisplayfilter.cpp \
-	ui/palmipede/qqpalmifileposter.cpp
+	ui/palmipede/qqpalmifileposter.cpp \
+	core/qqboardstatechangeevent.cpp \
 
 HEADERS  += mainwindow.h \
 	core/qqsettings.h \
@@ -136,7 +137,8 @@ HEADERS  += mainwindow.h \
         ui/qqwebimageviewer.h \
         core/qqwebimagedownloader.h \
         core/qqbakdisplayfilter.h \
-	ui/palmipede/qqpalmifileposter.h
+	ui/palmipede/qqpalmifileposter.h \
+	core/qqboardstatechangeevent.h \
 
 FORMS += mainwindow.ui \
 	ui/qqpalmipede.ui \

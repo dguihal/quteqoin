@@ -38,3 +38,25 @@ int QuteTools::randInt(int low, int high)
 {
 	return qrand() % ((high + 1) - low) + low;
 }
+
+//////////////////////////////////////////////////////////////
+/// \brief QuteTools::statusStringFromState
+/// \param s
+/// \return
+///
+QString QuteTools::statusStringFromState(QuteQoin::QQBoardStates s)
+{
+	QString flags;
+	if(s.hasResponse)
+		flags.append(QString::fromUtf8("\u2709"));
+	else if(s.hasNewPosts)
+		flags.append(QString::fromUtf8("*"));
+
+	if(s.hasBigorno)
+		flags.append(QString::fromUtf8("\u260F"));
+
+	if(s.hasError)
+		flags.append(QString::fromUtf8("\u26A0"));
+
+	return flags;
+}

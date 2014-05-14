@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>250</width>
-    <height>103</height>
+    <height>111</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -20,16 +20,7 @@
    <property name="spacing">
     <number>1</number>
    </property>
-   <property name="leftMargin">
-    <number>1</number>
-   </property>
-   <property name="topMargin">
-    <number>1</number>
-   </property>
-   <property name="rightMargin">
-    <number>1</number>
-   </property>
-   <property name="bottomMargin">
+   <property name="margin">
     <number>1</number>
    </property>
    <item>
@@ -38,20 +29,11 @@
       <property name="spacing">
        <number>3</number>
       </property>
-      <property name="leftMargin">
-       <number>1</number>
-      </property>
-      <property name="topMargin">
-       <number>1</number>
-      </property>
-      <property name="rightMargin">
-       <number>1</number>
-      </property>
-      <property name="bottomMargin">
+      <property name="margin">
        <number>1</number>
       </property>
       <item>
-       <widget class="QProgressBar" name="refreshPB">
+       <widget class="QQBoardInfoProgressBar" name="refreshPB">
         <property name="value">
          <number>0</number>
         </property>
@@ -82,16 +64,7 @@
       <property name="spacing">
        <number>3</number>
       </property>
-      <property name="leftMargin">
-       <number>1</number>
-      </property>
-      <property name="topMargin">
-       <number>1</number>
-      </property>
-      <property name="rightMargin">
-       <number>1</number>
-      </property>
-      <property name="bottomMargin">
+      <property name="margin">
        <number>1</number>
       </property>
       <item>
@@ -138,8 +111,8 @@
           <rect>
            <x>0</x>
            <y>0</y>
-           <width>201</width>
-           <height>68</height>
+           <width>202</width>
+           <height>79</height>
           </rect>
          </property>
         </widget>
@@ -150,6 +123,13 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>QQBoardInfoProgressBar</class>
+   <extends>QProgressBar</extends>
+   <header>ui/boardinfo/qqboardinfoprogressbar.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

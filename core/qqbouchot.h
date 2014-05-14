@@ -3,6 +3,7 @@
 
 #include "core/qqnetworkaccessor.h"
 #include "core/qqpost.h"
+#include "core/qqtypes.h"
 #include "core/qqmussel.h"
 
 #include <QColor>
@@ -120,6 +121,12 @@ public:
 	bool isPlopified(const QString &name, const bool isAuth) const;
 	void removeFromPlopify(const QString &name, const bool isAuth);
 
+	QuteQoin::QQBoardStates boardState();
+	void registerForStateChangeEvent(QObject *receiver);
+	void resetStatus();
+	void setHasNewResponse();
+	void setHasBigorno();
+
 	virtual bool event(QEvent *e);
 
 	//static
@@ -132,15 +139,17 @@ public:
 
 public slots:
 	void slotSslErrors(const QList<QSslError> &errors);
+	void unRegisterForStateChangeEvent(QObject *receiver);
 
 signals:
-	void removed(QString name, QString groupName);
 	void destroyed(QQBouchot *bouchot);
 	void groupChanged(QQBouchot *bouchot, QString oldGroupName);
+	void lastPostersUpdated();
 	void refreshStarted();
 	void refreshOK();
 	void refreshError(QString &errMsg);
-	void lastPostersUpdated();
+	void removed(QString name, QString groupName);
+
 
 protected slots:
 	void fetchBackend();
@@ -152,6 +161,7 @@ private:
 	void askPiniUpdate();
 	void checkGroupModified(const QString &oldGroupName);
 	void updateLastUsers();
+	void postStateChangedEvent();
 
 	QQListPostPtr m_history;
 	bool m_hasXPostId; //false = unknown
@@ -171,6 +181,9 @@ private:
 
 	QList< QPair<QString, bool> > m_bakList;
 	QList< QPair<QString, bool> > m_plopifyList;
+
+	QuteQoin::QQBoardStates m_state;
+	QList<QObject *> m_stateChangedEventReceivers;
 
 	//static
 	static QHash<QString, QQBouchot *> s_hashBouchots;

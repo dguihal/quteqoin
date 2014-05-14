@@ -72,12 +72,13 @@ public slots:
 	void showTotozViewer(const QString &totozId);
 	void hideViewers();
 	void loginClicked(QString bouchot, QString login);
-	void onNewPostsAcknowledged(QString groupName);
+	void tabEventsAcknowledged(const QString& groupName);
 	void bigorNotify(QString &srcBouchot, QString &poster, bool global);
 	void searchText(const QString &text, bool forward = true);
 
 signals:
 	void insertTextPalmi(QString bouchot, QString text);
+	void boardGroupEventsAcknowledged(const QString& boardName);
 
 protected:
 	virtual void contextMenuEvent(QContextMenuEvent *ev);

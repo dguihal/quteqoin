@@ -154,7 +154,7 @@ void QQPinipede::addPiniTab(const QString &groupName)
 	connect(textBrowser, SIGNAL(displayTotoz(const QString &)), this, SLOT(showTotozViewer(const QString &)));
 	connect(textBrowser, SIGNAL(displayWebImage(const QUrl &)), this, SLOT(showWebImageViewer(const QUrl &)));
 	connect(textBrowser, SIGNAL(hideViewers()), this, SLOT(hideViewers()));
-	connect(textBrowser, SIGNAL(newPostsAcknowledged(QString)), this, SLOT(onNewPostsAcknowledged(QString)));
+	connect(textBrowser, SIGNAL(newPostsAcknowledged(QString)), this, SLOT(tabEventsAcknowledged(QString)));
 	connect(textBrowser, SIGNAL(displayTotozContextMenu(QPoint &)), m_totozViewer, SLOT(displayContextMenu(QPoint &)));
 }
 
@@ -368,13 +368,17 @@ bool QQPinipede::event(QEvent *e)
 }
 
 //////////////////////////////////////////////////////////////
-/// \brief QQPinipede::onNewPostsAcknowledged
+/// \brief QQPinipede::tabEventsAcknowledged
 /// \param groupName
 ///
-void QQPinipede::onNewPostsAcknowledged(QString groupName)
+void QQPinipede::tabEventsAcknowledged(const QString& groupName)
 {
 	QQTextBrowser * textBrowser = m_textBrowserHash.value(groupName);
 	setTabText(indexOf(textBrowser), groupName);
+
+	QList<QQBouchot *> listBouchots = QQBouchot::listBouchotsGroup(groupName);
+	foreach (QQBouchot *b, listBouchots)
+		b->resetStatus();
 }
 
 //////////////////////////////////////////////////////////////
@@ -415,6 +419,8 @@ void QQPinipede::bigorNotify(QString &srcBouchot, QString &poster, bool global)
 			qDebug() << Q_FUNC_INFO << "Failed to create notification";
 	}
 #endif
+
+	QQBouchot::bouchot(srcBouchot)->setHasBigorno();
 }
 
 //////////////////////////////////////////////////////////////
@@ -1136,7 +1142,6 @@ bool QQPinipede::printPostAtCursor(QTextCursor &cursor, QQPost *post)
 	fm = QFontMetricsF(defaultFormat.font());
 	textLen += fm.size(Qt::TextSingleLine | Qt::TextExpandTabs," ").width();
 
-
 	//login ou ua
 
 	QTextCharFormat loginUaFormat;
@@ -1200,7 +1205,11 @@ bool QQPinipede::printPostAtCursor(QTextCursor &cursor, QQPost *post)
 
 	//Alerte en cas de réponse
 	if(!post->isSelfPost() && data->hasNRefToSelfPost())
+	{
+		post->bouchot()->setHasNewResponse();
 		QApplication::alert(this->parentWidget(), 0);
+	}
+
 
 	return true;
 }

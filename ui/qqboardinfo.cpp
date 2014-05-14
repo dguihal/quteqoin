@@ -2,6 +2,8 @@
 #include "ui_qqboardinfo.h"
 
 #include "core/qqbouchot.h"
+#include "core/qqboardstatechangeevent.h"
+#include "core/qutetools.h"
 #include "ui/qqmusselinfo.h"
 
 #include <QtDebug>
@@ -19,8 +21,7 @@
 QQBoardInfo::QQBoardInfo(QQBouchot *board, QWidget *parent) :
 	QWidget(parent),
 	m_ui(new Ui::QQBoardInfo),
-	m_board(board),
-	m_refreshFailed(false)
+	m_board(board)
 {
 	if(m_board == NULL)
 		return;
@@ -47,11 +48,13 @@ QQBoardInfo::QQBoardInfo(QQBouchot *board, QWidget *parent) :
 	m_pctPollAnimation.setEasingCurve(QEasingCurve::Linear);
 	m_pctPollAnimation.setTargetObject(m_ui->refreshPB);
 	m_pctPollAnimation.setPropertyName("value");
+
 	rearmRefreshPB();
 	connect(m_board, SIGNAL(lastPostersUpdated()), this, SLOT(updateUserList()));
 	connect(m_board, SIGNAL(refreshStarted()), this, SLOT(rearmRefreshPB()));
 	connect(m_board, SIGNAL(refreshOK()), this, SLOT(resetFromErrorState()));
 	connect(m_board, SIGNAL(refreshError(QString&)), this, SLOT(showRefreshError(QString&)));
+	board->registerForStateChangeEvent(this);
 }
 
 //////////////////////////////////////////////////////////////
@@ -87,6 +90,8 @@ void QQBoardInfo::musselSelected(QQMussel mussel)
 ///
 void QQBoardInfo::rearmRefreshPB()
 {
+	disconnect(m_board, SIGNAL(refreshOK()), this, SLOT(rearmRefreshPB()));
+
 	m_pctPollAnimation.stop();
 	m_ui->refreshPB->setValue(0);
 	m_pctPollAnimation.setDuration(m_board->settings().refresh() * 1000);
@@ -99,17 +104,11 @@ void QQBoardInfo::rearmRefreshPB()
 ///
 void QQBoardInfo::resetFromErrorState()
 {
-	if(! m_refreshFailed)
-		return;
-
 	m_ui->refreshPB->setStyleSheet(QString(QPROGRESSBAR_COLOR_OK_SS)
 								   .append(" ")
 								   .append(QPROGRESSBAR_CHUNK_SS)
 								   .arg(m_board->settings().color().name()));
 	m_ui->refreshPB->setToolTip("");
-
-	m_ui->refreshPB->setFormat(m_board->name());
-	m_refreshFailed = false;
 }
 
 //////////////////////////////////////////////////////////////
@@ -123,10 +122,10 @@ void QQBoardInfo::showRefreshError(QString &errMsg)
 								   .append(QPROGRESSBAR_CHUNK_SS)
 								   .arg(m_board->settings().color().name()));
 	m_ui->refreshPB->setToolTip(errMsg);
-	m_ui->refreshPB->setFormat(m_board->name().append(" ").append(QString::fromUtf8("\u26A0")));
 
 	connect(m_board, SIGNAL(refreshOK()), this, SLOT(rearmRefreshPB()));
-	m_refreshFailed = true;
+
+	updateNameWithStatus();
 }
 
 //////////////////////////////////////////////////////////////
@@ -206,4 +205,28 @@ void QQBoardInfo::updateUserList()
 
 	m_musselInfoHash.clear();
 	m_musselInfoHash = newMusselInfoHash;
+}
+
+//////////////////////////////////////////////////////////////
+/// \brief QQBoardInfo::event
+/// \param e
+/// \return
+///
+bool QQBoardInfo::event(QEvent *e)
+{
+	if(e->type() == QQBoardStateChangeEvent::BOARD_STATE_CHANGED)
+		updateNameWithStatus();
+	else
+		QObject::event(e);
+
+	return true;
+}
+
+//////////////////////////////////////////////////////////////
+/// \brief QQBoardInfo::updateNameWithStatus
+///
+void QQBoardInfo::updateNameWithStatus()
+{
+	QString flags = QuteTools::statusStringFromState(m_board->boardState());
+	m_ui->refreshPB->setBoardStatusFlags(flags);
 }
