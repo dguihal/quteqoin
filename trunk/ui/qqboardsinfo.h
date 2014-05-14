@@ -5,8 +5,11 @@ namespace Ui {
 class QQBoardsInfo;
 }
 
-#include <QDockWidget>
+class QQBoardInfo;
 
+#include <QDockWidget>
+#include <QHash>
+#include <QPointer>
 
 class QQBoardsInfo : public QDockWidget
 {
@@ -15,13 +18,12 @@ public:
 	explicit QQBoardsInfo(QWidget *parent = 0);
 	~QQBoardsInfo();
 
-public slots:
 	void updateBoardList();
 
 private:
 	Ui::QQBoardsInfo *m_ui;
 
-	QString m_boardName;
+	QHash<QString, QPointer<QQBoardInfo> > m_hashbInfo;
 };
 
 #endif // QQBOARDSINFO_H

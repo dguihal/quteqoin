@@ -13,6 +13,10 @@
 
 #define BOARDSINFO_TITLE	"Board Info"
 
+//////////////////////////////////////////////////////////////
+/// \brief QQBoardsInfo::QQBoardsInfo
+/// \param parent
+///
 QQBoardsInfo::QQBoardsInfo(QWidget *parent) :
 	QDockWidget(BOARDSINFO_TITLE, parent), m_ui(new Ui::QQBoardsInfo)
 {
@@ -24,11 +28,17 @@ QQBoardsInfo::QQBoardsInfo(QWidget *parent) :
 	m_ui->setupUi(this);
 }
 
+//////////////////////////////////////////////////////////////
+/// \brief QQBoardsInfo::~QQBoardsInfo
+///
 QQBoardsInfo::~QQBoardsInfo()
 {
 	delete m_ui;
 }
 
+//////////////////////////////////////////////////////////////
+/// \brief QQBoardsInfo::updateBoardList
+///
 void QQBoardsInfo::updateBoardList()
 {
 	QList<QQBouchot *> listBouchots = QQBouchot::listBouchots();
@@ -42,21 +52,38 @@ void QQBoardsInfo::updateBoardList()
 	policy.setVerticalStretch(0);
 
 	QFrame *line = NULL;
+	QHash<QString, QPointer<QQBoardInfo> > newhashbInfo;
+	bool first = true;
 	foreach(QQBouchot *board, listBouchots)
 	{
-		connect(board, SIGNAL(destroyed()), this, SLOT(updateBoardList()));
-		QQBoardInfo *boardInfo = new QQBoardInfo(board, boardsInfoWidget);
-		boardInfo->setSizePolicy(policy);
-		boardsInfoWidgetLayout->addWidget(boardInfo);
+		QQBoardInfo *boardInfo = NULL;
+		QPointer<QQBoardInfo> bInfoPtr = m_hashbInfo.value(board->name());
+		if(! bInfoPtr.isNull())
+		{
+			newhashbInfo.insert(board->name(), bInfoPtr);
+			boardInfo = bInfoPtr.data();
+			boardInfo->setParent(boardsInfoWidget);
+		}
+		else
+		{
+			boardInfo = new QQBoardInfo(board, boardsInfoWidget);
+			connect(boardInfo, SIGNAL(bouchotSelected(QString)), this, onBouchotSelected(QString));
+			newhashbInfo.insert(board->name(), QPointer<QQBoardInfo>(boardInfo));
+			boardInfo->setSizePolicy(policy);
+		}
 
-		line = new QFrame(boardsInfoWidget);
-		line->setObjectName(QString::fromUtf8("line"));
-		line->setFrameShape(QFrame::HLine);
-		line->setFrameShadow(QFrame::Sunken);
-		boardsInfoWidgetLayout->addWidget(line);
+		if(! first)
+		{
+			line = new QFrame(boardsInfoWidget);
+			line->setObjectName(QString::fromUtf8("line"));
+			line->setFrameShape(QFrame::HLine);
+			line->setFrameShadow(QFrame::Sunken);
+			boardsInfoWidgetLayout->addWidget(line);
+		}
+		else
+			first = false;
+		boardsInfoWidgetLayout->addWidget(boardInfo);
 	}
-	boardsInfoWidgetLayout->removeWidget(line);
-	delete line;
 	boardsInfoWidgetLayout->addSpacerItem(new QSpacerItem(20, 1, QSizePolicy::Minimum, QSizePolicy::MinimumExpanding));
 
 	boardsInfoWidget->setLayout(boardsInfoWidgetLayout);
@@ -65,6 +92,7 @@ void QQBoardsInfo::updateBoardList()
 	if(oldWidget != NULL)
 		delete oldWidget;
 
+	m_hashbInfo = newhashbInfo;
 	m_ui->scrollArea->setWidget(boardsInfoWidget);
 	boardsInfoWidget->show();
 }

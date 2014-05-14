@@ -55,7 +55,6 @@ MainWindow::MainWindow(QWidget *parent) :
 	m_boardsInfo = new QQBoardsInfo(this);
 	m_boardsInfo->setAllowedAreas(Qt::LeftDockWidgetArea |
 									Qt::RightDockWidgetArea);
-	m_boardsInfo->updateBoardList();
 	addDockWidget(Qt::LeftDockWidgetArea, m_boardsInfo, Qt::Vertical);
 
 	QAction *actionBoardInfo = m_boardsInfo->toggleViewAction();
@@ -259,6 +258,8 @@ void MainWindow::bouchotDestroyed(QQBouchot *bouchot)
 	(bouchots.size() == 0) ?
 				m_pini->removePiniTab(group) :
 				m_pini->purgePiniTab(group, name);
+
+	m_boardsInfo->updateBoardList();
 
 }
 
