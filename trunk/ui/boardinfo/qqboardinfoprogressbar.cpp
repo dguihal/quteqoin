@@ -5,9 +5,8 @@
 /// \param parent
 /// \param boardName
 ///
-QQBoardInfoProgressBar::QQBoardInfoProgressBar(QWidget *parent, const QString &boardName) :
-	QProgressBar(parent),
-	m_boardName(boardName)
+QQBoardInfoProgressBar::QQBoardInfoProgressBar(QWidget *parent) :
+	QProgressBar(parent)
 {
 }
 
@@ -21,6 +20,13 @@ void QQBoardInfoProgressBar::setBoardStatusFlags(const QString &flags)
 	if(flags.size() > 0)
 		info.append(" (").append(flags).append(")");
 
+	setFormat(m_boardName);
+}
+
+//////////////////////////////////////////////////////////////
+void QQBoardInfoProgressBar::setBoardName(const QString &boardName)
+{
+	m_boardName = boardName;
 	setFormat(m_boardName);
 }
 

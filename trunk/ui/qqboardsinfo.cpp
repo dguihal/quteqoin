@@ -67,7 +67,6 @@ void QQBoardsInfo::updateBoardList()
 		else
 		{
 			boardInfo = new QQBoardInfo(board, boardsInfoWidget);
-			connect(boardInfo, SIGNAL(bouchotSelected(QString)), this, onBouchotSelected(QString));
 			newhashbInfo.insert(board->name(), QPointer<QQBoardInfo>(boardInfo));
 			boardInfo->setSizePolicy(policy);
 		}

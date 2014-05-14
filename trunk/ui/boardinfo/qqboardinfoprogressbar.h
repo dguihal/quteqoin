@@ -8,9 +8,10 @@ class QQBoardInfoProgressBar : public QProgressBar
 {
 	Q_OBJECT
 public:
-	explicit QQBoardInfoProgressBar(QWidget *parent = 0, const QString &boardName);
+	explicit QQBoardInfoProgressBar(QWidget *parent = 0);
 
 	void setBoardStatusFlags(const QString &flags);
+	void setBoardName(const QString &boardName);
 
 signals:
 	void bouchotSelected(const QString &bouchotName);

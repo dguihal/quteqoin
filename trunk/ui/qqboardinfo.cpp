@@ -37,7 +37,7 @@ QQBoardInfo::QQBoardInfo(QQBouchot *board, QWidget *parent) :
 
 	m_ui->refreshPB->setTextVisible(true);
 	m_ui->refreshPB->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
-	m_ui->refreshPB->setFormat(m_board->name());
+	m_ui->refreshPB->setBoardName(board->name());
 	m_ui->refreshPB->setStyleSheet(QString(QPROGRESSBAR_COLOR_OK_SS)
 								   .append(" ")
 								   .append(QPROGRESSBAR_CHUNK_SS)

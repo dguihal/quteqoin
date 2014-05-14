@@ -83,6 +83,7 @@ SOURCES += main.cpp\
         core/qqbakdisplayfilter.cpp \
 	ui/palmipede/qqpalmifileposter.cpp \
 	core/qqboardstatechangeevent.cpp \
+	ui/boardinfo/qqboardinfoprogressbar.cpp
 
 HEADERS  += mainwindow.h \
 	core/qqsettings.h \
@@ -139,6 +140,7 @@ HEADERS  += mainwindow.h \
         core/qqbakdisplayfilter.h \
 	ui/palmipede/qqpalmifileposter.h \
 	core/qqboardstatechangeevent.h \
+	ui/boardinfo/qqboardinfoprogressbar.h
 
 FORMS += mainwindow.ui \
 	ui/qqpalmipede.ui \
