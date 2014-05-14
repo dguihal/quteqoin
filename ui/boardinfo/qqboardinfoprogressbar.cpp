@@ -20,7 +20,7 @@ void QQBoardInfoProgressBar::setBoardStatusFlags(const QString &flags)
 	if(flags.size() > 0)
 		info.append(" (").append(flags).append(")");
 
-	setFormat(m_boardName);
+	setFormat(info);
 }
 
 //////////////////////////////////////////////////////////////
