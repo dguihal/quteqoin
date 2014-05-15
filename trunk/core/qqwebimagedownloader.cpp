@@ -45,6 +45,8 @@ void QQWebImageDownloader::getImage(const QUrl &url)
 ///
 void QQWebImageDownloader::requestFinishedSlot(QNetworkReply *reply)
 {
+	m_listPendingUrl.removeOne(reply->url());
+
 	// ou de l'url de destination si on a affaire a une redirection:
 	QUrl redirectedURL = reply->attribute(QNetworkRequest::RedirectionTargetAttribute).toUrl();
 
@@ -59,24 +61,19 @@ void QQWebImageDownloader::requestFinishedSlot(QNetworkReply *reply)
 
 		httpGet(request);
 	} // Une erreur HTTP est survenue
+	else if (reply->error() != QNetworkReply::NoError)
+	{
+		// Recuperation du Statut HTTP
+		QString statusCodeV = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toString();
+		QString errString = reply->attribute(QNetworkRequest::HttpReasonPhraseAttribute).toString();
+
+		qWarning() << Q_FUNC_INFO << "error : " << errString << "HTTP statusCode : " << statusCodeV;
+		emit ready();
+	} // Tout est OK on poursuit
 	else
 	{
-		m_listPendingUrl.removeOne(reply->url());
-
-		if (reply->error() != QNetworkReply::NoError)
-		{
-			// Recuperation du Statut HTTP
-			QString statusCodeV = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toString();
-			QString errString = reply->attribute(QNetworkRequest::HttpReasonPhraseAttribute).toString();
-
-			qWarning() << Q_FUNC_INFO << "error : " << errString << "HTTP statusCode : " << statusCodeV;
-			emit ready();
-		} // Tout est OK on poursuit
-		else
-		{
-			m_data = reply->readAll();
-			emit ready();
-		}
+		m_data = reply->readAll();
+		emit ready();
 	}
 
 	reply->deleteLater();
