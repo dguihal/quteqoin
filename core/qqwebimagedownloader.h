@@ -25,6 +25,7 @@ protected slots:
 
 private:
 	QByteArray m_data;
+	QList<QUrl> m_listPendingUrl;
 };
 
 #endif // QQWEBIMAGEDOWNLOADER_H
