@@ -26,10 +26,17 @@ QQWebImageDownloader::QQWebImageDownloader(QObject *parent) :
 ///
 void QQWebImageDownloader::getImage(const QUrl &url)
 {
-	QNetworkRequest request(url);
-	request.setAttribute(QNetworkRequest::CacheLoadControlAttribute,
-						 QNetworkRequest::PreferCache);
-	httpGet(request);
+	if(! m_listPendingUrl.contains(url))
+	{
+		m_listPendingUrl.append(url);
+
+		QNetworkRequest request(url);
+		request.setAttribute(QNetworkRequest::CacheLoadControlAttribute,
+							 QNetworkRequest::PreferCache);
+		httpGet(request);
+	}
+	else
+		qDebug() << Q_FUNC_INFO << "Already loading" << url;
 }
 
 //////////////////////////////////////////////////////////////
@@ -42,7 +49,8 @@ void QQWebImageDownloader::requestFinishedSlot(QNetworkReply *reply)
 	QUrl redirectedURL = reply->attribute(QNetworkRequest::RedirectionTargetAttribute).toUrl();
 
 	if(!redirectedURL.isEmpty() &&
-			redirectedURL != reply->url())
+			redirectedURL != reply->url() &&
+			! m_listPendingUrl.contains(redirectedURL))
 	{
 		qDebug() << Q_FUNC_INFO << "Redirected to " << redirectedURL.toString();
 		QNetworkRequest request(redirectedURL);
@@ -51,19 +59,24 @@ void QQWebImageDownloader::requestFinishedSlot(QNetworkReply *reply)
 
 		httpGet(request);
 	} // Une erreur HTTP est survenue
-	else if (reply->error() != QNetworkReply::NoError)
-	{
-		// Recuperation du Statut HTTP
-		QString statusCodeV = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toString();
-		QString errString = reply->attribute(QNetworkRequest::HttpReasonPhraseAttribute).toString();
-
-		qWarning() << Q_FUNC_INFO << "error : " << errString << "HTTP statusCode : " << statusCodeV;
-		emit ready();
-	} // Tout est OK on poursuit
 	else
 	{
-		m_data = reply->readAll();
-		emit ready();
+		m_listPendingUrl.removeOne(reply->url());
+
+		if (reply->error() != QNetworkReply::NoError)
+		{
+			// Recuperation du Statut HTTP
+			QString statusCodeV = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toString();
+			QString errString = reply->attribute(QNetworkRequest::HttpReasonPhraseAttribute).toString();
+
+			qWarning() << Q_FUNC_INFO << "error : " << errString << "HTTP statusCode : " << statusCodeV;
+			emit ready();
+		} // Tout est OK on poursuit
+		else
+		{
+			m_data = reply->readAll();
+			emit ready();
+		}
 	}
 
 	reply->deleteLater();
