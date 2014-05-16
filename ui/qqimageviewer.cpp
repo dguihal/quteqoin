@@ -1,6 +1,7 @@
 #include "qqimageviewer.h"
 
 #include <QDebug>
+#include <QToolTip>
 
 //////////////////////////////////////////////////////////////
 /// \brief QQImageViewer::QQImageViewer
@@ -158,16 +159,31 @@ void QQImageViewer::setPos()
 	QWidget* parent = parentWidget();
 	if(m_showAtMousePos && parent != NULL)
 	{
+		bool shouldMoveToolTip = true;
 		QPoint totozViewerPos = parent->mapFromGlobal(QCursor::pos());
-		QSize viewerSize = parent->size();
-		if(totozViewerPos.x() > (viewerSize.width() / 2))
-			totozViewerPos.setX(totozViewerPos.x() - width());
-		else
-			totozViewerPos.setX(totozViewerPos.x());
-		if(totozViewerPos.y() > (viewerSize.height() / 2))
-			totozViewerPos.setY(totozViewerPos.y() - height());
-		else
-			totozViewerPos.setY(totozViewerPos.y());
+		QSize parentSize = parent->size();
+		if(totozViewerPos.x() > (parentSize.width() / 2)) // a droite
+		{
+			totozViewerPos.rx() -= width();
+			shouldMoveToolTip = false;
+		}
+		if(totozViewerPos.y() > (parentSize.height() / 2)) // en dessous
+		{
+			totozViewerPos.ry() -= height();
+			shouldMoveToolTip = false;
+		}
+
 		move(totozViewerPos);
+
+		if(shouldMoveToolTip && QToolTip::isVisible())
+		{
+			QString txt = QToolTip::text();
+
+			QPoint ttPos = totozViewerPos;
+			ttPos.ry() += height();
+
+			QToolTip::showText(parent->mapToGlobal(ttPos), "Lorem Ipsum", parent); // Ne fonctionne pas avec un texte vide
+			QToolTip::showText(parent->mapToGlobal(ttPos), txt, parent);
+		}
 	}
 }

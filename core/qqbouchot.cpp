@@ -126,7 +126,7 @@ void QQBouchot::postMessage(const QString &message)
 
 	request.setRawHeader("User-Agent", ua.toLatin1());
 
-	if(m_bSettings.cookie().isEmpty() == false)
+	if(! m_bSettings.cookie().isEmpty())
 		request.setRawHeader("Cookie", m_bSettings.cookie().toLatin1());
 
 	request.setRawHeader("Accept", "*/*");
