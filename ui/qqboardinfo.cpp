@@ -54,7 +54,7 @@ QQBoardInfo::QQBoardInfo(QQBouchot *board, QWidget *parent) :
 	connect(m_board, SIGNAL(refreshStarted()), this, SLOT(rearmRefreshPB()));
 	connect(m_board, SIGNAL(refreshOK()), this, SLOT(resetFromErrorState()));
 	connect(m_board, SIGNAL(refreshError(QString&)), this, SLOT(showRefreshError(QString&)));
-	board->registerForStateChangeEvent(this);
+	board->registerForEventNotification(this, QQBouchot::StateChanged);
 }
 
 //////////////////////////////////////////////////////////////
