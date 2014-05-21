@@ -27,6 +27,8 @@ class QQBouchot : public QQNetworkAccessor
 public:
 	enum TypeSlip { SlipTagsEncoded = 0, SlipTagsRaw = 1 };
 	enum TypeRequest { UnknownRequest = 0, BackendRequest = 1, PostRequest = 2 };
+	enum QQBouchotEvent { NewPostsAvailable = 1, StateChanged = 2 };
+	Q_DECLARE_FLAGS(QQBouchotEvents, QQBouchotEvent)
 
 	class QQBouchotSettings
 	{
@@ -112,8 +114,6 @@ public:
 	QQListPostPtr postsHistory() { return m_history; }
 	void setNewPostsFromHistory();
 
-	void setPiniWidget(QWidget *widget) { m_piniWidget = widget; }
-
 	void addToBak(const QString &name, const bool isAuth);
 	bool isBaked(const QString &name, const bool isAuth) const;
 	void removeFromBak(const QString &name, const bool isAuth);
@@ -122,10 +122,11 @@ public:
 	void removeFromPlopify(const QString &name, const bool isAuth);
 
 	QuteQoin::QQBoardStates boardState();
-	void registerForStateChangeEvent(QObject *receiver);
 	void resetStatus();
 	void setHasNewResponse();
 	void setHasBigorno();
+
+	void registerForEventNotification(QObject *receiver, QQBouchotEvents events);
 
 	virtual bool event(QEvent *e);
 
@@ -139,7 +140,7 @@ public:
 
 public slots:
 	void slotSslErrors(const QList<QSslError> &errors);
-	void unRegisterForStateChangeEvent(QObject *receiver);
+	void unregisterForEventNotification(QObject *receiver);
 
 signals:
 	void destroyed(QQBouchot *bouchot);
@@ -158,10 +159,9 @@ protected slots:
 	void parsingFinished();
 
 private:
-	void askPiniUpdate();
 	void checkGroupModified(const QString &oldGroupName);
 	void updateLastUsers();
-	void postStateChangedEvent();
+	void sendBouchotEvents();
 
 	QQListPostPtr m_history;
 	bool m_hasXPostId; //false = unknown
@@ -174,8 +174,6 @@ private:
 
 	QQXmlParser *m_xmlParser;
 
-	QWidget *m_piniWidget;
-
 	int m_deltaTimeH;
 	QList<QQMussel> m_lastPosters;
 
@@ -183,10 +181,17 @@ private:
 	QList< QPair<QString, bool> > m_plopifyList;
 
 	QuteQoin::QQBoardStates m_state;
-	QList<QObject *> m_stateChangedEventReceivers;
+
+	struct EventReceiver {
+		QQBouchotEvents acceptedEvents;
+		QObject * receiver;
+	};
+	QList<EventReceiver> m_listEventReceivers;
 
 	//static
 	static QHash<QString, QQBouchot *> s_hashBouchots;
 };
+
+Q_DECLARE_OPERATORS_FOR_FLAGS(QQBouchot::QQBouchotEvents)
 
 #endif // QQBOUCHOT_H

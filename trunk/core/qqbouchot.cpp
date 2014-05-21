@@ -70,7 +70,6 @@ QQBouchot::QQBouchot(const QString &name, QObject *parent) :
 	m_lastId(-1),
 	m_name(name),
 	m_xmlParser(new QQXmlParser()),
-	m_piniWidget(NULL),
 	m_deltaTimeH(-1) // unknown
 {
 	m_bSettings.setRefresh(0);
@@ -196,8 +195,7 @@ void QQBouchot::setNewPostsFromHistory()
 		m_newPostHistory.prepend(m_history.at(index));
 
 	m_state.hasNewPosts = true;
-	postStateChangedEvent();
-	askPiniUpdate();
+	sendBouchotEvents();
 }
 
 //////////////////////////////////////////////////////////////
@@ -278,22 +276,6 @@ QuteQoin::QQBoardStates QQBouchot::boardState()
 	return m_state;
 }
 
-
-//////////////////////////////////////////////////////////////
-/// \brief QQBouchot::registerForStateChangeEvent
-/// \param receiver
-///
-void QQBouchot::registerForStateChangeEvent(QObject *receiver)
-{
-	if(receiver)
-	{
-		connect(receiver, SIGNAL(destroyed(QObject *)),
-				this, SLOT(unRegisterForStateChangeEvent(QObject*)));
-		if(! m_stateChangedEventReceivers.contains(receiver))
-			m_stateChangedEventReceivers.append(receiver);
-	}
-}
-
 //////////////////////////////////////////////////////////////
 /// \brief QQBouchot::resetStatus
 ///
@@ -302,7 +284,7 @@ void QQBouchot::resetStatus()
 	m_state.hasNewPosts = false;
 	m_state.hasBigorno = false;
 	m_state.hasResponse = false;
-	postStateChangedEvent();
+	sendBouchotEvents();
 }
 
 //////////////////////////////////////////////////////////////
@@ -311,7 +293,7 @@ void QQBouchot::resetStatus()
 void QQBouchot::setHasNewResponse()
 {
 	m_state.hasResponse = true;
-	postStateChangedEvent();
+	sendBouchotEvents();
 }
 
 //////////////////////////////////////////////////////////////
@@ -320,7 +302,26 @@ void QQBouchot::setHasNewResponse()
 void QQBouchot::setHasBigorno()
 {
 	m_state.hasBigorno = true;
-	postStateChangedEvent();
+	sendBouchotEvents();
+}
+
+//////////////////////////////////////////////////////////////
+/// \brief registerForEventNotification
+/// \param receiver
+/// \param events
+///
+void QQBouchot::registerForEventNotification(QObject *receiver, QQBouchotEvents events)
+{
+	if(receiver)
+	{
+		connect(receiver, SIGNAL(destroyed(QObject *)),
+				this, SLOT(unregisterForEventNotification(QObject*)));
+		unregisterForEventNotification(receiver);
+		QQBouchot::EventReceiver evRcv;
+		evRcv.acceptedEvents = events;
+		evRcv.receiver = receiver;
+		m_listEventReceivers.append(evRcv);
+	}
 }
 
 //////////////////////////////////////////////////////////////
@@ -430,15 +431,23 @@ void QQBouchot::slotSslErrors(const QList<QSslError> &errors)
 }
 
 //////////////////////////////////////////////////////////////
-/// \brief QQBouchot::unRegisterForStateChangeEvent
+/// \brief QQBouchot::unregisterForEventNotification
+/// \param receiver
 ///
-void QQBouchot::unRegisterForStateChangeEvent(QObject *receiver)
+void QQBouchot::unregisterForEventNotification(QObject *receiver)
 {
-	if(receiver && m_stateChangedEventReceivers.contains(receiver))
+	if(receiver)
 	{
-		disconnect(receiver, SIGNAL(destroyed(QObject *)),
-				this, SLOT(unRegisterForStateChangeEvent(QObject*)));
-		m_stateChangedEventReceivers.removeOne(receiver);
+		QMutableListIterator<EventReceiver> i(m_listEventReceivers);
+		while(i.hasNext())
+		{
+			if(i.next().receiver == receiver)
+			{
+				disconnect(receiver, SIGNAL(destroyed(QObject *)),
+						this, SLOT(unregisterForEventNotification(QObject*)));
+				i.remove();
+			}
+		}
 	}
 }
 
@@ -555,26 +564,10 @@ void QQBouchot::parsingFinished()
 		m_history.append(m_newPostHistory);
 		m_lastId = m_xmlParser->maxId();
 		m_state.hasNewPosts = true;
-		postStateChangedEvent();
-		askPiniUpdate();
+		sendBouchotEvents();
 	}
 
 	updateLastUsers();
-}
-
-//////////////////////////////////////////////////////////////
-/// \brief QQBouchot::askPiniUpdate
-///
-void QQBouchot::askPiniUpdate()
-{
-	QApplication::postEvent(
-				(QObject *) m_piniWidget,
-				new QQBackendUpdatedEvent(
-					QQBackendUpdatedEvent::BACKEND_UPDATED,
-					m_bSettings.group()
-					),
-				Qt::LowEventPriority
-				);
 }
 
 //////////////////////////////////////////////////////////////
@@ -633,14 +626,25 @@ void QQBouchot::updateLastUsers()
 //////////////////////////////////////////////////////////////
 /// \brief QQBouchot::postStateChangedEvent
 ///
-void QQBouchot::postStateChangedEvent()
+void QQBouchot::sendBouchotEvents()
 {
-	foreach (QObject *o, m_stateChangedEventReceivers)
+	foreach (EventReceiver evRcv, m_listEventReceivers)
 	{
-		if(o)
+		if(evRcv.acceptedEvents.testFlag(NewPostsAvailable) && m_state.hasNewPosts)
 		{
-			QQBoardStateChangeEvent *e = new QQBoardStateChangeEvent(m_name);
-			QCoreApplication::postEvent(o, e);
+			QApplication::postEvent(evRcv.receiver,
+									new QQBackendUpdatedEvent(
+										QQBackendUpdatedEvent::BACKEND_UPDATED,
+										m_bSettings.group()),
+									Qt::LowEventPriority
+									);
+		}
+		if(evRcv.acceptedEvents.testFlag(StateChanged))
+		{
+			QApplication::postEvent(evRcv.receiver,
+									new QQBoardStateChangeEvent(m_name),
+									Qt::LowEventPriority
+									);
 		}
 	}
 }

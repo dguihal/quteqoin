@@ -289,7 +289,7 @@ void MainWindow::initBouchot(QQBouchot *bouchot)
 		return;
 
 	bouchot->setParent(this);
-	bouchot->setPiniWidget(m_pini);
+	bouchot->registerForEventNotification(m_pini, QQBouchot::NewPostsAvailable | QQBouchot::StateChanged);
 	m_pini->addPiniTab(bouchot->settings().group());
 	m_palmi->addBouchot(bouchot->name(), bouchot->settings().colorLight());
 
