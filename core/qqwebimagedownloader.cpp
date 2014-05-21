@@ -54,7 +54,7 @@ void QQWebImageDownloader::requestFinishedSlot(QNetworkReply *reply)
 			redirectedURL != reply->url() &&
 			! m_listPendingUrl.contains(redirectedURL))
 	{
-		qDebug() << Q_FUNC_INFO << "Redirected to " << redirectedURL.toString();
+		qDebug() << Q_FUNC_INFO << reply->url() << "redirected to" << redirectedURL.toString();
 		QNetworkRequest request(redirectedURL);
 		request.setAttribute(QNetworkRequest::CacheLoadControlAttribute,
 							 QNetworkRequest::PreferCache);
