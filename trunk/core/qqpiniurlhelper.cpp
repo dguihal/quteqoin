@@ -79,6 +79,8 @@ void QQPiniUrlHelper::transformMessage(const QString &bouchot, QString &message)
 
 }
 
+// On a en juste besoin ici
+#define INITIAL_URL_PROPERTY "INITIAL_URL"
 //////////////////////////////////////////////////////////////
 /// \brief QQPiniUrlHelper::requestFinishedSlot
 /// \param reply
@@ -89,21 +91,49 @@ void QQPiniUrlHelper::requestFinishedSlot(QNetworkReply *reply)
 	{
 		m_contentTypeReplies.removeAll(reply);
 		QUrl sourceUrl = reply->request().url();
-		QString rep(tr("Unknown"));
-		if(reply->error() == QNetworkReply::NoError)
+
+		// ou de l'url de destination si on a affaire a une redirection:
+		QUrl redirectedURL = reply->attribute(QNetworkRequest::RedirectionTargetAttribute).toUrl();
+
+		if(!redirectedURL.isEmpty() &&
+				redirectedURL != sourceUrl)
+		{
+			qDebug() << Q_FUNC_INFO << reply->url().toString() << "redirected to" << redirectedURL.toString();
+			QNetworkReply *newReply = httpHead(QNetworkRequest(redirectedURL));
+
+			if(reply->property(INITIAL_URL_PROPERTY).isValid())
+				newReply->setProperty(INITIAL_URL_PROPERTY, reply->property(INITIAL_URL_PROPERTY));
+			else
+				newReply->setProperty(INITIAL_URL_PROPERTY, sourceUrl);
+
+			m_contentTypeReplies.append(newReply);
+		} // Une erreur HTTP est survenue
+		else if(reply->error() != QNetworkReply::NoError)
+		{
+			qDebug() << reply->errorString();
+			QString rep = tr("Unknown");
+			emit contentTypeAvailable(sourceUrl, rep);
+		}
+		else
 		{
 			QString contentType = reply->header(QNetworkRequest::ContentTypeHeader).toString();
 			QStringList contentTypeParts = contentType.split(";", QString::SkipEmptyParts);
-			if(contentTypeParts.size() > 0)
-				rep = contentTypeParts.at(0);
+			QString rep = (contentTypeParts.size() > 0) ? contentTypeParts.at(0) : tr("Unknown");
+
+
+			if(reply->property(INITIAL_URL_PROPERTY).isValid())
+				sourceUrl = reply->property(INITIAL_URL_PROPERTY).toUrl();
 
 			QQPiniUrlHelper::m_contentTypeCache.insert(sourceUrl, rep);
 			QQPiniUrlHelper::m_contentTypeCacheUrls.append(sourceUrl);
+
 			while(QQPiniUrlHelper::m_contentTypeCacheUrls.size() > CONTENT_TYPE_CACHE_SIZE)
 				QQPiniUrlHelper::m_contentTypeCache.remove(QQPiniUrlHelper::m_contentTypeCacheUrls.takeFirst());
+
+			emit contentTypeAvailable(sourceUrl, rep);
 		}
-		else
-			qDebug() << reply->errorString();
-		emit contentTypeAvailable(sourceUrl, rep);
 	}
+	reply->deleteLater();
 }
+// On a en juste besoin ici
+#undef INITIAL_URL_PROPERTY
