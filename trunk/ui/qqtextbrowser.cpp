@@ -321,6 +321,9 @@ void QQTextBrowser::mouseMoveEvent(QMouseEvent * event)
 					QFontMetrics fm(QToolTip::font());
 					QToolTip::showText(event->globalPos(), fm.elidedText(httpAnchor, Qt::ElideMiddle, 500), this);
 
+					bool specialHandling = false;
+
+					// Sans doute a ameliorer si la liste grandit
 					if(nUrl.host().endsWith("youtube.com"))
 					{
 #if(QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
@@ -332,10 +335,22 @@ void QQTextBrowser::mouseMoveEvent(QMouseEvent * event)
 						if(! vidId.isEmpty())
 						{
 							QString prevUrl = QString("http://i1.ytimg.com/vi/%1/hqdefault.jpg").arg(vidId); //vZIbpk-vwy0
+							specialHandling = true;
 							emit displayWebImage(prevUrl);
 						}
 					}
-					else
+					else if(nUrl.host() == "sauf.ca")
+					{
+						QString prevUrl = nUrl.toString();
+						if(! nUrl.path().endsWith("/img"))
+							prevUrl.append("/img");
+
+						specialHandling = true;
+						qDebug() << Q_FUNC_INFO << prevUrl;
+						emit displayWebImage(prevUrl);
+					}
+
+					if(! specialHandling)
 					{
 						m_urlHelper->getContentType(m_tooltipedUrl);
 					}
