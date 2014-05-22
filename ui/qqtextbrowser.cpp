@@ -346,7 +346,6 @@ void QQTextBrowser::mouseMoveEvent(QMouseEvent * event)
 							prevUrl.append("/img");
 
 						specialHandling = true;
-						qDebug() << Q_FUNC_INFO << prevUrl;
 						emit displayWebImage(prevUrl);
 					}
 
