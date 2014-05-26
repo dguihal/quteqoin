@@ -49,6 +49,7 @@ QTextDocumentFragment* QQPostParser::formatMessage(QQPost *post, QQMessageBlockU
 	colorizeDuck(doc, userData);
 	colorizeTableVolante(doc, userData);
 	colorizeTotoz(doc, userData);
+	detectLecon(doc, userData);
 
 	return new QTextDocumentFragment(&doc);
 }
@@ -338,5 +339,32 @@ void QQPostParser::colorizeTotoz(QTextDocument &doc, QQMessageBlockUserData *use
 		}
 
 		cursor.mergeCharFormat(fmt);
+	}
+}
+
+#define LECON_BASE_URL "http://lecons.ssz.fr/lecon/"
+//////////////////////////////////////////////////////////////
+/// \brief QQPostParser::detectLecon
+/// \param doc
+/// \param userData
+///
+void QQPostParser::detectLecon(QTextDocument &doc, QQMessageBlockUserData *userData)
+{
+	Q_UNUSED(userData)
+	QRegExp totozReg = QRegExp(QString::fromUtf8("(le[cç]on\\s+\\d+)"),
+								 Qt::CaseInsensitive,
+								 QRegExp::RegExp);
+
+	QTextCursor cursor(&doc);
+	while(! (cursor = doc.find(totozReg, cursor)).isNull())
+	{
+		QString numLesson = cursor.selectedText().split(QRegExp("\\s")).at(1);
+		QString url = QString::fromAscii("<a href=\"")
+					  .append(LECON_BASE_URL)
+					  .append(numLesson)
+					  .append(QString::fromAscii("\">"))
+					  .append(cursor.selectedText())
+					  .append(QString::fromAscii("</a>"));
+		cursor.insertHtml(url);
 	}
 }
