@@ -359,12 +359,12 @@ void QQPostParser::detectLecon(QTextDocument &doc, QQMessageBlockUserData *userD
 	while(! (cursor = doc.find(totozReg, cursor)).isNull())
 	{
 		QString numLesson = cursor.selectedText().split(QRegExp("\\s")).at(1);
-		QString url = QString::fromAscii("<a href=\"")
+		QString url = QString::fromLatin1("<a href=\"")
 					  .append(LECON_BASE_URL)
 					  .append(numLesson)
-					  .append(QString::fromAscii("\">"))
+					  .append(QString::fromLatin1("\">"))
 					  .append(cursor.selectedText())
-					  .append(QString::fromAscii("</a>"));
+					  .append(QString::fromLatin1("</a>"));
 		cursor.insertHtml(url);
 	}
 }
