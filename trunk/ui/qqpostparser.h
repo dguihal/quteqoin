@@ -38,6 +38,7 @@ private:
 	void linkNorlogeRef(QQNorlogeRef *nRef);
 	void colorizeTableVolante(QTextDocument &doc, QQMessageBlockUserData *userData);
 	void colorizeTotoz(QTextDocument &doc, QQMessageBlockUserData *userData);
+	void detectLecon(QTextDocument &doc, QQMessageBlockUserData *userData);
 
 	QList<QQMessageTransformFilter *> m_listMessageTransformFilters;
 	QQueue<QString> lastTotozIds;
