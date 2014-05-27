@@ -9,10 +9,6 @@
 #include <QtDebug>
 #include <QFontMetrics>
 
-#define QPROGRESSBAR_COLOR_OK_SS "QProgressBar { border: none; background-color: rgba(0, 0, 0, 0%);}"
-#define QPROGRESSBAR_COLOR_KO_SS "QProgressBar { border: none; background-color: rgba(0, 0, 0, 0%); color: red}"
-#define QPROGRESSBAR_CHUNK_SS "QProgressBar::chunk {background-color: %1; width: 5px; margin: 0.5px;}"
-
 //////////////////////////////////////////////////////////////
 /// \brief QQBoardInfo::QQBoardInfo
 /// \param board
@@ -36,12 +32,9 @@ QQBoardInfo::QQBoardInfo(QQBouchot *board, QWidget *parent) :
 	connect(m_ui->showBtn, SIGNAL(clicked()), this, SLOT(toggleExpandedView()));
 
 	m_ui->refreshPB->setTextVisible(true);
+	m_ui->refreshPB->setBoardColor(m_board->settings().color());
 	m_ui->refreshPB->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
 	m_ui->refreshPB->setBoardName(board->name());
-	m_ui->refreshPB->setStyleSheet(QString(QPROGRESSBAR_COLOR_OK_SS)
-								   .append(" ")
-								   .append(QPROGRESSBAR_CHUNK_SS)
-								   .arg(m_board->settings().color().name()));
 
 	m_pctPollAnimation.setStartValue(0);
 	m_pctPollAnimation.setEndValue(100);
@@ -104,11 +97,10 @@ void QQBoardInfo::rearmRefreshPB()
 ///
 void QQBoardInfo::resetFromErrorState()
 {
-	m_ui->refreshPB->setStyleSheet(QString(QPROGRESSBAR_COLOR_OK_SS)
-								   .append(" ")
-								   .append(QPROGRESSBAR_CHUNK_SS)
-								   .arg(m_board->settings().color().name()));
+	m_ui->refreshPB->setOnError(false);
 	m_ui->refreshPB->setToolTip("");
+
+	updateNameWithStatus();
 }
 
 //////////////////////////////////////////////////////////////
@@ -117,10 +109,7 @@ void QQBoardInfo::resetFromErrorState()
 ///
 void QQBoardInfo::showRefreshError(QString &errMsg)
 {
-	m_ui->refreshPB->setStyleSheet(QString(QPROGRESSBAR_COLOR_KO_SS)
-								   .append(" ")
-								   .append(QPROGRESSBAR_CHUNK_SS)
-								   .arg(m_board->settings().color().name()));
+	m_ui->refreshPB->setOnError(true);
 	m_ui->refreshPB->setToolTip(errMsg);
 
 	connect(m_board, SIGNAL(refreshOK()), this, SLOT(rearmRefreshPB()));
