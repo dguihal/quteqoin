@@ -321,7 +321,7 @@ void QQTextBrowser::mouseMoveEvent(QMouseEvent * event)
 					QFontMetrics fm(QToolTip::font());
 					QToolTip::showText(event->globalPos(), fm.elidedText(httpAnchor, Qt::ElideMiddle, 500), this);
 
-					bool specialHandling = false;
+					QString prevUrl;
 
 					// Sans doute a ameliorer si la liste grandit
 					if(nUrl.host().endsWith("youtube.com"))
@@ -333,26 +333,25 @@ void QQTextBrowser::mouseMoveEvent(QMouseEvent * event)
 						QString vidId = nUrl.queryItemValue("v");
 #endif
 						if(! vidId.isEmpty())
-						{
-							QString prevUrl = QString("http://i1.ytimg.com/vi/%1/hqdefault.jpg").arg(vidId); //vZIbpk-vwy0
-							specialHandling = true;
-							emit displayWebImage(prevUrl);
-						}
+							prevUrl = QString("http://i1.ytimg.com/vi/%1/hqdefault.jpg").arg(vidId); //vZIbpk-vwy0
+					}
+					else if(nUrl.host().endsWith("dailymotion.com"))
+					{
+						QString vidId = nUrl.path().split('/').last().split('_').first();
+						if(! vidId.isEmpty())
+							prevUrl = QString("http://www.dailymotion.com/thumbnail/video/%1").arg(vidId); //x1y1nib
 					}
 					else if(nUrl.host() == "sauf.ca")
 					{
-						QString prevUrl = nUrl.toString();
+						prevUrl = nUrl.toString();
 						if(! nUrl.path().endsWith("/img"))
 							prevUrl.append("/img");
-
-						specialHandling = true;
-						emit displayWebImage(prevUrl);
 					}
 
-					if(! specialHandling)
-					{
+					if(prevUrl.isEmpty())
 						m_urlHelper->getContentType(m_tooltipedUrl);
-					}
+					else
+						emit displayWebImage(prevUrl);
 				}
 				triggerClearViewers = false;
 			}
