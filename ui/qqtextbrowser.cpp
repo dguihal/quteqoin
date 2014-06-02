@@ -337,12 +337,13 @@ void QQTextBrowser::mouseMoveEvent(QMouseEvent * event)
 					}
 					else if(nUrl.host().endsWith("dailymotion.com"))
 					{
+						QString vidId;
 						QStringList tmp = nUrl.path().split('/');
 						if(! tmp.isEmpty())
 						{
 							QStringList tmp = tmp.last().split(' ');
 							if(! tmp.isEmpty())
-								QString vidId = tmp.first();
+								vidId = tmp.first();
 						}
 						if(! vidId.isEmpty())
 							prevUrl = QString("http://www.dailymotion.com/thumbnail/video/%1").arg(vidId); //x1y1nib
