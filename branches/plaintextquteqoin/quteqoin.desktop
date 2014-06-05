@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=1.0
+Name=QuteQoin
+Comment=QuteQoin desktop mouling agent
+Type=Application
+Icon=/usr/share/icons/hicolor/256x256/apps/QuteQoin-Icon.png
+Terminal=false
+Exec=quteqoin
+Categories=Network

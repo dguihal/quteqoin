@@ -1,0 +1,8 @@
+<RCC>
+    <qresource prefix="/bouchot"/>
+    <qresource prefix="/totoz">
+        <file>totoz_eu</file>
+        <file>nsfw_totoz_eu</file>
+        <file>forum_hardware_fr</file>
+    </qresource>
+</RCC>

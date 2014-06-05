@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>600</width>
+    <height>720</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>QuteQoin</string>
+  </property>
+  <property name="windowIcon">
+   <iconset resource="rc/quteqoin_img.qrc">
+    <normaloff>:/img/rubber_duck_yellow.svg</normaloff>:/img/rubber_duck_yellow.svg</iconset>
+  </property>
+  <widget class="QWidget" name="centralWidget"/>
+  <action name="actionTabbed">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Tabbed</string>
+   </property>
+  </action>
+  <action name="actionMixed">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Mixed</string>
+   </property>
+  </action>
+  <action name="actionMono">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Mono</string>
+   </property>
+  </action>
+  <action name="actionQuit">
+   <property name="text">
+    <string>Quit</string>
+   </property>
+  </action>
+  <action name="actionOptions">
+   <property name="text">
+    <string>Options</string>
+   </property>
+  </action>
+  <action name="actionEnregistrer_parametres">
+   <property name="text">
+    <string>Enregistrer parametres</string>
+   </property>
+  </action>
+  <action name="actionPalmiExt">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Etendu</string>
+   </property>
+  </action>
+  <action name="actionPalmiMini">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Minimal</string>
+   </property>
+  </action>
+  <action name="actionPalmiHidden">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Hidden</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+P</string>
+   </property>
+  </action>
+  <action name="actionTabul">
+   <property name="text">
+    <string>Tabulé</string>
+   </property>
+  </action>
+  <action name="actionEn_ligne">
+   <property name="text">
+    <string>En ligne</string>
+   </property>
+  </action>
+  <action name="actionTotoz">
+   <property name="text">
+    <string>Gestionnaire &amp;Totoz</string>
+   </property>
+  </action>
+  <action name="actionOptions_new">
+   <property name="text">
+    <string>Options (new)</string>
+   </property>
+  </action>
+ </widget>
+ <layoutdefault spacing="6" margin="11"/>
+ <resources>
+  <include location="rc/quteqoin_img.qrc"/>
+ </resources>
+ <connections/>
+</ui>

@@ -1,0 +1,19 @@
+<RCC>
+    <qresource prefix="/img">
+        <file>add-icon.png</file>
+        <file>menu-edit-icon.png</file>
+        <file>Point_exclamation_rouge.svg</file>
+        <file>rubber_duck_yellow.svg</file>
+        <file>totoz-loader.gif</file>
+        <file>totoz-icon.jpeg</file>
+        <file>board-icon.png</file>
+        <file>general-icon.png</file>
+        <file>palmipede-icon.png</file>
+        <file>filter-icon.png</file>
+        <file>palmi-clear.png</file>
+        <file>settings-icon.png</file>
+        <file>delete-icon.png</file>
+        <file>hunt-icon.png</file>
+        <file>attach.png</file>
+    </qresource>
+</RCC>
