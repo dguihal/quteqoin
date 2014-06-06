@@ -63,17 +63,18 @@ public:
 	virtual bool event(QEvent *e);
 
 public slots:
+	void bouchotVisibilityChanged(QString board);
 	void duckKilled(QString board,QString postId);
-	void norlogeClicked(QString srcBouchot, QQNorloge norloge);
-	void norlogeRefClicked(QString srcBouchot, QQNorlogeRef nRef);
+	void norlogeClicked(QString srcBoard, QQNorloge norloge);
+	void norlogeRefClicked(QString srcBoard, QQNorlogeRef nRef);
 	void norlogeRefHovered(QQNorlogeRef norlogeRef);
 	void unHighlight(QQTextBrowser *tBrowser);
 	void showWebImageViewer(const QUrl &url);
 	void showTotozViewer(const QString &totozId);
 	void hideViewers();
-	void loginClicked(QString bouchot, QString login);
+	void loginClicked(QString board, QString login);
 	void tabEventsAcknowledged(const QString& groupName);
-	void bigorNotify(QString &srcBouchot, QString &poster, bool global);
+	void bigorNotify(QString &srcBoard, QString &poster, bool global);
 	void searchText(const QString &text, bool forward = true);
 
 signals:

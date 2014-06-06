@@ -35,6 +35,8 @@ QQBoardInfo::QQBoardInfo(QQBouchot *board, QWidget *parent) :
 	m_ui->refreshPB->setBoardColor(m_board->settings().color());
 	m_ui->refreshPB->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
 	m_ui->refreshPB->setBoardName(board->name());
+	connect(m_ui->refreshPB, SIGNAL(bouchotSelected()),
+			this, SLOT(toggleBoardVisibility()));
 
 	m_pctPollAnimation.setStartValue(0);
 	m_pctPollAnimation.setEndValue(100);
@@ -115,6 +117,11 @@ void QQBoardInfo::showRefreshError(QString &errMsg)
 	connect(m_board, SIGNAL(refreshOK()), this, SLOT(rearmRefreshPB()));
 
 	updateNameWithStatus();
+}
+
+void QQBoardInfo::toggleBoardVisibility()
+{
+	m_board->toggleVisibility();
 }
 
 //////////////////////////////////////////////////////////////
@@ -206,7 +213,7 @@ bool QQBoardInfo::event(QEvent *e)
 	if(e->type() == QQBoardStateChangeEvent::BOARD_STATE_CHANGED)
 		updateNameWithStatus();
 	else
-		QObject::event(e);
+		QWidget::event(e);
 
 	return true;
 }

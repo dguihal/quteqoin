@@ -31,7 +31,7 @@
 #define ITEM_AREA_WIDTH 6 //Px
 
 QQTextBrowser::QQTextBrowser(QString groupName, QQPinipede *parent) :
-	QTextBrowser(parent),
+	QPlainTextEdit(parent),
 	m_notifArea(new QQNotifArea(this)),
 	m_urlHelper(new QQPiniUrlHelper(this)),
 	m_mouseClick(false),
@@ -44,7 +44,7 @@ QQTextBrowser::QQTextBrowser(QString groupName, QQPinipede *parent) :
 
 	setFrameStyle(QFrame::NoFrame);
 	setReadOnly(true);
-	setOpenExternalLinks(true);
+//	setOpenExternalLinks(true);
 
 	connect(m_urlHelper, SIGNAL(contentTypeAvailable(QUrl&,QString&)), this, SLOT(handleContentTypeAvailable(QUrl&,QString&)));
 
@@ -273,7 +273,7 @@ void QQTextBrowser::clearViewers()
  */
 void QQTextBrowser::leaveEvent(QEvent * event)
 {
-	QTextBrowser::leaveEvent(event);
+	QPlainTextEdit::leaveEvent(event);
 
 	// On masque les élements d'affichage dynamiques
 	unHighlightNorloge();
@@ -286,9 +286,15 @@ void QQTextBrowser::mouseMoveEvent(QMouseEvent * event)
 	//qDebug() << "####################################";
 	//qDebug() << "QQTextBrowser::mouseMoveEvent x=" << event->x() << ",y=" << event->y();
 	//qDebug() << "####################################";
-	QTextBrowser::mouseMoveEvent(event);
+	QPlainTextEdit::mouseMoveEvent(event);
 
 	QString httpAnchor = anchorAt(event->pos());
+	QTextCursor cursor = cursorForPosition(event->pos());
+	//Si l'ancre est positionnee en fin de ligne, le widget a l'air de le considerer
+	// comme s'il occupait tout le reste de la ligne ...
+	if(! cursorRect(cursor).contains(event->pos()))
+		httpAnchor.clear();
+
 	if(! m_mouseClick)
 	{
 		QCursor cursor(Qt::ArrowCursor);
@@ -297,7 +303,8 @@ void QQTextBrowser::mouseMoveEvent(QMouseEvent * event)
 		viewport()->setCursor(cursor);
 	}
 
-	QTextCursor cursor = cursorForPosition(event->pos());
+	//QTextCursor cursor = cursorForPosition(event->pos());
+	//qDebug() << Q_FUNC_INFO << cursor.positionInBlock() << cursor.position();
 
 	QTextBlock block = cursor.block();
 	QQMessageBlockUserData * blockData = (QQMessageBlockUserData *) (block.userData());
@@ -404,34 +411,14 @@ void QQTextBrowser::mouseMoveEvent(QMouseEvent * event)
 	}
 }
 
-void QQTextBrowser::mousePressEvent(QMouseEvent * event)
+void QQTextBrowser::mousePressEvent(QMouseEvent *event)
 {
+	QPlainTextEdit::mousePressEvent(event);
+
 	// Stockage de la postion
 	m_lastPoint = event->pos();
 	// positionnement du flag de detection de debut du clic
 	m_mouseClick = true;
-
-	QTextBrowser::mousePressEvent(event);
-
-	if(event->button() == Qt::LeftButton)
-		viewport()->setCursor(Qt::IBeamCursor);
-}
-
-void QQTextBrowser::mouseReleaseEvent(QMouseEvent * event)
-{
-	QTextBrowser::mouseReleaseEvent(event);
-
-	m_mouseClick = false;
-
-	QString httpAnchor = anchorAt(event->pos());
-	QCursor mCursor(Qt::ArrowCursor);
-	if(httpAnchor.length() > 0)
-		mCursor.setShape(Qt::PointingHandCursor);
-	viewport()->setCursor(mCursor);
-
-	// Verification que l'on est pas en pleine selection
-	if(event->pos() != m_lastPoint)
-		return;
 
 	// Reset de l'icone de l'application
 	QIcon icon = QIcon(QString::fromLatin1(":/img/rubber_duck_yellow.svg"));
@@ -461,8 +448,39 @@ void QQTextBrowser::mouseReleaseEvent(QMouseEvent * event)
 		emit newPostsAcknowledged(m_groupName);
 	}
 
-	// Gestion du clic sur une norloge ou un login
+	if(event->button() == Qt::LeftButton)
+		viewport()->setCursor(Qt::IBeamCursor);
+}
+
+void QQTextBrowser::mouseReleaseEvent(QMouseEvent * event)
+{
+	QPlainTextEdit::mouseReleaseEvent(event);
+
+	m_mouseClick = false;
+
+	QCursor mCursor(Qt::ArrowCursor);
+	viewport()->setCursor(mCursor);
+
+	// Verification que l'on est pas en pleine selection
+	if(event->pos() != m_lastPoint)
+		return;
+
+	QString httpAnchor = anchorAt(event->pos());
 	QTextCursor cursor = cursorForPosition(event->pos());
+	//Si l'ancre est positionnee en fin de ligne, le widget a l'air de le considerer
+	// comme s'il occupait tout le reste de la ligne ...
+	if(! cursorRect(cursor).contains(event->pos()))
+		httpAnchor.clear();
+
+	if(! httpAnchor.isEmpty())
+	{
+		mCursor.setShape(Qt::PointingHandCursor);
+		QDesktopServices::openUrl(QUrl(httpAnchor));
+		return;
+	}
+
+	// Gestion du clic sur une norloge ou un login
+	//QTextCursor cursor = cursorForPosition(event->pos());
 	QTextBlock block = cursor.block();
 	QQMessageBlockUserData *blockData = (QQMessageBlockUserData *) block.userData();
 
@@ -519,7 +537,7 @@ void QQTextBrowser::mouseReleaseEvent(QMouseEvent * event)
 
 void QQTextBrowser::paintEvent(QPaintEvent * event)
 {
-	QTextBrowser::paintEvent(event);
+	QPlainTextEdit::paintEvent(event);
 
 	// Pour le bigorno
 	QPainter bigornoPainter(viewport());
@@ -542,7 +560,7 @@ void QQTextBrowser::paintEvent(QPaintEvent * event)
 	while(block.isValid() && block.blockNumber() <= lastBlock.blockNumber())
 	{
 		QQMessageBlockUserData * uData = (QQMessageBlockUserData *) block.userData();
-		if(uData != NULL)
+		if(block.isVisible() && uData != NULL)
 		{
 			///////////////////////////////////////////////////////////////////
 			/////        LE BIGORNO                           /////////////////
@@ -576,7 +594,7 @@ void QQTextBrowser::resizeEvent(QResizeEvent * event)
 {
 	QScrollBar * vScrollBar = verticalScrollBar();
 	bool isMax = (vScrollBar->sliderPosition() == vScrollBar->maximum());
-	QTextBrowser::resizeEvent(event);
+	QPlainTextEdit::resizeEvent(event);
 	if(isMax)
 		vScrollBar->triggerAction(QAbstractSlider::SliderToMaximum);
 
@@ -587,7 +605,7 @@ void QQTextBrowser::resizeEvent(QResizeEvent * event)
 void QQTextBrowser::wheelEvent(QWheelEvent * event)
 {
 	if(! (event->modifiers() && Qt::ControlModifier != 0))
-		QTextBrowser::wheelEvent(event);
+		QPlainTextEdit::wheelEvent(event);
 }
 
 void QQTextBrowser::contextMenuEvent(QContextMenuEvent * ev)
@@ -603,7 +621,7 @@ void QQTextBrowser::contextMenuEvent(QContextMenuEvent * ev)
 		QPoint evPos = ev->pos();
 		evPos.setX(evPos.x() + horizontalScrollBar()->value());
 		evPos.setY(evPos.y() + verticalScrollBar()->value());
-		QMenu *menu = createStandardContextMenu(evPos);
+		QMenu *menu = createStandardContextMenu(); //evPos);
 		QTextCursor cursor = textCursor();
 		if(cursor.hasSelection())
 		{
