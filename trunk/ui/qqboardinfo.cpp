@@ -206,7 +206,7 @@ bool QQBoardInfo::event(QEvent *e)
 	if(e->type() == QQBoardStateChangeEvent::BOARD_STATE_CHANGED)
 		updateNameWithStatus();
 	else
-		QObject::event(e);
+		QWidget::event(e);
 
 	return true;
 }
