@@ -8,13 +8,14 @@
 
 #include <QPoint>
 #include <QTextBrowser>
+#include <QPlainTextEdit>
 #include <QUrl>
 
 class QQMessageBlockUserData;
 class QNetworkReply;
 class QQPiniUrlHelper;
 
-class QQTextBrowser : public QTextBrowser
+class QQTextBrowser : public QPlainTextEdit
 {
 	Q_OBJECT
 

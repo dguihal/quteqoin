@@ -207,7 +207,6 @@ void QQPinipede::repaintPiniTab(const QString &groupName)
 
 	qDebug() << Q_FUNC_INFO << textBrowser->document()->blockCount();
 
-
 	clearPiniTab(groupName);
 
 	QQListPostPtr *posts = m_listPostsTabMap.value(groupName);
@@ -384,10 +383,10 @@ void QQPinipede::tabEventsAcknowledged(const QString& groupName)
 //////////////////////////////////////////////////////////////
 /// \brief QQPinipede::notify
 ///
-void QQPinipede::bigorNotify(QString &srcBouchot, QString &poster, bool global)
+void QQPinipede::bigorNotify(QString &srcBoard, QString &poster, bool global)
 {
 #ifndef Q_OS_UNIX
-	Q_UNUSED(srcBouchot)
+	Q_UNUSED(srcBoard)
 	Q_UNUSED(poster)
 	Q_UNUSED(global)
 #endif
@@ -401,9 +400,9 @@ void QQPinipede::bigorNotify(QString &srcBouchot, QString &poster, bool global)
 	{
 		QString msg;
 		if(global)
-			msg = QString(tr("%1 called everyone on %2 board")).arg(poster).arg(srcBouchot);
+			msg = QString(tr("%1 called everyone on %2 board")).arg(poster).arg(srcBoard);
 		else
-			msg = QString(tr("%1 called you on %2 board")).arg(poster).arg(srcBouchot);
+			msg = QString(tr("%1 called you on %2 board")).arg(poster).arg(srcBoard);
 
 		NotifyNotification *notification = notify_notification_new(notif_name, msg.toUtf8(), NULL);
 		if(notification)
@@ -420,7 +419,7 @@ void QQPinipede::bigorNotify(QString &srcBouchot, QString &poster, bool global)
 	}
 #endif
 
-	QQBouchot::bouchot(srcBouchot)->setHasBigorno();
+	QQBouchot::bouchot(srcBoard)->setHasBigorno();
 }
 
 //////////////////////////////////////////////////////////////
@@ -513,15 +512,36 @@ void QQPinipede::searchText(const QString &text, bool forward)
 }
 
 //////////////////////////////////////////////////////////////
+/// \brief QQPinipede::bouchotVisibilityChanged
+/// \param board
+///
+void QQPinipede::bouchotVisibilityChanged(QString board)
+{
+	QString groupName = QQBouchot::bouchot(board)->settings().group();
+
+	QTextDocument *doc = m_textBrowserHash.value(groupName)->document();
+	QTextBlock b = doc->firstBlock();
+	while(b.isValid())
+	{
+		QQPost *post = ((QQMessageBlockUserData *) b.userData())->post();
+		b.setVisible(applyPostDisplayFilters(post));
+		doc->markContentsDirty(b.position(), b.length()); //TODO a améliorer pour optimiser par zone réellement modifiée
+
+		b = b.next();
+	}
+
+}
+
+//////////////////////////////////////////////////////////////
 /// \brief duckKilled
 /// \param board
 /// \param postId
 ///
 void QQPinipede::duckKilled(QString board, QString postId)
 {
-	QQBouchot *bouchotDest = QQBouchot::bouchot(board);
+	QQBouchot *dstBoard = QQBouchot::bouchot(board);
 	QString message;
-	foreach(QQPost *post, bouchotDest->postsHistory())
+	foreach(QQPost *post, dstBoard->postsHistory())
 	{
 		if(post->id() == postId)
 		{
@@ -536,7 +556,7 @@ void QQPinipede::duckKilled(QString board, QString postId)
 	int arobasePos = message.indexOf('@');
 	if(arobasePos >= 0)
 		message = message.left(arobasePos);
-	bouchotDest->postMessage(message + QString::fromLatin1(" pan ! pan !"));
+	dstBoard->postMessage(message + QString::fromLatin1(" pan ! pan !"));
 }
 
 //////////////////////////////////////////////////////////////
@@ -544,9 +564,9 @@ void QQPinipede::duckKilled(QString board, QString postId)
 /// \param srcBouchot
 /// \param norloge
 ///
-void QQPinipede::norlogeClicked(QString srcBouchot, QQNorloge norloge)
+void QQPinipede::norlogeClicked(QString srcBoard, QQNorloge norloge)
 {
-	emit insertTextPalmi(srcBouchot, norloge.toStringPalmi() + QString::fromLatin1(" "));
+	emit insertTextPalmi(srcBoard, norloge.toStringPalmi() + QString::fromLatin1(" "));
 }
 
 //////////////////////////////////////////////////////////////
@@ -554,9 +574,9 @@ void QQPinipede::norlogeClicked(QString srcBouchot, QQNorloge norloge)
 /// \param srcBouchot
 /// \param nRef
 ///
-void QQPinipede::norlogeRefClicked(QString srcBouchot, QQNorlogeRef nRef)
+void QQPinipede::norlogeRefClicked(QString srcBoard, QQNorlogeRef nRef)
 {
-	QQBouchot *srcQQBouchot = QQBouchot::bouchot(srcBouchot);
+	QQBouchot *srcQQBouchot = QQBouchot::bouchot(srcBoard);
 	QQBouchot *dstQQBouchot = QQBouchot::bouchot(nRef.dstBouchot());
 
 	if(dstQQBouchot == NULL)
@@ -598,9 +618,9 @@ void QQPinipede::norlogeRefClicked(QString srcBouchot, QQNorlogeRef nRef)
 /// \param bouchot
 /// \param login
 ///
-void QQPinipede::loginClicked(QString bouchot, QString login)
+void QQPinipede::loginClicked(QString board, QString login)
 {
-	emit insertTextPalmi(bouchot, login + QString::fromLatin1("< "));
+	emit insertTextPalmi(board, login + QString::fromLatin1("< "));
 }
 
 //////////////////////////////////////////////////////////////
@@ -881,6 +901,9 @@ void QQPinipede::resizeEvent(QResizeEvent *event)
 ///
 bool QQPinipede::applyPostDisplayFilters(QQPost *post)
 {
+	if(! post->bouchot()->isVisible())
+		return false;
+
 	foreach(QQPostDisplayFilter *filter, m_listpostDisplayFilters)
 	{
 		if(filter->filterMatch(post))
@@ -1103,12 +1126,7 @@ bool QQPinipede::printPostAtCursor(QTextCursor &cursor, QQPost *post)
 	QQMessageBlockUserData * data = new QQMessageBlockUserData();
 	data->setPost(post);
 
-	if(! applyPostDisplayFilters(post))
-	{
-		block.setUserData(data);
-
-		return false;
-	}
+	block.setVisible(applyPostDisplayFilters(post));
 
 	QQTextBrowser * browser = m_textBrowserHash.value(post->bouchot()->settings().group());
 

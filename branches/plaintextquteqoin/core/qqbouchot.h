@@ -128,6 +128,9 @@ public:
 
 	void registerForEventNotification(QObject *receiver, QQBouchotEvents events);
 
+	void toggleVisibility();
+	bool isVisible() { return ! m_isHidden; }
+
 	virtual bool event(QEvent *e);
 
 	//static
@@ -150,7 +153,7 @@ signals:
 	void refreshOK();
 	void refreshError(QString &errMsg);
 	void removed(QString name, QString groupName);
-
+	void visibilitychanged(QString name);
 
 protected slots:
 	void fetchBackend();
@@ -171,6 +174,8 @@ private:
 	QQListPostPtr m_newPostHistory;
 	QQBouchotSettings m_bSettings;
 	QTimer m_timer;
+
+	bool m_isHidden;
 
 	QQXmlParser *m_xmlParser;
 

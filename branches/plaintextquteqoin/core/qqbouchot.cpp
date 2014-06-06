@@ -69,6 +69,7 @@ QQBouchot::QQBouchot(const QString &name, QObject *parent) :
 	m_hasXPostId(false), // unknown
 	m_lastId(-1),
 	m_name(name),
+	m_isHidden(false),
 	m_xmlParser(new QQXmlParser()),
 	m_deltaTimeH(-1) // unknown
 {
@@ -322,6 +323,12 @@ void QQBouchot::registerForEventNotification(QObject *receiver, QQBouchotEvents 
 		evRcv.receiver = receiver;
 		m_listEventReceivers.append(evRcv);
 	}
+}
+
+void QQBouchot::toggleVisibility()
+{
+	m_isHidden =! m_isHidden;
+	emit visibilitychanged(m_name);
 }
 
 //////////////////////////////////////////////////////////////

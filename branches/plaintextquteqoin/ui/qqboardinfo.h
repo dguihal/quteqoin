@@ -32,6 +32,7 @@ public slots:
 	void rearmRefreshPB();
 	void resetFromErrorState();
 	void showRefreshError(QString &errMsg);
+	void toggleBoardVisibility();
 	void toggleExpandedView();
 	void updateUserList();
 

@@ -57,7 +57,7 @@ void QQBoardInfoProgressBar::setOnError(const bool &onError)
 void QQBoardInfoProgressBar::mousePressEvent(QMouseEvent *event)
 {
 	QProgressBar::mousePressEvent(event);
-	emit bouchotSelected(m_boardName);
+	emit bouchotSelected();
 }
 
 //////////////////////////////////////////////////////////////

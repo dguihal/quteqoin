@@ -295,6 +295,7 @@ void MainWindow::initBouchot(QQBouchot *bouchot)
 
 	connect(bouchot, SIGNAL(destroyed(QQBouchot*)), this, SLOT(bouchotDestroyed(QQBouchot *)));
 	connect(bouchot, SIGNAL(groupChanged(QQBouchot*,QString)), this, SLOT(bouchotGroupChanged(QQBouchot*,QString)));
+	connect(bouchot, SIGNAL(visibilitychanged(QString)), m_pini, SLOT(bouchotVisibilityChanged(QString)));
 
 	m_boardsInfo->updateBoardList();
 }
