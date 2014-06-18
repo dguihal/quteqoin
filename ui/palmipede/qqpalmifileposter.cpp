@@ -126,9 +126,9 @@ void QQPalmiFilePoster::parsePasteLinkResponse(const QString &data)
 		int i = data.indexOf("\"key\":\"");
 		if(i >= 0)
 		{
-			int j = s.indexOf("\",", i);
+			int j = data.indexOf("\"", i);
 			int start = i + 7; // len /"key":"/
-			QString key = s.mid(start, j - start);
+			QString key = data.mid(start, j - start);
 			emit finished(QString("http://pastelink.me/dl/") + key);
 		}
 #endif
