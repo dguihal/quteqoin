@@ -108,10 +108,10 @@ bool QQImageViewer::updateImg(const QByteArray &imgData, const QSize &maxSize)
 	if(maxSize.isValid())
 		imgSize.scale(imgSize.boundedTo(maxSize), Qt::KeepAspectRatio);
 
+	m_imgMovie.setDevice(&m_imgDataBuffer);
 	if(m_imgMovie.isValid())
 	{
 		m_imgMovie.setScaledSize(imgSize);
-		m_imgMovie.setDevice(&m_imgDataBuffer);
 
 		displayMovie();
 	}
