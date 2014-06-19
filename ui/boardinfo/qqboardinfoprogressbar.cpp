@@ -12,6 +12,9 @@ QQBoardInfoProgressBar::QQBoardInfoProgressBar(QWidget *parent) :
 	QProgressBar(parent),
 	m_onError(false)
 {
+#ifdef Q_OS_WIN32
+	setFont(QFont("Arial Unicode MS", 10));
+#endif
 }
 
 //////////////////////////////////////////////////////////////
