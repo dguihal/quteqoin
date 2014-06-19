@@ -105,7 +105,7 @@ private:
 
 	QQPostParser *m_postparser;
 
-	QMutex newPostsAvailableMutex;
+	QMutex m_newPostsAvailableMutex;
 
 	QQHuntingView *m_huntingView;
 	bool m_duckAutolaunchEnabled;
