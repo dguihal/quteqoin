@@ -199,7 +199,7 @@ void QQPinipede::repaintPiniTab(const QString &groupName)
 	if(textBrowser == NULL)
 		return;
 
-	while(! newPostsAvailableMutex.tryLock(1000))
+	while(! m_newPostsAvailableMutex.tryLock(1000))
 		qWarning() << Q_FUNC_INFO << groupName << "tryLock timeout";
 
 	QApplication::setOverrideCursor(Qt::BusyCursor);
@@ -207,10 +207,15 @@ void QQPinipede::repaintPiniTab(const QString &groupName)
 
 	qDebug() << Q_FUNC_INFO << textBrowser->document()->blockCount();
 
-
 	clearPiniTab(groupName);
 
 	QQListPostPtr *posts = m_listPostsTabMap.value(groupName);
+	//Peut arriver lors du premier demarrage "a vide"
+	if(posts == NULL || posts->size() == 0)
+	{
+		m_newPostsAvailableMutex.unlock();
+		return;
+	}
 	QTextCursor cursor(textBrowser->document());
 	cursor.beginEditBlock();
 	bool postwasPrinted = printPostAtCursor(cursor, posts->at(0));
@@ -226,7 +231,7 @@ void QQPinipede::repaintPiniTab(const QString &groupName)
 
 	QApplication::restoreOverrideCursor();
 
-	newPostsAvailableMutex.unlock();
+	m_newPostsAvailableMutex.unlock();
 }
 
 //////////////////////////////////////////////////////////////
@@ -927,7 +932,7 @@ void QQPinipede::newPostsAvailable(QString groupName)
 
 	//On est obligé de locker pour éviter la pagaille dans le pini.
 	// un locking plus fin pourrait être obtenu en implémentant un lock par groupe
-	while(! newPostsAvailableMutex.tryLock(1000))
+	while(! m_newPostsAvailableMutex.tryLock(1000))
 		qWarning() << Q_FUNC_INFO << groupName << "tryLock timeout";
 
 	QQTextBrowser * textBrowser = m_textBrowserHash.value(groupName);
@@ -947,7 +952,7 @@ void QQPinipede::newPostsAvailable(QString groupName)
 	// Au cas ou on serait deja passe avant (cas du signal multiple)
 	if(newPosts.size() == 0)
 	{
-		newPostsAvailableMutex.unlock();
+		m_newPostsAvailableMutex.unlock();
 		return;
 	}
 
@@ -1082,7 +1087,7 @@ void QQPinipede::newPostsAvailable(QString groupName)
 		}
 	}
 
-	newPostsAvailableMutex.unlock();
+	m_newPostsAvailableMutex.unlock();
 }
 
 //////////////////////////////////////////////////////////////
