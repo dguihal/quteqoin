@@ -13,7 +13,8 @@ QQBoardInfoProgressBar::QQBoardInfoProgressBar(QWidget *parent) :
 	m_onError(false)
 {
 #ifdef Q_OS_WIN32
-	setFont(QFont("Arial Unicode MS", 10));
+	QFont font("Segoe UI Symbol", 10);
+	setFont(font);
 #endif
 }
 
