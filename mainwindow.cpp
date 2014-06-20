@@ -161,7 +161,7 @@ void MainWindow::doPostMessage(const QString &bouchot, const QString &message)
 {
 	QQBouchot *bouchotDest = QQBouchot::bouchot(bouchot);
 
-	if( bouchotDest != NULL)
+	if(bouchotDest != NULL)
 		bouchotDest->postMessage(message);
 	//else
 	// Bouchot non trouvé ???

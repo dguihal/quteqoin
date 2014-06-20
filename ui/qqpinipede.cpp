@@ -205,8 +205,6 @@ void QQPinipede::repaintPiniTab(const QString &groupName)
 	QApplication::setOverrideCursor(Qt::BusyCursor);
 	int sliderPos = textBrowser->verticalScrollBar()->sliderPosition();
 
-	qDebug() << Q_FUNC_INFO << textBrowser->document()->blockCount();
-
 	clearPiniTab(groupName);
 
 	QQListPostPtr *posts = m_listPostsTabMap.value(groupName);
@@ -216,7 +214,15 @@ void QQPinipede::repaintPiniTab(const QString &groupName)
 		m_newPostsAvailableMutex.unlock();
 		return;
 	}
-	QTextCursor cursor(textBrowser->document());
+
+	//Prise en compte d'un eventuel changement de font
+	QTextDocument *doc = textBrowser->document();
+	QFont docFont;
+	QQSettings settings;
+	docFont.fromString(settings.value(SETTINGS_GENERAL_DEFAULT_FONT, DEFAULT_GENERAL_DEFAULT_FONT).toString());
+	doc->setDefaultFont(docFont);
+
+	QTextCursor cursor(doc);
 	cursor.beginEditBlock();
 	bool postwasPrinted = printPostAtCursor(cursor, posts->at(0));
 	for(int i = 1; i < posts->size(); i++)
