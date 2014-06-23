@@ -1,6 +1,8 @@
 #include "qqbouchotsettingsdialog.h"
 #include "ui_qqbouchotsettingsdialog.h"
 
+#include "core/qqsettingsparams.h"
+
 #include <QtDebug>
 #include <QColorDialog>
 #include <QMessageBox>
