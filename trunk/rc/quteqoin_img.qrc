@@ -15,5 +15,6 @@
         <file>delete-icon.png</file>
         <file>hunt-icon.png</file>
         <file>attach.png</file>
+        <file>magic_wand.png</file>
     </qresource>
 </RCC>
