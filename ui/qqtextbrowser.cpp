@@ -341,7 +341,7 @@ void QQTextBrowser::mouseMoveEvent(QMouseEvent * event)
 						QStringList tmp = nUrl.path().split('/');
 						if(! tmp.isEmpty())
 						{
-							QStringList tmp = tmp.last().split(' ');
+							tmp = tmp.last().split(' ');
 							if(! tmp.isEmpty())
 								vidId = tmp.first();
 						}
