@@ -35,7 +35,11 @@
          <item>
           <widget class="QPushButton" name="olccsAddButton">
            <property name="text">
-            <string>olccs (+)</string>
+            <string>olccs</string>
+           </property>
+           <property name="icon">
+            <iconset resource="../../rc/quteqoin_img.qrc">
+             <normaloff>:/img/magic_wand.png</normaloff>:/img/magic_wand.png</iconset>
            </property>
           </widget>
          </item>
