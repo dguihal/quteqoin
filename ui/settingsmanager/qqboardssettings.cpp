@@ -2,6 +2,7 @@
 #include "ui_qqboardssettings.h"
 
 #include "ui/settingsmanager/qqbouchotsettingsdialog.h"
+#include "ui/settingsmanager/qqolccswizard.h"
 
 #include <QtDebug>
 #include <QStringListModel>
@@ -12,6 +13,7 @@ QQBoardsSettings::QQBoardsSettings(QWidget *parent) :
 {
 	ui->setupUi(this);
 	ui->bouchotListView->setModel(new QStringListModel());
+	ui->bouchotListView->setEditTriggers(QAbstractItemView::NoEditTriggers);
 
 #ifndef Q_OS_UNIX
 	ui->bigornotifLbl->hide();
@@ -23,6 +25,7 @@ QQBoardsSettings::QQBoardsSettings(QWidget *parent) :
 	connect(ui->editBouchotButton, SIGNAL(clicked()), this, SLOT(editBouchot()));
 	connect(ui->linkedImgPreviewCB, SIGNAL(clicked(bool)), this, SLOT(onWebUrlPreviewEnable(bool)));
 	connect(ui->linkedImgMaxSizeSB, SIGNAL(valueChanged(int)), this, SLOT(onWebUrlPreviewMaxSizeChanged(int)));
+	connect(ui->olccsAddButton, SIGNAL(clicked()), this, SLOT(olccsAddBouchot()));
 }
 
 QQBoardsSettings::~QQBoardsSettings()
@@ -125,9 +128,9 @@ void QQBoardsSettings::addBouchot()
 			QStringListModel *model = (QStringListModel *) ui->bouchotListView->model();
 			int numRow = model->rowCount();
 			model->insertRows(numRow,1);
-			model->setData(model->index(numRow), QVariant(bouchotSettingsDialog.bouchotName()));
-			m_newBouchots.insert(bouchotSettingsDialog.bouchotName(), bSettings);
-			m_oldBouchots.removeAll(bouchotSettingsDialog.bouchotName());
+			model->setData(model->index(numRow), QVariant(bouchotName));
+			m_newBouchots.insert(bouchotName, bSettings);
+			m_oldBouchots.removeAll(bouchotName);
 		}
 	}
 }
@@ -187,6 +190,35 @@ void QQBoardsSettings::editBouchot()
 			//si on a ajoute un nouveau groupe, il faut le prendre en compte
 			if(!m_listGroups.contains(bSettings.group()))
 				m_listGroups.append(bSettings.group());
+		}
+	}
+}
+
+void QQBoardsSettings::olccsAddBouchot()
+{
+	QQOlccsWizard wizard(this);
+	if(wizard.exec() == QDialog::Accepted)
+	{
+		QQBouchot::QQBouchotSettings bSettings = wizard.bouchotSettings();
+		QString bouchotName = wizard.bouchotName();
+
+		if(m_listNames.contains(bouchotName))
+		{
+			qWarning() << "Trying to insert a bouchot with an already existing name, that's forbidden";
+		}
+		else
+		{
+			m_listNames.append(bouchotName);
+
+			if(! m_listGroups.contains(bSettings.group()))
+				m_listGroups.append(bSettings.group());
+
+			QStringListModel *model = (QStringListModel *) ui->bouchotListView->model();
+			int numRow = model->rowCount();
+			model->insertRows(numRow, 1);
+			model->setData(model->index(numRow), QVariant(bouchotName));
+			m_newBouchots.insert(bouchotName, bSettings);
+			m_oldBouchots.removeAll(bouchotName);
 		}
 	}
 }

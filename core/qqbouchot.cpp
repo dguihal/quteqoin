@@ -19,7 +19,6 @@
 
 #define X_POST_ID_HEADER "X-Post-Id"
 
-int defaultRefreshRate = 30;
 typedef struct QQBouchotDef
 {
 	char name[16];
@@ -72,7 +71,7 @@ QQBouchot::QQBouchot(const QString &name, QObject *parent) :
 	m_xmlParser(new QQXmlParser()),
 	m_deltaTimeH(-1) // unknown
 {
-	m_bSettings.setRefresh(0);
+	m_bSettings.setRefreshFromString(DEFAULT_BOUCHOT_REFRESH);
 
 	m_state.hasBigorno = false;
 	m_state.hasError = false;
@@ -676,7 +675,7 @@ QQBouchot::QQBouchotSettings QQBouchot::getBouchotDef(const QString &bouchotName
 		settings.setColorFromString(bouchotsDef[i].color);
 		settings.setPostData(bouchotsDef[i].postData);
 		settings.setPostUrl(bouchotsDef[i].postUrl);
-		settings.setRefresh(defaultRefreshRate);
+		settings.setRefreshFromString(DEFAULT_BOUCHOT_REFRESH);
 		settings.setSlipType(bouchotsDef[i].typeSlip);
 		settings.setCookie(bouchotsDef[i].cookieProto);
 	}
@@ -760,9 +759,9 @@ QList<QQBouchot *> QQBouchot::listBouchotsGroup(const QString &groupName)
 /// \brief QQBouchot::listGroups
 /// \return
 ///
-QList<QString> QQBouchot::listGroups()
+QStringList QQBouchot::listGroups()
 {
-	QList<QString> listGroups;
+	QStringList listGroups;
 	foreach (QQBouchot *bouchot, s_hashBouchots.values())
 	{
 		QString group = bouchot->settings().group();

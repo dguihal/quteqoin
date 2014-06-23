@@ -17,16 +17,7 @@
    <item>
     <widget class="QWidget" name="widget_2" native="true">
      <layout class="QHBoxLayout" name="horizontalLayout">
-      <property name="leftMargin">
-       <number>0</number>
-      </property>
-      <property name="topMargin">
-       <number>0</number>
-      </property>
-      <property name="rightMargin">
-       <number>0</number>
-      </property>
-      <property name="bottomMargin">
+      <property name="margin">
        <number>0</number>
       </property>
       <item>
@@ -38,18 +29,16 @@
          <property name="spacing">
           <number>4</number>
          </property>
-         <property name="leftMargin">
+         <property name="margin">
           <number>0</number>
          </property>
-         <property name="topMargin">
-          <number>0</number>
-         </property>
-         <property name="rightMargin">
-          <number>0</number>
-         </property>
-         <property name="bottomMargin">
-          <number>0</number>
-         </property>
+         <item>
+          <widget class="QPushButton" name="olccsAddButton">
+           <property name="text">
+            <string>olccs (+)</string>
+           </property>
+          </widget>
+         </item>
          <item>
           <widget class="QPushButton" name="addBouchotButton">
            <property name="text">
@@ -123,16 +112,7 @@
       <property name="verticalSpacing">
        <number>3</number>
       </property>
-      <property name="leftMargin">
-       <number>0</number>
-      </property>
-      <property name="topMargin">
-       <number>0</number>
-      </property>
-      <property name="rightMargin">
-       <number>0</number>
-      </property>
-      <property name="bottomMargin">
+      <property name="margin">
        <number>0</number>
       </property>
       <item row="1" column="0">

@@ -84,6 +84,7 @@ const char notif_name[] = "QuteQoin";
 #define SETTINGS_BOUCHOT_COLOR "color"
 #define SETTINGS_BOUCHOT_ALIASES "aliases"
 #define SETTINGS_BOUCHOT_REFRESH "refresh"
+#define DEFAULT_BOUCHOT_REFRESH "30"
 #define SETTINGS_BOUCHOT_LOGIN "login"
 #define SETTINGS_BOUCHOT_COOKIES "cookies"
 #define SETTINGS_BOUCHOT_UA "ua"

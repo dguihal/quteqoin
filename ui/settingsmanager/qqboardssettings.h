@@ -39,6 +39,7 @@ protected slots:
 	void addBouchot();
 	void deleteBouchot();
 	void editBouchot();
+	void olccsAddBouchot();
 	void onWebUrlPreviewEnable(bool enabled);
 	void onWebUrlPreviewMaxSizeChanged(int newSize);
 
