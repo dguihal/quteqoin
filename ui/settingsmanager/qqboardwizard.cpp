@@ -1,30 +1,35 @@
-#include "qqolccswizard.h"
+#include "qqboardwizard.h"
 
 #include "core/qqsettings.h"
 
-#include "ui/settingsmanager/qqolccswizardpmain.h"
-#include "ui/settingsmanager/qqolccswizardpadv.h"
+#include "ui/settingsmanager/qqboardwizardintro.h"
+#include "ui/settingsmanager/qqboardwizardnative.h"
+#include "ui/settingsmanager/qqboardwizardolccs.h"
+#include "ui/settingsmanager/qqboardwizardadv.h"
 
 #include <QtDebug>
 
-QQOlccsWizard::QQOlccsWizard(QWidget *parent) :
+QQBoardWizard::QQBoardWizard(QWidget *parent) :
 	QWizard(parent)
 {
 	setDefaultProperty("QComboBox", "currentText", "editTextChanged");
 
-	setWindowTitle(tr("Olccs Board Wizard"));
-	QQOlccsWizardPMain *p1 = new QQOlccsWizardPMain(this);
+	setWindowTitle(tr("New Board Wizard"));
+
+	setPage(Page_Intro, new QQBoardWizardIntro(this));
+
+	QQBoardWizardOlccs *pOlccs = new QQBoardWizardOlccs(this);
 	QStringList lstGrps = QQBouchot::listGroups();
-	p1->setListGroups(lstGrps);
-	setPage(Page_Main, p1);
-	setPage(Page_Adv, new QQOlccsWizardPAdv(this));
-	setStartId(Page_Main);
+	pOlccs->setListGroups(lstGrps);
+	setPage(Page_Olccs_Main, pOlccs);
+	setPage(Page_Adv, new QQBoardWizardAdv(this));
+	setStartId(Page_Intro);
 
 
 	qDebug() << Q_FUNC_INFO << pageIds();
 }
 
-void QQOlccsWizard::accept()
+void QQBoardWizard::accept()
 {
 	QQSettings settings;
 

@@ -1,7 +1,7 @@
-#include "qqolccswizardpmain.h"
+#include "qqboardwizardolccs.h"
 
 #include "core/qqsettings.h"
-#include "ui/settingsmanager/qqolccswizard.h"
+#include "ui/settingsmanager/qqboardwizard.h"
 
 #include <QtDebug>
 #include <QCheckBox>
@@ -75,7 +75,7 @@ void QQOlccsWizardPMainNetAccessor::requestFinishedSlot(QNetworkReply *reply)
 	}
 }
 
-QQOlccsWizardPMain::QQOlccsWizardPMain(QWidget *parent) :
+QQBoardWizardOlccs::QQBoardWizardOlccs(QWidget *parent) :
 	QWizardPage(parent)
 {
 	setTitle(tr("Board Selection"));
@@ -137,22 +137,22 @@ QQOlccsWizardPMain::QQOlccsWizardPMain(QWidget *parent) :
 	m_netAccessor->updateBoardList();
 }
 
-void QQOlccsWizardPMain::setListGroups(QStringList& listGroups)
+void QQBoardWizardOlccs::setListGroups(QStringList& listGroups)
 {
 	m_groupSelCB->setEditable(true);
 	m_groupSelCB->clear();
 	m_groupSelCB->addItems(listGroups);
 }
 
-int	QQOlccsWizardPMain::nextId () const
+int	QQBoardWizardOlccs::nextId () const
 {
 	if(m_advSettingsCB->isChecked())
-		return QQOlccsWizard::Page_Adv;
+		return QQBoardWizard::Page_Adv;
 	else
 		return -1;
 }
 
-void QQOlccsWizardPMain::boardListAvailable()
+void QQBoardWizardOlccs::boardListAvailable()
 {
 	QStringList boards = m_netAccessor->boardList();
 	QList<QQBouchot *> lB = QQBouchot::listBouchots();
@@ -176,12 +176,12 @@ void QQOlccsWizardPMain::boardListAvailable()
 		m_waitLabel->movie()->stop();
 }
 
-void QQOlccsWizardPMain::advSettingsTriggered()
+void QQBoardWizardOlccs::advSettingsTriggered()
 {
 	setFinalPage(! m_advSettingsCB->isChecked());
 }
 
-void QQOlccsWizardPMain::colorChanged()
+void QQBoardWizardOlccs::colorChanged()
 {
 	QColor color(m_colorLE->text());
 	if(color.isValid())
@@ -190,7 +190,7 @@ void QQOlccsWizardPMain::colorChanged()
 		m_colorLE->setStyleSheet("QLineEdit{}");
 }
 
-void QQOlccsWizardPMain::nameSelectionChanged(int index)
+void QQBoardWizardOlccs::nameSelectionChanged(int index)
 {
 	Q_UNUSED(index)
 	QString name = m_boardSelectorCB->currentText();

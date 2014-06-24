@@ -5,14 +5,14 @@
 
 #include <QWizard>
 
-class QQOlccsWizard : public QWizard
+class QQBoardWizard : public QWizard
 {
 	Q_OBJECT
 
 public:
-	explicit QQOlccsWizard(QWidget *parent = 0);
+	explicit QQBoardWizard(QWidget *parent = 0);
 
-	enum PAGE_IDS { Page_Main, Page_Adv };
+	enum PAGE_IDS { Page_Intro, Page_Olccs_Main, Page_Native_Main, Page_Adv };
 
 	QQBouchot::QQBouchotSettings bouchotSettings() { return m_s; }
 	QString bouchotName() { return m_bName; }

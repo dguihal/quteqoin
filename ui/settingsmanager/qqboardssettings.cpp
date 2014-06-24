@@ -2,7 +2,7 @@
 #include "ui_qqboardssettings.h"
 
 #include "ui/settingsmanager/qqbouchotsettingsdialog.h"
-#include "ui/settingsmanager/qqolccswizard.h"
+#include "ui/settingsmanager/qqboardwizard.h"
 
 #include <QtDebug>
 #include <QStringListModel>
@@ -196,7 +196,7 @@ void QQBoardsSettings::editBouchot()
 
 void QQBoardsSettings::olccsAddBouchot()
 {
-	QQOlccsWizard wizard(this);
+	QQBoardWizard wizard(this);
 	if(wizard.exec() == QDialog::Accepted)
 	{
 		QQBouchot::QQBouchotSettings bSettings = wizard.bouchotSettings();

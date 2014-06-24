@@ -32,11 +32,11 @@ private:
 		QStringList m_boardList;
 };
 
-class QQOlccsWizardPMain : public QWizardPage
+class QQBoardWizardOlccs : public QWizardPage
 {
 	Q_OBJECT
 public:
-	explicit QQOlccsWizardPMain(QWidget *parent = 0);
+	explicit QQBoardWizardOlccs(QWidget *parent = 0);
 
 	void setListGroups(QStringList &listGroups);
 
