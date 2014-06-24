@@ -84,9 +84,11 @@ SOURCES += main.cpp\
 	ui/palmipede/qqpalmifileposter.cpp \
 	core/qqboardstatechangeevent.cpp \
 	ui/boardinfo/qqboardinfoprogressbar.cpp \
-        ui/settingsmanager/qqolccswizardpmain.cpp \
-        ui/settingsmanager/qqolccswizardpadv.cpp \
-        ui/settingsmanager/qqolccswizard.cpp
+    ui/settingsmanager/qqboardwizard.cpp \
+    ui/settingsmanager/qqboardwizardintro.cpp \
+    ui/settingsmanager/qqboardwizardnative.cpp \
+    ui/settingsmanager/qqboardwizardadv.cpp \
+    ui/settingsmanager/qqboardwizardolccs.cpp
 
 HEADERS  += mainwindow.h \
 	core/qqsettings.h \
@@ -144,9 +146,11 @@ HEADERS  += mainwindow.h \
 	ui/palmipede/qqpalmifileposter.h \
 	core/qqboardstatechangeevent.h \
 	ui/boardinfo/qqboardinfoprogressbar.h \
-        ui/settingsmanager/qqolccswizardpmain.h \
-        ui/settingsmanager/qqolccswizardpadv.h \
-        ui/settingsmanager/qqolccswizard.h
+    ui/settingsmanager/qqboardwizard.h \
+    ui/settingsmanager/qqboardwizardintro.h \
+    ui/settingsmanager/qqboardwizardnative.h \
+    ui/settingsmanager/qqboardwizardolccs.h \
+    ui/settingsmanager/qqboardwizardadv.h
 
 FORMS += mainwindow.ui \
 	ui/qqpalmipede.ui \
