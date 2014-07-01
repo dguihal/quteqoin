@@ -4,5 +4,7 @@
         <file>totoz_eu</file>
         <file>nsfw_totoz_eu</file>
         <file>forum_hardware_fr</file>
+        <file>nsfw_totoz_eu_claudex</file>
+        <file>totoz_eu_claudex</file>
     </qresource>
 </RCC>

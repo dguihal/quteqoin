@@ -3,6 +3,8 @@
 
 #include "core/qqsettings.h"
 
+#include <QtDebug>
+
 QQTotozSettings::QQTotozSettings(QWidget *parent) :
 	QWidget(parent),
 	ui(new Ui::QQTotozSettings)
@@ -14,10 +16,11 @@ QQTotozSettings::QQTotozSettings(QWidget *parent) :
 	QStringList srvPresets = settings.listTotozSrvPresets();
 
 	ui->presetCB->insertItem(0, "");
-	for(int i = 0; i < srvPresets.length(); i++)
+	srvPresets.sort(Qt::CaseInsensitive);
+	foreach (QString preset, srvPresets)
 	{
-		QString label = settings.getTotozSrvPreset(srvPresets.at(i), true).label;
-		ui->presetCB->insertItem(INT_MAX, label, srvPresets.at(i));
+		QString label = settings.getTotozSrvPreset(preset, true).label;
+		ui->presetCB->insertItem(INT_MAX, label, preset);
 	}
 
 	connect(ui->srvTotozLineEdit, SIGNAL(textChanged(QString)),

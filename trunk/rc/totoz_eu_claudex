@@ -1,0 +1,6 @@
+label=Totoz.eu / Claudex (Safe, post-moderated)
+url=http://claudex.be
+base_img_dir=sfwttz
+img_suffix=.gif
+search_pattern=sfwttz/search.xml?terms=%t
+info_pattern=totoz/%t/info.xml
