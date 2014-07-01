@@ -12,10 +12,12 @@ QQTotozSettings::QQTotozSettings(QWidget *parent) :
 	QQSettings settings;
 	ui->presetCB->clear();
 	QStringList srvPresets = settings.listTotozSrvPresets();
+
+	ui->presetCB->insertItem(0, "");
 	for(int i = 0; i < srvPresets.length(); i++)
 	{
 		QString label = settings.getTotozSrvPreset(srvPresets.at(i), true).label;
-		ui->presetCB->insertItem(0, label, srvPresets.at(i));
+		ui->presetCB->insertItem(INT_MAX, label, srvPresets.at(i));
 	}
 
 	connect(ui->srvTotozLineEdit, SIGNAL(textChanged(QString)),
@@ -175,6 +177,9 @@ void QQTotozSettings::loadTotozSrvPreset(int index)
 {
 	QQSettings settings;
 	QString presetName = ui->presetCB->itemData(index).toString();
+
+	if(presetName.isEmpty())
+		return;
 
 	QQTotozSrvPreset preset = settings.getTotozSrvPreset(presetName, false);
 
