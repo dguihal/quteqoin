@@ -4,10 +4,10 @@
 #include "ui/settingsmanager/qqboardwizard.h"
 
 #include <QtDebug>
+#include <QBoxLayout>
 #include <QCheckBox>
 #include <QComboBox>
 #include <QFormLayout>
-#include <QHBoxLayout>
 #include <QLabel>
 #include <QLineEdit>
 #include <QMovie>
@@ -79,7 +79,7 @@ QQBoardWizardOlccs::QQBoardWizardOlccs(QWidget *parent) :
 	QWizardPage(parent)
 {
 	setTitle(tr("Board Selection"));
-	setSubTitle(tr("Please for the list of boards to be available and select one to continue"));
+	setSubTitle(tr("Please wait for the list of supported boards to be available, and select one to continue"));
 
 	m_boardSelectorCB = new QComboBox(this);
 	m_boardSelectorCB->setEditable(false);
@@ -95,6 +95,7 @@ QQBoardWizardOlccs::QQBoardWizardOlccs(QWidget *parent) :
 	QHBoxLayout *l1 = new QHBoxLayout;
 	l1->addWidget(m_boardSelectorCB);
 	m_emptyListLabel = new QLabel(tr("No new board available via olccs"), this);
+	m_emptyListLabel->setStyleSheet("QLabel { color: red; font-weight : bold; font-size: 1.5em;}");
 	l1->addWidget(m_emptyListLabel);
 	m_emptyListLabel->hide();
 	l1->addWidget(m_waitLabel);
@@ -110,14 +111,18 @@ QQBoardWizardOlccs::QQBoardWizardOlccs(QWidget *parent) :
 	layout->addWidget(line);
 
 	QFormLayout *l2 = new QFormLayout;
+	l2->setHorizontalSpacing(5);
 	m_groupSelCB = new QComboBox(this);
 	l2->addRow(new QLabel(tr("group :"), this), m_groupSelCB);
+
 	m_colorLE = new QLineEdit(this);
 	m_colorLE->setPlaceholderText("exemple : #fec4c4");
 	connect(m_colorLE, SIGNAL(textChanged(QString)), this, SLOT(colorChanged()));
 	l2->addRow(new QLabel(tr("color :")), m_colorLE);
-	QLineEdit *cookieLE = new QLineEdit(this);
-	l2->addRow(new QLabel(tr("cookie :"), this), cookieLE);
+
+	m_cookieLE = new QLineEdit(this);
+	l2->addRow(new QLabel(tr("cookie :"), this), m_cookieLE);
+
 	m_advSettingsCB = new QCheckBox(this);
 	m_advSettingsCB->setEnabled(false);
 	connect(m_advSettingsCB, SIGNAL(clicked()), this, SLOT(advSettingsTriggered()));
@@ -125,10 +130,10 @@ QQBoardWizardOlccs::QQBoardWizardOlccs(QWidget *parent) :
 
 	layout->addItem(l2);
 
-	registerField("Name*", m_boardSelectorCB);
-	registerField("Color*", m_colorLE);
-	registerField("Group", m_groupSelCB);
-	registerField("Cookie", cookieLE);
+	registerField("Olccs_Name*", m_boardSelectorCB);
+	registerField("Olccs_Color*", m_colorLE);
+	registerField("Olccs_Group", m_groupSelCB);
+	registerField("Olccs_Cookie", m_cookieLE);
 
 	setLayout(layout);
 
@@ -163,6 +168,10 @@ void QQBoardWizardOlccs::boardListAvailable()
 	{
 		m_boardSelectorCB->hide();
 		m_emptyListLabel->show();
+		m_boardSelectorCB->setEnabled(false);
+		m_colorLE->setEnabled(false);
+		m_cookieLE->setEnabled(false);
+		m_groupSelCB->setEnabled(false);
 	}
 	else
 	{

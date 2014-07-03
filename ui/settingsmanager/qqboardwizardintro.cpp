@@ -23,6 +23,9 @@ QQBoardWizardIntro::QQBoardWizardIntro(QWidget *parent) :
 	m_modeOlccsRB = new QRadioButton("Olccs mode", this);
 	layout->addWidget(m_modeOlccsRB);
 
+	registerField("Native_Mode", m_modeNativeRB);
+	registerField("Olccs_Mode", m_modeNativeRB);
+
 	layout->addItem(new QSpacerItem(0,10, QSizePolicy::Expanding, QSizePolicy::Expanding));
 
 	setLayout(layout);
