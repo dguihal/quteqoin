@@ -44,7 +44,6 @@ QQTotozSettings::~QQTotozSettings()
 	delete ui;
 }
 
-
 //PROPERTY TotozServerURL
 void QQTotozSettings::setTotozServerURL(const QString &totozServerURL)
 {

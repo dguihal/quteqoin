@@ -57,10 +57,11 @@ private:
 
 	QCheckBox *m_advSettingsCB;
 	QComboBox *m_boardSelectorCB;
+	QLineEdit *m_colorLE;
+	QLineEdit *m_cookieLE;
 	QComboBox *m_groupSelCB;
 	QLabel *m_waitLabel;
 	QLabel *m_emptyListLabel;
-	QLineEdit *m_colorLE;
 
 };
 
