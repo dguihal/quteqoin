@@ -12,10 +12,12 @@ contains(QT_VERSION, ^4\\.[0-7]\\..*) {
 
 QT += core gui network xml
 
-greaterThan(QT_MAJOR_VERSION, 4) {
-	QT += widgets quick
-} else {
-	QT += declarative
+debug {
+    greaterThan(QT_MAJOR_VERSION, 4) {
+            QT += widgets quick
+    } else {
+            QT += declarative
+    }
 }
 
 # A Tester
@@ -84,11 +86,12 @@ SOURCES += main.cpp\
 	ui/palmipede/qqpalmifileposter.cpp \
 	core/qqboardstatechangeevent.cpp \
 	ui/boardinfo/qqboardinfoprogressbar.cpp \
-    ui/settingsmanager/qqboardwizard.cpp \
-    ui/settingsmanager/qqboardwizardintro.cpp \
-    ui/settingsmanager/qqboardwizardnative.cpp \
-    ui/settingsmanager/qqboardwizardadv.cpp \
-    ui/settingsmanager/qqboardwizardolccs.cpp
+        ui/settingsmanager/qqboardwizard.cpp \
+        ui/settingsmanager/qqboardwizardintro.cpp \
+        ui/settingsmanager/qqboardwizardnative.cpp \
+        ui/settingsmanager/qqboardwizardadv.cpp \
+        ui/settingsmanager/qqboardwizardolccs.cpp \
+    qml/documenthandler.cpp
 
 HEADERS  += mainwindow.h \
 	core/qqsettings.h \
@@ -146,11 +149,12 @@ HEADERS  += mainwindow.h \
 	ui/palmipede/qqpalmifileposter.h \
 	core/qqboardstatechangeevent.h \
 	ui/boardinfo/qqboardinfoprogressbar.h \
-    ui/settingsmanager/qqboardwizard.h \
-    ui/settingsmanager/qqboardwizardintro.h \
-    ui/settingsmanager/qqboardwizardnative.h \
-    ui/settingsmanager/qqboardwizardolccs.h \
-    ui/settingsmanager/qqboardwizardadv.h
+        ui/settingsmanager/qqboardwizard.h \
+        ui/settingsmanager/qqboardwizardintro.h \
+        ui/settingsmanager/qqboardwizardnative.h \
+        ui/settingsmanager/qqboardwizardolccs.h \
+        ui/settingsmanager/qqboardwizardadv.h \
+    qml/documenthandler.h
 
 FORMS += mainwindow.ui \
 	ui/qqpalmipede.ui \
@@ -169,12 +173,17 @@ FORMS += mainwindow.ui \
 	ui/qqboardinfo.ui \
         ui/qqcmdtoolbuttons.ui
 
-OTHER_FILES +=
+debug {
+    OTHER_FILES += \
+        qml/QQmlMain.qml \
+        qml/QQmlPinni.qml
+}
 
 RESOURCES += \
 	rc/quteqoin_img.qrc \
 	rc/quteqoin_defs.qrc \
-	rc/quteqoin_anims.qrc
+	rc/quteqoin_anims.qrc \
+    qml/quteqoin_qml.qrc
 
 QMAKE_CXXFLAGS_RELEASE += -DQT_NO_DEBUG_OUTPUT
 
@@ -204,3 +213,6 @@ RC_FILE = rc/quteqoin_win.rc
 
 
 # vim: ts=4 sw=4 sts=4 noexpandtab
+
+OTHER_FILES += \
+    qml/QQmlPalmi.qml
