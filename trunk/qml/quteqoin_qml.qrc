@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/qml">
+        <file>QQmlMain.qml</file>
+        <file>QQmlPalmi.qml</file>
+    </qresource>
+</RCC>

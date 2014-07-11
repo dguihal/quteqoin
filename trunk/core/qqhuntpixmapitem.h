@@ -17,6 +17,7 @@ class QQHuntPixmapItem : public QObject, public QGraphicsPixmapItem
 {
 	Q_OBJECT
 	Q_PROPERTY(QPointF pos READ pos WRITE setPos)
+
 public:
 	explicit QQHuntPixmapItem(QString srcBouchot, QString postId, bool selfItem, QObject *parent = 0);
 	~QQHuntPixmapItem();

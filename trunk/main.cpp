@@ -11,6 +11,14 @@
 #include <QDir>
 #include <QSettings>
 
+#ifdef QT_DEBUG
+#if(QT_VERSION >= QT_VERSION_CHECK(5, 3, 0))
+#include "qml/documenthandler.h"
+#include <QQmlApplicationEngine>
+#include <QQuickWindow>
+#endif
+#endif //QT_DEBUG
+
 #ifdef Q_OS_UNIX
 #undef signals
 #include <libnotify/notify.h>
@@ -58,6 +66,15 @@ void purgeCache()
 	removeDirRecursive(dirCache.absoluteFilePath("networkCache"));
 }
 
+void dumpRecurse(QQuickItem *rootItem)
+{
+	foreach (QQuickItem *item, rootItem->childItems())
+	{
+		qDebug() << Q_FUNC_INFO << item->childItems().size() << item->objectName();
+		dumpRecurse(item);
+	}
+}
+
 int main(int argc, char *argv[])
 {
 	QApplication a(argc, argv);
@@ -74,6 +91,27 @@ int main(int argc, char *argv[])
 
 	MainWindow w;
 	w.show();
+
+#ifdef QT_DEBUG
+	qmlRegisterType<DocumentHandler>("org.moules.quteqoin", 1, 0, "DocumentHandler");
+	QQmlApplicationEngine engine(QUrl("qrc:///qml/QQmlMain.qml"));
+	QQuickWindow *qmlRoot = qobject_cast<QQuickWindow *>(engine.rootObjects().at(0));
+	if(!qmlRoot)
+	{
+		qWarning("Error: Your root item has to be a Window.");
+		return -1;
+	}
+
+	QQuickItem *qmlRootItem = qmlRoot->contentItem();
+	dumpRecurse(qmlRootItem);
+	/*
+	if(textArea)
+	{
+		textArea->setProperty("text", "Lorem ipsum");
+		qDebug() << Q_FUNC_INFO << "textArea found";
+	}
+	*/
+#endif
 
 	return a.exec();
 }
