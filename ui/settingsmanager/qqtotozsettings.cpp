@@ -16,7 +16,11 @@ QQTotozSettings::QQTotozSettings(QWidget *parent) :
 	QStringList srvPresets = settings.listTotozSrvPresets();
 
 	ui->presetCB->insertItem(0, "");
+#if(QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
 	srvPresets.sort(Qt::CaseInsensitive);
+#else
+	srvPresets.sort();
+#endif
 	foreach (QString preset, srvPresets)
 	{
 		QString label = settings.getTotozSrvPreset(preset, true).label;
