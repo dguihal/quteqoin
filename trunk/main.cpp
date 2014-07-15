@@ -66,6 +66,8 @@ void purgeCache()
 	removeDirRecursive(dirCache.absoluteFilePath("networkCache"));
 }
 
+#ifdef QT_DEBUG
+#if(QT_VERSION >= QT_VERSION_CHECK(5, 3, 0))
 void dumpRecurse(QQuickItem *rootItem)
 {
 	foreach (QQuickItem *item, rootItem->childItems())
@@ -74,6 +76,8 @@ void dumpRecurse(QQuickItem *rootItem)
 		dumpRecurse(item);
 	}
 }
+#endif //QT_VERSION
+#endif //QT_DEBUG
 
 int main(int argc, char *argv[])
 {
@@ -93,6 +97,7 @@ int main(int argc, char *argv[])
 	w.show();
 
 #ifdef QT_DEBUG
+#if(QT_VERSION >= QT_VERSION_CHECK(5, 3, 0))
 	qmlRegisterType<DocumentHandler>("org.moules.quteqoin", 1, 0, "DocumentHandler");
 	QQmlApplicationEngine engine(QUrl("qrc:///qml/QQmlMain.qml"));
 	QQuickWindow *qmlRoot = qobject_cast<QQuickWindow *>(engine.rootObjects().at(0));
@@ -111,7 +116,8 @@ int main(int argc, char *argv[])
 		qDebug() << Q_FUNC_INFO << "textArea found";
 	}
 	*/
-#endif
+#endif //QT_VERSION
+#endif //QT_DEBUG
 
 	return a.exec();
 }

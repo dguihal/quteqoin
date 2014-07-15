@@ -11,14 +11,10 @@ contains(QT_VERSION, ^4\\.[0-7]\\..*) {
 }
 
 QT += core gui network xml
-
-debug {
-    greaterThan(QT_MAJOR_VERSION, 4) {
-            QT += widgets quick
-    } else {
-            QT += declarative
-    }
+greaterThan(QT_MAJOR_VERSION, 4) {
+	QT += widgets
 }
+
 
 # A Tester
 #linux-g++ {
@@ -78,20 +74,19 @@ SOURCES += main.cpp\
 	ui/qqboardinfo.cpp \
 	core/qqmussel.cpp \
 	ui/qqmusselinfo.cpp \
-        ui/qqcmdtoolbuttons.cpp \
-        ui/qqimageviewer.cpp \
-        ui/qqwebimageviewer.cpp \
-        core/qqwebimagedownloader.cpp \
-        core/qqbakdisplayfilter.cpp \
+	ui/qqcmdtoolbuttons.cpp \
+	ui/qqimageviewer.cpp \
+	ui/qqwebimageviewer.cpp \
+	core/qqwebimagedownloader.cpp \
+	core/qqbakdisplayfilter.cpp \
 	ui/palmipede/qqpalmifileposter.cpp \
 	core/qqboardstatechangeevent.cpp \
 	ui/boardinfo/qqboardinfoprogressbar.cpp \
-        ui/settingsmanager/qqboardwizard.cpp \
-        ui/settingsmanager/qqboardwizardintro.cpp \
-        ui/settingsmanager/qqboardwizardnative.cpp \
-        ui/settingsmanager/qqboardwizardadv.cpp \
-        ui/settingsmanager/qqboardwizardolccs.cpp \
-    qml/documenthandler.cpp
+	ui/settingsmanager/qqboardwizard.cpp \
+	ui/settingsmanager/qqboardwizardintro.cpp \
+	ui/settingsmanager/qqboardwizardnative.cpp \
+	ui/settingsmanager/qqboardwizardadv.cpp \
+	ui/settingsmanager/qqboardwizardolccs.cpp
 
 HEADERS  += mainwindow.h \
 	core/qqsettings.h \
@@ -141,20 +136,19 @@ HEADERS  += mainwindow.h \
 	ui/qqboardinfo.h \
 	core/qqmussel.h \
 	ui/qqmusselinfo.h \
-        ui/qqcmdtoolbuttons.h \
-        ui/qqimageviewer.h \
-        ui/qqwebimageviewer.h \
-        core/qqwebimagedownloader.h \
-        core/qqbakdisplayfilter.h \
+	ui/qqcmdtoolbuttons.h \
+	ui/qqimageviewer.h \
+	ui/qqwebimageviewer.h \
+	core/qqwebimagedownloader.h \
+	core/qqbakdisplayfilter.h \
 	ui/palmipede/qqpalmifileposter.h \
 	core/qqboardstatechangeevent.h \
 	ui/boardinfo/qqboardinfoprogressbar.h \
-        ui/settingsmanager/qqboardwizard.h \
-        ui/settingsmanager/qqboardwizardintro.h \
-        ui/settingsmanager/qqboardwizardnative.h \
-        ui/settingsmanager/qqboardwizardolccs.h \
-        ui/settingsmanager/qqboardwizardadv.h \
-    qml/documenthandler.h
+	ui/settingsmanager/qqboardwizard.h \
+	ui/settingsmanager/qqboardwizardintro.h \
+	ui/settingsmanager/qqboardwizardnative.h \
+	ui/settingsmanager/qqboardwizardolccs.h \
+	ui/settingsmanager/qqboardwizardadv.h
 
 FORMS += mainwindow.ui \
 	ui/qqpalmipede.ui \
@@ -171,19 +165,34 @@ FORMS += mainwindow.ui \
 	ui/settingsmanager/qqhuntsettings.ui \
 	ui/qqboardsinfo.ui \
 	ui/qqboardinfo.ui \
-        ui/qqcmdtoolbuttons.ui
-
-debug {
-    OTHER_FILES += \
-        qml/QQmlMain.qml \
-        qml/QQmlPinni.qml
-}
+	ui/qqcmdtoolbuttons.ui
 
 RESOURCES += \
 	rc/quteqoin_img.qrc \
 	rc/quteqoin_defs.qrc \
-	rc/quteqoin_anims.qrc \
-    qml/quteqoin_qml.qrc
+	rc/quteqoin_anims.qrc
+
+debug {
+	greaterThan(QT_MAJOR_VERSION, 4) {
+		QT += quick
+
+		SOURCES += qml/documenthandler.cpp
+
+		HEADERS += qml/documenthandler.h
+
+		RESOURCES += qml/quteqoin_qml.qrc
+
+		OTHER_FILES += \
+			qml/QQmlMain.qml \
+			qml/QQmlPinni.qml \
+			qml/QQmlPalmi.qml \
+			qml/QQmlGeneralSettings.qml \
+			qml/QQmlSettingsEditor.qml \
+			qml/QQmlSettingsItem.qml \
+			qml/QQmlSettingsItemMenuBtn.qml \
+			qml/QQmlTotozSettings.qml
+	}
+}
 
 QMAKE_CXXFLAGS_RELEASE += -DQT_NO_DEBUG_OUTPUT
 
@@ -208,11 +217,7 @@ unix {
 }
 
 win32 {
-RC_FILE = rc/quteqoin_win.rc
+	RC_FILE = rc/quteqoin_win.rc
 }
 
-
 # vim: ts=4 sw=4 sts=4 noexpandtab
-
-OTHER_FILES += \
-    qml/QQmlPalmi.qml
