@@ -14,6 +14,7 @@ public:
 	/// \return
 	///
 	QByteArray imgData() { return m_data; }
+	QString dataContentType() { return m_dataContentType; }
 
 	void getImage(const QUrl &url);
 
@@ -24,6 +25,7 @@ protected slots:
 	virtual void requestFinishedSlot(QNetworkReply *reply);
 
 private:
+	QString m_dataContentType;
 	QByteArray m_data;
 	QList<QUrl> m_listPendingUrl;
 };

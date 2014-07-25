@@ -9,8 +9,8 @@
 QQWebImageViewer::QQWebImageViewer(QWidget *parent) :
 	QQImageViewer(parent)
 {
-	imgDownloader = new QQWebImageDownloader(this);
-	connect(imgDownloader, SIGNAL(ready()), this, SLOT(imgReady()));
+	m_imgDownloader = new QQWebImageDownloader(this);
+	connect(m_imgDownloader, SIGNAL(ready()), this, SLOT(imgReady()));
 }
 
 //////////////////////////////////////////////////////////////
@@ -20,7 +20,7 @@ QQWebImageViewer::QQWebImageViewer(QWidget *parent) :
 void QQWebImageViewer::showImg(const QUrl &url)
 {
 	displayWaitMovie();
-	imgDownloader->getImage(url);
+	m_imgDownloader->getImage(url);
 }
 
 //////////////////////////////////////////////////////////////
@@ -28,6 +28,12 @@ void QQWebImageViewer::showImg(const QUrl &url)
 ///
 void QQWebImageViewer::imgReady()
 {
-	if(! updateImg(imgDownloader->imgData(), m_imgMaxSize))
+	QString dataCType = m_imgDownloader->dataContentType();
+	if(! dataCType.startsWith("image/"))
+	{
+		displayText(tr("Not an image, preview not supported"));
+		return;
+	}
+	if(! updateImg(m_imgDownloader->imgData(), m_imgMaxSize))
 		displayText(tr("Unrecognised or invalid image"));
 }

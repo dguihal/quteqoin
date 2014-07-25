@@ -72,6 +72,7 @@ void QQWebImageDownloader::requestFinishedSlot(QNetworkReply *reply)
 	} // Tout est OK on poursuit
 	else
 	{
+		m_dataContentType = reply->header(QNetworkRequest::ContentTypeHeader).toString();
 		m_data = reply->readAll();
 		emit ready();
 	}

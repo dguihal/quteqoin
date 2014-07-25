@@ -22,7 +22,7 @@ protected slots:
 	void imgReady();
 
 private:
-	QQWebImageDownloader *imgDownloader;
+	QQWebImageDownloader *m_imgDownloader;
 
 	QSize m_imgMaxSize;
 };
