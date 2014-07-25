@@ -29,11 +29,12 @@ void QQWebImageViewer::showImg(const QUrl &url)
 void QQWebImageViewer::imgReady()
 {
 	QString dataCType = m_imgDownloader->dataContentType();
-	if(! dataCType.startsWith("image/"))
+	if(dataCType.startsWith("image/"))
 	{
-		displayText(tr("Not an image, preview not supported"));
-		return;
+		if(! updateImg(m_imgDownloader->imgData(), m_imgMaxSize))
+			displayText(tr("Unrecognised or invalid image"));
 	}
-	if(! updateImg(m_imgDownloader->imgData(), m_imgMaxSize))
-		displayText(tr("Unrecognised or invalid image"));
+	// TODO : else if (dataCType.startsWith("video/"))
+	else
+		displayText(tr("Not an image, preview not supported"));
 }
