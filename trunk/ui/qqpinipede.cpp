@@ -388,7 +388,7 @@ void QQPinipede::tabEventsAcknowledged(const QString& groupName)
 	setTabText(indexOf(textBrowser), groupName);
 
 	QList<QQBouchot *> listBouchots = QQBouchot::listBouchotsGroup(groupName);
-	foreach (QQBouchot *b, listBouchots)
+	foreach(QQBouchot *b, listBouchots)
 		b->resetStatus();
 }
 
@@ -444,7 +444,7 @@ void QQPinipede::searchText(const QString &text, bool forward)
 	QQSettings settings;
 	QColor color(settings.value(SETTINGS_GENERAL_HIGHLIGHT_COLOR, DEFAULT_GENERAL_HIGHLIGHT_COLOR).toString());
 
-	foreach (QQTextBrowser *textBrowser, m_textBrowserHash.values())
+	foreach(QQTextBrowser *textBrowser, m_textBrowserHash.values())
 	{
 		if(! textBrowser->isVisible())
 			continue;
@@ -638,7 +638,9 @@ void QQPinipede::norlogeRefHovered(QQNorlogeRef norlogeRef)
 	QQTextBrowser *textBrowser = NULL;
 	QQSettings settings;
 	QColor color(settings.value(SETTINGS_GENERAL_HIGHLIGHT_COLOR, DEFAULT_GENERAL_HIGHLIGHT_COLOR).toString());
-	foreach (QString group, groups)
+
+	// On commence par rechercher dans les posts affiches dans le pini
+	foreach(QString group, groups)
 	{
 		textBrowser = m_textBrowserHash.value(group);
 
@@ -682,7 +684,7 @@ void QQPinipede::norlogeRefHovered(QQNorlogeRef norlogeRef)
 				}
 				else
 				{
-					foreach (QQNorlogeRef nRef, userData->norlogeRefs())
+					foreach(QQNorlogeRef nRef, userData->norlogeRefs())
 					{
 						if(norlogeRef.matchesNRef(nRef))
 						{
@@ -709,14 +711,17 @@ void QQPinipede::norlogeRefHovered(QQNorlogeRef norlogeRef)
 		}
 	}
 
+	// Si rien n'a ete trouve dans la zone affichee dans le pini
 	if(! highlightSuccess)
 	{
-		QTextCursor cursor(textBrowser->document());
+		QTextCursor cursor = textBrowser->cursorForPosition(QPoint(0, 0));
+		// Deplacement vers la fin du block precedent l'affichage du pini
+		cursor.movePosition(QTextCursor::PreviousBlock, QTextCursor::MoveAnchor);
 
 		QTextDocument destDocument;
 		QTextCursor destCursor(& destDocument);
-		destCursor.atStart();
 
+		bool found = false;
 		destCursor.beginEditBlock();
 		do
 		{
@@ -728,12 +733,16 @@ void QQPinipede::norlogeRefHovered(QQNorlogeRef norlogeRef)
 			{
 				cursor.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
 				QTextDocumentFragment fragment = cursor.selection();
-				if(! destCursor.atBlockStart())
-					destCursor.insertBlock();
 				destCursor.insertFragment(fragment);
+				if(found == true) // Pas au premier match
+					destCursor.insertBlock();
+				destCursor.movePosition(QTextCursor::Start);
+				found = true;
 			}
+			else if(found == true) // Fin de block matchant, inutile de continuer
+				break;
 
-		} while(cursor.movePosition(QTextCursor::NextBlock));
+		} while(cursor.movePosition(QTextCursor::PreviousBlock));
 
 		destCursor.endEditBlock();
 
@@ -759,7 +768,7 @@ void QQPinipede::norlogeRefHovered(QQNorlogeRef norlogeRef)
 void QQPinipede::unHighlight(QQTextBrowser *tBrowser)
 {
 	m_hiddenPostViewerLabel->hide();
-	foreach (QTextEdit::ExtraSelection extra, tBrowser->extraSelections())
+	foreach(QTextEdit::ExtraSelection extra, tBrowser->extraSelections())
 	{
 		if(! extra.cursor.hasSelection()) //fulll block
 		{
@@ -1082,7 +1091,7 @@ void QQPinipede::newPostsAvailable(QString groupName)
 	QApplication::restoreOverrideCursor();
 
 	//Signalement de nouveaux posts dans le nom du Tab
-	foreach (QQPost *p, newPosts)
+	foreach(QQPost *p, newPosts)
 	{
 		if(!p->isSelfPost())
 		{
