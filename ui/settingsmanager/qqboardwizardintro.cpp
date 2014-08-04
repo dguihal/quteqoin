@@ -24,7 +24,7 @@ QQBoardWizardIntro::QQBoardWizardIntro(QWidget *parent) :
 	layout->addWidget(m_modeOlccsRB);
 
 	registerField("Native_Mode", m_modeNativeRB);
-	registerField("Olccs_Mode", m_modeNativeRB);
+	registerField("Olccs_Mode", m_modeOlccsRB);
 
 	layout->addItem(new QSpacerItem(0,10, QSizePolicy::Expanding, QSizePolicy::Expanding));
 
