@@ -12,10 +12,12 @@ class QQBoardWizard : public QWizard
 public:
 	explicit QQBoardWizard(QWidget *parent = 0);
 
-	enum PAGE_IDS { Page_Intro, Page_Olccs_Main, Page_Native_Main, Page_Adv };
+	enum PAGE_IDS { Page_Intro, Page_Olccs_Main, Page_Native_Main };
 
 	QQBouchot::QQBouchotSettings bouchotSettings() { return m_s; }
 	QString bouchotName() { return m_bName; }
+
+	bool showAdvanced() { return m_showAdvanced; }
 
 public slots:
 	virtual void accept();
@@ -23,6 +25,8 @@ public slots:
 private:
 	QQBouchot::QQBouchotSettings m_s;
 	QString m_bName;
+
+	bool m_showAdvanced;
 };
 
 #endif // QQOLCCSWIZARD_H

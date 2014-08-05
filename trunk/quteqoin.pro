@@ -85,7 +85,6 @@ SOURCES += main.cpp\
 	ui/settingsmanager/qqboardwizard.cpp \
 	ui/settingsmanager/qqboardwizardintro.cpp \
 	ui/settingsmanager/qqboardwizardnative.cpp \
-	ui/settingsmanager/qqboardwizardadv.cpp \
 	ui/settingsmanager/qqboardwizardolccs.cpp
 
 HEADERS  += mainwindow.h \
@@ -147,8 +146,7 @@ HEADERS  += mainwindow.h \
 	ui/settingsmanager/qqboardwizard.h \
 	ui/settingsmanager/qqboardwizardintro.h \
 	ui/settingsmanager/qqboardwizardnative.h \
-	ui/settingsmanager/qqboardwizardolccs.h \
-	ui/settingsmanager/qqboardwizardadv.h
+	ui/settingsmanager/qqboardwizardolccs.h
 
 FORMS += mainwindow.ui \
 	ui/qqpalmipede.ui \

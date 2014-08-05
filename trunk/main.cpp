@@ -96,6 +96,7 @@ int main(int argc, char *argv[])
 	MainWindow w;
 	w.show();
 
+#if 0
 #ifdef QT_DEBUG
 #if(QT_VERSION >= QT_VERSION_CHECK(5, 3, 0))
 	qmlRegisterType<DocumentHandler>("org.moules.quteqoin", 1, 0, "DocumentHandler");
@@ -118,6 +119,7 @@ int main(int argc, char *argv[])
 	*/
 #endif //QT_VERSION
 #endif //QT_DEBUG
+#endif
 
 	return a.exec();
 }

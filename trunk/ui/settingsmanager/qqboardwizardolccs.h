@@ -41,6 +41,7 @@ public:
 	void setListGroups(QStringList &listGroups);
 
 	virtual int	nextId () const;
+	virtual bool isComplete() const;
 
 signals:
 
@@ -48,7 +49,6 @@ public slots:
 	void boardListAvailable();
 
 protected slots:
-	void advSettingsTriggered();
 	void colorChanged();
 	void nameSelectionChanged(int index);
 
