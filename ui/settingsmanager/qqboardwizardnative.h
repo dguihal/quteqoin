@@ -7,6 +7,7 @@
 class QCheckBox;
 class QComboBox;
 class QLabel;
+class QLineEdit;
 
 class QQBoardWizardNative : public QWizardPage
 {
@@ -17,12 +18,13 @@ public:
 	void setListGroups(QStringList &listGroups);
 
 	virtual int	nextId () const;
+	virtual bool isComplete() const;
 signals:
 
 public slots:
 
 protected slots:
-	void advSettingsTriggered();
+	void colorChanged();
 	void nameSelectionChanged(int index);
 
 private:
@@ -30,6 +32,7 @@ private:
 	QCheckBox *m_advSettingsCB;
 	QComboBox *m_boardSelectorCB;
 	QComboBox *m_groupSelCB;
+	QLineEdit *m_colorLE;
 	QLabel *m_emptyListLabel;
 };
 

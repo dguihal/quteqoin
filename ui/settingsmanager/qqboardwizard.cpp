@@ -5,12 +5,12 @@
 #include "ui/settingsmanager/qqboardwizardintro.h"
 #include "ui/settingsmanager/qqboardwizardnative.h"
 #include "ui/settingsmanager/qqboardwizardolccs.h"
-#include "ui/settingsmanager/qqboardwizardadv.h"
 
 #include <QtDebug>
 
 QQBoardWizard::QQBoardWizard(QWidget *parent) :
-	QWizard(parent)
+	QWizard(parent),
+	m_showAdvanced(false)
 {
 	setDefaultProperty("QComboBox", "currentText", "currentIndexChanged");
 
@@ -28,40 +28,44 @@ QQBoardWizard::QQBoardWizard(QWidget *parent) :
 	pOlccs->setListGroups(lstGrps);
 	setPage(Page_Olccs_Main, pOlccs);
 
-	setPage(Page_Adv, new QQBoardWizardAdv(this));
-
 	setStartId(Page_Intro);
-
-
-	qDebug() << Q_FUNC_INFO << pageIds();
 }
 
 void QQBoardWizard::accept()
 {
 	QQSettings settings;
+	bool olccs_config;
 
 	QString fieldPrefix = "Native";
-	if(field("Olccs_Mode").toBool() == true)
-		 fieldPrefix = "Olccs";
-
+	olccs_config = field("Olccs_Mode").toBool();
+	if(olccs_config)
+	{
+		olccs_config = true;
+		fieldPrefix = "Olccs";
+	}
 	m_bName = field(QString("%1_Name").arg(fieldPrefix)).toString();
+	m_showAdvanced = field(QString("%1_AdvSettings").arg(fieldPrefix)).toBool();
 
-	m_s.setGroup(field(QString("%1_Group").arg(fieldPrefix)).toString());
-	m_s.setColorFromString(field(QString("%1_Color").arg(fieldPrefix)).toString());
-
-	//TODO advanced
+	if(olccs_config)
+	{
+		m_s.setColorFromString(field("Olccs_Color").toString());
+		m_s.setPostUrl(QString("https://olccs.halifirien.info/t/%1/post").arg(m_bName));
+		m_s.setBackendUrl(QString("https://olccs.halifirien.info/t/%1/remote.xml?last=%i").arg(m_bName));
+		m_s.setPostData("message=%m");
+		m_s.setSlipType(QQBouchot::SlipTagsRaw);
+	}
+	else
+	{
+		m_s = QQBouchot::getBouchotDef(m_bName);
+	}
 	QString defaultLogin = settings.value(SETTINGS_GENERAL_DEFAULT_LOGIN, DEFAULT_GENERAL_DEFAULT_LOGIN).toString();
 	if(! defaultLogin.isEmpty())
 		m_s.setLogin(defaultLogin);
-	//s.setUa("");
-	//s.setAliasesFromString("");
 	m_s.setRefreshFromString(DEFAULT_BOUCHOT_REFRESH);
 
+
+	m_s.setGroup(field(QString("%1_Group").arg(fieldPrefix)).toString());
 	m_s.setCookie(field(QString("%1_Cookie").arg(fieldPrefix)).toString());
-	m_s.setPostUrl(QString("https://olccs.halifirien.info/t/%1/post").arg(m_bName));
-	m_s.setBackendUrl(QString("https://olccs.halifirien.info/t/%1/remote.xml?last=%i").arg(m_bName));
-	m_s.setPostData("message=%m");
-	m_s.setSlipType(QQBouchot::SlipTagsRaw);
 
 	//Adv.
 	m_s.setStrictHttpsCertif(true);

@@ -220,5 +220,20 @@ void QQBoardsSettings::olccsAddBouchot()
 			m_newBouchots.insert(bouchotName, bSettings);
 			m_oldBouchots.removeAll(bouchotName);
 		}
+
+		if(wizard.showAdvanced())
+		{
+			QStringListModel *model = (QStringListModel *) ui->bouchotListView->model();
+			QItemSelectionModel *selModel = ui->bouchotListView->selectionModel();
+			for(int i = 0; i < model->rowCount(); i++)
+			{
+				QModelIndex mIndex = model->index(i);
+				if(model->data(mIndex, Qt::EditRole).toString() == bouchotName)
+				{
+					selModel->select(mIndex, QItemSelectionModel::ClearAndSelect);
+					editBouchot();
+				}
+			}
+		}
 	}
 }

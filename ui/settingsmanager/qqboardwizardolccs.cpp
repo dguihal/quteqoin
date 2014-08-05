@@ -124,9 +124,8 @@ QQBoardWizardOlccs::QQBoardWizardOlccs(QWidget *parent) :
 	l2->addRow(new QLabel(tr("cookie :"), this), m_cookieLE);
 
 	m_advSettingsCB = new QCheckBox(this);
-	m_advSettingsCB->setEnabled(false);
-	connect(m_advSettingsCB, SIGNAL(clicked()), this, SLOT(advSettingsTriggered()));
-	l2->addRow(new QLabel(tr("<i>Show adv. settings page (TODO)</i> :"), this), m_advSettingsCB);
+	m_advSettingsCB->setEnabled(true);
+	l2->addRow(new QLabel(tr("<i>Show adv. settings page</i> :"), this), m_advSettingsCB);
 
 	layout->addItem(l2);
 
@@ -134,6 +133,7 @@ QQBoardWizardOlccs::QQBoardWizardOlccs(QWidget *parent) :
 	registerField("Olccs_Color*", m_colorLE);
 	registerField("Olccs_Group", m_groupSelCB);
 	registerField("Olccs_Cookie", m_cookieLE);
+	registerField("Olccs_AdvSettings", m_advSettingsCB);
 
 	setLayout(layout);
 
@@ -149,12 +149,16 @@ void QQBoardWizardOlccs::setListGroups(QStringList& listGroups)
 	m_groupSelCB->addItems(listGroups);
 }
 
+bool QQBoardWizardOlccs::isComplete() const
+{
+	bool ret = (! m_groupSelCB->currentText().isEmpty()) &&
+			(! m_colorLE->text().isEmpty());
+	return ret;
+}
+
 int	QQBoardWizardOlccs::nextId () const
 {
-	if(m_advSettingsCB->isChecked())
-		return QQBoardWizard::Page_Adv;
-	else
-		return -1;
+	return -1;
 }
 
 void QQBoardWizardOlccs::boardListAvailable()
@@ -172,6 +176,7 @@ void QQBoardWizardOlccs::boardListAvailable()
 		m_colorLE->setEnabled(false);
 		m_cookieLE->setEnabled(false);
 		m_groupSelCB->setEnabled(false);
+		m_advSettingsCB->setEnabled(false);
 	}
 	else
 	{
@@ -183,11 +188,6 @@ void QQBoardWizardOlccs::boardListAvailable()
 	m_waitLabel->hide();
 	if(m_waitLabel->movie() != NULL)
 		m_waitLabel->movie()->stop();
-}
-
-void QQBoardWizardOlccs::advSettingsTriggered()
-{
-	setFinalPage(! m_advSettingsCB->isChecked());
 }
 
 void QQBoardWizardOlccs::colorChanged()
