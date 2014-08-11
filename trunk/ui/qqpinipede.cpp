@@ -34,6 +34,7 @@
 #include <QTextDocument>
 #include <QTextDocumentFragment>
 #include <QTextFrame>
+#include <QTextLayout>
 #include <QTime>
 #include <QToolButton>
 #include <QVBoxLayout>
@@ -654,7 +655,7 @@ void QQPinipede::norlogeRefHovered(QQNorlogeRef norlogeRef)
 
 			QList<QTextEdit::ExtraSelection> extraSelections;
 			extraSelections.clear();
-			while(cursor.movePosition(QTextCursor::NextBlock))
+			while(cursor.movePosition(QTextCursor::NextBlock, QTextCursor::MoveAnchor))
 			{
 				QTextBlock currBlock = cursor.block();
 				if(currBlock.blockNumber() > lastBlkNum)
@@ -667,10 +668,9 @@ void QQPinipede::norlogeRefHovered(QQNorlogeRef norlogeRef)
 				if(norlogeRef.matchesPost(userData->post()))
 				{
 					QColor highlightColor;
-					if(color.isValid())
-						highlightColor = color;
-					else
-						highlightColor = getDynHighlightColor(userData->post()->bouchot()->settings().colorLight());
+					if(! color.isValid())
+						color = getDynHighlightColor(userData->post()->bouchot()->settings().colorLight());
+					highlightColor = color;
 
 					QTextBlockFormat format = cursor.blockFormat();
 					format.setBackground(highlightColor);
@@ -684,38 +684,49 @@ void QQPinipede::norlogeRefHovered(QQNorlogeRef norlogeRef)
 				}
 				else
 				{
-					int fRangesIndex = 0;
-					int fRangesNRefIndex = 0;
-					QVector<QTextLayout::FormatRange> fRanges = currBlock.textFormats();
 					QList<QQNorlogeRef> norlogeRefs = userData->norlogeRefs();
+					QTextCursor c = cursor;
+					c.movePosition(QTextCursor::StartOfBlock, QTextCursor::MoveAnchor);
+					int nRefCounter = 0;
+					bool isInNRef = false;
 					for(int i = 0; i < norlogeRefs.size(); i++)
 					{
 						QQNorlogeRef nRef = norlogeRefs.at(i);
 						if(norlogeRef.matchesNRef(nRef))
 						{
 							QColor highlightColor;
-							if(color.isValid())
-								highlightColor = color;
-							else
-								highlightColor = getDynHighlightColor(userData->post()->bouchot()->settings().colorLight());
+							if(! color.isValid())
+								color = getDynHighlightColor(userData->post()->bouchot()->settings().colorLight());
+							highlightColor = color;
 
-							for(; fRangesIndex < fRanges.size() && fRangesNRefIndex <= i ; fRangesIndex++)
+							while(c.block() == currBlock)
 							{
-								if(fRanges.at(fRangesIndex).format.anchorHref().startsWith("nref://"))
+								if(c.charFormat().anchorHref().startsWith("nref://"))
 								{
-									if(fRangesNRefIndex == i)
+									if(!isInNRef)
+										isInNRef = true;
+
+									if(nRefCounter == i)
 									{
-										QTextCursor selCursor = cursor;
-										selCursor.movePosition(QTextCursor::NextCharacter, QTextCursor::MoveAnchor, fRanges.at(fRangesIndex).start);
-										selCursor.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor, fRanges.at(fRangesIndex).length);
+										c.movePosition(QTextCursor::PreviousCharacter, QTextCursor::MoveAnchor);
+										c.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor);
+										while(c.charFormat().anchorHref().startsWith("nref://"))
+											c.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor);
+										c.movePosition(QTextCursor::PreviousCharacter, QTextCursor::KeepAnchor);
 
 										QTextEdit::ExtraSelection extra;
 										extra.format.setBackground(highlightColor);
-										extra.cursor = selCursor;
+										extra.cursor = c;
 										extraSelections.append(extra);
+										break;
 									}
-									fRangesNRefIndex++;
 								}
+								else if(isInNRef)
+								{
+									nRefCounter++;
+									isInNRef = false;
+								}
+								c.movePosition(QTextCursor::NextCharacter, QTextCursor::MoveAnchor);
 							}
 						}
 					}

@@ -233,9 +233,13 @@ void QQTextBrowser::handleAnchorClicked(const QUrl &link)
 		QDesktopServices::openUrl(link);
 	else if(link.scheme() == "nref")
 	{
-		QUrlQuery anchorUrlQuery(link);
 		bool isInt = true;
+#if(QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
+		QUrlQuery anchorUrlQuery(link);
 		int index = anchorUrlQuery.queryItemValue("index").toInt(&isInt);
+#else
+		int index = link.queryItemValue("index").toInt(&isInt);
+#endif
 		if(isInt)
 		{
 			QTextCursor c = cursorForPosition(mapFromGlobal(QCursor::pos()));
@@ -251,8 +255,6 @@ void QQTextBrowser::handleAnchorClicked(const QUrl &link)
 			}
 		}
 	}
-
-
 
 	QTextCursor c = textCursor();
 	c.clearSelection();
@@ -358,8 +360,12 @@ void QQTextBrowser::mouseMoveEvent(QMouseEvent * event)
 					(cursorForPosition(event->pos()).block().userData());
 
 			bool isInt = true;
+#if(QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
 			QUrlQuery anchorUrlQuery(anchorUrl);
 			int index = anchorUrlQuery.queryItemValue("index").toInt(&isInt);
+#else
+			int index = anchorUrl.queryItemValue("index").toInt(&isInt);
+#endif
 			if(isInt)
 			{
 				QQNorlogeRef nRef = blockData->norlogeRefForIndex(index);
