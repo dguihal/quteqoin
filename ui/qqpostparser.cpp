@@ -69,39 +69,48 @@ QList<QTextDocumentFragment> QQPostParser::splitMessage(const QString &message, 
 	{
 		QTextDocument doc;
 		doc.setHtml(message);
-		QTextCursor docFragmentCursor(&doc);
+		QTextCursor docCursor(&doc);
 		QTextCursor norlogeCursor(&doc);
 
-		QTextCharFormat repFmt = norlogeCursor.blockCharFormat();
-		repFmt.setForeground(QColor(NORLOGE_REP_COLOR));
-		repFmt.setFontWeight(QFont::DemiBold);
-
-		QTextCharFormat fmt = norlogeCursor.blockCharFormat();
-		fmt.setForeground(QColor(NORLOGE_COLOR));
+		QTextCharFormat fmt = docCursor.blockCharFormat();
+		fmt.setUnderlineStyle(QTextCharFormat::NoUnderline);
+		fmt.setAnchor(true);
 
 		QRegExp norlogeReg = QQNorlogeRef::norlogeRegexp();
 		while(! (norlogeCursor = doc.find(norlogeReg, norlogeCursor)).isNull())
 		{
-			QQNorlogeRef nRef = QQNorlogeRef(post->bouchot()->name(),
-											 post->norloge(),
-											 norlogeCursor.selectedText(),
-											 m_indexShit + norlogeCursor.selectionStart());
+			QQNorlogeRef nRef = QQNorlogeRef(*post, norlogeCursor.selectedText());
 			linkNorlogeRef(&nRef);
-			userData->addNorlogeRefZone(nRef);
+			int index = userData->appendNorlogeRef(nRef);
 
-			norlogeCursor.mergeCharFormat(nRef.isReponse() ? repFmt : fmt);
+			if(nRef.isReponse())
+			{
+				fmt.setForeground(QColor(NORLOGE_REP_COLOR));
+				fmt.setFontWeight(QFont::DemiBold);
+			}
+			else
+			{
+				fmt.setForeground(QColor(NORLOGE_COLOR));
+				fmt.setFontWeight(QFont::Normal);
+			}
+			QString nRefUrl = QString("nref://%1?postId=%2&index=%3")
+					.arg(post->bouchot()->name())
+					.arg(post->id()).arg(index);
+			fmt.setAnchorHref(nRefUrl);
+
+			norlogeCursor.mergeCharFormat(fmt);
 
 			if(norlogeCursor.selectionStart() != 0)
 			{
-				docFragmentCursor.setPosition(norlogeCursor.selectionStart(), QTextCursor::KeepAnchor);
-				if(! docFragmentCursor.selection().isEmpty())
-					res.append(docFragmentCursor.selection());
-				docFragmentCursor.setPosition(norlogeCursor.selectionStart(), QTextCursor:: MoveAnchor);
+				docCursor.setPosition(norlogeCursor.selectionStart(), QTextCursor::KeepAnchor);
+				if(! docCursor.selection().isEmpty())
+					res.append(docCursor.selection());
+				docCursor.setPosition(norlogeCursor.selectionStart(), QTextCursor:: MoveAnchor);
 			}
 		}
-		docFragmentCursor.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
-		if(! docFragmentCursor.selection().isEmpty())
-			res.append(docFragmentCursor.selection());
+		docCursor.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
+		if(! docCursor.selection().isEmpty())
+			res.append(docCursor.selection());
 	}
 	else
 		res.append(QTextDocumentFragment());
@@ -221,37 +230,6 @@ void QQPostParser::colorizeDuck(QTextDocument &doc, QQMessageBlockUserData *user
 }
 
 //////////////////////////////////////////////////////////////
-/// \brief QQPostParser::colorizeNRef
-/// \param doc
-/// \param post
-/// \param data
-///
-void QQPostParser::colorizeNRef(QTextDocument &doc, QQPost *post, QQMessageBlockUserData *userData)
-{
-	QRegExp norlogeReg = QQNorlogeRef::norlogeRegexp();
-
-	QTextCursor cursor(&doc);
-	QTextCharFormat repFmt = cursor.blockCharFormat();
-	repFmt.setForeground(QColor(NORLOGE_REP_COLOR));
-	repFmt.setFontWeight(QFont::DemiBold);
-
-	QTextCharFormat fmt = cursor.blockCharFormat();
-	fmt.setForeground(QColor(NORLOGE_COLOR));
-
-	while(! (cursor = doc.find(norlogeReg, cursor)).isNull())
-	{
-		QQNorlogeRef nRef = QQNorlogeRef(post->bouchot()->name(),
-										 post->norloge(),
-										 cursor.selectedText(),
-										 m_indexShit + cursor.selectionStart());
-		linkNorlogeRef(&nRef);
-		userData->addNorlogeRefZone(nRef);
-
-		cursor.mergeCharFormat(nRef.isReponse() ? repFmt : fmt);
-	}
-}
-
-//////////////////////////////////////////////////////////////
 /// \brief QQPostParser::linkNorlogeRef
 /// \param nRef
 ///
@@ -311,6 +289,8 @@ void QQPostParser::colorizeTableVolante(QTextDocument &doc, QQMessageBlockUserDa
 ///
 void QQPostParser::colorizeTotoz(QTextDocument &doc, QQMessageBlockUserData *userData)
 {
+	Q_UNUSED(userData);
+
 	QRegExp totozReg = QRegExp(QString::fromLatin1("(\\[\\:[^\\t\\)\\]]+\\])"), //[:[^\t\)\]]
 								 Qt::CaseSensitive,
 								 QRegExp::RegExp);
@@ -319,14 +299,16 @@ void QQPostParser::colorizeTotoz(QTextDocument &doc, QQMessageBlockUserData *use
 	QTextCharFormat fmt = cursor.blockCharFormat();
 	fmt.setForeground(QColor(TOTOZ_COLOR));
 	fmt.setFontWeight(QFont::Bold);
+	fmt.setUnderlineStyle(QTextCharFormat::NoUnderline);
+	fmt.setAnchor(true);
 
 	int totozCount = 0;
 	while(! (cursor = doc.find(totozReg, cursor)).isNull())
 	{
 		QString totozId = cursor.selectedText();
-		userData->addTotozZone(m_indexShit + cursor.selectionStart(), totozId);
 
 		QString totozName = totozId.mid(2, totozId.length() - 3);
+		fmt.setAnchorHref(QString("totoz://name/%1").arg(totozName));
 		//Antiflood : Maximum 3 requetes et sur des totoz différents
 		if(!lastTotozIds.contains(totozName) && totozCount <= MAX_TOTOZ_PREFETCH_POST)
 		{

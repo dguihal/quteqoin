@@ -35,15 +35,11 @@ public:
 	QQPost * post() { return m_post; }
 	void setPost(QQPost *newPost) { m_post = QPointer<QQPost>(newPost); }
 
-	void addNorlogeRefZone(const QQNorlogeRef &norlogeRef) { m_listNRef.append(norlogeRef); }
+	int appendNorlogeRef(const QQNorlogeRef &norlogeRef) { m_listNRef.append(norlogeRef); return (m_listNRef.size() - 1); }
 	QQNorlogeRef norlogeRefForIndex(const int index) const;
+
 	QList<QQNorlogeRef> norlogeRefs() const { return m_listNRef; }
 	bool hasNRefToSelfPost() const;
-
-	void addTotozZone(int index, const QString &totozId) { m_mapTotozId.insert(index, totozId); }
-	QPair<int, QString> totozIdAndIndexForIndex(int index) const { return stringForIndex(index, m_mapTotozId); }
-	QString totozIdForIndex(const int index) const { return totozIdAndIndexForIndex(index).second; }
-	QList<int> totozIndexes() const { return m_mapTotozId.uniqueKeys(); }
 
 	void addDuckZone(int index, const QString &duck) { m_mapDuck.insert(index, duck); }
 	QPair<int, QString> duckForIndex(const int index) const { return stringForIndex(index, m_mapDuck); }
@@ -68,7 +64,6 @@ private:
 
 	QList<QQNorlogeRef> m_listNRef;
 	QList<QQBigornoItem> m_listBigorno;
-	QMap<int, QString> m_mapTotozId;
 	QMap<int, QString> m_mapDuck;
 	QMap<int, QString> m_mapTableV;
 

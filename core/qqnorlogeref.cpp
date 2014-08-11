@@ -5,12 +5,13 @@
 #include <QString>
 #include <QStringList>
 
-
+//////////////////////////////////////////////////////////////
+/// \brief QQNorlogeRef::QQNorlogeRef
+///
 QQNorlogeRef::QQNorlogeRef() :
 	QQNorloge(),
 	m_dstBouchot(QString()),
 	m_origNRef(QString()),
-	m_posInMessage(-1),
 	m_listPostTarget(QList< QPointer<QQPost> >()),
 	m_valid(false),
 	m_hasDate(false),
@@ -21,11 +22,15 @@ QQNorlogeRef::QQNorlogeRef() :
 {
 }
 
-QQNorlogeRef::QQNorlogeRef(const QString &bouchot, const QString &dateh, const QString &norlogeRef, int posInMessage) :
-	QQNorloge(bouchot, dateh),
+//////////////////////////////////////////////////////////////
+/// \brief QQNorlogeRef::QQNorlogeRef
+/// \param post
+/// \param norlogeRef
+///
+QQNorlogeRef::QQNorlogeRef(const QQPost& post, const QString& norlogeRef) :
+	QQNorloge(post.bouchot()->name(), post.norlogeComplete()),
 	m_dstBouchot(QString()),
 	m_origNRef(norlogeRef),
-	m_posInMessage(posInMessage),
 	m_listPostTarget(QList< QPointer<QQPost> >()),
 	m_valid(true),
 	m_hasDate(true),
@@ -36,10 +41,10 @@ QQNorlogeRef::QQNorlogeRef(const QString &bouchot, const QString &dateh, const Q
 {
 	QRegExp reg = norlogeRegexp();
 
-	m_norlogeIndex = 0; //tous les correspondants par défaut
-
 	if(reg.exactMatch(norlogeRef))
 	{
+		m_norlogeIndex = 0; //tous les correspondants par défaut
+
 		QStringList capturedTexts = reg.capturedTexts();
 		QString date = capturedTexts[2];
 		m_hasDate = false;
@@ -91,12 +96,14 @@ QQNorlogeRef::QQNorlogeRef(const QString &bouchot, const QString &dateh, const Q
 	}
 }
 
-
-QQNorlogeRef::QQNorlogeRef(const QQNorlogeRef & norlogeRef) :
+//////////////////////////////////////////////////////////////
+/// \brief QQNorlogeRef::QQNorlogeRef
+/// \param norlogeRef
+///
+QQNorlogeRef::QQNorlogeRef(const QQNorlogeRef& norlogeRef) :
 	QQNorloge(norlogeRef),
 	m_dstBouchot(norlogeRef.m_dstBouchot),
 	m_origNRef(norlogeRef.m_origNRef),
-	m_posInMessage(norlogeRef.m_posInMessage),
 	m_listPostTarget(norlogeRef.m_listPostTarget),
 	m_valid(norlogeRef.m_valid),
 	m_hasDate(norlogeRef.m_hasDate),
@@ -107,11 +114,22 @@ QQNorlogeRef::QQNorlogeRef(const QQNorlogeRef & norlogeRef) :
 {
 }
 
+
+//////////////////////////////////////////////////////////////
+/// \brief QQNorlogeRef::dstBouchot
+/// \return
+///
 QString QQNorlogeRef::dstBouchot() const
 {
 	return (m_dstBouchot.size() > 0) ? m_dstBouchot : m_srcBouchot;
 }
 
+
+//////////////////////////////////////////////////////////////
+/// \brief QQNorlogeRef::matchesPost
+/// \param post
+/// \return
+///
 bool QQNorlogeRef::matchesPost(QQPost* post)
 {
 	if(! m_valid)
@@ -153,6 +171,12 @@ bool QQNorlogeRef::matchesPost(QQPost* post)
 	return found;
 }
 
+
+//////////////////////////////////////////////////////////////
+/// \brief QQNorlogeRef::matchesNRef
+/// \param other
+/// \return
+///
 bool QQNorlogeRef::matchesNRef(QQNorlogeRef& other)
 {
 	if(! m_valid || ! other.isValid())
@@ -167,6 +191,11 @@ bool QQNorlogeRef::matchesNRef(QQNorlogeRef& other)
 	return otherNorlogeId.contains(selfNorlogeId) || selfNorlogeId.contains(otherNorlogeId);
 }
 
+
+//////////////////////////////////////////////////////////////
+/// \brief QQNorlogeRef::isReponse
+/// \return
+///
 bool QQNorlogeRef::isReponse()
 {
 	if(m_isReponseDefined)
@@ -198,7 +227,10 @@ bool QQNorlogeRef::isReponse()
 	return m_isResponse;
 }
 
-
+//////////////////////////////////////////////////////////////
+/// \brief QQNorlogeRef::nRefId
+/// \return
+///
 QString QQNorlogeRef::nRefId()
 {
 	QString res = m_refId;
