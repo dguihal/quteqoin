@@ -54,8 +54,10 @@ protected:
 	virtual void contextMenuEvent(QContextMenuEvent *ev);
 
 protected slots:
-	void webSearchActionTriggered();
+	void handleAnchorClicked(const QUrl &link);
+	void handleHighlighted(const QUrl &link);
 	void handleContentTypeAvailable(QUrl &url, QString &contentType);
+	void webSearchActionTriggered();
 
 private:
 	void clearViewers();
