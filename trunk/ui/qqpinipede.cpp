@@ -684,8 +684,13 @@ void QQPinipede::norlogeRefHovered(QQNorlogeRef norlogeRef)
 				}
 				else
 				{
-					foreach(QQNorlogeRef nRef, userData->norlogeRefs())
+					int fRangesIndex = 0;
+					int fRangesNRefIndex = 0;
+					QVector<QTextLayout::FormatRange> fRanges = currBlock.textFormats();
+					QList<QQNorlogeRef> norlogeRefs = userData->norlogeRefs();
+					for(int i = 0; i < norlogeRefs.size(); i++)
 					{
+						QQNorlogeRef nRef = norlogeRefs.at(i);
 						if(norlogeRef.matchesNRef(nRef))
 						{
 							QColor highlightColor;
@@ -694,14 +699,24 @@ void QQPinipede::norlogeRefHovered(QQNorlogeRef norlogeRef)
 							else
 								highlightColor = getDynHighlightColor(userData->post()->bouchot()->settings().colorLight());
 
-							QTextCursor selCursor = cursor;
-							selCursor.movePosition(QTextCursor::NextCharacter, QTextCursor::MoveAnchor, nRef.getPosInMessage());
-							selCursor.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor, nRef.getOrigNRef().length());
+							for(; fRangesIndex < fRanges.size() && fRangesNRefIndex <= i ; fRangesIndex++)
+							{
+								if(fRanges.at(fRangesIndex).format.anchorHref().startsWith("nref://"))
+								{
+									if(fRangesNRefIndex == i)
+									{
+										QTextCursor selCursor = cursor;
+										selCursor.movePosition(QTextCursor::NextCharacter, QTextCursor::MoveAnchor, fRanges.at(fRangesIndex).start);
+										selCursor.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor, fRanges.at(fRangesIndex).length);
 
-							QTextEdit::ExtraSelection extra;
-							extra.format.setBackground(highlightColor);
-							extra.cursor = selCursor;
-							extraSelections.append(extra);
+										QTextEdit::ExtraSelection extra;
+										extra.format.setBackground(highlightColor);
+										extra.cursor = selCursor;
+										extraSelections.append(extra);
+									}
+									fRangesNRefIndex++;
+								}
+							}
 						}
 					}
 				}
@@ -1145,6 +1160,14 @@ bool QQPinipede::printPostAtCursor(QTextCursor &cursor, QQPost *post)
 	norlogeFormat.setFont(currFont);
 	norlogeFormat.setToolTip(post->id());
 	norlogeFormat.setFontWeight(QFont::Bold);
+	norlogeFormat.setAnchor(true);
+
+	QQNorlogeRef nRef = QQNorlogeRef(*post);
+	int index = data->appendNorlogeRef(nRef);
+	QString nRefUrl = QString("nref://%1?postId=%2&index=%3")
+			.arg(post->bouchot()->name())
+			.arg(post->id()).arg(index);
+	norlogeFormat.setAnchorHref(nRefUrl);
 
 	QString txt = post->norlogeFormatee();
 

@@ -13,7 +13,6 @@ QQMessageBlockUserData::QQMessageBlockUserData(const QQMessageBlockUserData & us
 	QTextBlockUserData((QTextBlockUserData) userData),
 	m_listNRef(userData.m_listNRef),
 	m_listBigorno(userData.m_listBigorno),
-	m_mapTotozId(userData.m_mapTotozId),
 	m_mapDuck(userData.m_mapDuck),
 	m_mapTableV(userData.m_mapTableV),
 	m_wasParsed(userData.m_wasParsed),
@@ -24,15 +23,10 @@ QQMessageBlockUserData::QQMessageBlockUserData(const QQMessageBlockUserData & us
 
 QQNorlogeRef QQMessageBlockUserData::norlogeRefForIndex(const int index) const
 {
-	int i = 0;
-	while(i < m_listNRef.size())
-	{
-		QQNorlogeRef nRef = m_listNRef.at(i);
-		if(isIndexInString(index, nRef.getPosInMessage(), nRef.getOrigNRef()))
-			return nRef;
-		i++;
-	}
-	return QQNorlogeRef();
+	if(index >= 0 && index < m_listNRef.size())
+		return m_listNRef.at(index);
+	else
+		return QQNorlogeRef();
 }
 
 bool QQMessageBlockUserData::hasNRefToSelfPost() const

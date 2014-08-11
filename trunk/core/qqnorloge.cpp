@@ -10,7 +10,7 @@ QQNorloge::QQNorloge() :
 {
 }
 
-//m_date = QDateTime::fromString(dateh.left(14), QString::fromUtf8("yyyyMMddHHmmss"));
+//m_date = QDateTime::fromString(dateh.left(14), QString::fromUtf8("yyyyMMddHHmmss(^i)?"));
 QQNorloge::QQNorloge(QString bouchot, QString dateh) :
 	m_srcBouchot(bouchot),
 	m_dateYearPart(dateh.left(4)),
@@ -21,6 +21,9 @@ QQNorloge::QQNorloge(QString bouchot, QString dateh) :
 	m_dateSecondPart(dateh.mid(12, 2)),
 	m_norlogeIndex(0)
 {
+	QStringList indexSpit = dateh.split("^", QString::SkipEmptyParts);
+	if(indexSpit.size() > 1)
+		m_norlogeIndex = indexSpit[1].toInt();
 }
 
 QQNorloge::QQNorloge(const QQNorloge& norloge) :

@@ -79,14 +79,13 @@ private:
 
 	QQPiniUrlHelper *m_urlHelper;
 
-	bool m_mouseClick;
 	QPoint m_lastPoint;
 
 	qreal m_timeUAAreaWidthPx;
 
 	QString m_highlightedNorlogeRef;
 	QString m_displayedTotozId;
-	QUrl m_tooltipedUrl;
+	QUrl m_shownUrl;
 
 	QString m_groupName;
 };

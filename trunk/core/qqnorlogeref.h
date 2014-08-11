@@ -13,8 +13,8 @@ class QQNorlogeRef : public QQNorloge
 {
 public:
 	explicit QQNorlogeRef();
-	QQNorlogeRef(const QString & bouchot, const QString & dateh, const QString & norlogeRef, int posInMessage = 0);
-	QQNorlogeRef(const QQNorlogeRef & norlogeRef);
+	QQNorlogeRef(const QQPost& post, const QString& norlogeRef = QString());
+	QQNorlogeRef(const QQNorlogeRef& norlogeRef);
 
 	//Les zones capturées sont :
 	// 0 - Norloge complète
@@ -44,7 +44,6 @@ public:
 	}
 
 	QString getOrigNRef() const { return m_origNRef; }
-	int getPosInMessage() const { return m_posInMessage; }
 
 	QString dstBouchot() const;
 

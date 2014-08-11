@@ -34,10 +34,9 @@ QQTextBrowser::QQTextBrowser(QString groupName, QQPinipede *parent) :
 	QTextBrowser(parent),
 	m_notifArea(new QQNotifArea(this)),
 	m_urlHelper(new QQPiniUrlHelper(this)),
-	m_mouseClick(false),
 	m_highlightedNorlogeRef(""),
 	m_displayedTotozId(""),
-	m_tooltipedUrl(),
+	m_shownUrl(),
 	m_groupName(groupName)
 {
 	QQSettings settings;
@@ -227,7 +226,7 @@ void QQTextBrowser::showTotoz(QString & totozId)
 void QQTextBrowser::handleContentTypeAvailable(QUrl &url, QString &contentType)
 {
 	QString ttText = QToolTip::text();
-	if(ttText.length() > 0 && url == m_tooltipedUrl)
+	if(ttText.length() > 0 && url == m_shownUrl)
 	{
 		ttText.append(" (").append(contentType).append(")");
 		QToolTip::showText(QCursor::pos(), ttText, this);
@@ -262,7 +261,7 @@ void QQTextBrowser::clearViewers()
 	}
 	if(! QToolTip::isVisible())
 	{
-		m_tooltipedUrl.clear();
+		m_shownUrl.clear();
 		emit hideViewers();
 	}
 }
@@ -288,119 +287,59 @@ void QQTextBrowser::mouseMoveEvent(QMouseEvent * event)
 	//qDebug() << "####################################";
 	QTextBrowser::mouseMoveEvent(event);
 
-	QString httpAnchor = anchorAt(event->pos());
-	if(! m_mouseClick)
+	if(event->buttons() == Qt::LeftButton)
+		return;
+
+	QString anchor = anchorAt(event->pos());
+	if(anchor.size() > 0)
 	{
-		QCursor cursor(Qt::ArrowCursor);
-		if(httpAnchor.length() > 0)
-			cursor.setShape(Qt::PointingHandCursor);
-		viewport()->setCursor(cursor);
-	}
-
-	QTextCursor cursor = cursorForPosition(event->pos());
-
-	QTextBlock block = cursor.block();
-	QQMessageBlockUserData * blockData = (QQMessageBlockUserData *) (block.userData());
-
-	if(blockData != NULL)
-	{
-		//Zone message
-		int posInBlock =  cursor.positionInBlock();
-		if(blockData->isIndexInZRange(posInBlock, QQMessageBlockUserData::MESSAGE))
+		QUrl anchorUrl = QUrl(anchor);
+		if(anchorUrl != m_shownUrl)
 		{
-			bool triggerClearViewers = true;
-			//Est-on au dessus d'une url
-			// Ouverture l'url si on est au dessus d'un lien
-			if(httpAnchor.length() > 0)
-			{
-				QUrl nUrl = QUrl(httpAnchor);
-				if(nUrl != m_tooltipedUrl)
-				{
-					m_tooltipedUrl = nUrl;
-
-					QFontMetrics fm(QToolTip::font());
-					QToolTip::showText(event->globalPos(), fm.elidedText(httpAnchor, Qt::ElideMiddle, 500), this);
-
-					QString prevUrl;
-
-					// Sans doute a ameliorer si la liste grandit
-					if(nUrl.host().endsWith("youtube.com"))
-					{
-#if(QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
-						QUrlQuery urlQ(nUrl);
-						QString vidId = urlQ.queryItemValue("v");
-#else
-						QString vidId = nUrl.queryItemValue("v");
-#endif
-						if(! vidId.isEmpty())
-							prevUrl = QString("http://i1.ytimg.com/vi/%1/hqdefault.jpg").arg(vidId); //vZIbpk-vwy0
-					}
-					else if(nUrl.host().endsWith("dailymotion.com"))
-					{
-						QString vidId;
-						QStringList tmp = nUrl.path().split('/');
-						if(! tmp.isEmpty())
-						{
-							tmp = tmp.last().split(' ');
-							if(! tmp.isEmpty())
-								vidId = tmp.first();
-						}
-						if(! vidId.isEmpty())
-							prevUrl = QString("http://www.dailymotion.com/thumbnail/video/%1").arg(vidId); //x1y1nib
-					}
-					else if(nUrl.host() == "sauf.ca")
-					{
-						prevUrl = nUrl.toString();
-						if(! nUrl.path().endsWith("/img"))
-							prevUrl.append("/img");
-					}
-
-					if(prevUrl.isEmpty())
-						m_urlHelper->getContentType(m_tooltipedUrl);
-					else
-						emit displayWebImage(prevUrl);
-				}
-				triggerClearViewers = false;
-			}
-			else
-				QToolTip::hideText();
-
-			//Est-on au dessus d'une norloge
-			QQNorlogeRef nRef = blockData->norlogeRefForIndex(posInBlock);
-			if(nRef.isValid())
-				highlightNorloge(nRef);
-			else // Il faut unhilighter puisqu'on ne survole pas de norloge
-				unHighlightNorloge();
-
-			//Gestion des Totoz
-			QString totozId = blockData->totozIdForIndex(posInBlock);
-			if(totozId.length() > 0)
-			{
-				showTotoz(totozId);
-				triggerClearViewers = false;
-			}
-
-			if(triggerClearViewers)
-				clearViewers();
-
-		}
-		else if(blockData->isIndexInZRange(posInBlock, QQMessageBlockUserData::NORLOGE))
-		{
-			QToolTip::hideText();
-			QPointer<QQPost> post = blockData->post();
-			Q_ASSERT(!post.isNull());
-			QString norlogeString = post->norloge();
-			QQNorlogeRef nRef = QQNorlogeRef(post->bouchot()->name(),
-											 norlogeString, norlogeString);
-			nRef.setNorlogeIndex(post->norlogeIndex());
-			highlightNorloge(nRef);
-		}
-		else
-		{
-			// Il faut unhilighter puisqu'on ne survole pas de zone de norloge ni de zone de message
 			unHighlightNorloge();
 			hideViewers();
+			m_shownUrl = anchorUrl;
 		}
+		else
+			return;
+
+		QString anchorScheme = anchorUrl.scheme();
+		if(anchorScheme == "totoz") // Un [:totoz]
+		{
+			viewport()->unsetCursor();
+			QString totozId = anchorUrl.path().remove(0, 1); // Le / initial
+			showTotoz(totozId);
+		}
+		else if (anchorScheme == "nref") // Une norloge
+		{
+			viewport()->unsetCursor();
+			QQMessageBlockUserData * blockData = (QQMessageBlockUserData *)
+					(cursorForPosition(event->pos()).block().userData());
+
+			bool isInt = true;
+			QUrlQuery anchorUrlQuery(anchorUrl);
+			int index = anchorUrlQuery.queryItemValue("index").toInt(&isInt);
+			if(isInt)
+			{
+				QQNorlogeRef nRef = blockData->norlogeRefForIndex(index);
+				highlightNorloge(nRef);
+			}
+			else
+				qWarning() << "NRef anchor badly formatted :" << anchorUrl;
+		}
+		else // if(anchorScheme == "http" || anchorScheme == "https") Une [url]
+		{
+			QFontMetrics fm(QToolTip::font());
+			QToolTip::showText(event->globalPos(), fm.elidedText(anchor, Qt::ElideMiddle, 500), this);
+
+			m_urlHelper->getContentType(m_shownUrl);
+		}
+	}
+	else
+	{
+		// Il faut unhilighter puisqu'on ne survole pas de zone de norloge ni de zone de message
+		unHighlightNorloge();
+		clearViewers();
 	}
 }
 
@@ -408,8 +347,6 @@ void QQTextBrowser::mousePressEvent(QMouseEvent * event)
 {
 	// Stockage de la postion
 	m_lastPoint = event->pos();
-	// positionnement du flag de detection de debut du clic
-	m_mouseClick = true;
 
 	QTextBrowser::mousePressEvent(event);
 
@@ -420,8 +357,6 @@ void QQTextBrowser::mousePressEvent(QMouseEvent * event)
 void QQTextBrowser::mouseReleaseEvent(QMouseEvent * event)
 {
 	QTextBrowser::mouseReleaseEvent(event);
-
-	m_mouseClick = false;
 
 	QString httpAnchor = anchorAt(event->pos());
 	QCursor mCursor(Qt::ArrowCursor);
@@ -551,7 +486,6 @@ void QQTextBrowser::paintEvent(QPaintEvent * event)
 			if(! bigItems.isEmpty())
 			{
 				QListIterator<QQBigornoItem> i(bigItems);
-				//qDebug() << "QQTextBrowser::paintEvent, highlighting bloc num : " << bloc.blockNumber() << ", nb items : " << bigItems.size();
 				while(i.hasNext())
 				{
 					QQBigornoItem bigItem = i.next();
@@ -560,8 +494,6 @@ void QQTextBrowser::paintEvent(QPaintEvent * event)
 					QRect rect = cursorRect(cursor);
 					rect.setWidth(QFontMetrics(document()->defaultFont()).boundingRect(bigItem.word()).width());
 					rect.adjust(-1, 0, +1, 0);
-
-					//qDebug() << "QQTextBrowser::paintEvent, highlighting : " << bigItem.word() << ", rect = : " << rect;
 
 					bigornoPainter.drawRoundedRect(rect, 5.0, 5.0);
 				}
