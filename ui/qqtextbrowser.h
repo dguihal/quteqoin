@@ -80,8 +80,6 @@ private:
 
 	QQPiniUrlHelper *m_urlHelper;
 
-	QPoint m_lastPoint;
-
 	qreal m_timeUAAreaWidthPx;
 
 	QString m_highlightedNorlogeRef;
