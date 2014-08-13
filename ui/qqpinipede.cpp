@@ -1181,12 +1181,7 @@ bool QQPinipede::printPostAtCursor(QTextCursor &cursor, QQPost *post)
 	norlogeFormat.setAnchorHref(nRefUrl);
 
 	QString txt = post->norlogeFormatee();
-
-	QQMessageBlockUserData::ZoneRange rangeNorloge;
-	rangeNorloge.begin = cursor.positionInBlock();
 	cursor.insertText(txt, norlogeFormat);
-	rangeNorloge.end = cursor.positionInBlock();
-	data->setZRange(QQMessageBlockUserData::NORLOGE, rangeNorloge);
 
 	QFontMetricsF fm = QFontMetricsF(norlogeFormat.font());
 	textLen += fm.size(Qt::TextSingleLine | Qt::TextExpandTabs, txt).width();
@@ -1194,7 +1189,7 @@ bool QQPinipede::printPostAtCursor(QTextCursor &cursor, QQPost *post)
 	cursor.insertText(" ", defaultFormat);
 
 	fm = QFontMetricsF(defaultFormat.font());
-	textLen += fm.size(Qt::TextSingleLine | Qt::TextExpandTabs," ").width();
+	textLen += fm.size(Qt::TextSingleLine | Qt::TextExpandTabs, " ").width();
 
 	//login ou ua
 
@@ -1202,8 +1197,13 @@ bool QQPinipede::printPostAtCursor(QTextCursor &cursor, QQPost *post)
 	loginUaFormat.setFont(currFont);
 	loginUaFormat.setToolTip(post->UA());
 
-	QQMessageBlockUserData::ZoneRange rangeLoginUA;
-	rangeLoginUA.begin = cursor.positionInBlock();
+	QString pctLogin = QString(QUrl::toPercentEncoding(post->login()));
+	QString pctUA = QString(QUrl::toPercentEncoding(post->UA()));
+	QString loginUAUrl = QString("msl://%1?login=%2&ua=%3")
+			.arg(post->bouchot()->name(), pctLogin, pctUA);
+	loginUaFormat.setAnchor(true);
+	loginUaFormat.setAnchorHref(loginUAUrl);
+
 	if(post->login().size() != 0)
 	{
 		loginUaFormat.setForeground(QColor(LOGIN_COLOR));
@@ -1214,6 +1214,11 @@ bool QQPinipede::printPostAtCursor(QTextCursor &cursor, QQPost *post)
 	{
 		loginUaFormat.setFontItalic(true);
 		loginUaFormat.setForeground(QColor(UA_COLOR));
+		if(post->UA().contains('/'))
+		{
+			loginUaFormat.setAnchorHref(QString());
+			loginUaFormat.setAnchor(false);
+		}
 
 		txt = post->UA();
 	}
@@ -1221,6 +1226,8 @@ bool QQPinipede::printPostAtCursor(QTextCursor &cursor, QQPost *post)
 	{
 		loginUaFormat.setFontFamily("Monospace");
 		loginUaFormat.setForeground(QColor(UNKNOWN_POSTER_COLOR));
+		loginUaFormat.setAnchorHref(QString());
+		loginUaFormat.setAnchor(false);
 
 		txt = QString::fromLatin1("$NO UA$");
 	}
@@ -1231,10 +1238,6 @@ bool QQPinipede::printPostAtCursor(QTextCursor &cursor, QQPost *post)
 	txt.append("\t");
 
 	cursor.insertText(txt, loginUaFormat);
-
-	rangeLoginUA.end = cursor.positionInBlock();
-
-	data->setZRange(QQMessageBlockUserData::LOGINUA, rangeLoginUA);
 
 	//message
 
@@ -1263,7 +1266,6 @@ bool QQPinipede::printPostAtCursor(QTextCursor &cursor, QQPost *post)
 		post->bouchot()->setHasNewResponse();
 		QApplication::alert(this->parentWidget(), 0);
 	}
-
 
 	return true;
 }

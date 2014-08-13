@@ -48,7 +48,7 @@ QQTextBrowser::QQTextBrowser(QString groupName, QQPinipede *parent) :
 
 	connect(m_urlHelper, SIGNAL(contentTypeAvailable(QUrl&,QString&)), this, SLOT(handleContentTypeAvailable(QUrl&,QString&)));
 	connect(this, SIGNAL(anchorClicked(QUrl)), this, SLOT(handleAnchorClicked(QUrl)));
-	connect(this, SIGNAL(highlighted(QUrl)), this, SLOT(handleHighlighted(QUrl)));
+	connect(this, SIGNAL(highlighted(QUrl)), this, SLOT(handleAnchorHighlighted(QUrl)));
 
 	QTextDocument * doc = document();
 	doc->setUndoRedoEnabled(false);
@@ -255,15 +255,88 @@ void QQTextBrowser::handleAnchorClicked(const QUrl &link)
 			}
 		}
 	}
+	else if(link.scheme() == "msl")
+	{
+		QString name;
+#if(QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
+		QUrlQuery anchorUrlQuery(link);
+		name = QUrl::fromPercentEncoding(anchorUrlQuery.queryItemValue("login").toLocal8Bit());
+		if(name.size() == 0)
+			name = QUrl::fromPercentEncoding(anchorUrlQuery.queryItemValue("ua").toLocal8Bit());
+#else
+		name = QUrl::fromPercentEncoding(link.queryItemValue("login").toLocal8Bit());
+		if(name.size() == 0)
+			name = QUrl::fromPercentEncoding(link.queryItemValue("ua").toLocal8Bit());
+#endif
+		QString board = link.host();
+		emit loginClicked(board, name);
+	}
 
 	QTextCursor c = textCursor();
 	c.clearSelection();
 	setTextCursor(c);
 }
 
-void QQTextBrowser::handleHighlighted(const QUrl &link)
+void QQTextBrowser::handleAnchorHighlighted(const QUrl &link)
 {
+	if(link.isEmpty())
+	{
+		// Il faut unhilighter puisqu'on ne survole pas de zone de norloge ni de zone de message
+		unHighlightNorloge();
+		clearViewers();
+	}
+	else
+	{
+		if(link != m_shownUrl)
+		{
+			unHighlightNorloge();
+			hideViewers();
+			m_shownUrl = link;
+		}
+		else
+			return;
 
+		QString linkScheme = link.scheme();
+		if(linkScheme == "totoz") // Un [:totoz]
+		{
+			viewport()->unsetCursor();
+			QString totozId = link.path().remove(0, 1); // Le / initial
+			showTotoz(totozId);
+		}
+		else if (linkScheme == "msl") // Une moule
+		{
+			viewport()->unsetCursor();
+		}
+		else if (linkScheme == "nref") // Une norloge
+		{
+			viewport()->unsetCursor();
+
+			QTextCursor c = cursorForPosition(mapFromGlobal(QCursor::pos()));
+			QQMessageBlockUserData *d = (QQMessageBlockUserData *) c.block().userData();
+
+			bool isInt = true;
+#if(QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
+			QUrlQuery linkQuery(link);
+			int index = linkQuery.queryItemValue("index").toInt(&isInt);
+#else
+			int index = link.queryItemValue("index").toInt(&isInt);
+#endif
+			if(isInt)
+			{
+				QQNorlogeRef nRef = d->norlogeRefForIndex(index);
+				highlightNorloge(nRef);
+			}
+			else
+				qWarning() << "NRef anchor badly formatted :" << link;
+		}
+		else // if(anchorScheme == "http" || anchorScheme == "https") Une [url]
+		{
+			QFontMetrics fm(QToolTip::font());
+			QToolTip::showText(QCursor::pos(), fm.elidedText(link.toString(), Qt::ElideMiddle, 500), this);
+
+			m_urlHelper->getContentType(m_shownUrl);
+		}
+	}
 }
 
 void QQTextBrowser::handleContentTypeAvailable(QUrl &url, QString &contentType)
@@ -313,7 +386,7 @@ void QQTextBrowser::clearViewers()
  * Recuperation de d'un evenement lorsque la souris quitte la
  *surface de l'afficheur.
  */
-void QQTextBrowser::leaveEvent(QEvent * event)
+void QQTextBrowser::leaveEvent(QEvent *event)
 {
 	QTextBrowser::leaveEvent(event);
 
@@ -323,74 +396,7 @@ void QQTextBrowser::leaveEvent(QEvent * event)
 	clearViewers();
 }
 
-void QQTextBrowser::mouseMoveEvent(QMouseEvent * event)
-{
-	//qDebug() << "####################################";
-	//qDebug() << "QQTextBrowser::mouseMoveEvent x=" << event->x() << ",y=" << event->y();
-	//qDebug() << "####################################";
-	QTextBrowser::mouseMoveEvent(event);
-
-	if(event->buttons() == Qt::LeftButton)
-		return;
-
-	QString anchor = anchorAt(event->pos());
-	if(anchor.size() > 0)
-	{
-		QUrl anchorUrl = QUrl(anchor);
-		if(anchorUrl != m_shownUrl)
-		{
-			unHighlightNorloge();
-			hideViewers();
-			m_shownUrl = anchorUrl;
-		}
-		else
-			return;
-
-		QString anchorScheme = anchorUrl.scheme();
-		if(anchorScheme == "totoz") // Un [:totoz]
-		{
-			viewport()->unsetCursor();
-			QString totozId = anchorUrl.path().remove(0, 1); // Le / initial
-			showTotoz(totozId);
-		}
-		else if (anchorScheme == "nref") // Une norloge
-		{
-			viewport()->unsetCursor();
-			QQMessageBlockUserData * blockData = (QQMessageBlockUserData *)
-					(cursorForPosition(event->pos()).block().userData());
-
-			bool isInt = true;
-#if(QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
-			QUrlQuery anchorUrlQuery(anchorUrl);
-			int index = anchorUrlQuery.queryItemValue("index").toInt(&isInt);
-#else
-			int index = anchorUrl.queryItemValue("index").toInt(&isInt);
-#endif
-			if(isInt)
-			{
-				QQNorlogeRef nRef = blockData->norlogeRefForIndex(index);
-				highlightNorloge(nRef);
-			}
-			else
-				qWarning() << "NRef anchor badly formatted :" << anchorUrl;
-		}
-		else // if(anchorScheme == "http" || anchorScheme == "https") Une [url]
-		{
-			QFontMetrics fm(QToolTip::font());
-			QToolTip::showText(event->globalPos(), fm.elidedText(anchor, Qt::ElideMiddle, 500), this);
-
-			m_urlHelper->getContentType(m_shownUrl);
-		}
-	}
-	else
-	{
-		// Il faut unhilighter puisqu'on ne survole pas de zone de norloge ni de zone de message
-		unHighlightNorloge();
-		clearViewers();
-	}
-}
-
-void QQTextBrowser::mousePressEvent(QMouseEvent * event)
+void QQTextBrowser::mousePressEvent(QMouseEvent *event)
 {
 	// Stockage de la postion
 	m_lastPoint = event->pos();
@@ -401,8 +407,11 @@ void QQTextBrowser::mousePressEvent(QMouseEvent * event)
 		viewport()->setCursor(Qt::IBeamCursor);
 }
 
-void QQTextBrowser::mouseReleaseEvent(QMouseEvent * event)
+void QQTextBrowser::mouseReleaseEvent(QMouseEvent *event)
 {
+	if(event->button() == Qt::LeftButton)
+		viewport()->unsetCursor();
+
 	QTextBrowser::mouseReleaseEvent(event);
 
 	// Verification que l'on est pas en pleine selection
@@ -437,44 +446,7 @@ void QQTextBrowser::mouseReleaseEvent(QMouseEvent * event)
 		emit newPostsAcknowledged(m_groupName);
 	}
 
-	// Gestion du clic sur une norloge ou un login
-	QTextCursor cursor = cursorForPosition(event->pos());
-	QTextBlock block = cursor.block();
-	QQMessageBlockUserData *blockData = (QQMessageBlockUserData *) block.userData();
-
-	if(blockData != NULL)
-	{
-		QQPost * post = blockData->post();
-		Q_ASSERT(post != NULL);
-
-		int posInBlock =  cursor.positionInBlock();
-		bool duckLaunched = false;
-		// Clic sur Login/UA
-		if(blockData->isIndexInZRange(posInBlock, QQMessageBlockUserData::LOGINUA))
-		{
-			QString login = post->login();
-			if(login.size() == 0)
-			{
-				QString ua = post->UA();
-				if(ua.size() != 0 && ! ua.contains('/', Qt::CaseSensitive))
-					emit loginClicked(post->bouchot()->name(), ua);
-			}
-			else
-				emit loginClicked(post->bouchot()->name(), login);
-		}
-		// Clic sur Norloge dans Message (NorlogeRef)
-		else if(blockData->isIndexInZRange(posInBlock, QQMessageBlockUserData::MESSAGE))
-		{
-			QPair<int, QString> duck = blockData->duckForIndex(posInBlock);
-			if(duck.first >= 0)
-			{
-				duckLaunched = true;
-				emit duckClicked(blockData->post()->bouchot()->name(), blockData->post()->id(), blockData->post()->isSelfPost());
-			}
-		}
-		if(!duckLaunched)
-			emit shotDuck(event->button() == Qt::MiddleButton);
-	}
+	emit shotDuck(event->button() == Qt::MiddleButton);
 }
 
 void QQTextBrowser::paintEvent(QPaintEvent * event)
