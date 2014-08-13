@@ -398,9 +398,6 @@ void QQTextBrowser::leaveEvent(QEvent *event)
 
 void QQTextBrowser::mousePressEvent(QMouseEvent *event)
 {
-	// Stockage de la postion
-	m_lastPoint = event->pos();
-
 	QTextBrowser::mousePressEvent(event);
 
 	if(event->button() == Qt::LeftButton)
@@ -415,7 +412,7 @@ void QQTextBrowser::mouseReleaseEvent(QMouseEvent *event)
 	QTextBrowser::mouseReleaseEvent(event);
 
 	// Verification que l'on est pas en pleine selection
-	if(event->pos() != m_lastPoint)
+	if(textCursor().hasSelection())
 		return;
 
 	// Reset de l'icone de l'application
