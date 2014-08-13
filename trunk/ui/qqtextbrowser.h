@@ -45,7 +45,6 @@ signals:
 
 protected:
 	virtual void leaveEvent(QEvent *event);
-	virtual void mouseMoveEvent(QMouseEvent *event);
 	virtual void mousePressEvent(QMouseEvent *event);
 	virtual void mouseReleaseEvent(QMouseEvent *event);
 	virtual void paintEvent(QPaintEvent *event);
@@ -55,7 +54,7 @@ protected:
 
 protected slots:
 	void handleAnchorClicked(const QUrl &link);
-	void handleHighlighted(const QUrl &link);
+	void handleAnchorHighlighted(const QUrl &link);
 	void handleContentTypeAvailable(QUrl &url, QString &contentType);
 	void webSearchActionTriggered();
 
