@@ -746,10 +746,10 @@ void QQPinipede::norlogeRefHovered(QQNorlogeRef norlogeRef)
 		cursor.movePosition(QTextCursor::PreviousBlock, QTextCursor::MoveAnchor);
 
 		QTextDocument destDocument;
-		QTextCursor destCursor(& destDocument);
+		QTextCursor c(& destDocument);
 
 		bool found = false;
-		destCursor.beginEditBlock();
+		c.beginEditBlock();
 		do
 		{
 			QQMessageBlockUserData * userData = (QQMessageBlockUserData *) (cursor.block().userData());
@@ -760,10 +760,10 @@ void QQPinipede::norlogeRefHovered(QQNorlogeRef norlogeRef)
 			{
 				cursor.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
 				QTextDocumentFragment fragment = cursor.selection();
-				destCursor.insertFragment(fragment);
+				c.insertFragment(fragment);
 				if(found == true) // Pas au premier match
-					destCursor.insertBlock();
-				destCursor.movePosition(QTextCursor::Start);
+					c.insertBlock();
+				c.movePosition(QTextCursor::Start);
 				found = true;
 			}
 			else if(found == true) // Fin de block matchant, inutile de continuer
@@ -771,7 +771,7 @@ void QQPinipede::norlogeRefHovered(QQNorlogeRef norlogeRef)
 
 		} while(cursor.movePosition(QTextCursor::PreviousBlock));
 
-		destCursor.endEditBlock();
+		c.endEditBlock();
 
 		if(destDocument.toPlainText().length() > 0)
 		{
@@ -781,6 +781,34 @@ void QQPinipede::norlogeRefHovered(QQNorlogeRef norlogeRef)
 					.append(bouchot->settings().colorLight().name())
 					.append(";");
 			m_hiddenPostViewerLabel->setStyleSheet(styleSheet);
+
+			//Suppression des ancres non http
+			c = QTextCursor(& destDocument);
+			c.beginEditBlock();
+			do
+			{
+				QTextCharFormat cf = c.charFormat();
+				if(cf.isAnchor() && ! cf.anchorHref().startsWith("http"))
+				{
+					QString anchor = cf.anchorHref();
+					c.movePosition(QTextCursor::PreviousCharacter, QTextCursor::MoveAnchor);
+					while(!c.atBlockEnd() && cf.isAnchor() && cf.anchorHref() == anchor)
+					{
+						c.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor);
+						cf = c.charFormat();
+					}
+					if(!c.atBlockEnd())
+						c.movePosition(QTextCursor::PreviousCharacter, QTextCursor::KeepAnchor);
+					cf = c.charFormat();
+					cf.setAnchor(false);
+					cf.setAnchorHref(QString());
+
+					c.setCharFormat(cf);
+				}
+				c.movePosition(QTextCursor::NextCharacter, QTextCursor::MoveAnchor);
+			} while(!c.atBlockEnd());
+			c.endEditBlock();
+
 			m_hiddenPostViewerLabel->setText(destDocument.toHtml());
 			m_hiddenPostViewerLabel->move(mapFromGlobal(textBrowser->mapToGlobal(QPoint(0, 0))));
 			m_hiddenPostViewerLabel->show();
