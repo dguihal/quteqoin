@@ -283,6 +283,7 @@ void QQTextBrowser::handleAnchorHighlighted(const QUrl &link)
 	{
 		// Il faut unhilighter puisqu'on ne survole pas de zone de norloge ni de zone de message
 		unHighlightNorloge();
+		QToolTip::hideText();
 		clearViewers();
 	}
 	else
