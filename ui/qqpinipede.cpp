@@ -708,11 +708,12 @@ void QQPinipede::norlogeRefHovered(QQNorlogeRef norlogeRef)
 
 									if(nRefCounter == i)
 									{
-										c.movePosition(QTextCursor::PreviousCharacter, QTextCursor::MoveAnchor);
-										bool moveSuccess = c.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor);
-										while(moveSuccess && c.charFormat().anchorHref().startsWith("nref://"))
-											moveSuccess = c.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor);
-										if(moveSuccess)
+										if(! c.atBlockStart())
+											c.movePosition(QTextCursor::PreviousCharacter, QTextCursor::MoveAnchor);
+										c.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor);
+										while(! c.atBlockEnd() && c.charFormat().anchorHref().startsWith("nref://"))
+											c.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor);
+										if(! c.atBlockEnd())
 											c.movePosition(QTextCursor::PreviousCharacter, QTextCursor::KeepAnchor);
 
 										QTextEdit::ExtraSelection extra;
@@ -791,7 +792,8 @@ void QQPinipede::norlogeRefHovered(QQNorlogeRef norlogeRef)
 				if(cf.isAnchor() && ! cf.anchorHref().startsWith("http"))
 				{
 					QString anchor = cf.anchorHref();
-					c.movePosition(QTextCursor::PreviousCharacter, QTextCursor::MoveAnchor);
+					if(! c.atBlockStart())
+						c.movePosition(QTextCursor::PreviousCharacter, QTextCursor::MoveAnchor);
 					while(!c.atBlockEnd() && cf.isAnchor() && cf.anchorHref() == anchor)
 					{
 						c.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor);
