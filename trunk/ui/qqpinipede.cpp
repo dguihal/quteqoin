@@ -709,10 +709,11 @@ void QQPinipede::norlogeRefHovered(QQNorlogeRef norlogeRef)
 									if(nRefCounter == i)
 									{
 										c.movePosition(QTextCursor::PreviousCharacter, QTextCursor::MoveAnchor);
-										c.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor);
-										while(c.charFormat().anchorHref().startsWith("nref://"))
-											c.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor);
-										c.movePosition(QTextCursor::PreviousCharacter, QTextCursor::KeepAnchor);
+										bool moveSuccess = c.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor);
+										while(moveSuccess && c.charFormat().anchorHref().startsWith("nref://"))
+											moveSuccess = c.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor);
+										if(moveSuccess)
+											c.movePosition(QTextCursor::PreviousCharacter, QTextCursor::KeepAnchor);
 
 										QTextEdit::ExtraSelection extra;
 										extra.format.setBackground(highlightColor);
