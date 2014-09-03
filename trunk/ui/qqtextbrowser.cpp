@@ -46,9 +46,9 @@ QQTextBrowser::QQTextBrowser(QString groupName, QQPinipede *parent) :
 	setOpenLinks(false);
 	setTextInteractionFlags(Qt::TextSelectableByMouse | Qt::LinksAccessibleByMouse);
 
-	connect(m_urlHelper, SIGNAL(contentTypeAvailable(QUrl&,QString&)), this, SLOT(handleContentTypeAvailable(QUrl&,QString&)));
-	connect(this, SIGNAL(anchorClicked(QUrl)), this, SLOT(handleAnchorClicked(QUrl)));
-	connect(this, SIGNAL(highlighted(QUrl)), this, SLOT(handleAnchorHighlighted(QUrl)));
+	connect(m_urlHelper, SIGNAL(contentTypeAvailable(QUrl&,QString&)), this, SLOT(onContentTypeAvailable(QUrl&,QString&)));
+	connect(this, SIGNAL(anchorClicked(QUrl)), this, SLOT(onAnchorClicked(QUrl)));
+	connect(this, SIGNAL(highlighted(QUrl)), this, SLOT(onAnchorHighlighted(QUrl)));
 
 	QTextDocument * doc = document();
 	doc->setUndoRedoEnabled(false);
@@ -227,7 +227,7 @@ void QQTextBrowser::showTotoz(QString & totozId)
 	}
 }
 
-void QQTextBrowser::handleAnchorClicked(const QUrl &link)
+void QQTextBrowser::onAnchorClicked(const QUrl &link)
 {
 	if(link.scheme().startsWith("http"))
 		QDesktopServices::openUrl(link);
@@ -277,7 +277,7 @@ void QQTextBrowser::handleAnchorClicked(const QUrl &link)
 	setTextCursor(c);
 }
 
-void QQTextBrowser::handleAnchorHighlighted(const QUrl &link)
+void QQTextBrowser::onAnchorHighlighted(const QUrl &link)
 {
 	if(link.isEmpty())
 	{
@@ -340,7 +340,7 @@ void QQTextBrowser::handleAnchorHighlighted(const QUrl &link)
 	}
 }
 
-void QQTextBrowser::handleContentTypeAvailable(QUrl &url, QString &contentType)
+void QQTextBrowser::onContentTypeAvailable(QUrl &url, QString &contentType)
 {
 	QString ttText = QToolTip::text();
 	if(ttText.length() > 0 && url == m_shownUrl)
@@ -372,15 +372,13 @@ void QQTextBrowser::webSearchActionTriggered()
 void QQTextBrowser::clearViewers()
 {
 	if(m_displayedTotozId.length() > 0)
-	{
-		m_displayedTotozId.clear();
 		emit hideViewers();
-	}
-	if(! QToolTip::isVisible())
-	{
-		m_shownUrl.clear();
+
+	if(QToolTip::isVisible())
 		emit hideViewers();
-	}
+
+	m_shownUrl.clear();
+	m_displayedTotozId.clear();
 }
 
 /*

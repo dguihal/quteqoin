@@ -190,6 +190,7 @@ debug {
 			qml/QQmlSettingsItemMenuBtn.qml \
 			qml/QQmlTotozSettings.qml
 	}
+
 }
 
 QMAKE_CXXFLAGS_RELEASE += -DQT_NO_DEBUG_OUTPUT
@@ -215,7 +216,11 @@ unix {
 }
 
 win32 {
-	RC_FILE = rc/quteqoin_win.rc
+        RC_FILE = rc/quteqoin_win.rc
+}
+
+win32:debug {
+        CONFIG += console
 }
 
 # vim: ts=4 sw=4 sts=4 noexpandtab
