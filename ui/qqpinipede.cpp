@@ -23,7 +23,6 @@
 #include <QtAlgorithms>
 #include <QApplication>
 #include <QContextMenuEvent>
-#include <QCursor>
 #include <QHBoxLayout>
 #include <QImage>
 #include <QLabel>
