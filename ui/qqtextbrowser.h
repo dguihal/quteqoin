@@ -44,13 +44,14 @@ signals:
 	void newPostsAcknowledged(QString groupName);
 
 protected:
+	virtual void contextMenuEvent(QContextMenuEvent *ev);
+	virtual void enterEvent(QEvent *event);
 	virtual void leaveEvent(QEvent *event);
 	virtual void mousePressEvent(QMouseEvent *event);
 	virtual void mouseReleaseEvent(QMouseEvent *event);
 	virtual void paintEvent(QPaintEvent *event);
 	virtual void resizeEvent(QResizeEvent *event);
 	virtual void wheelEvent(QWheelEvent *event);
-	virtual void contextMenuEvent(QContextMenuEvent *ev);
 
 protected slots:
 	void onAnchorClicked(const QUrl &link);
