@@ -381,10 +381,51 @@ void QQTextBrowser::clearViewers()
 	m_displayedTotozId.clear();
 }
 
-/*
- * Recuperation de d'un evenement lorsque la souris quitte la
- *surface de l'afficheur.
- */
+
+void QQTextBrowser::contextMenuEvent(QContextMenuEvent * ev)
+{
+	if(m_displayedTotozId.size() > 0)
+	{
+		QPoint pos = ev->globalPos();
+		emit displayTotozContextMenu(pos);
+		ev->accept();
+	}
+	else
+	{
+		QPoint evPos = ev->pos();
+		evPos.setX(evPos.x() + horizontalScrollBar()->value());
+		evPos.setY(evPos.y() + verticalScrollBar()->value());
+		QMenu *menu = createStandardContextMenu(evPos);
+		QTextCursor cursor = textCursor();
+		if(cursor.hasSelection())
+		{
+			QAction *action = menu->addAction(tr("&Search on web"));
+			connect(action, SIGNAL(triggered()), this, SLOT(webSearchActionTriggered()));
+		}
+		menu->exec(QCursor::pos());
+	}
+}
+
+
+//////////////////////////////////////////////////////////////
+/// \brief enterEvent
+/// \param event
+///
+void QQTextBrowser::enterEvent(QEvent *event)
+{
+	QTextBrowser::enterEvent(event);
+
+	//Contournement : Si le cursor sort de la fenêtre puis revient, il
+	// ne renvoie pas le signal du AnchorHovered si on repasse sur le
+	// meme lien
+	onAnchorHighlighted(anchorAt(mapFromGlobal(QCursor::pos())));
+}
+
+
+//////////////////////////////////////////////////////////////
+/// \brief QQTextBrowser::leaveEvent
+/// \param event
+///
 void QQTextBrowser::leaveEvent(QEvent *event)
 {
 	QTextBrowser::leaveEvent(event);
@@ -513,28 +554,4 @@ void QQTextBrowser::wheelEvent(QWheelEvent * event)
 {
 	if(! (event->modifiers() && Qt::ControlModifier != 0))
 		QTextBrowser::wheelEvent(event);
-}
-
-void QQTextBrowser::contextMenuEvent(QContextMenuEvent * ev)
-{
-	if(m_displayedTotozId.size() > 0)
-	{
-		QPoint pos = ev->globalPos();
-		emit displayTotozContextMenu(pos);
-		ev->accept();
-	}
-	else
-	{
-		QPoint evPos = ev->pos();
-		evPos.setX(evPos.x() + horizontalScrollBar()->value());
-		evPos.setY(evPos.y() + verticalScrollBar()->value());
-		QMenu *menu = createStandardContextMenu(evPos);
-		QTextCursor cursor = textCursor();
-		if(cursor.hasSelection())
-		{
-			QAction *action = menu->addAction(tr("&Search on web"));
-			connect(action, SIGNAL(triggered()), this, SLOT(webSearchActionTriggered()));
-		}
-		menu->exec(QCursor::pos());
-	}
 }
