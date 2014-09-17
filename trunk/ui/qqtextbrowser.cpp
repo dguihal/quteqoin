@@ -328,7 +328,7 @@ void QQTextBrowser::onAnchorHighlighted(const QUrl &link)
 				highlightNorloge(nRef);
 			}
 			else
-				qWarning() << "NRef anchor badly formatted :" << link;
+				qWarning() << Q_FUNC_INFO << "NRef anchor badly formatted :" << link.toString();
 		}
 		else // if(anchorScheme == "http" || anchorScheme == "https") Une [url]
 		{
