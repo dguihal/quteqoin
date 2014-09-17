@@ -1287,7 +1287,7 @@ bool QQPinipede::printPostAtCursor(QTextCursor &cursor, QQPost *post)
 	block.setUserData(data);
 
 	//Duck autolaunch
-	if(m_duckAutolaunchEnabled && !post->isSelfPost() && data->duckIndexes().size() > 0)
+	if(m_duckAutolaunchEnabled && !post->isSelfPost() && data->hasDuck())
 		m_huntingView->launchDuck(post->bouchot()->name(), post->id(), post->isSelfPost());
 
 	//Alerte en cas de réponse

@@ -41,13 +41,11 @@ public:
 	QList<QQNorlogeRef> norlogeRefs() const { return m_listNRef; }
 	bool hasNRefToSelfPost() const;
 
-	void addDuckZone(int index, const QString &duck) { m_mapDuck.insert(index, duck); }
-	QPair<int, QString> duckForIndex(const int index) const { return stringForIndex(index, m_mapDuck); }
-	QList<int> duckIndexes() const { return m_mapDuck.uniqueKeys(); }
+	void setHasDuck() { m_hasDuck = true; }
+	bool hasDuck() { return m_hasDuck; }
 
-	void addTableVZone(int index, const QString &tableV) { m_mapTableV.insert(index, tableV); }
-	QPair<int, QString> tableVForIndex(const int index) const { return stringForIndex(index, m_mapTableV); }
-	QList<int> tableVIndexes() const { return m_mapTableV.uniqueKeys(); }
+	void setHasTableV() { m_hasTableV = true; }
+	bool hasTableV() { return m_hasTableV; }
 
 	void addBigornoZone(QQBigornoItem item) { m_listBigorno.append(item); }
 	QList<QQBigornoItem> bigornoItems() const { return m_listBigorno; }
@@ -57,17 +55,17 @@ public:
 
 	bool isValid() const { return m_ranges.size() > 0; }
 
-
 private:
 	QPair<int, QString> stringForIndex(int index, const QMap<int, QString> &map) const;
 	bool isIndexInString(int index, int stringIndex, const QString &string) const;
 
 	QList<QQNorlogeRef> m_listNRef;
 	QList<QQBigornoItem> m_listBigorno;
-	QMap<int, QString> m_mapDuck;
 	QMap<int, QString> m_mapTableV;
 
 	bool m_wasParsed;
+	bool m_hasDuck;
+	bool m_hasTableV;
 
 	QHash<int, ZoneRange> m_ranges;
 

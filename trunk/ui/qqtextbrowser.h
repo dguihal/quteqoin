@@ -30,17 +30,17 @@ public slots:
 	void updateNotifArea(int);
 
 signals:
-	void duckClicked(QString srcBouchot, QString postId, bool isSelfPost);
+	void duckClicked(QString board, QString postId, bool isSelfPost);
 	void shotDuck(bool forceSilent);
-	void norlogeClicked(QString srcBouchot, QQNorloge norloge);
-	void norlogeRefClicked(QString srcBouchot, QQNorlogeRef nRef);
+	void norlogeClicked(QString board, QQNorloge norloge);
+	void norlogeRefClicked(QString board, QQNorlogeRef nRef);
 	void norlogeRefHovered(QQNorlogeRef norloge);
 	void unHighlight(QQTextBrowser *);
 	void displayTotoz(const QString &totozId);
 	void displayWebImage(const QUrl &url);
 	void hideViewers();
 	void displayTotozContextMenu(QPoint &pos);
-	void loginClicked(QString bouchot, QString login);
+	void loginClicked(QString board, QString login);
 	void newPostsAcknowledged(QString groupName);
 
 protected:

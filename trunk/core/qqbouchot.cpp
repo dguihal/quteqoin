@@ -460,8 +460,9 @@ void QQBouchot::requestFinishedSlot(QNetworkReply *reply)
 	{
 		QString errMsg = reply->errorString();
 		m_state.hasError = true;
-		qWarning() << "QQBouchot::requestFinishedSlot, error : " << reply->error()
-				   << ", msg : " << reply->errorString();
+		qWarning() << Q_FUNC_INFO
+				   << "error : " << reply->error()
+				   << "msg : " << reply->errorString();
 		switch(reply->request().attribute(QNetworkRequest::User, QQBouchot::UnknownRequest).toInt(0))
 		{
 			case QQBouchot::BackendRequest:
@@ -469,8 +470,8 @@ void QQBouchot::requestFinishedSlot(QNetworkReply *reply)
 				break;
 			default:
 				qWarning() << Q_FUNC_INFO
-						   << reply->error()
-						   << "QQBouchot::requestFinishedSlot, reply->request().attribute(QNetworkRequest::User).toInt() unknown";
+						   << "reply->request().attribute(QNetworkRequest::User).toInt() unknown"
+						   << reply->request().attribute(QNetworkRequest::User, QQBouchot::UnknownRequest).toInt(0);
 		}
 	}
 	else
