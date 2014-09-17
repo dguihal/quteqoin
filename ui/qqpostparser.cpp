@@ -217,14 +217,19 @@ void QQPostParser::colorizeDuck(QTextDocument &doc, QQMessageBlockUserData *user
 	QTextCharFormat fmt = cursor.blockCharFormat();
 	fmt.setForeground(QColor(DUCK_COLOR));
 
+	QQPost *post = userData->post();
+
 	foreach(QRegExp reg, regexes)
 	{
 		cursor.movePosition(QTextCursor::Start, QTextCursor::MoveAnchor);
 
 		while(! (cursor = doc.find(reg, cursor)).isNull())
 		{
-			userData->addDuckZone(m_indexShit + cursor.selectionStart(), cursor.selectedText());
+			QString duckUrl = QString("duck://%1?postId=%2&self=%3")
+					.arg(post->bouchot()->name()).arg(post->id()).arg(post->isSelfPost());
+			fmt.setAnchorHref(duckUrl);
 			cursor.mergeCharFormat(fmt);
+			userData->setHasDuck();
 		}
 	}
 }
@@ -272,9 +277,13 @@ void QQPostParser::colorizeTableVolante(QTextDocument &doc, QQMessageBlockUserDa
 	QTextCharFormat fmt = cursor.blockCharFormat();
 	fmt.setForeground(QColor(DUCK_COLOR));
 
+	QQPost *post = userData->post();
+
 	while(! (cursor = doc.find(tvReg, cursor)).isNull())
 	{
-		userData->addTableVZone(m_indexShit + cursor.selectionStart(), cursor.selectedText());
+		QString duckUrl = QString("tablev://%1?postId=%2&self=%3")
+				.arg(post->bouchot()->name()).arg(post->id()).arg(post->isSelfPost());
+		fmt.setAnchorHref(duckUrl);
 		cursor.mergeCharFormat(fmt);
 	}
 }

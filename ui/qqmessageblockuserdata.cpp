@@ -5,6 +5,8 @@
 QQMessageBlockUserData::QQMessageBlockUserData() :
 	QTextBlockUserData(),
 	m_wasParsed(false),
+	m_hasDuck(false),
+	m_hasTableV(false),
 	m_post(QPointer<QQPost>())
 {
 }
@@ -13,9 +15,10 @@ QQMessageBlockUserData::QQMessageBlockUserData(const QQMessageBlockUserData & us
 	QTextBlockUserData((QTextBlockUserData) userData),
 	m_listNRef(userData.m_listNRef),
 	m_listBigorno(userData.m_listBigorno),
-	m_mapDuck(userData.m_mapDuck),
 	m_mapTableV(userData.m_mapTableV),
 	m_wasParsed(userData.m_wasParsed),
+	m_hasDuck(userData.m_hasDuck),
+	m_hasTableV(userData.m_hasTableV),
 	m_ranges(userData.m_ranges),
 	m_post(userData.m_post)
 {

@@ -271,6 +271,20 @@ void QQTextBrowser::onAnchorClicked(const QUrl &link)
 		QString board = link.host();
 		emit loginClicked(board, name);
 	}
+	else if(link.scheme() == "duck")
+	{
+#if(QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
+		QUrlQuery anchorUrlQuery(link);
+		QString postId = anchorUrlQuery.queryItemValue("postId");
+		QString self = anchorUrlQuery.queryItemValue("self").toInt(&isInt);
+#else
+		QString postId = link.queryItemValue("postId");
+		QString self = link.queryItemValue("self");
+#endif
+		QString board = link.host();
+
+		emit duckClicked(board, postId, (self == "1"));
+	}
 
 	QTextCursor c = textCursor();
 	c.clearSelection();
@@ -304,7 +318,9 @@ void QQTextBrowser::onAnchorHighlighted(const QUrl &link)
 			QString totozId = link.path().remove(0, 1); // Le / initial
 			showTotoz(totozId);
 		}
-		else if (linkScheme == "msl") // Une moule
+		else if ((linkScheme == "msl") || // Une moule
+				 (linkScheme == "duck") || // Une moule
+				 (linkScheme == "tablev")) // Une table volante
 		{
 			viewport()->unsetCursor();
 		}
@@ -449,6 +465,8 @@ void QQTextBrowser::mouseReleaseEvent(QMouseEvent *event)
 	if(event->button() == Qt::LeftButton)
 		viewport()->unsetCursor();
 
+	emit shotDuck(event->button() == Qt::MiddleButton);
+
 	QTextBrowser::mouseReleaseEvent(event);
 
 	// Verification que l'on est pas en pleine selection
@@ -482,8 +500,6 @@ void QQTextBrowser::mouseReleaseEvent(QMouseEvent *event)
 		m_notifArea->update();
 		emit newPostsAcknowledged(m_groupName);
 	}
-
-	emit shotDuck(event->button() == Qt::MiddleButton);
 }
 
 void QQTextBrowser::paintEvent(QPaintEvent * event)
