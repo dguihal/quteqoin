@@ -91,8 +91,7 @@ void QQTotozManager::searchTotoz()
 	{
 		m_ui->cancelSearchButton->show();
 
-		setCursor(QCursor(Qt::BusyCursor));
-		m_ui->searchLineEdit->setCursor(QCursor(Qt::BusyCursor));
+		m_ui->dockWidgetContents->setCursor(QCursor(Qt::BusyCursor));
 		m_ui->searchLineEdit->setStyleSheet("QLineEdit{background: black;color: white;}");
 
 		m_requester->searchTotoz(searchStr);
@@ -103,8 +102,7 @@ void QQTotozManager::totozSearchFinished()
 {
 	m_ui->cancelSearchButton->hide();
 
-	setCursor(QCursor(Qt::ArrowCursor));
-	m_ui->searchLineEdit->setCursor(QCursor(Qt::ArrowCursor));
+	m_ui->dockWidgetContents->unsetCursor();
 	m_ui->searchLineEdit->setStyleSheet("");
 
 	QList<QString> results = m_requester->results();
@@ -141,8 +139,7 @@ void QQTotozManager::totozSearchCanceled()
 
 	m_ui->cancelSearchButton->hide();
 
-	setCursor(QCursor(Qt::ArrowCursor));
-	m_ui->searchLineEdit->setCursor(QCursor(Qt::ArrowCursor));
+	m_ui->dockWidgetContents->unsetCursor();
 	m_ui->searchLineEdit->setStyleSheet("");
 }
 

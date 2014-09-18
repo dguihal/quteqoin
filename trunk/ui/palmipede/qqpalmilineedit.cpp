@@ -29,7 +29,6 @@ QQPalmiLineEdit::QQPalmiLineEdit(QWidget *parent) :
 	QPixmap pixmap = QPixmap(":/img/palmi-clear.png").scaledToHeight(fMetrics.height() + 1);
 	m_clearButton->setIcon(QIcon(pixmap));
 	m_clearButton->setIconSize(pixmap.size());
-	m_clearButton->setCursor(Qt::ArrowCursor);
 	m_clearButton->setStyleSheet("QToolButton { border: none; padding: 0px; }");
 	m_clearButton->hide();
 	connect(m_clearButton, SIGNAL(clicked()), this, SLOT(clear()));
