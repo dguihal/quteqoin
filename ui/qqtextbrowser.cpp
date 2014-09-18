@@ -74,7 +74,6 @@ QQTextBrowser::QQTextBrowser(QString groupName, QQPinipede *parent) :
 	doc->setDefaultTextOption(opt);
 
 	this->setMouseTracking(true);
-	viewport()->setCursor(Qt::ArrowCursor);
 	setViewportMargins(notifAreaWidth(), 0, 0, 0);
 
 	connect(this->verticalScrollBar(), SIGNAL(valueChanged(int)), this, SLOT(updateNotifArea(int)));
@@ -293,6 +292,7 @@ void QQTextBrowser::onAnchorClicked(const QUrl &link)
 
 void QQTextBrowser::onAnchorHighlighted(const QUrl &link)
 {
+	viewport()->unsetCursor();
 	if(link.isEmpty())
 	{
 		// Il faut unhilighter puisqu'on ne survole pas de zone de norloge ni de zone de message
@@ -314,7 +314,6 @@ void QQTextBrowser::onAnchorHighlighted(const QUrl &link)
 		QString linkScheme = link.scheme();
 		if(linkScheme == "totoz") // Un [:totoz]
 		{
-			viewport()->unsetCursor();
 			QString totozId = link.path().remove(0, 1); // Le / initial
 			showTotoz(totozId);
 		}
@@ -322,11 +321,9 @@ void QQTextBrowser::onAnchorHighlighted(const QUrl &link)
 				 (linkScheme == "duck") || // Une moule
 				 (linkScheme == "tablev")) // Une table volante
 		{
-			viewport()->unsetCursor();
 		}
 		else if (linkScheme == "nref") // Une norloge
 		{
-			viewport()->unsetCursor();
 
 			QTextCursor c = cursorForPosition(mapFromGlobal(QCursor::pos()));
 			QQMessageBlockUserData *d = (QQMessageBlockUserData *) c.block().userData();
@@ -348,6 +345,8 @@ void QQTextBrowser::onAnchorHighlighted(const QUrl &link)
 		}
 		else // if(anchorScheme == "http" || anchorScheme == "https") Une [url]
 		{
+			viewport()->setCursor(Qt::PointingHandCursor);
+
 			QFontMetrics fm(QToolTip::font());
 			QToolTip::showText(QCursor::pos(), fm.elidedText(link.toString(), Qt::ElideMiddle, 500), this);
 
