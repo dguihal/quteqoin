@@ -445,6 +445,7 @@ void QQTextBrowser::leaveEvent(QEvent *event)
 {
 	QTextBrowser::leaveEvent(event);
 
+	viewport()->unsetCursor();
 	// On masque les élements d'affichage dynamiques
 	unHighlightNorloge();
 	QToolTip::hideText();
