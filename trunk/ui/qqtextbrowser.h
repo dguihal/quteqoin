@@ -61,6 +61,7 @@ protected slots:
 
 private:
 	void clearViewers();
+	bool displayPreview(const QUrl &url);
 	void highlightNorloge(QQNorlogeRef nRef);
 	void showTotoz(QString &totozId);
 	void unHighlightNorloge();

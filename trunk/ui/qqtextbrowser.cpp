@@ -350,7 +350,9 @@ void QQTextBrowser::onAnchorHighlighted(const QUrl &link)
 			QFontMetrics fm(QToolTip::font());
 			QToolTip::showText(QCursor::pos(), fm.elidedText(link.toString(), Qt::ElideMiddle, 500), this);
 
-			m_urlHelper->getContentType(m_shownUrl);
+
+			if(! displayPreview(link))
+				m_urlHelper->getContentType(m_shownUrl);
 		}
 	}
 }
@@ -396,6 +398,48 @@ void QQTextBrowser::clearViewers()
 	m_displayedTotozId.clear();
 }
 
+bool QQTextBrowser::displayPreview(const QUrl &url)
+{
+	QString prevUrl;
+
+	// Sans doute a ameliorer si la liste grandit
+	if(url.host().endsWith("youtube.com"))
+	{
+#if(QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
+			QUrlQuery urlQ(url);
+			QString vidId = urlQ.queryItemValue("v");
+#else
+			QString vidId = url.queryItemValue("v");
+#endif
+			if(! vidId.isEmpty())
+					prevUrl = QString("http://i1.ytimg.com/vi/%1/hqdefault.jpg").arg(vidId); //vZIbpk-vwy0
+	}
+	else if(url.host().endsWith("dailymotion.com"))
+	{
+			QString vidId;
+			QStringList tmp = url.path().split('/');
+			if(! tmp.isEmpty())
+			{
+					tmp = tmp.last().split(' ');
+					if(! tmp.isEmpty())
+							vidId = tmp.first();
+			}
+			if(! vidId.isEmpty())
+					prevUrl = QString("http://www.dailymotion.com/thumbnail/video/%1").arg(vidId); //x1y1nib
+	}
+	else if(url.host() == "sauf.ca")
+	{
+			prevUrl = url.toString();
+			if(! url.path().endsWith("/img"))
+					prevUrl.append("/img");
+	}
+
+	bool hasPreview = ! prevUrl.isEmpty();
+	if(hasPreview)
+		emit displayWebImage(prevUrl);
+
+	return hasPreview;
+}
 
 void QQTextBrowser::contextMenuEvent(QContextMenuEvent * ev)
 {
