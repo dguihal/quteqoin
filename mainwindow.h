@@ -3,6 +3,8 @@
 
 #include <QMainWindow>
 
+class QSystemTrayIcon;
+
 class QQBoardsInfo;
 class QQBouchot;
 class QQPalmipede;
@@ -34,6 +36,7 @@ public slots:
 	void palmiVisibilityChanged(bool visible);
 
 protected:
+	virtual void changeEvent(QEvent *event);
 	virtual void closeEvent(QCloseEvent *event);
 	virtual void keyPressEvent(QKeyEvent *event);
 
@@ -53,6 +56,8 @@ private:
 	QQPinipede *m_pini;
 	QQPiniSearchWidget *m_pSearchW;
 	QQTotozManager *m_totozManager;
+
+	QSystemTrayIcon *m_trayIcon;
 };
 
 #endif // MAINWINDOW_H

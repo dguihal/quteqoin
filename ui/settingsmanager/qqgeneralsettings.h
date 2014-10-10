@@ -31,6 +31,9 @@ public:
 	void setDefaultWebSearchUrl(const QString &defaultWebSearchUrl);
 	QString defaultWebSearchUrl();
 
+	void setEnableStealthMode(bool isEnabled);
+	bool isStealthModeEnabled();
+
 	void setHightLightColor(const QString &hColor);
 	QString highlightColor();
 

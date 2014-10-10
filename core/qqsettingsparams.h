@@ -36,6 +36,9 @@ const char notif_name[] = "QuteQoin";
 #define SETTINGS_GENERAL_HIGHLIGHT_COLOR "highlight_color"
 #define DEFAULT_GENERAL_HIGHLIGHT_COLOR "#FFE940"
 
+#define SETTINGS_GENERAL_STEALTH_MODE "stealth_mode"
+#define DEFAULT_GENERAL_STEALTH_MODE false
+
 // TOTOZ
 #define TOTOZ_BOOKMARKS_FILE "totozBookmarks"
 
