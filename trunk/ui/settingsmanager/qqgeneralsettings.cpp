@@ -121,6 +121,17 @@ QString QQGeneralSettings::defaultWebSearchUrl()
 	return ui->defaultWebSearchUrlLineEdit->text();
 }
 
+//PROPERTY STEALTHMODE
+void QQGeneralSettings::setEnableStealthMode(bool isEnabled)
+{
+	ui->stealthModeCB->setChecked(isEnabled);
+}
+
+bool QQGeneralSettings::isStealthModeEnabled()
+{
+	return ui->stealthModeCB->isChecked();
+}
+
 //PROPERTY DynamicHighlight
 void QQGeneralSettings::setHightLightColor(const QString &hColor)
 {

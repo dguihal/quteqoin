@@ -265,6 +265,9 @@ void QQSettingsManager::initGeneralSettings()
 	QString defaultWebSearchUrl = settings.value(SETTINGS_GENERAL_WEBSEARCH_URL, DEFAULT_GENERAL_WEBSEARCH_URL).toString();
 	m_generalSettingsW->setDefaultWebSearchUrl(defaultWebSearchUrl);
 
+	bool stealthModeEnabled = settings.value(SETTINGS_GENERAL_STEALTH_MODE, DEFAULT_GENERAL_STEALTH_MODE).toBool();
+	m_generalSettingsW->setEnableStealthMode(stealthModeEnabled);
+
 	QFont defaultFont;
 	defaultFont.fromString(settings.value(SETTINGS_GENERAL_DEFAULT_FONT, DEFAULT_GENERAL_DEFAULT_FONT).toString());
 	m_generalSettingsW->setDefaultFont(defaultFont);
@@ -288,6 +291,9 @@ void QQSettingsManager::saveGeneralSettings()
 
 	QString defaultWebSearchUrl = m_generalSettingsW->defaultWebSearchUrl();
 	settings.setValueWithDefault(SETTINGS_GENERAL_WEBSEARCH_URL, defaultWebSearchUrl, DEFAULT_GENERAL_WEBSEARCH_URL);
+
+	bool stealthModeEnabled = m_generalSettingsW->isStealthModeEnabled();
+	settings.setValueWithDefault(SETTINGS_GENERAL_STEALTH_MODE, stealthModeEnabled, DEFAULT_GENERAL_STEALTH_MODE);
 
 	QString defaultFont = m_generalSettingsW->defaultFont().toString();
 	needPiniFullRepaint |= settings.setValueWithDefault(SETTINGS_GENERAL_DEFAULT_FONT, defaultFont, DEFAULT_GENERAL_DEFAULT_FONT);

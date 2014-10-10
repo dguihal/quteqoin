@@ -15,15 +15,18 @@
 #include <QIcon>
 #include <QKeyEvent>
 #include <QLayout>
+#include <QMenu>
 #include <QSizePolicy>
 #include <QSpacerItem>
+#include <QSystemTrayIcon>
 #include <QToolButton>
 
 #define MAINWINDOW_STATE_CACHE_FILE "QuteQoin_Window_State"
 
 MainWindow::MainWindow(QWidget *parent) :
 	QMainWindow(parent),
-	m_ui(new Ui::MainWindow)
+	m_ui(new Ui::MainWindow),
+	m_trayIcon(NULL)
 {
 	m_ui->setupUi(this);
 
@@ -126,6 +129,22 @@ MainWindow::MainWindow(QWidget *parent) :
 	else
 		doTriggerMaxiPalmi();
 
+	if(settings.value(SETTINGS_GENERAL_STEALTH_MODE, DEFAULT_GENERAL_STEALTH_MODE).toBool() &&
+			QSystemTrayIcon::isSystemTrayAvailable())
+	{
+		QMenu *trayIconMenu = new QMenu(this);
+
+		QAction *restoreAction = new QAction(tr("&Restore"), trayIconMenu);
+		connect(restoreAction, SIGNAL(triggered()), this, SLOT(showNormal()));
+
+		trayIconMenu->addAction(restoreAction);
+
+		m_trayIcon = new QSystemTrayIcon(QIcon(":/img/rubber_duck_yellow.svg"), this);
+		m_trayIcon->setContextMenu(trayIconMenu);
+		m_trayIcon->show();
+	}
+
+
 	// Envoyer le focus par defaut sur le palmi s'il est visible
 	if(m_palmi->isVisible())
 		m_palmi->setFocus();
@@ -197,6 +216,18 @@ void MainWindow::palmiVisibilityChanged(bool visible)
 		m_pini->setFocus();
 }
 
+void MainWindow::changeEvent(QEvent *event)
+{
+	if((event->type() == QEvent::WindowStateChange) &&
+			(m_trayIcon != NULL))
+	{
+		if (isMinimized() == true)
+			hide();
+	}
+
+	return QMainWindow::changeEvent(event);
+}
+
 void MainWindow::closeEvent(QCloseEvent *event)
 {
 #if(QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
@@ -238,6 +269,9 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
 		}
 		break;
 	}
+	case Qt::Key_Escape:
+		setWindowState(Qt::WindowMinimized);
+		break;
 	default :
 		processed = false;
 		break;
