@@ -275,7 +275,7 @@ void QQTextBrowser::onAnchorClicked(const QUrl &link)
 #if(QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
 		QUrlQuery anchorUrlQuery(link);
 		QString postId = anchorUrlQuery.queryItemValue("postId");
-		QString self = anchorUrlQuery.queryItemValue("self").toInt(&isInt);
+		QString self = anchorUrlQuery.queryItemValue("self");
 #else
 		QString postId = link.queryItemValue("postId");
 		QString self = link.queryItemValue("self");
