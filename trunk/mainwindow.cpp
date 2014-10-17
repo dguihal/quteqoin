@@ -18,7 +18,6 @@
 #include <QMenu>
 #include <QSizePolicy>
 #include <QSpacerItem>
-#include <QSystemTrayIcon>
 #include <QToolButton>
 
 #define MAINWINDOW_STATE_CACHE_FILE "QuteQoin_Window_State"
@@ -132,15 +131,10 @@ MainWindow::MainWindow(QWidget *parent) :
 	if(settings.value(SETTINGS_GENERAL_STEALTH_MODE, DEFAULT_GENERAL_STEALTH_MODE).toBool() &&
 			QSystemTrayIcon::isSystemTrayAvailable())
 	{
-		QMenu *trayIconMenu = new QMenu(this);
-
-		QAction *restoreAction = new QAction(tr("&Restore"), trayIconMenu);
-		connect(restoreAction, SIGNAL(triggered()), this, SLOT(showNormal()));
-
-		trayIconMenu->addAction(restoreAction);
-
 		m_trayIcon = new QSystemTrayIcon(QIcon(":/img/rubber_duck_yellow.svg"), this);
-		m_trayIcon->setContextMenu(trayIconMenu);
+		connect(m_trayIcon, SIGNAL(activated(QSystemTrayIcon::ActivationReason)),
+				this, SLOT(onTrayIconActivated(QSystemTrayIcon::ActivationReason)));
+
 		m_trayIcon->show();
 	}
 
@@ -333,6 +327,17 @@ void MainWindow::initBouchot(QQBouchot *bouchot)
 	m_boardsInfo->updateBoardList();
 }
 
+
+void MainWindow::onTrayIconActivated(QSystemTrayIcon::ActivationReason reason)
+{
+	if(reason == QSystemTrayIcon::Trigger)
+	{
+		if(isHidden())
+			showNormal();
+		else
+			hide();
+	}
+}
 
 void MainWindow::initBouchots()
 {
