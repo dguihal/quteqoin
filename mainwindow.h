@@ -2,8 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-
-class QSystemTrayIcon;
+#include <QSystemTrayIcon>
 
 class QQBoardsInfo;
 class QQBouchot;
@@ -45,6 +44,7 @@ protected slots:
 	void bouchotGroupChanged(QQBouchot *bouchot, QString oldGroupName);
 	void doFullRepaint();
 	void initBouchot(QQBouchot *bouchot);
+	void onTrayIconActivated(QSystemTrayIcon::ActivationReason reason);
 
 private:
 	void initBouchots();
