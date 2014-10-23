@@ -250,7 +250,10 @@ void QQTextBrowser::onAnchorClicked(const QUrl &link)
 			else
 			{
 				QQNorlogeRef nRef = d->norlogeRefForIndex(index);
-				emit norlogeRefClicked(link.path().remove(0, 1), nRef);
+				if(nRef.isValid())
+					emit norlogeRefClicked(link.host(), nRef);
+				else
+					qWarning() << Q_FUNC_INFO << "Invalid nRef returned for" << link.toString();
 			}
 		}
 	}
@@ -338,7 +341,10 @@ void QQTextBrowser::onAnchorHighlighted(const QUrl &link)
 			if(isInt)
 			{
 				QQNorlogeRef nRef = d->norlogeRefForIndex(index);
-				highlightNorloge(nRef);
+				if(nRef.isValid())
+					highlightNorloge(nRef);
+				else
+					qWarning() << Q_FUNC_INFO << "Invalid nRef returned for" << link.toString();
 			}
 			else
 				qWarning() << Q_FUNC_INFO << "NRef anchor badly formatted :" << link.toString();
