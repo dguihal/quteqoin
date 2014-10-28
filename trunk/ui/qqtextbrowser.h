@@ -56,7 +56,8 @@ protected:
 protected slots:
 	void onAnchorClicked(const QUrl &link);
 	void onAnchorHighlighted(const QUrl &link);
-	void onContentTypeAvailable(QUrl &url, QString &contentType);
+	void onExtendedInfoAvailable(QUrl &url, QString &contentType);
+	void onThumbnailUrlAvailable(QUrl &url, QUrl &thumbnailUrl);
 	void webSearchActionTriggered();
 
 private:

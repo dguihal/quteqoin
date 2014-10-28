@@ -46,7 +46,9 @@ QQTextBrowser::QQTextBrowser(QString groupName, QQPinipede *parent) :
 	setOpenLinks(false);
 	setTextInteractionFlags(Qt::TextSelectableByMouse | Qt::LinksAccessibleByMouse);
 
-	connect(m_urlHelper, SIGNAL(contentTypeAvailable(QUrl&,QString&)), this, SLOT(onContentTypeAvailable(QUrl&,QString&)));
+	connect(m_urlHelper, SIGNAL(contentTypeAvailable(QUrl&,QString&)), this, SLOT(onExtendedInfoAvailable(QUrl&,QString&)));
+	connect(m_urlHelper, SIGNAL(videoTitleAvailable(QUrl&,QString&)), this, SLOT(onExtendedInfoAvailable(QUrl&,QString&)));
+	connect(m_urlHelper, SIGNAL(thumbnailUrlAvailable(QUrl&,QUrl&)), this, SLOT(onThumbnailUrlAvailable(QUrl&,QUrl&)));
 	connect(this, SIGNAL(anchorClicked(QUrl)), this, SLOT(onAnchorClicked(QUrl)));
 	connect(this, SIGNAL(highlighted(QUrl)), this, SLOT(onAnchorHighlighted(QUrl)));
 
@@ -357,25 +359,27 @@ void QQTextBrowser::onAnchorHighlighted(const QUrl &link)
 			QToolTip::showText(QCursor::pos(), fm.elidedText(link.toString(), Qt::ElideMiddle, 500), this);
 
 
-			if(! displayPreview(link))
-				m_urlHelper->getContentType(m_shownUrl);
+			displayPreview(link);
+			m_urlHelper->getUrlInfo(m_shownUrl);
 		}
 	}
 }
 
-void QQTextBrowser::onContentTypeAvailable(QUrl &url, QString &contentType)
+void QQTextBrowser::onExtendedInfoAvailable(QUrl &url, QString &contentType)
 {
 	QString ttText = QToolTip::text();
 	if(ttText.length() > 0 && url == m_shownUrl)
 	{
 		ttText.append(" (").append(contentType).append(")");
 		QToolTip::showText(QCursor::pos(), ttText, this);
-
-		if(contentType.startsWith("image/"))
-		{
-			emit displayWebImage(url);
-		}
 	}
+}
+
+void QQTextBrowser::onThumbnailUrlAvailable(QUrl &url, QUrl &thumbnailUrl)
+{
+	Q_UNUSED(url)
+	emit displayWebImage(thumbnailUrl);
+
 }
 
 void QQTextBrowser::webSearchActionTriggered()
