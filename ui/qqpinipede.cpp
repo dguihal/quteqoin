@@ -1147,9 +1147,11 @@ void QQPinipede::newPostsAvailable(QString groupName)
 	QApplication::restoreOverrideCursor();
 
 	//Signalement de nouveaux posts dans le nom du Tab
+	int i = 0;
 	foreach(QQPost *p, newPosts)
 	{
-		if(!p->isSelfPost())
+		i++;
+		if(p != NULL && !p->isSelfPost())
 		{
 			QString tabName = groupName;
 			tabName.append(" (*)");
