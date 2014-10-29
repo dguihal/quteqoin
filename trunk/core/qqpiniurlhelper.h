@@ -41,6 +41,7 @@ private:
 	void handleContentTypeResponse(const QString &contentType, QUrl &sourceUrl);
 	void getDailymotionExtendedInfo(QUrl &url);
 	void handleDailymotionExtendedInfo(const QString &jsonInfo, QUrl &sourceUrl);
+	void getSaufCaExtendedInfo(QUrl &url);
 	void getYoutubeExtendedInfo(QUrl &url);
 	void handleYoutubeExtendedInfo(const QString &jsonInfo, QUrl &sourceUrl);
 

@@ -50,6 +50,8 @@ void QQPiniUrlHelper::getUrlInfo(QUrl &url)
 		getYoutubeExtendedInfo(url);
 	else if(url.host().endsWith("dailymotion.com"))
 		getDailymotionExtendedInfo(url);
+	else if(url.host() == "sauf.ca")
+		getSaufCaExtendedInfo(url);
 	else
 		getContentType(url);
 }
@@ -147,7 +149,6 @@ void QQPiniUrlHelper::getContentType(QUrl &url)
 	if(urlInfo == NULL)
 	{
 		QNetworkRequest r(url);
-		qDebug() << Q_FUNC_INFO << url;
 		r.setAttribute((QNetworkRequest::Attribute) RequestContentType, true);
 		QNetworkReply *reply = httpHead(r);
 		m_contentTypeReplies.append(reply);
@@ -243,7 +244,11 @@ void QQPiniUrlHelper::handleDailymotionExtendedInfo(const QString &jsonInfo, QUr
 
 	QRegExp r("\"thumbnail_url\":\"([^\"]*)");
 	if(r.indexIn(jsonInfo) > 0)
+	{
 		thumbnailUrl = r.capturedTexts().at(1);
+
+		thumbnailUrl.replace("\\/", "/");
+	}
 
 	r = QRegExp("\"title\":\"([^\"]*)");
 
@@ -271,6 +276,21 @@ void QQPiniUrlHelper::handleDailymotionExtendedInfo(const QString &jsonInfo, QUr
 
 	if(! title.isEmpty())
 		emit videoTitleAvailable(sourceUrl, title);
+}
+
+//////////////////////////////////////////////////////////////
+/// \brief QQPiniUrlHelper::getSaufCaExtendedInfo
+/// \param url
+///
+void QQPiniUrlHelper::getSaufCaExtendedInfo(QUrl &url)
+{
+	if(! url.path().endsWith("/img"))
+	{
+		QUrl imgUrl = url;
+		imgUrl.setPath(url.path().append("/img"));
+
+		emit thumbnailUrlAvailable(url, imgUrl);
+	}
 }
 
 //////////////////////////////////////////////////////////////
@@ -374,14 +394,14 @@ void QQPiniUrlHelper::handleYoutubeExtendedInfo(const QString &jsonInfo, QUrl &s
 	QQPiniUrlHelper::CacheInfo *info = new QQPiniUrlHelper::CacheInfo;
 	//JSON seulement supporté par Qt 5
 #if(QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
-		QJsonDocument d = QJsonDocument::fromBinaryData(jsonInfo.toLatin1());
-		QJsonObject o = d.object();
-		QJsonObject items = o["items"].toArray().at(0).toObject();
-		QJsonObject snippet = items["snippet"].toObject();
-		title= snippet["title"].toString();
-		QJsonObject thumbnails = title["thumbnails"].toObject();
-		QJsonObject defaultThumbnail = thumbnails["default"].toObject();
-		thumbnailUrl = defaultThumbnail["url"].toString();
+	QJsonDocument d = QJsonDocument::fromJson(jsonInfo.toLatin1());
+	QJsonObject o = d.object();
+	QJsonObject items = o["items"].toArray().at(0).toObject();
+	QJsonObject snippet = items["snippet"].toObject();
+	title= snippet["title"].toString();
+	QJsonObject thumbnails = snippet["thumbnails"].toObject();
+	QJsonObject defaultThumbnail = thumbnails["default"].toObject();
+	thumbnailUrl = defaultThumbnail["url"].toString();
 #else
 	QRegExp r("\"title\": \"([^\"]*)");
 
