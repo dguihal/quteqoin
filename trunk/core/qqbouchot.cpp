@@ -45,7 +45,7 @@ QQBouchotDef bouchotsDef[] =
 	{ "finss", "http://finss.fr/drupal/node/95/xml", "http://finss.fr/drupal/node/95/post", "message=%m",
 	  "#d0ffd0", "finss", "", QQBouchot::SlipTagsRaw },
 	{ "shoop", "http://www.sveetch.net/tribune/remote/xml/?last=%i", "http://www.sveetch.net/tribune/post/xml", "content=%m",
-	  "#ededdb", "sveetch,dax", "shoop_sessionid=", QQBouchot::SlipTagsEncoded },
+	  "#ededdb", "sveetch,dax", "shoop_sessionid=", QQBouchot::SlipTagsRaw },
 	{ "moules", "http://moules.org/board/backend", "http://moules.org/board/add", "message=%m",
 	  "#ffe3c9", "", "", QQBouchot::SlipTagsEncoded },
 	{ "hadoken", "http://hadoken.free.fr/board/remote.php", "http://hadoken.free.fr/board/post.php", "message=%m",
