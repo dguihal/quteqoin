@@ -742,8 +742,6 @@ void QQPinipede::norlogeRefHovered(QQNorlogeRef norlogeRef)
 	if(! highlightSuccess)
 	{
 		QTextCursor cursor = textBrowser->cursorForPosition(QPoint(0, 0));
-		// Deplacement vers la fin du block precedent l'affichage du pini
-		cursor.movePosition(QTextCursor::PreviousBlock, QTextCursor::MoveAnchor);
 
 		QTextDocument destDocument;
 		QTextCursor c(& destDocument);
