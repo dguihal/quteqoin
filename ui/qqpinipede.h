@@ -109,6 +109,7 @@ private:
 
 	QQHuntingView *m_huntingView;
 	bool m_duckAutolaunchEnabled;
+	QChar m_fieldSep;
 };
 
 #endif // QQPINIPEDE_H

@@ -39,6 +39,12 @@ const char notif_name[] = "QuteQoin";
 #define SETTINGS_GENERAL_STEALTH_MODE "stealth_mode"
 #define DEFAULT_GENERAL_STEALTH_MODE false
 
+#define SETTINGS_GENERAL_PINI_MODE "pini_mode"
+#define PINI_TABBED_MODE "tabbed"
+#define PINI_FLOW_MODE "flow"
+#define SETTINGS_GENERAL_PINI_MODES (QStringList() << PINI_TABBED_MODE << PINI_FLOW_MODE)
+#define DEFAULT_GENERAL_PINI_MODE PINI_TABBED_MODE
+
 // TOTOZ
 #define TOTOZ_BOOKMARKS_FILE "totozBookmarks"
 
