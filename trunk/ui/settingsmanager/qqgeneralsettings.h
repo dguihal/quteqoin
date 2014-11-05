@@ -37,6 +37,9 @@ public:
 	void setHightLightColor(const QString &hColor);
 	QString highlightColor();
 
+	void setPiniMode(const QString &mode);
+	QString piniMode();
+
 protected slots:
 	void fontChanged(const QFont &font);
 	void fontSizeChanged(int index);

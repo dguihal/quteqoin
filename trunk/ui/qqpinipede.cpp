@@ -47,15 +47,14 @@
 /// \param parent
 ///
 QQPinipede::QQPinipede(QWidget * parent) :
-	QTabWidget(parent)
+	QTabWidget(parent),
+	m_totozDownloader(new QQTotozDownloader(this)),
+	m_totozManager(NULL),
+	m_postparser(new QQPostParser(this)),
+	m_huntingView(NULL),
+	m_duckAutolaunchEnabled(false),
+	m_fieldSep('\0')
 {
-	m_totozManager = NULL;
-	m_huntingView = NULL;
-	m_duckAutolaunchEnabled = false;
-
-	m_totozDownloader = new QQTotozDownloader(this);
-
-	m_postparser = new QQPostParser(this);
 	connect(m_postparser, SIGNAL(totozRequired(QString &)),
 			m_totozDownloader, SLOT(fetchTotoz(QString &)));
 	connect(m_postparser, SIGNAL(bigorNotify(QString &, QString &, bool)),
@@ -203,7 +202,8 @@ void QQPinipede::repaintPiniTab(const QString &groupName)
 		qWarning() << Q_FUNC_INFO << groupName << "tryLock timeout";
 
 	QApplication::setOverrideCursor(Qt::BusyCursor);
-	int sliderPos = textBrowser->verticalScrollBar()->sliderPosition();
+	double pctPos = ((double) textBrowser->verticalScrollBar()->sliderPosition())
+			/ textBrowser->verticalScrollBar()->maximum();
 
 	clearPiniTab(groupName);
 
@@ -221,6 +221,16 @@ void QQPinipede::repaintPiniTab(const QString &groupName)
 	QQSettings settings;
 	docFont.fromString(settings.value(SETTINGS_GENERAL_DEFAULT_FONT, DEFAULT_GENERAL_DEFAULT_FONT).toString());
 	doc->setDefaultFont(docFont);
+	QString piniMode = settings.value(SETTINGS_GENERAL_PINI_MODE, DEFAULT_GENERAL_PINI_MODE).toString();
+	if(! SETTINGS_GENERAL_PINI_MODES.contains(piniMode))
+	{
+		piniMode = DEFAULT_GENERAL_PINI_MODE;
+		settings.setValue(SETTINGS_GENERAL_PINI_MODE, DEFAULT_GENERAL_PINI_MODE);
+	}
+	if(piniMode == PINI_FLOW_MODE)
+		m_fieldSep = ' ';
+	else //if piniMode == PINI_TABBED_MODE
+		m_fieldSep = '\t';
 
 	QTextCursor cursor(doc);
 	cursor.beginEditBlock();
@@ -233,6 +243,8 @@ void QQPinipede::repaintPiniTab(const QString &groupName)
 	}
 	cursor.endEditBlock();
 
+
+	int sliderPos = (int) (textBrowser->verticalScrollBar()->maximum() * pctPos);
 	textBrowser->verticalScrollBar()->setSliderPosition(sliderPos);
 
 	QApplication::restoreOverrideCursor();
@@ -997,7 +1009,7 @@ unsigned int QQPinipede::insertPostToList(QQListPostPtr *listPosts, QQPost *post
 ///
 void QQPinipede::newPostsAvailable(QString groupName)
 {
-	qDebug() << Q_FUNC_INFO << "from : " << groupName;
+	//qDebug() << Q_FUNC_INFO << "from : " << groupName;
 
 	//On est obligé de locker pour éviter la pagaille dans le pini.
 	// un locking plus fin pourrait être obtenu en implémentant un lock par groupe
@@ -1005,7 +1017,6 @@ void QQPinipede::newPostsAvailable(QString groupName)
 		qWarning() << Q_FUNC_INFO << groupName << "tryLock timeout";
 
 	QQTextBrowser * textBrowser = m_textBrowserHash.value(groupName);
-	bool wasAtEnd = (textBrowser->verticalScrollBar()->sliderPosition() == textBrowser->verticalScrollBar()->maximum());
 
 	QQListPostPtr newPosts;
 	foreach(QQBouchot *b, QQBouchot::listBouchotsGroup(groupName))
@@ -1029,11 +1040,27 @@ void QQPinipede::newPostsAvailable(QString groupName)
 	//On ne peut pas vérifier la valeur dans le "printPostAtCursor", trop couteux, du coup on la met a jour ici
 	m_duckAutolaunchEnabled =
 			(((QuteQoin::QQHuntMode) settings.value(SETTINGS_HUNT_MODE, DEFAULT_HUNT_MODE).toInt()) == QuteQoin::HuntMode_Auto);
+	if(m_fieldSep == '\0')
+	{
+		QString piniMode = settings.value(SETTINGS_GENERAL_PINI_MODE, DEFAULT_GENERAL_PINI_MODE).toString();
+		if(! SETTINGS_GENERAL_PINI_MODES.contains(piniMode))
+		{
+			piniMode = DEFAULT_GENERAL_PINI_MODE;
+			settings.setValue(SETTINGS_GENERAL_PINI_MODE, DEFAULT_GENERAL_PINI_MODE);
+		}
+		if(piniMode == PINI_FLOW_MODE)
+			m_fieldSep = ' ';
+		else //if piniMode == PINI_TABBED_MODE
+			m_fieldSep = '\t';
+	}
 
 	int maxHistorySize = settings.value(SETTINGS_GENERAL_MAX_HISTLEN, DEFAULT_GENERAL_MAX_HISTLEN).toInt();
 	//Il ne sert a rien d'insérer plus que de posts que le max de l'historique
 	while(newPosts.size() > maxHistorySize)
 		newPosts.removeFirst();
+
+	textBrowser->verticalScrollBar()->setMaximum(maxHistorySize * 2); // *2 pour les posts multilignes
+	bool wasAtEnd = (textBrowser->verticalScrollBar()->sliderPosition() == textBrowser->verticalScrollBar()->maximum());
 
 	// Tri necessaire puisqu'on a potentiellement melange les posts de plusieurs tribunes
 	qSort(newPosts.begin(), newPosts.end(), postComp);
@@ -1265,7 +1292,8 @@ bool QQPinipede::printPostAtCursor(QTextCursor &cursor, QQPost *post)
 	fm = QFontMetricsF(loginUaFormat.font());
 	if(textLen + fm.size(Qt::TextSingleLine | Qt::TextExpandTabs, txt).width() > loginUAAreaWidth)
 		txt = fm.elidedText(txt, Qt::ElideMiddle, loginUAAreaWidth - textLen);
-	txt.append("\t");
+
+	txt.append(m_fieldSep);
 
 	cursor.insertText(txt, loginUaFormat);
 

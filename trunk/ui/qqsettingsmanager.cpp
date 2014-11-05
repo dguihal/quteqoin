@@ -274,6 +274,9 @@ void QQSettingsManager::initGeneralSettings()
 
 	QString hColor = settings.value(SETTINGS_GENERAL_HIGHLIGHT_COLOR, DEFAULT_GENERAL_HIGHLIGHT_COLOR).toString();
 	m_generalSettingsW->setHightLightColor(hColor);
+
+	QString piniMode = settings.value(SETTINGS_GENERAL_PINI_MODE, DEFAULT_GENERAL_PINI_MODE).toString();
+	m_generalSettingsW->setPiniMode(piniMode);
 }
 
 void QQSettingsManager::saveGeneralSettings()
@@ -300,6 +303,9 @@ void QQSettingsManager::saveGeneralSettings()
 
 	QString hColor = m_generalSettingsW->highlightColor();
 	settings.setValueWithDefault(SETTINGS_GENERAL_HIGHLIGHT_COLOR, hColor, DEFAULT_GENERAL_HIGHLIGHT_COLOR);
+
+	QString piniMode = m_generalSettingsW->piniMode();
+	needPiniFullRepaint |= settings.setValueWithDefault(SETTINGS_GENERAL_PINI_MODE, piniMode, DEFAULT_GENERAL_PINI_MODE);
 }
 
 void QQSettingsManager::initHuntSettings()

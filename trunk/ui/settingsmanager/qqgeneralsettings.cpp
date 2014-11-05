@@ -121,7 +121,7 @@ QString QQGeneralSettings::defaultWebSearchUrl()
 	return ui->defaultWebSearchUrlLineEdit->text();
 }
 
-//PROPERTY STEALTHMODE
+//PROPERTY StealthMode
 void QQGeneralSettings::setEnableStealthMode(bool isEnabled)
 {
 	ui->stealthModeCB->setChecked(isEnabled);
@@ -152,6 +152,35 @@ QString QQGeneralSettings::highlightColor()
 		return QString();
 	else
 		return m_color;
+}
+
+//PROPERTY PiniMode
+void QQGeneralSettings::setPiniMode(const QString &mode)
+{
+	QString piniMode = mode;
+	if(! SETTINGS_GENERAL_PINI_MODES.contains(mode))
+		piniMode = DEFAULT_GENERAL_PINI_MODE;
+
+	if(piniMode == PINI_TABBED_MODE)
+	{
+		ui->piniTabbedRB->setChecked(true);
+		ui->piniFlowRB->setChecked(false);
+	}
+	else if(piniMode == PINI_FLOW_MODE)
+	{
+		ui->piniTabbedRB->setChecked(false);
+		ui->piniFlowRB->setChecked(true);
+	}
+}
+
+QString QQGeneralSettings::piniMode()
+{
+	if(ui->piniTabbedRB->isChecked())
+		return PINI_TABBED_MODE;
+	else if(ui->piniFlowRB->isChecked())
+		return PINI_FLOW_MODE;
+	else
+		return DEFAULT_GENERAL_PINI_MODE;
 }
 
 void QQGeneralSettings::showColorDialog()
