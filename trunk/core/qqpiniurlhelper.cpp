@@ -228,13 +228,13 @@ void QQPiniUrlHelper::getDailymotionExtendedInfo(QUrl &url)
 /// \param sourceUrl
 ///
 ///
-void QQPiniUrlHelper::handleDailymotionExtendedInfo(const QString &jsonInfo, QUrl &sourceUrl)
+void QQPiniUrlHelper::handleDailymotionExtendedInfo(const QByteArray &jsonInfo, QUrl &sourceUrl)
 {
 	QString thumbnailUrl, title;
 	QQPiniUrlHelper::CacheInfo *info = new QQPiniUrlHelper::CacheInfo;
 	//JSON seulement supporté par Qt 5
 #if(QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
-	QJsonDocument d = QJsonDocument::fromJson(jsonInfo.toLatin1());
+	QJsonDocument d = QJsonDocument::fromJson(jsonInfo);
 	QJsonObject o = d.object();
 	QJsonObject o2 = o["result"].toObject();
 
@@ -242,8 +242,9 @@ void QQPiniUrlHelper::handleDailymotionExtendedInfo(const QString &jsonInfo, QUr
 	title = o2["title"].toString();
 #else
 
+	QString str = QString::fromLatin1(jsonInfo);
 	QRegExp r("\"thumbnail_url\":\"([^\"]*)");
-	if(r.indexIn(jsonInfo) > 0)
+	if(r.indexIn(str) > 0)
 	{
 		thumbnailUrl = r.capturedTexts().at(1);
 
@@ -252,7 +253,7 @@ void QQPiniUrlHelper::handleDailymotionExtendedInfo(const QString &jsonInfo, QUr
 
 	r = QRegExp("\"title\":\"([^\"]*)");
 
-	if(r.indexIn(jsonInfo) > 0)
+	if(r.indexIn(str) > 0)
 	{
 		title = r.capturedTexts().at(1);
 
@@ -264,12 +265,15 @@ void QQPiniUrlHelper::handleDailymotionExtendedInfo(const QString &jsonInfo, QUr
 		}
 	}
 #endif
-	info->videoThumbnailUrl = thumbnailUrl;
-	info->videoTitle = title;
-	addToCache(sourceUrl, info);
 
 	if(! thumbnailUrl.isEmpty())
 	{
+		if(! title.isEmpty())
+		{
+			info->videoThumbnailUrl = thumbnailUrl;
+			info->videoTitle = title;
+			addToCache(sourceUrl, info);
+		}
 		QUrl tUrl(thumbnailUrl);
 		emit thumbnailUrlAvailable(sourceUrl, tUrl);
 	}
@@ -387,14 +391,20 @@ void QQPiniUrlHelper::getYoutubeExtendedInfo(QUrl &url)
  ]
 }
 */
-void QQPiniUrlHelper::handleYoutubeExtendedInfo(const QString &jsonInfo, QUrl &sourceUrl)
+void QQPiniUrlHelper::handleYoutubeExtendedInfo(const QByteArray &jsonInfo, QUrl &sourceUrl)
 {
 	QString thumbnailUrl, title;
 
 	QQPiniUrlHelper::CacheInfo *info = new QQPiniUrlHelper::CacheInfo;
 	//JSON seulement supporté par Qt 5
 #if(QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
-	QJsonDocument d = QJsonDocument::fromJson(jsonInfo.toLatin1());
+	QJsonParseError error;
+	QJsonDocument d = QJsonDocument::fromJson(jsonInfo, &error);
+	if(d.isEmpty())
+	{
+		qDebug() << "error" << error.errorString();
+		return;
+	}
 	QJsonObject o = d.object();
 	QJsonObject items = o["items"].toArray().at(0).toObject();
 	QJsonObject snippet = items["snippet"].toObject();
@@ -403,16 +413,17 @@ void QQPiniUrlHelper::handleYoutubeExtendedInfo(const QString &jsonInfo, QUrl &s
 	QJsonObject defaultThumbnail = thumbnails["default"].toObject();
 	thumbnailUrl = defaultThumbnail["url"].toString();
 #else
+
+	QString str = QString::fromUtf8(jsonInfo);
 	QRegExp r("\"title\": \"([^\"]*)");
 
-	if(r.indexIn(jsonInfo) > 0)
+	if(r.indexIn(str) > 0)
 		title = r.capturedTexts().at(1);
 
-	int offset = jsonInfo.indexOf("\"thumbnails\": {");
-	offset = jsonInfo.indexOf("\"default\": {", offset);
-
+	int offset = str.indexOf("\"thumbnails\": {");
+	offset = str.indexOf("\"default\": {", offset);
 	r = QRegExp("\"url\": \"([^\"]*)");
-	if(r.indexIn(jsonInfo, offset) > 0)
+	if(r.indexIn(str, offset) > 0)
 		thumbnailUrl = r.capturedTexts().at(1);
 
 #endif
@@ -422,6 +433,13 @@ void QQPiniUrlHelper::handleYoutubeExtendedInfo(const QString &jsonInfo, QUrl &s
 
 	if(! thumbnailUrl.isEmpty())
 	{
+		if(! title.isEmpty())
+		{
+			info->videoThumbnailUrl = thumbnailUrl;
+			info->videoTitle = title;
+			addToCache(sourceUrl, info);
+		}
+
 		QUrl tUrl(thumbnailUrl);
 		emit thumbnailUrlAvailable(sourceUrl, tUrl);
 	}
@@ -430,7 +448,11 @@ void QQPiniUrlHelper::handleYoutubeExtendedInfo(const QString &jsonInfo, QUrl &s
 		emit videoTitleAvailable(sourceUrl, title);
 }
 
-
+//////////////////////////////////////////////////////////////
+/// \brief QQPiniUrlHelper::addToCache
+/// \param sourceUrl
+/// \param info
+///
 void QQPiniUrlHelper::addToCache(QUrl &sourceUrl, CacheInfo *info)
 {
 	QQPiniUrlHelper::m_cacheUrls.append(sourceUrl);

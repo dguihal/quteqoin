@@ -376,7 +376,8 @@ void QQTextBrowser::onExtendedInfoAvailable(QUrl &url, QString &contentType)
 void QQTextBrowser::onThumbnailUrlAvailable(QUrl &url, QUrl &thumbnailUrl)
 {
 	Q_UNUSED(url)
-	emit displayWebImage(thumbnailUrl);
+	if(thumbnailUrl.isValid())
+		emit displayWebImage(thumbnailUrl);
 
 }
 
