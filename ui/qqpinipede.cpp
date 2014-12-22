@@ -138,8 +138,12 @@ void QQPinipede::addPiniTab(const QString &groupName)
 	if(this->m_textBrowserHash.value(groupName) != NULL)
 		return;
 
-	QQTextBrowser * textBrowser = new QQTextBrowser(groupName, this);
+	QQTextBrowser *textBrowser = new QQTextBrowser(groupName, this);
 	addTab(textBrowser, groupName);
+
+	QQSettings settings;
+	textBrowser->verticalScrollBar()->setMaximum(
+				settings.value(SETTINGS_GENERAL_MAX_HISTLEN, DEFAULT_GENERAL_MAX_HISTLEN).toInt());
 
 	m_textBrowserHash.insert(groupName, textBrowser);
 
@@ -202,8 +206,11 @@ void QQPinipede::repaintPiniTab(const QString &groupName)
 		qWarning() << Q_FUNC_INFO << groupName << "tryLock timeout";
 
 	QApplication::setOverrideCursor(Qt::BusyCursor);
-	double pctPos = ((double) textBrowser->verticalScrollBar()->sliderPosition())
-			/ textBrowser->verticalScrollBar()->maximum();
+
+	QScrollBar *vScrollBar = textBrowser->verticalScrollBar();
+
+	bool isAtEnd = (vScrollBar->value() == vScrollBar->maximum());
+	int blockNum = textBrowser->cursorForPosition(QPoint(0, 0)).blockNumber();
 
 	clearPiniTab(groupName);
 
@@ -243,9 +250,22 @@ void QQPinipede::repaintPiniTab(const QString &groupName)
 	}
 	cursor.endEditBlock();
 
-
-	int sliderPos = (int) (textBrowser->verticalScrollBar()->maximum() * pctPos);
-	textBrowser->verticalScrollBar()->setSliderPosition(sliderPos);
+	if(isAtEnd)
+		vScrollBar->setSliderPosition(vScrollBar->maximum());
+	else
+	{
+		int currBlockNum = textBrowser->cursorForPosition(QPoint(0, 0)).blockNumber();
+		while(currBlockNum < blockNum)
+		{
+			vScrollBar->triggerAction(QAbstractSlider::SliderSingleStepAdd);
+			currBlockNum = textBrowser->cursorForPosition(QPoint(0, 0)).blockNumber();
+		}
+		while(currBlockNum > blockNum)
+		{
+			vScrollBar->triggerAction(QAbstractSlider::SliderSingleStepSub);
+			currBlockNum = textBrowser->cursorForPosition(QPoint(0, 0)).blockNumber();
+		}
+	}
 
 	QApplication::restoreOverrideCursor();
 
@@ -1016,7 +1036,8 @@ void QQPinipede::newPostsAvailable(QString groupName)
 	while(! m_newPostsAvailableMutex.tryLock(1000))
 		qWarning() << Q_FUNC_INFO << groupName << "tryLock timeout";
 
-	QQTextBrowser * textBrowser = m_textBrowserHash.value(groupName);
+	QQTextBrowser *textBrowser = m_textBrowserHash.value(groupName);
+	QScrollBar *vScrollBar = textBrowser->verticalScrollBar();
 
 	QQListPostPtr newPosts;
 	foreach(QQBouchot *b, QQBouchot::listBouchotsGroup(groupName))
@@ -1059,15 +1080,14 @@ void QQPinipede::newPostsAvailable(QString groupName)
 	while(newPosts.size() > maxHistorySize)
 		newPosts.removeFirst();
 
-	textBrowser->verticalScrollBar()->setMaximum(maxHistorySize * 2); // *2 pour les posts multilignes
-	bool wasAtEnd = (textBrowser->verticalScrollBar()->sliderPosition() == textBrowser->verticalScrollBar()->maximum());
+	bool wasAtEnd = (vScrollBar->value() == vScrollBar->maximum());
 
 	// Tri necessaire puisqu'on a potentiellement melange les posts de plusieurs tribunes
 	qSort(newPosts.begin(), newPosts.end(), postComp);
 
 	//On signale via la forme de la souris qu'un traitement est en cours
 	QApplication::setOverrideCursor(Qt::BusyCursor);
-	QTextDocument * doc = textBrowser->document();
+	QTextDocument *doc = textBrowser->document();
 
 	QTextCursor cursor(doc);
 	cursor.beginEditBlock();
@@ -1166,7 +1186,7 @@ void QQPinipede::newPostsAvailable(QString groupName)
 	purgePinitabHistory(groupName);
 
 	if(wasAtEnd)
-		textBrowser->verticalScrollBar()->triggerAction(QAbstractSlider::SliderToMaximum);
+		vScrollBar->setSliderPosition(vScrollBar->maximum());
 
 	//Remise en place de l'ancienne forme du pointeur
 	QApplication::restoreOverrideCursor();
