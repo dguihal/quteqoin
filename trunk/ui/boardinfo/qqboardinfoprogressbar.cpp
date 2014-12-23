@@ -80,8 +80,9 @@ void QQBoardInfoProgressBar::paintEvent(QPaintEvent *event)
 
 	// gradient
 	QLinearGradient gradient(0, 0, 0, rect.height());
-	gradient.setColorAt(0.0, Qt::transparent);
-	gradient.setColorAt(0.5, m_boardColor);
+	gradient.setColorAt(0.5, Qt::transparent);
+	gradient.setColorAt(0.65, m_boardColor);
+	gradient.setColorAt(0.85, m_boardColor);
 	gradient.setColorAt(1.0, Qt::transparent);
 
 	// brush

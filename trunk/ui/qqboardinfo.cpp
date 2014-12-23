@@ -36,8 +36,8 @@ QQBoardInfo::QQBoardInfo(QQBouchot *board, QWidget *parent) :
 	m_ui->refreshPB->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
 	m_ui->refreshPB->setBoardName(board->name());
 
-	m_pctPollAnimation.setStartValue(0);
-	m_pctPollAnimation.setEndValue(100);
+	m_pctPollAnimation.setStartValue(100);
+	m_pctPollAnimation.setEndValue(0);
 	m_pctPollAnimation.setEasingCurve(QEasingCurve::Linear);
 	m_pctPollAnimation.setTargetObject(m_ui->refreshPB);
 	m_pctPollAnimation.setPropertyName("value");
