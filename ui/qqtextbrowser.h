@@ -25,6 +25,7 @@ public:
 	int notifAreaWidth();
 	qreal timeUAAreaWidth() { return m_timeUAAreaWidthPx; }
 	void notifAreaPaintEvent(QPaintEvent *event);
+	void updateFont();
 
 public slots:
 	void updateNotifArea(int);

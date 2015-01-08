@@ -214,6 +214,8 @@ void QQPinipede::repaintPiniTab(const QString &groupName)
 
 	clearPiniTab(groupName);
 
+	textBrowser->updateFont();
+
 	QQListPostPtr *posts = m_listPostsTabMap.value(groupName);
 	//Peut arriver lors du premier demarrage "a vide"
 	if(posts == NULL || posts->size() == 0)

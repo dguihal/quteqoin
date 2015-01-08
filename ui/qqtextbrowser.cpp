@@ -39,8 +39,6 @@ QQTextBrowser::QQTextBrowser(QString groupName, QQPinipede *parent) :
 	m_shownUrl(),
 	m_groupName(groupName)
 {
-	QQSettings settings;
-
 	setFrameStyle(QFrame::NoFrame);
 	setReadOnly(true);
 	setOpenLinks(false);
@@ -52,28 +50,16 @@ QQTextBrowser::QQTextBrowser(QString groupName, QQPinipede *parent) :
 	connect(this, SIGNAL(anchorClicked(QUrl)), this, SLOT(onAnchorClicked(QUrl)));
 	connect(this, SIGNAL(highlighted(QUrl)), this, SLOT(onAnchorHighlighted(QUrl)));
 
-	QTextDocument * doc = document();
+	QTextDocument *doc = document();
 	doc->setUndoRedoEnabled(false);
 	doc->setDocumentMargin(0);
-
-	QFont docFont;
-	docFont.fromString(settings.value(SETTINGS_GENERAL_DEFAULT_FONT, DEFAULT_GENERAL_DEFAULT_FONT).toString());
-	doc->setDefaultFont(docFont);
 
 	QTextOption opt = doc->defaultTextOption();
 	opt.setWrapMode(QTextOption::WrapAtWordBoundaryOrAnywhere);
 	opt.setAlignment(Qt::AlignLeft);
-
-	QList<QTextOption::Tab> listTabs;
-	qreal baseWidth = QFontMetricsF(docFont).averageCharWidth();
-	m_timeUAAreaWidthPx = baseWidth * TIME_UA_AREA_WIDTH_CHAR;
-	qreal tabPosPx = baseWidth * (TIME_UA_AREA_WIDTH_CHAR + 1); // + margin
-
-	QTextOption::Tab tab(tabPosPx, QTextOption::DelimiterTab, '\t');
-	listTabs << tab;
-
-	opt.setTabs(listTabs);
 	doc->setDefaultTextOption(opt);
+
+	updateFont();
 
 	this->setMouseTracking(true);
 	setViewportMargins(notifAreaWidth(), 0, 0, 0);
@@ -92,6 +78,28 @@ QQTextBrowser::~QQTextBrowser()
 int QQTextBrowser::notifAreaWidth()
 {
 	return NOTIF_AREA_WIDTH;
+}
+
+void QQTextBrowser::updateFont()
+{
+	QQSettings settings;
+	QFont docFont;
+	docFont.fromString(settings.value(SETTINGS_GENERAL_DEFAULT_FONT, DEFAULT_GENERAL_DEFAULT_FONT).toString());
+
+	QTextDocument *doc = document();
+	doc->setDefaultFont(docFont);
+	QTextOption opt = doc->defaultTextOption();
+
+	QList<QTextOption::Tab> listTabs;
+	qreal baseWidth = QFontMetricsF(docFont).averageCharWidth();
+	m_timeUAAreaWidthPx = baseWidth * TIME_UA_AREA_WIDTH_CHAR;
+	qreal tabPosPx = baseWidth * (TIME_UA_AREA_WIDTH_CHAR + 1); // + margin
+
+	QTextOption::Tab tab(tabPosPx, QTextOption::DelimiterTab, '\t');
+	listTabs << tab;
+
+	opt.setTabs(listTabs);
+	doc->setDefaultTextOption(opt);
 }
 
 void QQTextBrowser::notifAreaPaintEvent(QPaintEvent * event)
