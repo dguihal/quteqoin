@@ -232,12 +232,13 @@ void QQPalmipede::bouchotSelectorActivated(int index)
 void QQPalmipede::postPushButtonClicked()
 {
 	QString message = m_ui->postLineEdit->text();
+	message.replace(QRegExp("\\s", Qt::CaseInsensitive, QRegExp::RegExp2), " ");
 	QString bouchotDest = m_ui->boardSelectorComboBox->currentText();
-	emit postMessage(bouchotDest, message.replace(
-						 QRegExp("\\s", Qt::CaseInsensitive, QRegExp::RegExp2), " "));
 
-	//envisager de garder un histo des derniers posts "Au cas ou"
+	m_ui->postLineEdit->pushCurrentToHistory();
 	m_ui->postLineEdit->clear();
+
+	emit postMessage(bouchotDest, message);
 
 	if(! m_wasVisible)
 		hide();
