@@ -37,13 +37,17 @@ protected:
 	virtual void dropEvent(QDropEvent *event);
 	virtual void focusInEvent(QFocusEvent *e);
 	virtual void keyPressEvent(QKeyEvent *e);
+#if(QT_VERSION < QT_VERSION_CHECK(5, 2, 0))
 	virtual void resizeEvent(QResizeEvent *e);
+#endif
 
 protected slots:
 	void joinFileErr(const QString &errStr);
 
 private slots:
+#if(QT_VERSION < QT_VERSION_CHECK(5, 2, 0))
 	void updateCloseButton(const QString &text);
+#endif
 
 private:
 	void updateTotozCompleter();
@@ -52,7 +56,9 @@ private:
 	QQPalmiFilePoster m_fPoster;
 
 	QStringList m_listTotoz;
+#if(QT_VERSION < QT_VERSION_CHECK(5, 2, 0))
 	QToolButton *m_clearButton;
+#endif
 };
 
 #endif // QQPALMILINEEDIT_H
