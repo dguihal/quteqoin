@@ -4,7 +4,7 @@
 #include "qqpalmifileposter.h"
 
 #include <QLineEdit>
-#include <QStringList>
+#include <QQueue>
 
 class QFocusEvent;
 class QKeyEvent;
@@ -33,6 +33,8 @@ public slots:
 
 	void attachFile(QString fileName = QString(""));
 
+	void pushCurrentToHistory();
+
 protected:
 	virtual void dropEvent(QDropEvent *event);
 	virtual void focusInEvent(QFocusEvent *e);
@@ -52,6 +54,7 @@ private slots:
 private:
 	void updateTotozCompleter();
 	void completeTotoz();
+	void rotateHistory(bool forward = true);
 
 	QQPalmiFilePoster m_fPoster;
 
@@ -59,6 +62,9 @@ private:
 #if(QT_VERSION < QT_VERSION_CHECK(5, 2, 0))
 	QToolButton *m_clearButton;
 #endif
+
+	int m_indexInPostHistory;
+	QQueue<QString> m_postHistory;
 };
 
 #endif // QQPALMILINEEDIT_H
