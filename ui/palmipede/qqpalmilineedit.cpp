@@ -24,6 +24,9 @@ QQPalmiLineEdit::QQPalmiLineEdit(QWidget *parent) :
 	QLineEdit(parent),
 	m_fPoster(this)
 {
+#if(QT_VERSION >= QT_VERSION_CHECK(5, 2, 0))
+	setClearButtonEnabled(true);
+#else
 	m_clearButton = new QToolButton(this);
 	QFontMetrics fMetrics(font());
 	QPixmap pixmap = QPixmap(":/img/palmi-clear.png").scaledToHeight(fMetrics.height() + 1);
@@ -35,7 +38,7 @@ QQPalmiLineEdit::QQPalmiLineEdit(QWidget *parent) :
 	connect(this, SIGNAL(textChanged(const QString&)), this, SLOT(updateCloseButton(const QString&)));
 	int frameWidth = style()->pixelMetric(QStyle::PM_DefaultFrameWidth);
 	setStyleSheet(QString("QLineEdit { padding-right: %1px; } ").arg(m_clearButton->sizeHint().width() + frameWidth + 1));
-
+#endif
 	connect(&m_fPoster, SIGNAL(finished(QString)), this, SLOT(insertText(QString)));
 	connect(&m_fPoster, SIGNAL(postErr(QString)), this, SLOT(joinFileErr(QString)));
 }
@@ -226,6 +229,7 @@ void QQPalmiLineEdit::keyPressEvent(QKeyEvent *e)
 	}
 }
 
+#if(QT_VERSION < QT_VERSION_CHECK(5, 2, 0))
 //////////////////////////////////////////////////////////////
 /// \brief resizeEvent
 /// \param event
@@ -239,6 +243,7 @@ void QQPalmiLineEdit::resizeEvent(QResizeEvent *event)
 
 	QLineEdit::resizeEvent(event);
 }
+#endif
 
 //////////////////////////////////////////////////////////////
 /// \brief QQPalmiLineEdit::joinFileErr
@@ -254,6 +259,7 @@ void QQPalmiLineEdit::joinFileErr(const QString &errStr)
 	msgBox->exec();
 }
 
+#if(QT_VERSION < QT_VERSION_CHECK(5, 2, 0))
 //////////////////////////////////////////////////////////////
 /// \brief LineEdit::updateCloseButton
 /// \param text
@@ -262,6 +268,7 @@ void QQPalmiLineEdit::updateCloseButton(const QString& text)
 {
 	m_clearButton->setVisible(!text.isEmpty());
 }
+#endif
 
 //////////////////////////////////////////////////////////////
 /// \brief QQPalmiLineEdit::updateTotozCompleter
