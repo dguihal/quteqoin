@@ -16,13 +16,17 @@
 #include <QToolButton>
 #include <QStyle>
 
+#define MAX_POST_HISTORY_SIZE 6 // 5 + Current
+
 //////////////////////////////////////////////////////////////
 /// \brief QQPalmiLineEdit::QQPalmiLineEdit
 /// \param parent
 ///
 QQPalmiLineEdit::QQPalmiLineEdit(QWidget *parent) :
 	QLineEdit(parent),
-	m_fPoster(this)
+	m_fPoster(this),
+	m_indexInPostHistory(0),
+	m_postHistory()
 {
 #if(QT_VERSION >= QT_VERSION_CHECK(5, 2, 0))
 	setClearButtonEnabled(true);
@@ -41,6 +45,8 @@ QQPalmiLineEdit::QQPalmiLineEdit(QWidget *parent) :
 #endif
 	connect(&m_fPoster, SIGNAL(finished(QString)), this, SLOT(insertText(QString)));
 	connect(&m_fPoster, SIGNAL(postErr(QString)), this, SLOT(joinFileErr(QString)));
+
+	m_postHistory.enqueue("");
 }
 
 //////////////////////////////////////////////////////////////
@@ -75,6 +81,9 @@ void QQPalmiLineEdit::insertText(const QString &str)
 
 	if(moveCursorCount > 0)
 		cursorBackward(false, moveCursorCount);
+
+	m_postHistory.last() = text();
+	m_indexInPostHistory = m_postHistory.size() - 1; //last
 }
 
 //////////////////////////////////////////////////////////////
@@ -133,7 +142,6 @@ void QQPalmiLineEdit::underline()
 	insertText(QString::fromLatin1("<u>%s</u>"));
 }
 
-
 //////////////////////////////////////////////////////////////
 /// \brief QQPalmiLineEdit::attachFile
 ///
@@ -144,6 +152,23 @@ void QQPalmiLineEdit::attachFile(QString fileName)
 												"", tr("Files (*.*)"));
 	if(QFile::exists(fileName))
 		m_fPoster.postFile(fileName);
+}
+
+//////////////////////////////////////////////////////////////
+/// \brief QQPalmiLineEdit::pushCurrentToHistory
+///
+void QQPalmiLineEdit::pushCurrentToHistory()
+{
+	QString currText = text();
+	if(! m_postHistory.contains(currText))
+		m_postHistory.last() = currText;
+
+	m_postHistory.enqueue("");
+
+	while(m_postHistory.size() > MAX_POST_HISTORY_SIZE)
+		m_postHistory.dequeue();
+
+	m_indexInPostHistory = m_postHistory.size() - 1; //last
 }
 
 //////////////////////////////////////////////////////////////
@@ -184,6 +209,7 @@ void QQPalmiLineEdit::focusInEvent(QFocusEvent *e)
 void QQPalmiLineEdit::keyPressEvent(QKeyEvent *e)
 {
 	QQSettings settings;
+	bool saveHistory = true;
 
 	QList< QPair<QChar, QString> > palmishortcuts = settings.palmiShorcuts();
 
@@ -213,11 +239,19 @@ void QQPalmiLineEdit::keyPressEvent(QKeyEvent *e)
 			emit changeBoard(key == Qt::Key_Down);
 		}
 	}
-	else if(e->modifiers() == Qt::NoModifier &&
-			key == Qt::Key_Escape)
+	else if(e->modifiers() == Qt::NoModifier)
 	{
-		clear();
-		eventManaged = true;
+		if(key == Qt::Key_Escape)
+		{
+			clear();
+			eventManaged = true;
+		}
+
+		else if(key == Qt::Key_Up || key == Qt::Key_Down)
+		{
+			rotateHistory(key == Qt::Key_Down);
+			saveHistory = false; // Ne pas sauver lors d'une rotation
+		}
 	}
 
 	if(! eventManaged)
@@ -226,6 +260,12 @@ void QQPalmiLineEdit::keyPressEvent(QKeyEvent *e)
 
 		if(keyInt <= Qt::Key_ydiaeresis) //Permet de ne pas reagir sur les touches fleches / delete / ...
 			completeTotoz();
+	}
+
+	if(saveHistory)
+	{
+		m_postHistory.last() = text();
+		m_indexInPostHistory = m_postHistory.size() - 1; //last
 	}
 }
 
@@ -267,6 +307,8 @@ void QQPalmiLineEdit::joinFileErr(const QString &errStr)
 void QQPalmiLineEdit::updateCloseButton(const QString& text)
 {
 	m_clearButton->setVisible(!text.isEmpty());
+	if(m_indexInPostHistory == 0)
+		m_postHistory.enqueue(text);
 }
 #endif
 
@@ -304,4 +346,17 @@ void QQPalmiLineEdit::completeTotoz()
 			}
 		}
 	}
+}
+
+//////////////////////////////////////////////////////////////
+/// \brief QQPalmiLineEdit::rotateHistory
+///
+void QQPalmiLineEdit::rotateHistory(bool forward)
+{
+	if(forward && m_indexInPostHistory < m_postHistory.size() - 1)
+		m_indexInPostHistory ++;
+	else if((!forward) && m_indexInPostHistory > 0)
+		m_indexInPostHistory --;
+
+	setText(m_postHistory.at(m_indexInPostHistory));
 }
