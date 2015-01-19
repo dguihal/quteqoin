@@ -272,9 +272,9 @@ void QQTextBrowser::onAnchorClicked(const QUrl &link)
 		QString name;
 #if(QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
 		QUrlQuery anchorUrlQuery(link);
-		name = QUrl::fromPercentEncoding(anchorUrlQuery.queryItemValue("login").toLocal8Bit());
+		name = QUrl::fromPercentEncoding(anchorUrlQuery.queryItemValue("login").toUtf8());
 		if(name.size() == 0)
-			name = QUrl::fromPercentEncoding(anchorUrlQuery.queryItemValue("ua").toLocal8Bit());
+			name = QUrl::fromPercentEncoding(anchorUrlQuery.queryItemValue("ua").toUtf8());
 #else
 		name = QUrl::fromPercentEncoding(link.queryItemValue("login").toLocal8Bit());
 		if(name.size() == 0)
