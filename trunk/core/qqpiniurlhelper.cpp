@@ -288,10 +288,17 @@ void QQPiniUrlHelper::handleDailymotionExtendedInfo(const QByteArray &jsonInfo, 
 ///
 void QQPiniUrlHelper::getSaufCaExtendedInfo(QUrl &url)
 {
-	if(! url.path().endsWith("/img"))
+	if(url.path().isEmpty())
+	{
+		getContentType(url);
+	}
+	else
 	{
 		QUrl imgUrl = url;
-		imgUrl.setPath(url.path().append("/img"));
+		if(! url.path().endsWith("/img"))
+		{
+			imgUrl.setPath(url.path().append("/img"));
+		}
 
 		emit thumbnailUrlAvailable(url, imgUrl);
 	}
