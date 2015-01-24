@@ -68,7 +68,6 @@ void QQWebImageDownloader::requestFinishedSlot(QNetworkReply *reply)
 		QString errString = reply->attribute(QNetworkRequest::HttpReasonPhraseAttribute).toString();
 
 		qWarning() << Q_FUNC_INFO << "error : " << errString << "HTTP statusCode : " << statusCodeV;
-		emit ready();
 	} // Tout est OK on poursuit
 	else
 	{
