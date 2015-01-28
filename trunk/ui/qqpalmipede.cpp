@@ -177,11 +177,12 @@ void QQPalmipede::setMinimal(bool minimal)
 	m_ui->postPushButton->setVisible(! m_minimal);
 	m_ui->boardSelectorComboBoxMin->setVisible(m_minimal);
 
-	int height = m_ui->postLineEdit->height();
-	if(! minimal)
-		height += m_ui->cmdGrpWidget->height();
+	if(minimal)
+		m_ui->dockWidgetContents->setMaximumHeight(m_ui->postLineEdit->height());
+	else
+		m_ui->dockWidgetContents->setMaximumHeight(QWIDGETSIZE_MAX);
 
-	m_ui->dockWidgetContents->setMaximumHeight(height);
+	m_ui->dockWidgetContents->adjustSize();
 }
 
 void QQPalmipede::changeBoard(bool next)
