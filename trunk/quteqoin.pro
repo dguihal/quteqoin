@@ -33,142 +33,142 @@ SOURCES += main.cpp\
 	core/qqsettings.cpp \
 	core/qqbouchot.cpp \
 	core/qqpost.cpp \
-	ui/qqpalmipede.cpp \
-	ui/qqpinipede.cpp \
-	ui/qqtextbrowser.cpp \
-	xml/qqxmlparser.cpp \
+	core/qqboardstatechangeevent.cpp \
 	core/qqnorloge.cpp \
-	ui/qqmessageblockuserdata.cpp \
+	core/qqwebimagedownloader.cpp \
+	core/qqbakdisplayfilter.cpp \
 	core/qqnorlogeref.cpp \
-	ui/qqproxyauthdialog.cpp \
 	core/qqtotoz.cpp \
 	core/qqtotozdownloader.cpp \
 	core/qqnetworkaccessor.cpp \
-	ui/palmipede/qqpalmilineedit.cpp \
-	core/qqpurgebouchothistoevent.cpp \
-	core/qqbigornoitem.cpp \
-	ui/qqtotozmanager.cpp \
-	core/totozmanager/qqtmrequester.cpp \
-	ui/qqtotozviewer.cpp \
-	xml/totozmanager/qqtmxmlparser.cpp \
-	ui/qqsettingsmanager.cpp \
-	ui/settingsmanager/qqtotozsettings.cpp \
-	ui/settingsmanager/qqgeneralsettings.cpp \
-	ui/settingsmanager/qqpalmisettings.cpp \
-	ui/settingsmanager/qqboardssettings.cpp \
-	ui/settingsmanager/qqbouchotsettingsdialog.cpp \
-	ui/settingsmanager/qqpalmisettingstablewidget.cpp \
-	core/qqpiniurlhelper.cpp \
-	core/qqmessagetransformfilter.cpp \
-	ui/settingsmanager/qqfiltersettings.cpp \
-	core/qqbackendupdatedevent.cpp \
-	ui/qqpostparser.cpp \
-	ui/qqpinisearchwidget.cpp \
-	core/qqsimplepostdisplayfilter.cpp \
-	ui/qqhuntingview.cpp \
-	ui/qqduckpixmapitem.cpp \
+	core/qqmussel.cpp \
 	core/qutetools.cpp \
 	core/qqhuntpixmapitem.cpp \
-	ui/settingsmanager/qqhuntsettings.cpp \
+	core/qqsimplepostdisplayfilter.cpp \
+	core/qqbackendupdatedevent.cpp \
+	core/qqpiniurlhelper.cpp \
+	core/qqmessagetransformfilter.cpp \
+	core/qqpurgebouchothistoevent.cpp \
+	core/qqbigornoitem.cpp \
+	core/totozmanager/qqtmrequester.cpp \
+	ui/qqmessageblockuserdata.cpp \
+	ui/qqproxyauthdialog.cpp \
+	ui/qqtotozmanager.cpp \
+	ui/qqtotozviewer.cpp \
+	ui/qqsettingsmanager.cpp \
+	ui/qqpostparser.cpp \
+	ui/qqpinisearchwidget.cpp \
+	ui/qqhuntingview.cpp \
+	ui/qqduckpixmapitem.cpp \
 	ui/qqboardsinfo.cpp \
 	ui/qqboardinfo.cpp \
-	core/qqmussel.cpp \
 	ui/qqmusselinfo.cpp \
 	ui/qqcmdtoolbuttons.cpp \
 	ui/qqimageviewer.cpp \
 	ui/qqwebimageviewer.cpp \
-	core/qqwebimagedownloader.cpp \
-	core/qqbakdisplayfilter.cpp \
+	ui/qqpalmipede.cpp \
+	ui/qqpinipede.cpp \
+	ui/qqtextbrowser.cpp \
+	ui/boardinfo/qqboardinfoprogressbar.cpp \
+	ui/palmipede/qqpalmilineedit.cpp \
 	ui/palmipede/qqpalmifileposter.cpp \
 	ui/palmipede/qqdockpalmi.cpp \
-	core/qqboardstatechangeevent.cpp \
-	ui/boardinfo/qqboardinfoprogressbar.cpp \
+	ui/settingsmanager/qqboardssettings.cpp \
+	ui/settingsmanager/qqbouchotsettingsdialog.cpp \
 	ui/settingsmanager/qqboardwizard.cpp \
 	ui/settingsmanager/qqboardwizardintro.cpp \
 	ui/settingsmanager/qqboardwizardnative.cpp \
 	ui/settingsmanager/qqboardwizardolccs.cpp \
-    ui/settingsmanager/qqnetworksettings.cpp
+	ui/settingsmanager/qqfiltersettings.cpp \
+	ui/settingsmanager/qqgeneralsettings.cpp \
+	ui/settingsmanager/qqhuntsettings.cpp \
+	ui/settingsmanager/qqnetworksettings.cpp \
+	ui/settingsmanager/qqpalmisettings.cpp \
+	ui/settingsmanager/qqpalmisettingstablewidget.cpp \
+	ui/settingsmanager/qqtotozsettings.cpp \
+	xml/qqxmlparser.cpp \
+	xml/totozmanager/qqtmxmlparser.cpp
 
 HEADERS  += mainwindow.h \
 	core/qqsettings.h \
 	core/qqbouchot.h \
 	core/qqpost.h \
+	core/qqnorloge.h \
+	core/qqnorlogeref.h \
+	core/qqtotoz.h \
+	core/qqtotozdownloader.h \
+	core/qqpurgebouchothistoevent.h \
+	core/qqbigornoitem.h \
+	core/qqnetworkaccessor.h \
+	core/qqsettingsparams.h \
+	core/qqpiniurlhelper.h \
+	core/qqmessagetransformfilter.h \
+	core/qqtypes.h \
+	core/qqbackendupdatedevent.h \
+	core/totozmanager/qqtmrequester.h \
+	core/qqwebimagedownloader.h \
+	core/qqbakdisplayfilter.h \
+	core/qqboardstatechangeevent.h \
+	core/qqmussel.h \
+	core/qqpostdisplayfilter.h \
+	core/qqsimplepostdisplayfilter.h \
+	core/qutetools.h \
+	core/qqhuntpixmapitem.h \
 	ui/qqpalmipede.h \
 	ui/qqpinipede.h \
 	ui/qqtextbrowser.h \
-	xml/qqxmlparser.h \
-	core/qqnorloge.h \
 	ui/qqmessageblockuserdata.h \
-	core/qqnorlogeref.h \
 	ui/qqproxyauthdialog.h \
-	core/qqtotoz.h \
-	core/qqtotozdownloader.h \
-	core/qqnetworkaccessor.h \
-	ui/palmipede/qqpalmilineedit.h \
-	core/qqpurgebouchothistoevent.h \
-	core/qqbigornoitem.h \
 	ui/qqtotozmanager.h \
-	core/totozmanager/qqtmrequester.h \
 	ui/qqtotozviewer.h \
-	xml/totozmanager/qqtmxmlparser.h \
-	core/qqsettingsparams.h \
 	ui/qqsettingsmanager.h \
-	ui/settingsmanager/qqgeneralsettings.h \
-	ui/settingsmanager/qqboardssettings.h \
-	ui/settingsmanager/qqpalmisettings.h \
-	ui/settingsmanager/qqtotozsettings.h \
-	ui/settingsmanager/qqbouchotsettingsdialog.h \
-	ui/settingsmanager/qqpalmisettingstablewidget.h \
-	core/qqpiniurlhelper.h \
-	core/qqmessagetransformfilter.h \
-	ui/settingsmanager/qqfiltersettings.h \
-	core/qqtypes.h \
-	core/qqbackendupdatedevent.h \
 	ui/qqpostparser.h \
 	ui/qqpinisearchwidget.h \
-	core/qqpostdisplayfilter.h \
-	core/qqsimplepostdisplayfilter.h \
 	ui/qqhuntingview.h \
 	ui/qqduckpixmapitem.h \
-	core/qutetools.h \
-	core/qqhuntpixmapitem.h \
-	ui/settingsmanager/qqhuntsettings.h \
 	ui/qqboardsinfo.h \
 	ui/qqboardinfo.h \
-	core/qqmussel.h \
 	ui/qqmusselinfo.h \
 	ui/qqcmdtoolbuttons.h \
 	ui/qqimageviewer.h \
 	ui/qqwebimageviewer.h \
-	core/qqwebimagedownloader.h \
-	core/qqbakdisplayfilter.h \
-	ui/palmipede/qqpalmifileposter.h \
-	ui/palmipede/qqdockpalmi.h \
-	core/qqboardstatechangeevent.h \
 	ui/boardinfo/qqboardinfoprogressbar.h \
+	ui/palmipede/qqpalmifileposter.h \
+	ui/palmipede/qqpalmilineedit.h \
+	ui/palmipede/qqdockpalmi.h \
+	ui/settingsmanager/qqboardssettings.h \
+	ui/settingsmanager/qqbouchotsettingsdialog.h \
 	ui/settingsmanager/qqboardwizard.h \
 	ui/settingsmanager/qqboardwizardintro.h \
 	ui/settingsmanager/qqboardwizardnative.h \
 	ui/settingsmanager/qqboardwizardolccs.h \
-    ui/settingsmanager/qqnetworksettings.h
+	ui/settingsmanager/qqfiltersettings.h \
+	ui/settingsmanager/qqgeneralsettings.h \
+	ui/settingsmanager/qqhuntsettings.h \
+	ui/settingsmanager/qqnetworksettings.h \
+	ui/settingsmanager/qqpalmisettings.h \
+	ui/settingsmanager/qqpalmisettingstablewidget.h \
+	ui/settingsmanager/qqtotozsettings.h \
+	xml/qqxmlparser.h \
+	xml/totozmanager/qqtmxmlparser.h
 
 FORMS += mainwindow.ui \
-	ui/qqpalmipede.ui \
-	ui/qqproxyauthdialog.ui \
-	ui/qqtotozmanager.ui \
-	ui/qqsettingsmanager.ui \
-	ui/settingsmanager/qqboardssettings.ui \
-	ui/settingsmanager/qqbouchotsettingsdialog.ui \
-	ui/settingsmanager/qqgeneralsettings.ui \
-	ui/settingsmanager/qqpalmisettings.ui \
-	ui/settingsmanager/qqtotozsettings.ui \
-	ui/settingsmanager/qqfiltersettings.ui \
-	ui/qqpinisearchwidget.ui \
-	ui/settingsmanager/qqhuntsettings.ui \
 	ui/qqboardsinfo.ui \
 	ui/qqboardinfo.ui \
 	ui/qqcmdtoolbuttons.ui \
-    ui/settingsmanager/qqnetworksettings.ui
+	ui/qqpalmipede.ui \
+	ui/qqpinisearchwidget.ui \
+	ui/qqproxyauthdialog.ui \
+	ui/qqsettingsmanager.ui \
+	ui/qqtotozmanager.ui \
+	ui/settingsmanager/qqboardssettings.ui \
+	ui/settingsmanager/qqbouchotsettingsdialog.ui \
+	ui/settingsmanager/qqfiltersettings.ui \
+	ui/settingsmanager/qqgeneralsettings.ui \
+	ui/settingsmanager/qqhuntsettings.ui \
+	ui/settingsmanager/qqnetworksettings.ui \
+	ui/settingsmanager/qqpalmisettings.ui \
+	ui/settingsmanager/qqtotozsettings.ui
 
 RESOURCES += \
 	rc/quteqoin_img.qrc \
