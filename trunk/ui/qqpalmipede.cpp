@@ -11,7 +11,7 @@
 #define PALMIPEDE_OBJECT_NAME "QQPalmipede"
 
 QQPalmipede::QQPalmipede(QWidget *parent) :
-	QDockWidget(parent),
+	QWidget(parent),
 	m_ui(new Ui::QQPalmipede),
 	m_minimal(false),
 	m_wasVisible(false)
@@ -20,10 +20,6 @@ QQPalmipede::QQPalmipede(QWidget *parent) :
 	setObjectName(PALMIPEDE_OBJECT_NAME);
 
 	m_ui->setupUi(this);
-
-	setFeatures(QDockWidget::DockWidgetClosable |
-				QDockWidget::DockWidgetMovable |
-				QDockWidget::DockWidgetFloatable);
 
 	connect(m_ui->boldButton, SIGNAL(clicked()),
 			m_ui->postLineEdit, SLOT(bold()));
@@ -49,6 +45,8 @@ QQPalmipede::QQPalmipede(QWidget *parent) :
 			this, SLOT(changeBoard(bool)));
 	connect(m_ui->attachButton, SIGNAL(clicked()),
 			m_ui->postLineEdit, SLOT(attachFile()));
+
+	setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
 
 	m_ui->boardSelectorComboBoxMin->setVisible(this->m_minimal);
 }
@@ -81,12 +79,6 @@ void QQPalmipede::removeBouchot(const QString &oldBouchot)
 		m_ui->boardSelectorComboBox->removeItem(index);
 		m_ui->boardSelectorComboBoxMin->removeItem(index);
 	}
-}
-
-void QQPalmipede::setVisible(bool visible)
-{
-	QDockWidget::setVisible(visible);
-	m_wasVisible = visible;
 }
 
 void QQPalmipede::insertReplaceText(const QString &bouchot, const QString &tag)
@@ -126,7 +118,7 @@ void QQPalmipede::insertReplaceText(const QString &tag)
 
 void QQPalmipede::focusInEvent(QFocusEvent * event)
 {
-	QDockWidget::focusInEvent(event);
+	QWidget::focusInEvent(event);
 	m_ui->postLineEdit->setFocus();
 }
 
@@ -173,16 +165,26 @@ void QQPalmipede::setMinimal(bool minimal)
 {
 	m_minimal = minimal;
 
-	m_ui->cmdGrpWidget->setVisible(! m_minimal);
+	m_ui->cmdGrpW->setVisible(! m_minimal);
 	m_ui->postPushButton->setVisible(! m_minimal);
 	m_ui->boardSelectorComboBoxMin->setVisible(m_minimal);
 
-	if(minimal)
-		m_ui->dockWidgetContents->setMaximumHeight(m_ui->postLineEdit->height());
-	else
-		m_ui->dockWidgetContents->setMaximumHeight(QWIDGETSIZE_MAX);
+	adjustSize();
+}
 
-	m_ui->dockWidgetContents->adjustSize();
+QSize QQPalmipede::sizeHint() const
+{
+	QSize s;
+	if(m_ui->cmdGrpW->isVisible())
+		s.setHeight((m_ui->postLineEdit->height() * 3) + 2); // 2*1 spacing
+	else
+		s.setHeight(m_ui->postLineEdit->height());
+
+
+	s.setWidth(m_ui->postLineEdit->minimumWidth());
+
+	qDebug() << Q_FUNC_INFO << "Size :" << s;
+	return s;
 }
 
 void QQPalmipede::changeBoard(bool next)

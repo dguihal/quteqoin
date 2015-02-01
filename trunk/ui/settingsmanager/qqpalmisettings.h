@@ -26,6 +26,9 @@ public:
 	bool isPalmiMinimized() const;
 	void setPalmiMinimized(const bool &isPalmiMini);
 
+	bool isPalmiDocked() const;
+	void setPalmiDocked(const bool &isPalmiDocked);
+
 protected slots:
 
 private:

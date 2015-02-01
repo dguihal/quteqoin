@@ -4,6 +4,7 @@
 #include "core/qqsettings.h"
 #include "ui/qqboardsinfo.h"
 #include "ui/qqpalmipede.h"
+#include "ui/palmipede/qqdockpalmi.h"
 #include "ui/qqpinipede.h"
 #include "ui/qqpinisearchwidget.h"
 #include "ui/qqsettingsmanager.h"
@@ -34,14 +35,19 @@ MainWindow::MainWindow(QWidget *parent) :
 
 	// Setup du palmi
 	m_palmi = new QQPalmipede(this);
-	m_palmi->setAllowedAreas(Qt::TopDockWidgetArea |
-							 Qt::BottomDockWidgetArea);
 	connect(m_palmi, SIGNAL(postMessage(QString,QString)), this, SLOT(doPostMessage(QString,QString)));
-	connect(m_palmi, SIGNAL(visibilityChanged(bool)), this, SLOT(palmiVisibilityChanged(bool)));
-	addDockWidget(Qt::BottomDockWidgetArea, m_palmi, Qt::Horizontal);
 
-	QAction *actionPalmi = m_palmi->toggleViewAction();
-	actionPalmi->setShortcut(Qt::ControlModifier + Qt::Key_P);
+	// Setup du dock du palmi
+	m_dockPalmi = new QQDockPalmi(this);
+	m_dockPalmi->setAllowedAreas(Qt::TopDockWidgetArea |
+							 Qt::BottomDockWidgetArea);
+	addDockWidget(Qt::BottomDockWidgetArea, m_dockPalmi, Qt::Horizontal);
+
+	connect(m_dockPalmi, SIGNAL(visibilityChanged(bool)), this, SLOT(doPalmiVisibilityChanged(bool)));
+
+	m_actionDockPalmi = m_dockPalmi->toggleViewAction();
+	m_actionDockPalmi->setShortcut(Qt::ControlModifier + Qt::Key_P);
+	//actionDockPalmi->setDisabled(true);
 
 	// Setup du totoz manager
 	m_totozManager = new QQTotozManager(this);
@@ -65,7 +71,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	// Setup du bouton d'options
 	QQCmdToolButtons *cmdToolsBtn = new QQCmdToolButtons(this);
 	cmdToolsBtn->addAction(actionBoardInfo);
-	cmdToolsBtn->addAction(actionPalmi);
+	cmdToolsBtn->addAction(m_actionDockPalmi);
 	cmdToolsBtn->addAction(actionTotozManager);
 
 	connect(cmdToolsBtn, SIGNAL(showOptions()), this, SLOT(displayOptions()));
@@ -74,6 +80,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	QWidget *centralWidget = new QWidget(this);
 	QLayout *layout = new QVBoxLayout();
 	layout->setContentsMargins(1, 1, 1, 1);
+	layout->setSpacing(1);
 
 	m_pini = new QQPinipede(this);
 	m_pini->setToolButton(cmdToolsBtn);
@@ -117,16 +124,16 @@ MainWindow::MainWindow(QWidget *parent) :
 		windowsStateCacheFile.remove();
 
 	QQSettings settings;
-	//TODO : Remove later
+
+	//TODO : A supprimer
 	if(settings.contains(SETTINGS_MAINWINDOW_GEOMETRY))
 		settings.remove(SETTINGS_MAINWINDOW_GEOMETRY);
 	if(settings.contains(SETTINGS_MAINWINDOW_STATE))
 		settings.remove(SETTINGS_MAINWINDOW_STATE);
+	//Fin TODO
 
-	if(settings.value(SETTINGS_PALMI_MINI, DEFAULT_PALMI_MINI).toBool())
-		doTriggerMiniPalmi();
-	else
-		doTriggerMaxiPalmi();
+	doPalmiStatusChanged(settings.value(SETTINGS_PALMI_MINI, DEFAULT_PALMI_MINI).toBool(),
+				  settings.value(SETTINGS_PALMI_DOCKED, DEFAULT_PALMI_DOCKED).toBool());
 
 	if(settings.value(SETTINGS_GENERAL_STEALTH_MODE, DEFAULT_GENERAL_STEALTH_MODE).toBool() &&
 			QSystemTrayIcon::isSystemTrayAvailable())
@@ -159,8 +166,7 @@ void MainWindow::displayOptions()
 
 	QQSettingsManager settingsManager(this);
 	connect(&settingsManager, SIGNAL(bouchotCreated(QQBouchot*)), this, SLOT(initBouchot(QQBouchot*)));
-	connect(&settingsManager, SIGNAL(minimizePalmi()), this, SLOT(doTriggerMiniPalmi()));
-	connect(&settingsManager, SIGNAL(maximizePalmi()), this, SLOT(doTriggerMaxiPalmi()));
+	connect(&settingsManager, SIGNAL(palmiStatusChanged(bool,bool)), this, SLOT(doPalmiStatusChanged(bool,bool)));
 	connect(&settingsManager, SIGNAL(fullRepaint()), this, SLOT(doFullRepaint()));
 	connect(&settingsManager, SIGNAL(totozSearchEnabledChanged(bool)), m_totozManager, SLOT(totozSearchEnabled(bool)));
 	settingsManager.exec();
@@ -180,31 +186,35 @@ void MainWindow::doPostMessage(const QString &bouchot, const QString &message)
 	// Bouchot non trouvé ???
 }
 
-void MainWindow::doTriggerMaxiPalmi()
+void MainWindow::doPalmiStatusChanged(bool isPalmiMini, bool isPalmiDocked)
 {
-	minimizePalmi(false);
-}
-
-void MainWindow::doTriggerMiniPalmi()
-{
-	minimizePalmi(true);
-}
-
-void MainWindow::minimizePalmi(bool isPalmiMini)
-{
-	m_ui->actionPalmiExt->setChecked(! isPalmiMini);
-	m_ui->actionPalmiMini->setChecked(isPalmiMini);
-
-	QQSettings settings;
-	settings.setValueWithDefault(SETTINGS_PALMI_MINI, isPalmiMini, DEFAULT_PALMI_MINI);
-
 	m_palmi->setMinimal(isPalmiMini);
+
+	m_actionDockPalmi->setVisible(isPalmiDocked);
+
+	QWidget *w = centralWidget();
+	QLayout *l = w->layout();
+	if(isPalmiDocked)
+	{
+		l->removeWidget(m_palmi);
+		m_palmi->setParent(m_dockPalmi);
+		m_dockPalmi->takePalmiWidget(m_palmi);
+		m_dockPalmi->show();
+	}
+	else
+	{
+		m_dockPalmi->releasePalmiWidget();
+		m_palmi->setParent(w);
+		l->addWidget(m_palmi);
+		m_dockPalmi->hide();
+	}
+
+	m_palmi->setVisible(true);
 }
 
-void MainWindow::palmiVisibilityChanged(bool visible)
+void MainWindow::doPalmiVisibilityChanged(bool isVisible)
 {
-	m_ui->actionPalmiHidden->setChecked(! visible);
-	if(visible)
+	if(isVisible)
 		m_palmi->setFocus();
 	else
 		m_pini->setFocus();

@@ -11,6 +11,7 @@ class QQBoardsSettings;
 class QQFilterSettings;
 class QQGeneralSettings;
 class QQHuntSettings;
+class QQNetworkSettings;
 class QQPalmiSettings;
 class QQTotozSettings;
 
@@ -31,8 +32,7 @@ public:
 signals:
 	void bouchotCreated(QQBouchot *);
 	void totozSearchEnabledChanged(bool);
-	void minimizePalmi();
-	void maximizePalmi();
+	void palmiStatusChanged(bool isPalmiMini, bool isPalmiDocked);
 	void fullRepaint();
 
 protected slots:
@@ -59,6 +59,7 @@ private:
 	QQFilterSettings *m_filterSettingsW;
 	QQGeneralSettings *m_generalSettingsW;
 	QQHuntSettings *m_huntSettingsW;
+	QQNetworkSettings *m_networkSettings;
 	QQPalmiSettings *m_palmiSettingsW;
 	QQTotozSettings *m_totozSettingsW;
 

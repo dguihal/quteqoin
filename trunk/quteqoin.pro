@@ -80,12 +80,14 @@ SOURCES += main.cpp\
 	core/qqwebimagedownloader.cpp \
 	core/qqbakdisplayfilter.cpp \
 	ui/palmipede/qqpalmifileposter.cpp \
+	ui/palmipede/qqdockpalmi.cpp \
 	core/qqboardstatechangeevent.cpp \
 	ui/boardinfo/qqboardinfoprogressbar.cpp \
 	ui/settingsmanager/qqboardwizard.cpp \
 	ui/settingsmanager/qqboardwizardintro.cpp \
 	ui/settingsmanager/qqboardwizardnative.cpp \
-	ui/settingsmanager/qqboardwizardolccs.cpp
+	ui/settingsmanager/qqboardwizardolccs.cpp \
+    ui/settingsmanager/qqnetworksettings.cpp
 
 HEADERS  += mainwindow.h \
 	core/qqsettings.h \
@@ -141,12 +143,14 @@ HEADERS  += mainwindow.h \
 	core/qqwebimagedownloader.h \
 	core/qqbakdisplayfilter.h \
 	ui/palmipede/qqpalmifileposter.h \
+	ui/palmipede/qqdockpalmi.h \
 	core/qqboardstatechangeevent.h \
 	ui/boardinfo/qqboardinfoprogressbar.h \
 	ui/settingsmanager/qqboardwizard.h \
 	ui/settingsmanager/qqboardwizardintro.h \
 	ui/settingsmanager/qqboardwizardnative.h \
-	ui/settingsmanager/qqboardwizardolccs.h
+	ui/settingsmanager/qqboardwizardolccs.h \
+    ui/settingsmanager/qqnetworksettings.h
 
 FORMS += mainwindow.ui \
 	ui/qqpalmipede.ui \
@@ -163,14 +167,15 @@ FORMS += mainwindow.ui \
 	ui/settingsmanager/qqhuntsettings.ui \
 	ui/qqboardsinfo.ui \
 	ui/qqboardinfo.ui \
-	ui/qqcmdtoolbuttons.ui
+	ui/qqcmdtoolbuttons.ui \
+    ui/settingsmanager/qqnetworksettings.ui
 
 RESOURCES += \
 	rc/quteqoin_img.qrc \
 	rc/quteqoin_defs.qrc \
 	rc/quteqoin_anims.qrc
 
-debug {
+CONFIG(debug) {
 	greaterThan(QT_MAJOR_VERSION, 4) {
 		QT += quick
 
@@ -190,7 +195,6 @@ debug {
 			qml/QQmlSettingsItemMenuBtn.qml \
 			qml/QQmlTotozSettings.qml
 	}
-
 }
 
 #QMAKE_CXXFLAGS_RELEASE += -DQT_NO_DEBUG_OUTPUT
@@ -216,11 +220,13 @@ unix {
 }
 
 win32 {
-        RC_FILE = rc/quteqoin_win.rc
-}
+	RC_FILE = rc/quteqoin_win.rc
 
-win32:debug {
-        CONFIG += console
+	CONFIG(debug) {
+		CONFIG += console
+	}
 }
 
 # vim: ts=4 sw=4 sts=4 noexpandtab
+
+DISTFILES +=
