@@ -7,10 +7,12 @@
 #include "ui/settingsmanager/qqfiltersettings.h"
 #include "ui/settingsmanager/qqgeneralsettings.h"
 #include "ui/settingsmanager/qqhuntsettings.h"
+#include "ui/settingsmanager/qqnetworksettings.h"
 #include "ui/settingsmanager/qqpalmisettings.h"
 #include "ui/settingsmanager/qqtotozsettings.h"
 
 #include <QtDebug>
+#include <QApplication>
 
 #define ITEM_GENERAL_TYPE (QListWidgetItem::UserType)
 #define ITEM_TOTOZ_TYPE (QListWidgetItem::UserType + 1)
@@ -18,6 +20,7 @@
 #define ITEM_PALMI_TYPE (QListWidgetItem::UserType + 3)
 #define ITEM_FILTER_TYPE (QListWidgetItem::UserType + 4)
 #define ITEM_HUNT_TYPE (QListWidgetItem::UserType + 5)
+#define ITEM_NETWORK_TYPE (QListWidgetItem::UserType + 6)
 
 
 QQSettingsManager::QQSettingsManager(QWidget *parent) :
@@ -87,6 +90,14 @@ QQSettingsManager::QQSettingsManager(QWidget *parent) :
 	m_huntSettingsW->hide();
 	layout->addWidget(m_huntSettingsW);
 
+	listSettingsTheme->addItem(
+				new QListWidgetItem(QIcon(":/img/network-icon.png"), tr("Network"),
+									listSettingsTheme, ITEM_NETWORK_TYPE)
+				);
+	m_networkSettings = new QQNetworkSettings(this);
+	m_networkSettings->hide();
+	layout->addWidget(m_networkSettings);
+
 	listSettingsTheme->setMaximumWidth(listSettingsTheme->sizeHintForColumn(0) + 15);
 	connect(listSettingsTheme, SIGNAL(itemSelectionChanged()),
 			this, SLOT(configItemChanged()));
@@ -146,6 +157,9 @@ void QQSettingsManager::configItemChanged()
 		break;
 	case ITEM_HUNT_TYPE:
 		m_huntSettingsW->show();
+		break;
+	case ITEM_NETWORK_TYPE:
+		m_networkSettings->show();
 		break;
 	default:
 		qWarning() << "Unknown type : " << item->type() << ", ignoring";
@@ -353,6 +367,10 @@ void QQSettingsManager::initPalmiSettings()
 	//Palmi mini/maxi
 	bool isPalmiMini = settings.value(SETTINGS_PALMI_MINI, DEFAULT_PALMI_MINI).toBool();
 	m_palmiSettingsW->setPalmiMinimized(isPalmiMini);
+
+	//Palmi fixed/docked
+	bool isPalmiDocked = settings.value(SETTINGS_PALMI_DOCKED, DEFAULT_PALMI_DOCKED).toBool();
+	m_palmiSettingsW->setPalmiDocked(isPalmiDocked);
 }
 
 void QQSettingsManager::savePalmiSettings()
@@ -364,17 +382,22 @@ void QQSettingsManager::savePalmiSettings()
 
 	//Palmi mini/maxi
 	bool isPalmiMini = m_palmiSettingsW->isPalmiMinimized();
-	bool oldStatus = settings.value(SETTINGS_PALMI_MINI, DEFAULT_PALMI_MINI).toBool();
+	bool oldState = settings.value(SETTINGS_PALMI_MINI, DEFAULT_PALMI_MINI).toBool();
 
 	settings.setValueWithDefault(SETTINGS_PALMI_MINI, isPalmiMini, DEFAULT_PALMI_MINI);
 
-	if(isPalmiMini != oldStatus)
-	{
-		if(isPalmiMini == true)
-			emit minimizePalmi();
-		else
-			emit maximizePalmi();
-	}
+	bool palmiMinimizedStatusChanged = (oldState != isPalmiMini);
+
+	//Palmi fixed/docked
+	bool isPalmiDocked = m_palmiSettingsW->isPalmiDocked();
+	oldState = settings.value(SETTINGS_PALMI_DOCKED, DEFAULT_PALMI_DOCKED).toBool();
+
+	settings.setValueWithDefault(SETTINGS_PALMI_DOCKED, isPalmiDocked, DEFAULT_PALMI_DOCKED);
+
+	bool palmiDockedStatusChanged = (oldState != isPalmiDocked);
+
+	if(palmiMinimizedStatusChanged || palmiDockedStatusChanged)
+		palmiStatusChanged(isPalmiMini, isPalmiDocked);
 }
 
 void QQSettingsManager::initTotozSettings()

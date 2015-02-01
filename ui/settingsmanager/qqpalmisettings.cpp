@@ -50,3 +50,14 @@ void QQPalmiSettings::setPalmiMinimized(const bool &isPalmiMini)
 	ui->dmExtendedRB->setChecked(! isPalmiMini);
 	ui->dmMinimizedRB->setChecked(isPalmiMini);
 }
+
+bool QQPalmiSettings::isPalmiDocked() const
+{
+	return ui->dmDockRB->isChecked();
+}
+
+void QQPalmiSettings::setPalmiDocked(const bool &isPalmiDocked)
+{
+	ui->dmFixedRB->setChecked(! isPalmiDocked);
+	ui->dmDockRB->setChecked(isPalmiDocked);
+}

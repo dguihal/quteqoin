@@ -18,8 +18,9 @@ ApplicationWindow {
 		query: "/board/post"
 
 		XmlRole { name: "login"; query: "login/string()" }
-		XmlRole { name: "ua"; query: "info/string()" }
 		XmlRole { name: "message"; query: "message/string()" }
+		XmlRole { name: "time"; query: "@time/string()" }
+		XmlRole { name: "ua"; query: "info/string()" }
 	}
 
 	ColumnLayout {
@@ -55,8 +56,22 @@ ApplicationWindow {
 			model: xmlModel
 			delegate: Text {
 				width: parent.width
-				text: "<b>" + login + "</b>\t" + message
 				wrapMode: Text.Wrap
+				function buildText()
+				{
+					var norloge = time.substring(time.length - 6);
+					var textData = "<b>[" + norloge.slice(0, 2) +
+							":" + norloge.slice(2, 4) +
+							":" + norloge.slice(4, 6) + "]</b> ";
+
+					if(login != "")
+						textData +=  "<font color=\"#553333\">" + login + "</font> " + message;
+					else
+						textData +=  "<font color=\"#883333\"><i>" + ua.slice(0, 15) + "</i></font> " + message;
+					text = textData;
+				}
+
+				Component.onCompleted: buildText()
 			}
 		}
 		/*

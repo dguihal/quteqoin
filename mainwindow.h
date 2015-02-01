@@ -6,6 +6,7 @@
 
 class QQBoardsInfo;
 class QQBouchot;
+class QQDockPalmi;
 class QQPalmipede;
 class QQPinipede;
 class QQPiniSearchWidget;
@@ -30,9 +31,8 @@ public:
 public slots:
 	void displayOptions();
 	void doPostMessage(const QString &bouchot, const QString &message);
-	void doTriggerMaxiPalmi();
-	void doTriggerMiniPalmi();
-	void palmiVisibilityChanged(bool visible);
+	void doPalmiStatusChanged(bool isPalmiMini, bool isPalmiDocked);
+	void doPalmiVisibilityChanged(bool isVisible);
 
 protected:
 	virtual void changeEvent(QEvent *event);
@@ -48,10 +48,13 @@ protected slots:
 
 private:
 	void initBouchots();
-	void minimizePalmi(bool isPalmiMini);
 
 	Ui::MainWindow *m_ui;
+
+	QAction *m_actionDockPalmi;
+
 	QQBoardsInfo *m_boardsInfo;
+	QQDockPalmi *m_dockPalmi;
 	QQPalmipede *m_palmi;
 	QQPinipede *m_pini;
 	QQPiniSearchWidget *m_pSearchW;

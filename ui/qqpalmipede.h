@@ -1,7 +1,7 @@
 #ifndef QQPALMIPEDE_H
 #define QQPALMIPEDE_H
 
-#include <QDockWidget>
+#include <QWidget>
 #include <QString>
 
 class QColor;
@@ -11,7 +11,7 @@ namespace Ui {
 class QQPalmipede;
 }
 
-class QQPalmipede : public QDockWidget
+class QQPalmipede : public QWidget
 {
 	Q_OBJECT
 
@@ -19,13 +19,13 @@ public:
 	explicit QQPalmipede(QWidget *parent = 0);
 	~QQPalmipede();
 
-	//QString getCurrentBouchot();
-
 	void insertText(const QString &);
 	void addBouchot(const QString & newBouchot, const QColor & newBouchotColor);
 	void removeBouchot(const QString & oldBouchot);
 
 	void setMinimal(bool minimal);
+
+	virtual QSize sizeHint() const;
 
 signals:
 	void postMessage(const QString & bouchot, const QString & message);
@@ -34,7 +34,6 @@ public slots:
 	void changeBoard(bool next);
 	void insertReplaceText(const QString &bouchot, const QString &tag);
 	void insertReplaceText(const QString &tag);
-	virtual void setVisible(bool visible);
 
 protected:
 	virtual void focusInEvent(QFocusEvent * event);
