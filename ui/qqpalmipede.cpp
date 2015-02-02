@@ -14,7 +14,7 @@ QQPalmipede::QQPalmipede(QWidget *parent) :
 	QWidget(parent),
 	m_ui(new Ui::QQPalmipede),
 	m_minimal(false),
-	m_wasVisible(false)
+	m_wasVisible(true)
 
 {
 	setObjectName(PALMIPEDE_OBJECT_NAME);
@@ -183,7 +183,6 @@ QSize QQPalmipede::sizeHint() const
 
 	s.setWidth(m_ui->postLineEdit->minimumWidth());
 
-	qDebug() << Q_FUNC_INFO << "Size :" << s;
 	return s;
 }
 

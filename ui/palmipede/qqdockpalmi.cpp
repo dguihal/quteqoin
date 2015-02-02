@@ -7,7 +7,7 @@
 
 QQDockPalmi::QQDockPalmi(QWidget *parent) :
 	QDockWidget(parent),
-	m_wasVisible(false),
+	m_wasVisible(true),
 	m_centralW(new QWidget(this)),
 	m_palmiW(NULL)
 {
