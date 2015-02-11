@@ -43,6 +43,7 @@ protected slots:
 	void bouchotDestroyed(QQBouchot *bouchot);
 	void bouchotGroupChanged(QQBouchot *bouchot, QString oldGroupName);
 	void doFullRepaint();
+	void doNetworkSettingsChanged();
 	void initBouchot(QQBouchot *bouchot);
 	void onTrayIconActivated(QSystemTrayIcon::ActivationReason reason);
 

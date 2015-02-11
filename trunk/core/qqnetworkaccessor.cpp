@@ -1,6 +1,8 @@
 #include "qqnetworkaccessor.h"
 #include "ui/qqproxyauthdialog.h"
 
+#include <core/qqsettings.h>
+
 #include <QtDebug>
 #include <QApplication>
 #include <QAuthenticator>
@@ -12,7 +14,7 @@
 QQNetworkAccessor::QQNetworkAccessor(QObject *parent) :
 	QObject(parent)
 {
-	m_qnam = createQNAM();
+	m_qnam = new QNetworkAccessManager(this);
 
 	connect(m_qnam, SIGNAL(finished(QNetworkReply *)),
 			this, SLOT(requestFinishedSlot(QNetworkReply *)));
@@ -21,13 +23,42 @@ QQNetworkAccessor::QQNetworkAccessor(QObject *parent) :
 			this, SLOT(onProxyAuthenticationRequired(QNetworkProxy, QAuthenticator *)));
 }
 
-QNetworkAccessManager * QQNetworkAccessor::createQNAM()
+void QQNetworkAccessor::updateProxySettings()
 {
-	QNetworkAccessManager *qnam = new QNetworkAccessManager(this);
+	QQSettings settings;
 
-	qnam->proxyFactory()->setUseSystemConfiguration(true);
+	QString nMode = settings.value(SETTINGS_NETWORK_MODE, DEFAULT_NETWORK_MODE).toString();
+	if(! SETTINGS_NETWORK_MODES.contains(nMode))
+	{
+		nMode = DEFAULT_NETWORK_MODE;
+		settings.remove(SETTINGS_NETWORK_MODE);
+	}
 
-	return qnam;
+	if(nMode == SETTINGS_NETWORK_MODE_SYSTEM)
+	{
+		QNetworkProxyFactory::setUseSystemConfiguration(true);
+	}
+	else
+	{
+		QNetworkProxyFactory::setUseSystemConfiguration(false);
+		QNetworkProxy p;
+		if(nMode == SETTINGS_NETWORK_MODE_DIRECT)
+		{
+			p.setType(QNetworkProxy::NoProxy);
+		}
+		else //if(Mode == SETTINGS_NETWORK_MODE_MANUAL)
+		{
+			QString host = settings.value(SETTINGS_NETWORK_PROXY_HOST, DEFAULT_NETWORK_PROXY_HOST).toString();
+			quint16 port = settings.value(SETTINGS_NETWORK_PROXY_PORT, DEFAULT_NETWORK_PROXY_PORT).toUInt();
+			bool isHttp = settings.value(SETTINGS_NETWORK_PROXY_IS_HTTP, DEFAULT_NETWORK_PROXY_IS_HTTP).toUInt();
+
+			p.setType(isHttp ? QNetworkProxy::HttpProxy : QNetworkProxy::Socks5Proxy);
+			p.setHostName(host);
+			p.setPort(port);
+
+		}
+		QNetworkProxy::setApplicationProxy(p);
+	}
 }
 
 // Fast month string to int conversion. This code

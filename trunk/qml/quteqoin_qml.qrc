@@ -8,5 +8,6 @@
         <file>QQmlSettingsItem.qml</file>
         <file>QQmlSettingsItemMenuBtn.qml</file>
         <file>QQmlTotozSettings.qml</file>
+        <file>QQmlNetworkSettings.qml</file>
     </qresource>
 </RCC>

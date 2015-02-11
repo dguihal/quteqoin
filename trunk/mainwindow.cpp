@@ -2,6 +2,7 @@
 #include "ui_mainwindow.h"
 #include "core/qqbouchot.h"
 #include "core/qqsettings.h"
+#include "core/qqnetworkaccessor.h"
 #include "ui/qqboardsinfo.h"
 #include "ui/qqpalmipede.h"
 #include "ui/palmipede/qqdockpalmi.h"
@@ -32,6 +33,9 @@ MainWindow::MainWindow(QWidget *parent) :
 
 	QIcon icon = QIcon(QString::fromLatin1(":/img/rubber_duck_yellow.svg"));
 	setWindowIcon(icon);
+
+	// Setup du reseau
+	QQNetworkAccessor::updateProxySettings();
 
 	// Setup du palmi
 	m_palmi = new QQPalmipede(this);
@@ -166,8 +170,9 @@ void MainWindow::displayOptions()
 
 	QQSettingsManager settingsManager(this);
 	connect(&settingsManager, SIGNAL(bouchotCreated(QQBouchot*)), this, SLOT(initBouchot(QQBouchot*)));
-	connect(&settingsManager, SIGNAL(palmiStatusChanged(bool,bool)), this, SLOT(doPalmiStatusChanged(bool,bool)));
 	connect(&settingsManager, SIGNAL(fullRepaint()), this, SLOT(doFullRepaint()));
+	connect(&settingsManager, SIGNAL(networkProxySettingsChanged()), this, SLOT(doNetworkSettingsChanged()));
+	connect(&settingsManager, SIGNAL(palmiStatusChanged(bool,bool)), this, SLOT(doPalmiStatusChanged(bool,bool)));
 	connect(&settingsManager, SIGNAL(totozSearchEnabledChanged(bool)), m_totozManager, SLOT(totozSearchEnabled(bool)));
 	settingsManager.exec();
 
@@ -319,6 +324,11 @@ void MainWindow::doFullRepaint()
 {
 	foreach(QString group, QQBouchot::listGroups())
 		m_pini->repaintPiniTab(group);
+}
+
+void MainWindow::doNetworkSettingsChanged()
+{
+	QQNetworkAccessor::updateProxySettings();
 }
 
 void MainWindow::initBouchot(QQBouchot *bouchot)
