@@ -10,10 +10,10 @@
 #include "ui/qqpostparser.h"
 #include "ui/qqmessageblockuserdata.h"
 #include "ui/qqpalmipede.h"
-#include "ui/qqtextbrowser.h"
 #include "ui/qqtotozmanager.h"
 #include "ui/qqtotozviewer.h"
-#include "ui/qqwebimageviewer.h"
+#include "ui/pinipede/qqtextbrowser.h"
+#include "ui/pinipede/qqwebimageviewer.h"
 
 #ifdef Q_OS_UNIX
 #undef signals
@@ -1221,7 +1221,6 @@ bool QQPinipede::printPostAtCursor(QTextCursor &cursor, QQPost *post)
 	QTextBlock block = cursor.block();
 
 	QTextBlockFormat bFormat = cursor.blockFormat();
-	bFormat.setTabPositions(cursor.document()->defaultTextOption().tabs());
 	bFormat.setBackground(post->bouchot()->settings().colorLight());
 	cursor.setBlockFormat(bFormat);
 
@@ -1315,9 +1314,9 @@ bool QQPinipede::printPostAtCursor(QTextCursor &cursor, QQPost *post)
 	if(textLen + fm.size(Qt::TextSingleLine | Qt::TextExpandTabs, txt).width() > loginUAAreaWidth)
 		txt = fm.elidedText(txt, Qt::ElideMiddle, loginUAAreaWidth - textLen);
 
-	txt.append(m_fieldSep);
-
 	cursor.insertText(txt, loginUaFormat);
+
+	cursor.insertText(QString(m_fieldSep), defaultFormat);
 
 	//message
 

@@ -33,6 +33,7 @@ signals:
 	void bouchotCreated(QQBouchot *);
 	void totozSearchEnabledChanged(bool);
 	void palmiStatusChanged(bool isPalmiMini, bool isPalmiDocked);
+	void networkProxySettingsChanged();
 	void fullRepaint();
 
 protected slots:
@@ -40,18 +41,20 @@ protected slots:
 	void configItemChanged();
 
 private:
-	void initBoardsSettings();
-	void saveBoardsSettings();
-	void initFilterSettings();
-	void saveFilterSettings();
-	void initGeneralSettings();
-	void saveGeneralSettings();
-	void initHuntSettings();
-	void saveHuntSettings();
-	void initPalmiSettings();
-	void savePalmiSettings();
-	void initTotozSettings();
-	void saveTotozSettings();
+	void initBoardsSettings(const QQSettings &settings);
+	void saveBoardsSettings(QQSettings &settings);
+	void initFilterSettings(const QQSettings &settings);
+	void saveFilterSettings(QQSettings &settings);
+	void initGeneralSettings(const QQSettings &settings);
+	void saveGeneralSettings(QQSettings &settings);
+	void initHuntSettings(const QQSettings &settings);
+	void saveHuntSettings(QQSettings &settings);
+	void initNetworkSettings(const QQSettings &settings);
+	void saveNetworkSettings(QQSettings &settings);
+	void initPalmiSettings(const QQSettings &settings);
+	void savePalmiSettings(QQSettings &settings);
+	void initTotozSettings(const QQSettings &settings);
+	void saveTotozSettings(QQSettings &settings);
 
 	Ui::QQSettingsManager *ui;
 
@@ -59,7 +62,7 @@ private:
 	QQFilterSettings *m_filterSettingsW;
 	QQGeneralSettings *m_generalSettingsW;
 	QQHuntSettings *m_huntSettingsW;
-	QQNetworkSettings *m_networkSettings;
+	QQNetworkSettings *m_networkSettingsW;
 	QQPalmiSettings *m_palmiSettingsW;
 	QQTotozSettings *m_totozSettingsW;
 

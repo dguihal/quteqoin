@@ -100,6 +100,16 @@ void QQTextBrowser::updateFont()
 
 	opt.setTabs(listTabs);
 	doc->setDefaultTextOption(opt);
+
+	//Il faut mettre a jour les blocks existant (il y en a toujours un par defaut)
+	QTextCursor c(doc); // Positionne au 1° bloc
+	c.beginEditBlock();
+	do {
+		QTextBlockFormat bf = c.blockFormat();
+		bf.setTabPositions(listTabs);
+		c.setBlockFormat(bf);
+	} while (c.movePosition(QTextCursor::NextBlock, QTextCursor::MoveAnchor, 1));
+	c.endEditBlock();
 }
 
 void QQTextBrowser::notifAreaPaintEvent(QPaintEvent * event)

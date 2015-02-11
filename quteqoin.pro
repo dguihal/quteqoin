@@ -30,9 +30,9 @@ TEMPLATE = app
 
 SOURCES += main.cpp\
 	mainwindow.cpp \
-	core/qqsettings.cpp \
 	core/qqbouchot.cpp \
 	core/qqpost.cpp \
+	core/qqsettings.cpp \
 	core/qqboardstatechangeevent.cpp \
 	core/qqnorloge.cpp \
 	core/qqwebimagedownloader.cpp \
@@ -65,14 +65,15 @@ SOURCES += main.cpp\
 	ui/qqmusselinfo.cpp \
 	ui/qqcmdtoolbuttons.cpp \
 	ui/qqimageviewer.cpp \
-	ui/qqwebimageviewer.cpp \
-	ui/qqpalmipede.cpp \
-	ui/qqpinipede.cpp \
-	ui/qqtextbrowser.cpp \
 	ui/boardinfo/qqboardinfoprogressbar.cpp \
+	ui/qqpalmipede.cpp \
 	ui/palmipede/qqpalmilineedit.cpp \
 	ui/palmipede/qqpalmifileposter.cpp \
 	ui/palmipede/qqdockpalmi.cpp \
+	ui/qqpinipede.cpp \
+	ui/pinipede/qqtextbrowser.cpp \
+	ui/pinipede/qqwebimageviewer.cpp \
+	#ui/pinipede/qqpinimmviewer.cpp \
 	ui/settingsmanager/qqboardssettings.cpp \
 	ui/settingsmanager/qqbouchotsettingsdialog.cpp \
 	ui/settingsmanager/qqboardwizard.cpp \
@@ -114,9 +115,6 @@ HEADERS  += mainwindow.h \
 	core/qqsimplepostdisplayfilter.h \
 	core/qutetools.h \
 	core/qqhuntpixmapitem.h \
-	ui/qqpalmipede.h \
-	ui/qqpinipede.h \
-	ui/qqtextbrowser.h \
 	ui/qqmessageblockuserdata.h \
 	ui/qqproxyauthdialog.h \
 	ui/qqtotozmanager.h \
@@ -131,11 +129,15 @@ HEADERS  += mainwindow.h \
 	ui/qqmusselinfo.h \
 	ui/qqcmdtoolbuttons.h \
 	ui/qqimageviewer.h \
-	ui/qqwebimageviewer.h \
 	ui/boardinfo/qqboardinfoprogressbar.h \
+	ui/qqpalmipede.h \
 	ui/palmipede/qqpalmifileposter.h \
 	ui/palmipede/qqpalmilineedit.h \
 	ui/palmipede/qqdockpalmi.h \
+	ui/qqpinipede.h \
+	ui/pinipede/qqtextbrowser.h \
+	ui/pinipede/qqwebimageviewer.h \
+	#ui/pinipede/qqpinimmviewer.h \
 	ui/settingsmanager/qqboardssettings.h \
 	ui/settingsmanager/qqbouchotsettingsdialog.h \
 	ui/settingsmanager/qqboardwizard.h \
@@ -187,6 +189,7 @@ CONFIG(debug) {
 
 		OTHER_FILES += \
 			qml/QQmlMain.qml \
+			qml/QQmlNetworkSettings.qml \
 			qml/QQmlPinni.qml \
 			qml/QQmlPalmi.qml \
 			qml/QQmlGeneralSettings.qml \

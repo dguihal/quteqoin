@@ -19,6 +19,8 @@ class QQNetworkAccessor : public QObject
 public:
 	QQNetworkAccessor(QObject *parent);
 
+	static void updateProxySettings();
+
 protected slots:
 	virtual void requestFinishedSlot(QNetworkReply *reply) = 0;
 
@@ -27,11 +29,11 @@ protected:
 	QDateTime parseRC822(QString string);
 
 protected:
-	QNetworkReply * httpGet(const QNetworkRequest &request);
-	QNetworkReply * httpHead(const QNetworkRequest &request);
-	QNetworkReply * httpPost(const QNetworkRequest &request,
+	QNetworkReply *httpGet(const QNetworkRequest &request);
+	QNetworkReply *httpHead(const QNetworkRequest &request);
+	QNetworkReply *httpPost(const QNetworkRequest &request,
 							 const QByteArray &postData);
-	QNetworkReply * httpPost(const QNetworkRequest &request,
+	QNetworkReply *httpPost(const QNetworkRequest &request,
 							 QHttpMultiPart *multiPart);
 	void setNetCacheManager(QAbstractNetworkCache *networkCache) { m_qnam->setCache(networkCache); }
 
@@ -41,8 +43,6 @@ protected slots:
 	void onRequestTimeout();
 
 private:
-	QNetworkAccessManager * createQNAM();
-
 	QPointer<QNetworkAccessManager> m_qnam;
 	QMap<QNetworkReply *, QTimer *> m_replyTimers;
 
