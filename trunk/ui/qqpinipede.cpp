@@ -656,126 +656,127 @@ void QQPinipede::norlogeRefHovered(QQNorlogeRef norlogeRef)
 {
 	//qDebug() << Q_FUNC_INFO << "value =" << norlogeRef.nRefId() << norlogeRef.dstBouchot();
 
-	QStringList groups;
-
 	// Src
-	QQBouchot * bouchot = QQBouchot::bouchot(norlogeRef.srcBouchot());
-	Q_ASSERT(bouchot != NULL);
-	groups.append(bouchot->settings().group());
-
-	// Dest
-	bouchot = QQBouchot::bouchot(norlogeRef.dstBouchot());
-	if(bouchot != NULL && !groups.contains(bouchot->settings().group()))
-		groups.append(bouchot->settings().group());
+	QQBouchot *sBouchot = QQBouchot::bouchot(norlogeRef.srcBouchot());
+	Q_ASSERT(sBouchot != NULL);
 
 	bool highlightSuccess = false;
-	QQTextBrowser *textBrowser = NULL;
 	QQSettings settings;
 	QColor color(settings.value(SETTINGS_GENERAL_HIGHLIGHT_COLOR, DEFAULT_GENERAL_HIGHLIGHT_COLOR).toString());
 
-	// On commence par rechercher dans les posts affiches dans le pini
-	foreach(QString group, groups)
+	//Recherche dans le bouchot source
+	QQTextBrowser *textBrowser = m_textBrowserHash.value(sBouchot->settings().group());
+
+	if(textBrowser->isVisible())
 	{
-		textBrowser = m_textBrowserHash.value(group);
+		// Get the cursor position near the top left corner of the current viewport.
+		QTextCursor cursor = textBrowser->cursorForPosition(QPoint(0, 0));
+		//last visible block number
+		QPoint bRP(textBrowser->viewport()->width(), textBrowser->viewport()->height());
+		int lastBlkNum = textBrowser->cursorForPosition(bRP).block().blockNumber();
 
-		if(textBrowser->isVisible())
+		QList<QTextEdit::ExtraSelection> extraSelections;
+		extraSelections.clear();
+		while(cursor.movePosition(QTextCursor::NextBlock, QTextCursor::MoveAnchor))
 		{
-			// Get the cursor position near the top left corner of the current viewport.
-			QTextCursor cursor = textBrowser->cursorForPosition(QPoint(0, 0));
-			//last visible block number
-			QPoint bRP(textBrowser->viewport()->width(), textBrowser->viewport()->height());
-			int lastBlkNum = textBrowser->cursorForPosition(bRP).block().blockNumber();
+			QTextBlock currBlock = cursor.block();
+			if(currBlock.blockNumber() > lastBlkNum)
+				break;
 
-			QList<QTextEdit::ExtraSelection> extraSelections;
-			extraSelections.clear();
-			while(cursor.movePosition(QTextCursor::NextBlock, QTextCursor::MoveAnchor))
+			QQMessageBlockUserData* userData = (QQMessageBlockUserData *) currBlock.userData();
+			if(userData == NULL)
+				continue;
+
+			if(norlogeRef.matchesPost(userData->post()))
 			{
-				QTextBlock currBlock = cursor.block();
-				if(currBlock.blockNumber() > lastBlkNum)
-					break;
+				QColor highlightColor;
+				if(! color.isValid())
+					color = getDynHighlightColor(userData->post()->bouchot()->settings().colorLight());
+				highlightColor = color;
 
-				QQMessageBlockUserData* userData = (QQMessageBlockUserData *) currBlock.userData();
-				if(userData == NULL)
-					continue;
+				QTextBlockFormat format = cursor.blockFormat();
+				format.setBackground(highlightColor);
+				cursor.mergeBlockFormat(format);
 
-				if(norlogeRef.matchesPost(userData->post()))
+				QTextEdit::ExtraSelection extra;
+				extra.cursor = cursor;
+				extraSelections.append(extra);
+
+				//Cible trouvee
+				highlightSuccess = true;
+			}
+			else
+			{
+				QList<QQNorlogeRef> norlogeRefs = userData->norlogeRefs();
+				QTextCursor c = cursor;
+				c.movePosition(QTextCursor::StartOfBlock, QTextCursor::MoveAnchor);
+				int nRefCounter = 0;
+				bool isInNRef = false;
+				for(int i = 0; i < norlogeRefs.size(); i++)
 				{
-					QColor highlightColor;
-					if(! color.isValid())
-						color = getDynHighlightColor(userData->post()->bouchot()->settings().colorLight());
-					highlightColor = color;
-
-					QTextBlockFormat format = cursor.blockFormat();
-					format.setBackground(highlightColor);
-					cursor.mergeBlockFormat(format);
-
-					QTextEdit::ExtraSelection extra;
-					extra.cursor = cursor;
-					extraSelections.append(extra);
-
-					highlightSuccess = true;
-				}
-				else
-				{
-					QList<QQNorlogeRef> norlogeRefs = userData->norlogeRefs();
-					QTextCursor c = cursor;
-					c.movePosition(QTextCursor::StartOfBlock, QTextCursor::MoveAnchor);
-					int nRefCounter = 0;
-					bool isInNRef = false;
-					for(int i = 0; i < norlogeRefs.size(); i++)
+					QQNorlogeRef nRef = norlogeRefs.at(i);
+					if(norlogeRef.matchesNRef(nRef))
 					{
-						QQNorlogeRef nRef = norlogeRefs.at(i);
-						if(norlogeRef.matchesNRef(nRef))
+						QColor highlightColor;
+						if(! color.isValid())
+							color = getDynHighlightColor(userData->post()->bouchot()->settings().colorLight());
+						highlightColor = color;
+
+						while(c.block() == currBlock)
 						{
-							QColor highlightColor;
-							if(! color.isValid())
-								color = getDynHighlightColor(userData->post()->bouchot()->settings().colorLight());
-							highlightColor = color;
-
-							while(c.block() == currBlock)
+							if(c.charFormat().anchorHref().startsWith("nref://"))
 							{
-								if(c.charFormat().anchorHref().startsWith("nref://"))
-								{
-									if(!isInNRef)
-										isInNRef = true;
+								if(!isInNRef)
+									isInNRef = true;
 
-									if(nRefCounter == i)
-									{
-										if(! c.atBlockStart())
-											c.movePosition(QTextCursor::PreviousCharacter, QTextCursor::MoveAnchor);
+								if(nRefCounter == i)
+								{
+									if(! c.atBlockStart())
+										c.movePosition(QTextCursor::PreviousCharacter, QTextCursor::MoveAnchor);
+									c.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor);
+									while(! c.atBlockEnd() && c.charFormat().anchorHref().startsWith("nref://"))
 										c.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor);
-										while(! c.atBlockEnd() && c.charFormat().anchorHref().startsWith("nref://"))
-											c.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor);
-										if(! c.atBlockEnd())
-											c.movePosition(QTextCursor::PreviousCharacter, QTextCursor::KeepAnchor);
+									if(! c.atBlockEnd())
+										c.movePosition(QTextCursor::PreviousCharacter, QTextCursor::KeepAnchor);
 
-										QTextEdit::ExtraSelection extra;
-										extra.format.setBackground(highlightColor);
-										extra.cursor = c;
-										extraSelections.append(extra);
-										break;
-									}
+									QTextEdit::ExtraSelection extra;
+									extra.format.setBackground(highlightColor);
+									extra.cursor = c;
+									extraSelections.append(extra);
+									break;
 								}
-								else if(isInNRef)
-								{
-									nRefCounter++;
-									isInNRef = false;
-								}
-								c.movePosition(QTextCursor::NextCharacter, QTextCursor::MoveAnchor);
 							}
+							else if(isInNRef)
+							{
+								nRefCounter++;
+								isInNRef = false;
+							}
+							c.movePosition(QTextCursor::NextCharacter, QTextCursor::MoveAnchor);
 						}
 					}
 				}
 			}
-
-			textBrowser->setExtraSelections(extraSelections);
 		}
+
+		textBrowser->setExtraSelections(extraSelections);
 	}
 
-	// Si rien n'a ete trouve dans la zone affichee dans le pini
-	if(! highlightSuccess)
+	// Dest
+	QQBouchot *dBouchot = QQBouchot::bouchot(norlogeRef.dstBouchot());
+
+	// Si rien n'a ete trouve dans la zone affichee dans le pini ou que la cible se trouve dans un autre groupe
+	if((dBouchot->settings().group() != sBouchot->settings().group()) ||
+			! highlightSuccess)
 	{
-		QTextCursor cursor = textBrowser->cursorForPosition(QPoint(0, 0));
+		QTextCursor cursor;
+		if(dBouchot->settings().group() != sBouchot->settings().group())
+		{
+			textBrowser = m_textBrowserHash.value(dBouchot->settings().group());
+			cursor = QTextCursor(textBrowser->document());
+			cursor.movePosition(QTextCursor::End, QTextCursor::MoveAnchor);
+		}
+		else
+			cursor = textBrowser->cursorForPosition(QPoint(0, 0));
 
 		QTextDocument destDocument;
 		QTextCursor c(& destDocument);
@@ -798,7 +799,8 @@ void QQPinipede::norlogeRefHovered(QQNorlogeRef norlogeRef)
 				c.movePosition(QTextCursor::Start);
 				found = true;
 			}
-			else if(found == true) // Fin de block matchant, inutile de continuer
+			else if(norlogeRef.dstBouchot() == userData->post()->bouchot()->name() &&
+					found == true) // Fin de block matchant, inutile de continuer
 				break;
 
 		} while(cursor.movePosition(QTextCursor::PreviousBlock));
@@ -810,36 +812,39 @@ void QQPinipede::norlogeRefHovered(QQNorlogeRef norlogeRef)
 			m_hiddenPostViewerLabel->setFixedWidth(this->currentWidget()->width());
 			QString styleSheet = m_hiddenPostViewerLabelSSheet;
 			styleSheet.append("background-color: ")
-					.append(bouchot->settings().colorLight().name())
+					.append(dBouchot->settings().colorLight().name())
 					.append(";");
 			m_hiddenPostViewerLabel->setStyleSheet(styleSheet);
 
+			qDebug() << destDocument.blockCount();
 			//Suppression des ancres non http
-			c = QTextCursor(& destDocument);
 			c.beginEditBlock();
 			do
 			{
-				QTextCharFormat cf = c.charFormat();
-				if(cf.isAnchor() && ! cf.anchorHref().startsWith("http"))
+				do
 				{
-					QString anchor = cf.anchorHref();
-					if(! c.atBlockStart())
-						c.movePosition(QTextCursor::PreviousCharacter, QTextCursor::MoveAnchor);
-					while(!c.atBlockEnd() && cf.isAnchor() && cf.anchorHref() == anchor)
+					QTextCharFormat cf = c.charFormat();
+					if(cf.isAnchor() && ! cf.anchorHref().startsWith("http"))
 					{
-						c.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor);
+						QString anchor = cf.anchorHref();
+						if(! c.atBlockStart())
+							c.movePosition(QTextCursor::PreviousCharacter, QTextCursor::MoveAnchor);
+						while(!c.atBlockEnd() && cf.isAnchor() && cf.anchorHref() == anchor)
+						{
+							c.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor);
+							cf = c.charFormat();
+						}
+						if(!c.atBlockEnd())
+							c.movePosition(QTextCursor::PreviousCharacter, QTextCursor::KeepAnchor);
 						cf = c.charFormat();
-					}
-					if(!c.atBlockEnd())
-						c.movePosition(QTextCursor::PreviousCharacter, QTextCursor::KeepAnchor);
-					cf = c.charFormat();
-					cf.setAnchor(false);
-					cf.setAnchorHref(QString());
+						cf.setAnchor(false);
+						cf.setAnchorHref(QString());
 
-					c.setCharFormat(cf);
-				}
-				c.movePosition(QTextCursor::NextCharacter, QTextCursor::MoveAnchor);
-			} while(!c.atBlockEnd());
+						c.setCharFormat(cf);
+					}
+					c.movePosition(QTextCursor::NextCharacter, QTextCursor::MoveAnchor);
+				} while (!c.atBlockEnd());
+			} while (c.movePosition(QTextCursor::NextBlock, QTextCursor::MoveAnchor));
 			c.endEditBlock();
 
 			m_hiddenPostViewerLabel->setText(destDocument.toHtml());
