@@ -765,8 +765,10 @@ void QQPinipede::norlogeRefHovered(QQNorlogeRef norlogeRef)
 	QQBouchot *dBouchot = QQBouchot::bouchot(norlogeRef.dstBouchot());
 
 	// Si rien n'a ete trouve dans la zone affichee dans le pini ou que la cible se trouve dans un autre groupe
-	if((dBouchot->settings().group() != sBouchot->settings().group()) ||
-			! highlightSuccess)
+	if(dBouchot != NULL &&
+		((dBouchot->settings().group() != sBouchot->settings().group()) ||
+		 ! highlightSuccess)
+		)
 	{
 		QTextCursor cursor;
 		if(dBouchot->settings().group() != sBouchot->settings().group())
