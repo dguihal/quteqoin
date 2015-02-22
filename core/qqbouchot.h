@@ -166,7 +166,7 @@ private:
 	QQListPostPtr m_history;
 	bool m_hasXPostId; //false = unknown
 	QStringList m_xPostIds;
-	int m_lastId;
+	qlonglong m_lastId;
 	QString m_name;
 	QQListPostPtr m_newPostHistory;
 	QQBouchotSettings m_bSettings;
