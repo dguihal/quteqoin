@@ -139,7 +139,7 @@ bool QQPost::operator== (QQPost &b)
 bool QQPost::operator< (QQPost &b)
 {
 	return (bouchot()->name() == b.bouchot()->name()) ?
-				m_id.toInt() < b.m_id.toInt() :
+				m_id.toLongLong() < b.m_id.toLongLong() :
 				m_norloge < b.m_norloge;
 }
 
