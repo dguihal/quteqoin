@@ -37,7 +37,7 @@ public:
 	virtual ~QQXmlParser();
 
 	QString errorString () const;
-	void setLastId(int lastId) { this->m_lastId = lastId; }
+	void setLastId(qlonglong lastId) { this->m_lastId = lastId; }
 	void setTypeSlip(QQBouchot::TypeSlip typeSlip) { this->m_typeSlip = typeSlip; }
 
 	// Methodes héritées de QXmlErrorHandler
@@ -64,7 +64,7 @@ public:
 	bool endDATA() { m_isInCData = false; return true; }
 	//bool endDTD();
 
-	int maxId() { return m_maxId; }
+	qlonglong maxId() { return m_maxId; }
 
 signals:
 	void newPostReady(QQPost & newPost);
@@ -76,8 +76,8 @@ private:
 	QString			m_errorString;
 	QQPost			m_currentPost;
 
-	int m_lastId;
-	int m_maxId;
+	qlonglong m_lastId;
+	qlonglong m_maxId;
 	QQBouchot::TypeSlip m_typeSlip;
 
 	bool m_isInCData;

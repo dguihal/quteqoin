@@ -152,7 +152,7 @@ bool QQXmlParser::startElement(const QString &namespaceURI, const QString &local
 		{
 			if(atts.localName(i) == "id")
 			{
-				int idValue = atts.value(i).toInt();
+				qlonglong idValue = atts.value(i).toLongLong();
 				m_maxId = idValue > m_maxId ? idValue : m_maxId;
 				if(idValue <= this->m_lastId)
 				{
