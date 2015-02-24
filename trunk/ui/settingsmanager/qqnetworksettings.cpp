@@ -7,6 +7,10 @@ QQNetworkSettings::QQNetworkSettings(QWidget *parent) :
 {
 	ui->setupUi(this);
 
+#if(QT_VERSION >= QT_VERSION_CHECK(5, 2, 0))
+	ui->proxyHostLE->setClearButtonEnabled(true);
+#endif
+
 	connect(ui->noProxyRB, SIGNAL(toggled(bool)), this, SLOT(onNetworkModeChanged()));
 	connect(ui->systProxyRB, SIGNAL(toggled(bool)), this, SLOT(onNetworkModeChanged()));
 	connect(ui->customProxyRB, SIGNAL(toggled(bool)), this, SLOT(onNetworkModeChanged()));
