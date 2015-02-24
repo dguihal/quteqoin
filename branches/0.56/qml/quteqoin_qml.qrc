@@ -1,0 +1,13 @@
+<RCC>
+    <qresource prefix="/qml">
+        <file>QQmlGeneralSettings.qml</file>
+        <file>QQmlMain.qml</file>
+        <file>QQmlPalmi.qml</file>
+        <file>QQmlPinni.qml</file>
+        <file>QQmlSettingsEditor.qml</file>
+        <file>QQmlSettingsItem.qml</file>
+        <file>QQmlSettingsItemMenuBtn.qml</file>
+        <file>QQmlTotozSettings.qml</file>
+        <file>QQmlNetworkSettings.qml</file>
+    </qresource>
+</RCC>

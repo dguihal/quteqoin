@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>600</width>
+    <height>720</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>QuteQoin</string>
+  </property>
+  <property name="windowIcon">
+   <iconset resource="rc/quteqoin_img.qrc">
+    <normaloff>:/img/rubber_duck_yellow.svg</normaloff>:/img/rubber_duck_yellow.svg</iconset>
+  </property>
+  <widget class="QWidget" name="centralWidget"/>
+ </widget>
+ <layoutdefault spacing="6" margin="11"/>
+ <resources>
+  <include location="rc/quteqoin_img.qrc"/>
+ </resources>
+ <connections/>
+</ui>
