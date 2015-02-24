@@ -1,7 +1,7 @@
 #ifndef QQHUNTINGVIEW_H
 #define QQHUNTINGVIEW_H
 
-#include "ui/qqduckpixmapitem.h"
+#include "qqduckpixmapitem.h"
 
 #include <QGraphicsView>
 #include <QObject>

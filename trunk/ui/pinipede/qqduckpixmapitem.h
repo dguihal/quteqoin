@@ -1,7 +1,7 @@
 #ifndef QQDUCKPIXMAPITEM_H
 #define QQDUCKPIXMAPITEM_H
 
-#include "core/qqhuntpixmapitem.h"
+#include "qqhuntpixmapitem.h"
 
 class QQDuckPixmapItem : public QQHuntPixmapItem
 {

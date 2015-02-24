@@ -1,7 +1,7 @@
 #ifndef QQPINIPEDE_H
 #define QQPINIPEDE_H
 
-#include "ui/qqhuntingview.h"
+#include "ui/pinipede/qqhuntingview.h"
 
 #include "core/qqnorloge.h"
 #include "core/qqnorlogeref.h"

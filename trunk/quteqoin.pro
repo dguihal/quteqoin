@@ -43,7 +43,6 @@ SOURCES += main.cpp\
 	core/qqnetworkaccessor.cpp \
 	core/qqmussel.cpp \
 	core/qutetools.cpp \
-	core/qqhuntpixmapitem.cpp \
 	core/qqsimplepostdisplayfilter.cpp \
 	core/qqbackendupdatedevent.cpp \
 	core/qqpiniurlhelper.cpp \
@@ -58,8 +57,6 @@ SOURCES += main.cpp\
 	ui/qqsettingsmanager.cpp \
 	ui/qqpostparser.cpp \
 	ui/qqpinisearchwidget.cpp \
-	ui/qqhuntingview.cpp \
-	ui/qqduckpixmapitem.cpp \
 	ui/qqboardsinfo.cpp \
 	ui/qqboardinfo.cpp \
 	ui/qqmusselinfo.cpp \
@@ -71,9 +68,11 @@ SOURCES += main.cpp\
 	ui/palmipede/qqpalmifileposter.cpp \
 	ui/palmipede/qqdockpalmi.cpp \
 	ui/qqpinipede.cpp \
+	ui/pinipede/qqduckpixmapitem.cpp \
+	ui/pinipede/qqhuntingview.cpp \
+	ui/pinipede/qqhuntpixmapitem.cpp \
 	ui/pinipede/qqtextbrowser.cpp \
 	ui/pinipede/qqwebimageviewer.cpp \
-	#ui/pinipede/qqpinimmviewer.cpp \
 	ui/settingsmanager/qqboardssettings.cpp \
 	ui/settingsmanager/qqbouchotsettingsdialog.cpp \
 	ui/settingsmanager/qqboardwizard.cpp \
@@ -114,7 +113,6 @@ HEADERS  += mainwindow.h \
 	core/qqpostdisplayfilter.h \
 	core/qqsimplepostdisplayfilter.h \
 	core/qutetools.h \
-	core/qqhuntpixmapitem.h \
 	ui/qqmessageblockuserdata.h \
 	ui/qqproxyauthdialog.h \
 	ui/qqtotozmanager.h \
@@ -122,8 +120,6 @@ HEADERS  += mainwindow.h \
 	ui/qqsettingsmanager.h \
 	ui/qqpostparser.h \
 	ui/qqpinisearchwidget.h \
-	ui/qqhuntingview.h \
-	ui/qqduckpixmapitem.h \
 	ui/qqboardsinfo.h \
 	ui/qqboardinfo.h \
 	ui/qqmusselinfo.h \
@@ -135,9 +131,11 @@ HEADERS  += mainwindow.h \
 	ui/palmipede/qqpalmilineedit.h \
 	ui/palmipede/qqdockpalmi.h \
 	ui/qqpinipede.h \
+	ui/pinipede/qqduckpixmapitem.h \
+	ui/pinipede/qqhuntingview.h \
+	ui/pinipede/qqhuntpixmapitem.h \
 	ui/pinipede/qqtextbrowser.h \
 	ui/pinipede/qqwebimageviewer.h \
-	#ui/pinipede/qqpinimmviewer.h \
 	ui/settingsmanager/qqboardssettings.h \
 	ui/settingsmanager/qqbouchotsettingsdialog.h \
 	ui/settingsmanager/qqboardwizard.h \

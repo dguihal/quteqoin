@@ -94,11 +94,7 @@
           </widget>
          </item>
          <item>
-          <widget class="QLineEdit" name="proxyHostLE">
-           <property name="clearButtonEnabled">
-            <bool>true</bool>
-           </property>
-          </widget>
+          <widget class="QLineEdit" name="proxyHostLE"/>
          </item>
          <item>
           <widget class="QLabel" name="label_2">
