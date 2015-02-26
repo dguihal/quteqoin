@@ -299,18 +299,20 @@ void QQPalmiLineEdit::joinFileErr(const QString &errStr)
 	msgBox->exec();
 }
 
-#if(QT_VERSION < QT_VERSION_CHECK(5, 2, 0))
 //////////////////////////////////////////////////////////////
 /// \brief LineEdit::updateCloseButton
 /// \param text
 ///
-void QQPalmiLineEdit::updateCloseButton(const QString& text)
+void QQPalmiLineEdit::updateCloseButton(const QString &text)
 {
+#if(QT_VERSION >= QT_VERSION_CHECK(5, 2, 0))
+	Q_UNUSED(text)
+#else
 	m_clearButton->setVisible(!text.isEmpty());
 	if(m_indexInPostHistory == 0)
 		m_postHistory.enqueue(text);
-}
 #endif
+}
 
 //////////////////////////////////////////////////////////////
 /// \brief QQPalmiLineEdit::updateTotozCompleter
