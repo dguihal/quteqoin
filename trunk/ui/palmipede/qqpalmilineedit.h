@@ -45,11 +45,9 @@ protected:
 
 protected slots:
 	void joinFileErr(const QString &errStr);
-
-private slots:
-#if(QT_VERSION < QT_VERSION_CHECK(5, 2, 0))
+//#if(QT_VERSION < QT_VERSION_CHECK(5, 2, 0)) : Marche pas
 	void updateCloseButton(const QString &text);
-#endif
+//
 
 private:
 	void updateTotozCompleter();
