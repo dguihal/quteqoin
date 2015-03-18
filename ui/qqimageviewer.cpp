@@ -55,7 +55,6 @@ void QQImageViewer::displayText(const QString &text)
 	setMinimumSize(txtSize.toSize());
 	setMaximumSize(txtSize.toSize());
 	adjustSize();
-	setPos();
 }
 
 //////////////////////////////////////////////////////////////
@@ -117,10 +116,8 @@ bool QQImageViewer::updateImg(const QByteArray &imgData, const QSize &maxSize)
 	}
 	else
 		displayImage(image);
-	setMinimumSize(imgSize);
-	setMaximumSize(imgSize);
+	setFixedSize(imgSize);
 	adjustSize();
-	setPos();
 
 	return true;
 }
@@ -141,42 +138,4 @@ void QQImageViewer::displayWaitMovie()
 	setMinimumSize(vidSize);
 	setMaximumSize(vidSize);
 	adjustSize();
-	setPos();
-}
-
-//////////////////////////////////////////////////////////////
-/// \brief QQImageViewer::setPos
-///
-void QQImageViewer::setPos()
-{
-	QWidget* parent = parentWidget();
-	if(m_showAtMousePos && parent != NULL)
-	{
-		bool shouldMoveToolTip = true;
-		QPoint totozViewerPos = parent->mapFromGlobal(QCursor::pos());
-		QSize parentSize = parent->size();
-		if(totozViewerPos.x() > (parentSize.width() / 2)) // a droite
-		{
-			totozViewerPos.rx() -= width();
-			shouldMoveToolTip = false;
-		}
-		if(totozViewerPos.y() > (parentSize.height() / 2)) // en dessous
-		{
-			totozViewerPos.ry() -= height();
-			shouldMoveToolTip = false;
-		}
-
-		move(totozViewerPos);
-
-		if(shouldMoveToolTip && QToolTip::isVisible())
-		{
-			QString txt = QToolTip::text();
-
-			QPoint ttPos = totozViewerPos;
-			ttPos.ry() += height();
-
-			QToolTip::showText(parent->mapToGlobal(ttPos), "Lorem Ipsum", parent); // Ne fonctionne pas avec un texte vide
-			QToolTip::showText(parent->mapToGlobal(ttPos), txt, parent);
-		}
-	}
 }

@@ -75,7 +75,6 @@ QQTotozManager::~QQTotozManager()
 
 void QQTotozManager::tabChanged(int tabIndex)
 {
-//	m_ui->qqTMTabWidget->currentWidget()->layout()->setContentsMargins(1, 1, 2, 1);
 	Q_UNUSED(tabIndex);
 
 	handleSearchTextChanged(m_ui->searchLineEdit->text());
@@ -175,7 +174,6 @@ QStringList QQTotozManager::bookmarkedTotozIds()
 #else
 		QDir dirData(QDesktopServices::storageLocation(QDesktopServices::DataLocation));
 #endif
-
 		if(!dirData.exists())
 			dirData.mkpath(dirData.path());
 
@@ -288,7 +286,6 @@ void QQTotozManager::handleSearchTextChanged(QString text)
 
 void QQTotozManager::totozSelected(QString anchor)
 {
-	//qDebug() << "QQTotozManager::totozClicked, anchor=" << anchor;
 	emit totozClicked(anchor);
 }
 

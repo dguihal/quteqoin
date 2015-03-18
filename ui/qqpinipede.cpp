@@ -12,8 +12,8 @@
 #include "ui/qqpalmipede.h"
 #include "ui/qqtotozmanager.h"
 #include "ui/qqtotozviewer.h"
+#include "ui/pinipede/qqpinioverlay.h"
 #include "ui/pinipede/qqtextbrowser.h"
-#include "ui/pinipede/qqwebimageviewer.h"
 
 #ifdef Q_OS_UNIX
 #undef signals
@@ -51,7 +51,7 @@ QQPinipede::QQPinipede(QWidget * parent) :
 	m_totozDownloader(new QQTotozDownloader(this)),
 	m_totozManager(NULL),
 	m_postparser(new QQPostParser(this)),
-	m_huntingView(NULL),
+	m_overlay(new QQPiniOverlay(this)),
 	m_duckAutolaunchEnabled(false),
 	m_fieldSep('\0')
 {
@@ -70,22 +70,10 @@ QQPinipede::QQPinipede(QWidget * parent) :
 	m_hiddenPostViewerLabel->setScaledContents(true);
 	m_hiddenPostViewerLabel->hide();
 
-	m_totozViewer = new QQTotozViewer("", this);
-	m_totozViewer->hide();
-	m_totozViewer->setTotozDownloader(m_totozDownloader);
-	m_totozViewer->enableBookmarksAdd();
-	m_totozViewer->setAttribute(Qt::WA_TransparentForMouseEvents);
-
-	m_webImageViewer = new QQWebImageViewer(this);
-	m_webImageViewer->setImgMaxSize(QSize(50, 50));
-	m_webImageViewer->hide();
-	m_webImageViewer->setAttribute(Qt::WA_TransparentForMouseEvents);
+	connect(m_overlay, SIGNAL(duckKilled(QString,QString)),
+			this, SLOT(duckKilled(QString,QString)));
 
 	addTab(new QWidget(), "(void)");
-
-	m_huntingView = new QQHuntingView(this);
-	m_huntingView->resize(size());
-	connect(m_huntingView, SIGNAL(duckKilled(QString,QString)), this, SLOT(duckKilled(QString,QString)));
 
 	setMovable(true);
 
@@ -147,18 +135,20 @@ void QQPinipede::addPiniTab(const QString &groupName)
 
 	m_textBrowserHash.insert(groupName, textBrowser);
 
-	connect(textBrowser, SIGNAL(duckClicked(QString,QString,bool)), m_huntingView, SLOT(launchDuck(QString,QString,bool)));
-	connect(textBrowser, SIGNAL(shotDuck(bool)), m_huntingView, SLOT(killDuck(bool)));
+	connect(textBrowser, SIGNAL(duckClicked(QString,QString,bool)), m_overlay, SLOT(launchDuck(QString,QString,bool)));
+	connect(textBrowser, SIGNAL(shotDuck(bool)), m_overlay, SLOT(killDuck(bool)));
 	connect(textBrowser, SIGNAL(norlogeClicked(QString, QQNorloge)), this, SLOT(norlogeClicked(QString, QQNorloge)));
 	connect(textBrowser, SIGNAL(norlogeRefClicked(QString, QQNorlogeRef)), this, SLOT(norlogeRefClicked(QString, QQNorlogeRef)));
 	connect(textBrowser, SIGNAL(loginClicked(QString, QString)), this, SLOT(loginClicked(QString, QString)));
 	connect(textBrowser, SIGNAL(norlogeRefHovered(QQNorlogeRef)), this, SLOT(norlogeRefHovered(QQNorlogeRef)));
 	connect(textBrowser, SIGNAL(unHighlight(QQTextBrowser *)), this, SLOT(unHighlight(QQTextBrowser *)));
-	connect(textBrowser, SIGNAL(displayTotoz(const QString &)), this, SLOT(showTotozViewer(const QString &)));
-	connect(textBrowser, SIGNAL(displayWebImage(const QUrl &)), this, SLOT(showWebImageViewer(const QUrl &)));
-	connect(textBrowser, SIGNAL(hideViewers()), this, SLOT(hideViewers()));
+	connect(textBrowser, SIGNAL(displayTotoz(const QString &)), m_overlay, SLOT(showTotoz(const QString &)));
+	connect(textBrowser, SIGNAL(displayMmdaData(const QUrl &, QString &)), m_overlay, SLOT(showUrl(const QUrl &, QString &)));
+	connect(textBrowser, SIGNAL(hideViewers()), m_overlay, SLOT(clearOverview()));
 	connect(textBrowser, SIGNAL(newPostsAcknowledged(QString)), this, SLOT(tabEventsAcknowledged(QString)));
-	connect(textBrowser, SIGNAL(displayTotozContextMenu(QPoint &)), m_totozViewer, SLOT(displayContextMenu(QPoint &)));
+	if(m_totozManager != NULL)
+		connect(textBrowser, SIGNAL(totozBookmarkAct(QString,QQTotoz::TotozBookmarkAction)),
+				m_totozManager, SLOT(totozBookmarkDo(QString,QQTotoz::TotozBookmarkAction)));
 }
 
 //////////////////////////////////////////////////////////////
@@ -654,8 +644,6 @@ void QQPinipede::loginClicked(QString bouchot, QString login)
 ///
 void QQPinipede::norlogeRefHovered(QQNorlogeRef norlogeRef)
 {
-	//qDebug() << Q_FUNC_INFO << "value =" << norlogeRef.nRefId() << norlogeRef.dstBouchot();
-
 	// Src
 	QQBouchot *sBouchot = QQBouchot::bouchot(norlogeRef.srcBouchot());
 	Q_ASSERT(sBouchot != NULL);
@@ -877,54 +865,6 @@ void QQPinipede::unHighlight(QQTextBrowser *tBrowser)
 }
 
 //////////////////////////////////////////////////////////////
-/// \brief QQPinipede::showWebImageViewer
-/// \param totozId
-///
-void QQPinipede::showWebImageViewer(const QUrl &url)
-{
-	hideViewers();
-
-	QQSettings settings;
-	if(! settings.value(SETTINGS_WEB_IMAGE_VIEWER_ENABLED, DEFAULT_WEB_IMAGE_VIEWER_ENABLED).toBool())
-		return;
-
-	int maxSize = settings.value(SETTINGS_WEB_IMAGE_PREVIEW_SIZE, DEFAULT_WEB_IMAGE_PREVIEW_SIZE).toInt();
-	m_webImageViewer->setImgMaxSize(QSize(maxSize, maxSize));
-	m_webImageViewer->setParent(currentWidget());
-	m_webImageViewer->showImg(url);
-	m_webImageViewer->show();
-}
-
-//////////////////////////////////////////////////////////////
-/// \brief QQPinipede::showTotozViewer
-/// \param totozId
-///
-void QQPinipede::showTotozViewer(const QString &totozId)
-{
-	hideViewers();
-
-	QQSettings settings;
-	if(settings.value(SETTINGS_TOTOZ_VISUAL_MODE, DEFAULT_TOTOZ_VISUAL_MODE).toString() ==
-			TOTOZ_VISUAL_MODE_DISABLED)
-		return;
-
-	m_totozViewer->setParent(currentWidget());
-	m_totozViewer->setTotozId(totozId);
-	m_totozViewer->show();
-}
-
-//////////////////////////////////////////////////////////////
-/// \brief QQPinipede::hideViewers
-///
-void QQPinipede::hideViewers()
-{
-	m_totozViewer->hide();
-	m_totozViewer->setParent(this);
-	m_webImageViewer->hide();
-	m_webImageViewer->setParent(this);
-}
-
-//////////////////////////////////////////////////////////////
 /// \brief QQPinipede::getPostForGroup
 /// \param groupName
 /// \param numPost
@@ -954,23 +894,13 @@ void QQPinipede::setTotozManager(QQTotozManager * ttManager)
 	m_totozManager = ttManager;
 
 	if(m_totozManager != NULL)
-		connect(m_totozViewer, SIGNAL(totozBookmarkAct(QString,QQTotoz::TotozBookmarkAction)),
-				m_totozManager, SLOT(totozBookmarkDo(QString,QQTotoz::TotozBookmarkAction)));
-}
-
-//////////////////////////////////////////////////////////////
-/// \brief QQPinipede::contextMenuEvent
-/// \param ev
-///
-void QQPinipede::contextMenuEvent(QContextMenuEvent * ev)
-{
-	if(m_totozViewer->isVisible())
 	{
-		QApplication::sendEvent(m_totozViewer, ev);
-		ev->accept();
+		foreach(QQTextBrowser *tb, m_textBrowserHash.values())
+		{
+			connect(tb, SIGNAL(totozBookmarkAct(QString,QQTotoz::TotozBookmarkAction)),
+					m_totozManager, SLOT(totozBookmarkDo(QString,QQTotoz::TotozBookmarkAction)));
+		}
 	}
-	else
-		QTabWidget::contextMenuEvent(ev);
 }
 
 //////////////////////////////////////////////////////////////
@@ -979,9 +909,9 @@ void QQPinipede::contextMenuEvent(QContextMenuEvent * ev)
 ///
 void QQPinipede::resizeEvent(QResizeEvent *event)
 {
-	if(m_huntingView)
-		m_huntingView->resize(event->size());
 	QTabWidget::resizeEvent(event);
+	if(m_overlay)
+		m_overlay->resize(event->size());
 }
 
 
@@ -1344,7 +1274,7 @@ bool QQPinipede::printPostAtCursor(QTextCursor &cursor, QQPost *post)
 
 	//Duck autolaunch
 	if(m_duckAutolaunchEnabled && !post->isSelfPost() && data->hasDuck())
-		m_huntingView->launchDuck(post->bouchot()->name(), post->id(), post->isSelfPost());
+		m_overlay->launchDuck(post->bouchot()->name(), post->id(), post->isSelfPost());
 
 	//Alerte en cas de réponse
 	if(!post->isSelfPost() && data->hasNRefToSelfPost())

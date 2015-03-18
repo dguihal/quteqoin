@@ -157,10 +157,11 @@ void QQPiniUrlHelper::getContentType(QUrl &url)
 	{
 		QUrl reqUrl = url;
 
-		if(urlInfo->contentType.startsWith("image/"))
-			emit thumbnailUrlAvailable(url, url);
-
 		emit contentTypeAvailable(reqUrl, urlInfo->contentType);
+
+		if(urlInfo->contentType.startsWith("image/") ||
+				urlInfo->contentType.startsWith("video/"))
+			emit mmDataAvailable(url, urlInfo->contentType);
 	}
 }
 
@@ -178,8 +179,10 @@ void QQPiniUrlHelper::handleContentTypeResponse(const QString &contentType, QUrl
 	info->contentType = rep;
 	addToCache(sourceUrl, info);
 
-	if(contentType.startsWith("image/"))
-		emit thumbnailUrlAvailable(sourceUrl, sourceUrl);
+	QString cT = contentType;
+	if(contentType.startsWith("image/") ||
+			contentType.startsWith("video/"))
+		emit mmDataAvailable(sourceUrl, cT);
 
 	emit contentTypeAvailable(sourceUrl, rep);
 }
@@ -217,7 +220,8 @@ void QQPiniUrlHelper::getDailymotionExtendedInfo(QUrl &url)
 	}
 	else
 	{
-		emit thumbnailUrlAvailable(url, urlInfo->videoThumbnailUrl);
+		QString cT = "image/";
+		emit mmDataAvailable(urlInfo->videoThumbnailUrl, cT);
 		emit videoTitleAvailable(url, urlInfo->videoTitle);
 	}
 }
@@ -275,7 +279,8 @@ void QQPiniUrlHelper::handleDailymotionExtendedInfo(const QByteArray &jsonInfo, 
 			addToCache(sourceUrl, info);
 		}
 		QUrl tUrl(thumbnailUrl);
-		emit thumbnailUrlAvailable(sourceUrl, tUrl);
+		QString cT = "image/";
+		emit mmDataAvailable(tUrl, cT);
 	}
 
 	if(! title.isEmpty())
@@ -300,7 +305,8 @@ void QQPiniUrlHelper::getSaufCaExtendedInfo(QUrl &url)
 			imgUrl.setPath(url.path().append("/img"));
 		}
 
-		emit thumbnailUrlAvailable(url, imgUrl);
+		QString cT = "image/";
+		emit mmDataAvailable(imgUrl, cT);
 	}
 }
 
@@ -336,7 +342,8 @@ void QQPiniUrlHelper::getYoutubeExtendedInfo(QUrl &url)
 	}
 	else
 	{
-		emit thumbnailUrlAvailable(url, urlInfo->videoThumbnailUrl);
+		QString cT = "image/";
+		emit mmDataAvailable(urlInfo->videoThumbnailUrl, cT);
 		emit videoTitleAvailable(url, urlInfo->videoTitle);
 	}
 
@@ -448,7 +455,9 @@ void QQPiniUrlHelper::handleYoutubeExtendedInfo(const QByteArray &jsonInfo, QUrl
 		}
 
 		QUrl tUrl(thumbnailUrl);
-		emit thumbnailUrlAvailable(sourceUrl, tUrl);
+		QString cT = "image/";
+		emit mmDataAvailable(tUrl, cT);
+		//emit thumbnailUrlAvailable(sourceUrl, tUrl);
 	}
 
 	if(! title.isEmpty())

@@ -23,7 +23,7 @@ public:
 
 signals:
 	void contentTypeAvailable(QUrl &url, QString &contentType);
-	void thumbnailUrlAvailable(QUrl &url, QUrl &thumbnailUrl);
+	void mmDataAvailable(QUrl &url, QString &contentType);
 	void videoTitleAvailable(QUrl &url, QString &videoTitle);
 
 public slots:

@@ -17,6 +17,8 @@ public:
 	bool showAtMousePos() const { return m_showAtMousePos; }
 	void setShowAtMousePos(bool showAtMousePos) { m_showAtMousePos = showAtMousePos; }
 
+	void displayWaitMovie();
+
 signals:
 
 public slots:
@@ -28,7 +30,6 @@ protected:
 	void displayText(const QString &text);
 	void displayMovie();
 	void displayImage(QImage &image);
-	void displayWaitMovie();
 
 private:
 	void setPos();

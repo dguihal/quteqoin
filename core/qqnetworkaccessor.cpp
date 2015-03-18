@@ -184,7 +184,6 @@ void QQNetworkAccessor::onProxyAuthenticationRequired(const QNetworkProxy &proxy
 {
 	Q_UNUSED(proxy)
 
-	qDebug() << Q_FUNC_INFO << "enter";
 	//Premier echec
 	if(QQNetworkAccessor::m_proxyUser.size() != 0 &&
 			authenticator->user() != QQNetworkAccessor::m_proxyUser)
