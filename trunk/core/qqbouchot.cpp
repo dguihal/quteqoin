@@ -217,7 +217,6 @@ void QQBouchot::addToBak(const QString &name, const bool isAuth)
 bool QQBouchot::isBaked(const QString &name, const bool isAuth) const
 {
 	QPair<QString, bool> newItem = qMakePair(name, isAuth);
-	//qDebug() << Q_FUNC_INFO << newItem << m_bakList.contains(newItem);
 	return m_bakList.contains(newItem);
 }
 

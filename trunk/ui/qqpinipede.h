@@ -1,8 +1,6 @@
 #ifndef QQPINIPEDE_H
 #define QQPINIPEDE_H
 
-#include "ui/pinipede/qqhuntingview.h"
-
 #include "core/qqnorloge.h"
 #include "core/qqnorlogeref.h"
 #include "core/qqtotoz.h"
@@ -17,8 +15,6 @@
 #include <QTextFormat>
 
 class QQBouchot;
-class QQSyntaxHighlighter;
-class QQSettings;
 class QQTextBrowser;
 class QQTotozManager;
 class QQPiniSearchWidget;
@@ -27,7 +23,7 @@ class QQPostDisplayFilter;
 class QQPostParser;
 class QQTotozDownloader;
 class QQTotozViewer;
-class QQWebImageViewer;
+class QQPiniOverlay;
 
 class QLabel;
 class QLineEdit;
@@ -68,9 +64,6 @@ public slots:
 	void norlogeRefClicked(QString srcBouchot, QQNorlogeRef nRef);
 	void norlogeRefHovered(QQNorlogeRef norlogeRef);
 	void unHighlight(QQTextBrowser *tBrowser);
-	void showWebImageViewer(const QUrl &url);
-	void showTotozViewer(const QString &totozId);
-	void hideViewers();
 	void loginClicked(QString bouchot, QString login);
 	void tabEventsAcknowledged(const QString& groupName);
 	void bigorNotify(QString &srcBouchot, QString &poster, bool global);
@@ -81,7 +74,6 @@ signals:
 	void boardGroupEventsAcknowledged(const QString& boardName);
 
 protected:
-	virtual void contextMenuEvent(QContextMenuEvent *ev);
 	virtual void resizeEvent(QResizeEvent *event);
 
 private:
@@ -93,8 +85,6 @@ private:
 
 	QQTotozDownloader *m_totozDownloader;
 	QQTotozManager *m_totozManager;
-	QQTotozViewer *m_totozViewer;
-	QQWebImageViewer *m_webImageViewer;
 	QLabel *m_hiddenPostViewerLabel;
 	QBuffer m_totozData;
 	QString m_hiddenPostViewerLabelSSheet;
@@ -107,7 +97,7 @@ private:
 
 	QMutex m_newPostsAvailableMutex;
 
-	QQHuntingView *m_huntingView;
+	QQPiniOverlay *m_overlay;
 	bool m_duckAutolaunchEnabled;
 	QChar m_fieldSep;
 };

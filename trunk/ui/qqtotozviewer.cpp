@@ -54,7 +54,6 @@ void QQTotozViewer::displayContextMenu(QPoint &pos)
 		else
 			qWarning() << Q_FUNC_INFO << "Unknown action triggered";
 	}
-
 }
 
 void QQTotozViewer::totozAvailable(QString &totozId, bool success, QString &errMsg)

@@ -10,9 +10,12 @@ contains(QT_VERSION, ^4\\.[0-7]\\..*) {
 	error("Use at least Qt 4.8.")
 }
 
-QT += core gui network xml
-greaterThan(QT_MAJOR_VERSION, 4) {
-	QT += widgets
+QT += core network xml
+equals(QT_MAJOR_VERSION, 4) {
+	QT += phonon
+}
+equals(QT_MAJOR_VERSION, 5) {
+	QT += widgets multimediawidgets
 }
 
 
@@ -71,6 +74,7 @@ SOURCES += main.cpp\
 	ui/pinipede/qqduckpixmapitem.cpp \
 	ui/pinipede/qqhuntingview.cpp \
 	ui/pinipede/qqhuntpixmapitem.cpp \
+	ui/pinipede/qqpinioverlay.cpp \
 	ui/pinipede/qqtextbrowser.cpp \
 	ui/pinipede/qqwebimageviewer.cpp \
 	ui/settingsmanager/qqboardssettings.cpp \
@@ -134,6 +138,7 @@ HEADERS  += mainwindow.h \
 	ui/pinipede/qqduckpixmapitem.h \
 	ui/pinipede/qqhuntingview.h \
 	ui/pinipede/qqhuntpixmapitem.h \
+	ui/pinipede/qqpinioverlay.h \
 	ui/pinipede/qqtextbrowser.h \
 	ui/pinipede/qqwebimageviewer.h \
 	ui/settingsmanager/qqboardssettings.h \

@@ -46,7 +46,7 @@ QQTextBrowser::QQTextBrowser(QString groupName, QQPinipede *parent) :
 
 	connect(m_urlHelper, SIGNAL(contentTypeAvailable(QUrl&, QString&)), this, SLOT(onExtendedInfoAvailable(QUrl&, QString&)));
 	connect(m_urlHelper, SIGNAL(videoTitleAvailable(QUrl&, QString&)), this, SLOT(onExtendedInfoAvailable(QUrl&, QString&)));
-	connect(m_urlHelper, SIGNAL(thumbnailUrlAvailable(QUrl&, QUrl&)), this, SLOT(onThumbnailUrlAvailable(QUrl&, QUrl&)));
+	connect(m_urlHelper, SIGNAL(mmDataAvailable(QUrl&,QString&)), this, SLOT(onThumbnailUrlAvailable(QUrl&, QString&)));
 	connect(this, SIGNAL(anchorClicked(QUrl)), this, SLOT(onAnchorClicked(QUrl)));
 	connect(this, SIGNAL(highlighted(QUrl)), this, SLOT(onAnchorHighlighted(QUrl)));
 
@@ -246,6 +246,13 @@ void QQTextBrowser::showTotoz(QString & totozId)
 	}
 }
 
+void QQTextBrowser::onAddTotozToBookmarksAction()
+{
+	qDebug() << Q_FUNC_INFO << m_contextMenuTotozId;
+	emit totozBookmarkAct(m_contextMenuTotozId, QQTotoz::ADD);
+	m_contextMenuTotozId.clear();
+}
+
 void QQTextBrowser::onAnchorClicked(const QUrl &link)
 {
 	if(link.scheme().startsWith("http"))
@@ -391,15 +398,15 @@ void QQTextBrowser::onExtendedInfoAvailable(QUrl &url, QString &contentType)
 	}
 }
 
-void QQTextBrowser::onThumbnailUrlAvailable(QUrl &url, QUrl &thumbnailUrl)
+void QQTextBrowser::onThumbnailUrlAvailable(QUrl &url, QString &contentType)
 {
 	Q_UNUSED(url)
-	if(thumbnailUrl.isValid())
-		emit displayWebImage(thumbnailUrl);
+	if(url.isValid())
+		emit displayMmdaData(url, contentType);
 
 }
 
-void QQTextBrowser::webSearchActionTriggered()
+void QQTextBrowser::onWebSearchAction()
 {
 	QQSettings settings;
 	QString webSearchUrl = settings.value(SETTINGS_GENERAL_WEBSEARCH_URL, DEFAULT_GENERAL_WEBSEARCH_URL).toString();
@@ -427,26 +434,44 @@ void QQTextBrowser::clearViewers()
 
 void QQTextBrowser::contextMenuEvent(QContextMenuEvent * ev)
 {
-	if(m_displayedTotozId.size() > 0)
+	QPoint evPos = ev->pos();
+	evPos.setX(evPos.x() + horizontalScrollBar()->value());
+	evPos.setY(evPos.y() + verticalScrollBar()->value());
+	QMenu *menu = createStandardContextMenu(evPos);
+	QTextCursor cursor = textCursor();
+
+	if(cursor.hasSelection())
 	{
-		QPoint pos = ev->globalPos();
-		emit displayTotozContextMenu(pos);
-		ev->accept();
+		QAction *action = menu->addAction(tr("&Search on web"));
+		connect(action, SIGNAL(triggered()), this, SLOT(onWebSearchAction()));
 	}
-	else
+
+	QString anchor = anchorAt(ev->pos());
+	if(anchor.size() > 0)
 	{
-		QPoint evPos = ev->pos();
-		evPos.setX(evPos.x() + horizontalScrollBar()->value());
-		evPos.setY(evPos.y() + verticalScrollBar()->value());
-		QMenu *menu = createStandardContextMenu(evPos);
-		QTextCursor cursor = textCursor();
-		if(cursor.hasSelection())
+		QUrl anchorUrl(anchor);
+		QString anchorUrlScheme = anchorUrl.scheme();
+		if(anchorUrlScheme == "totoz") // Un [:totoz]
 		{
-			QAction *action = menu->addAction(tr("&Search on web"));
-			connect(action, SIGNAL(triggered()), this, SLOT(webSearchActionTriggered()));
+			m_contextMenuTotozId = anchorUrl.path().remove(0, 1); // Le / initial
+
+			QAction *action = menu->addAction(tr("Add to &bookmarks"));
+			connect(action, SIGNAL(triggered()), this, SLOT(onAddTotozToBookmarksAction()));
+
+			//Suppression du Copy Link Location
+			menu->actions().at(1)->setEnabled(false);
 		}
-		menu->exec(QCursor::pos());
+		else if ((anchorUrlScheme == "msl")    || // Une moule
+				 (anchorUrlScheme == "duck")   || // Un canard
+				 (anchorUrlScheme == "tablev") || // Une table volante
+				 (anchorUrlScheme == "nref"))     // Une norloge
+		{
+			//Suppression du Copy Link Location
+			menu->actions().at(1)->setEnabled(false);
+		}
 	}
+
+	menu->exec(QCursor::pos());
 }
 
 

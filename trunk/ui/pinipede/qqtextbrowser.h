@@ -38,11 +38,11 @@ signals:
 	void norlogeRefHovered(QQNorlogeRef norloge);
 	void unHighlight(QQTextBrowser *);
 	void displayTotoz(const QString &totozId);
-	void displayWebImage(const QUrl &url);
+	void displayMmdaData(const QUrl &url, QString &contentType);
 	void hideViewers();
-	void displayTotozContextMenu(QPoint &pos);
 	void loginClicked(QString board, QString login);
 	void newPostsAcknowledged(QString groupName);
+	void totozBookmarkAct(QString anchor, QQTotoz::TotozBookmarkAction);
 
 protected:
 	virtual void contextMenuEvent(QContextMenuEvent *ev);
@@ -55,11 +55,12 @@ protected:
 	virtual void wheelEvent(QWheelEvent *event);
 
 protected slots:
+	void onAddTotozToBookmarksAction();
 	void onAnchorClicked(const QUrl &link);
 	void onAnchorHighlighted(const QUrl &link);
 	void onExtendedInfoAvailable(QUrl &url, QString &contentType);
-	void onThumbnailUrlAvailable(QUrl &url, QUrl &thumbnailUrl);
-	void webSearchActionTriggered();
+	void onThumbnailUrlAvailable(QUrl &url, QString &thumbnailUrl);
+	void onWebSearchAction();
 
 private:
 	void clearViewers();
@@ -87,6 +88,7 @@ private:
 
 	QString m_highlightedNorlogeRef;
 	QString m_displayedTotozId;
+	QString m_contextMenuTotozId;
 	QUrl m_shownUrl;
 
 	QString m_groupName;

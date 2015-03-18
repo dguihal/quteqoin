@@ -83,7 +83,6 @@ void QQTotozDownloader::requestFinishedSlot(QNetworkReply * reply)
 			expire = QDateTime::currentDateTime();
 			expire.addDays(MAX_CACHE_AGE_DAYS);
 		}
-		qDebug() << Q_FUNC_INFO << "totozId =" << totozId;
 		totoz.setCacheExpireDate(expire);
 		totoz.save();
 		QString errStr;
