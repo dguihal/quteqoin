@@ -442,7 +442,7 @@ void QQBouchot::unregisterForEventNotification(QObject *receiver)
 			if(i.next().receiver == receiver)
 			{
 				disconnect(receiver, SIGNAL(destroyed(QObject *)),
-						this, SLOT(unregisterForEventNotification(QObject*)));
+						   this, SLOT(unregisterForEventNotification(QObject*)));
 				i.remove();
 			}
 		}
@@ -460,8 +460,9 @@ void QQBouchot::requestFinishedSlot(QNetworkReply *reply)
 		QString errMsg = reply->errorString();
 		m_state.hasError = true;
 		qWarning() << Q_FUNC_INFO
-				   << "error : " << reply->error()
-				   << "msg : " << reply->errorString();
+				   << "Bouchot :" << m_name
+				   << "error :" << reply->error()
+				   << "msg :" << reply->errorString();
 		switch(reply->request().attribute(QNetworkRequest::User, QQBouchot::UnknownRequest).toInt(0))
 		{
 			case QQBouchot::BackendRequest:
@@ -469,7 +470,8 @@ void QQBouchot::requestFinishedSlot(QNetworkReply *reply)
 				break;
 			default:
 				qWarning() << Q_FUNC_INFO
-						   << "reply->request().attribute(QNetworkRequest::User).toInt() unknown"
+						   << "Bouchot :" << m_name
+						   << "reply->request().attribute(QNetworkRequest::User).toInt() unknown :"
 						   << reply->request().attribute(QNetworkRequest::User, QQBouchot::UnknownRequest).toInt(0);
 		}
 	}
@@ -478,22 +480,20 @@ void QQBouchot::requestFinishedSlot(QNetworkReply *reply)
 		m_state.hasError = false;
 		switch(reply->request().attribute(QNetworkRequest::User, QQBouchot::UnknownRequest).toInt(0))
 		{
-		case QQBouchot::PostRequest:
-			if(reply->hasRawHeader(X_POST_ID_HEADER))
-			{
-				m_hasXPostId = true;
-				m_xPostIds.append(QString(reply->rawHeader(X_POST_ID_HEADER)));
-			}
+			case QQBouchot::PostRequest:
+				if(reply->hasRawHeader(X_POST_ID_HEADER))
+				{
+					m_hasXPostId = true;
+					m_xPostIds.append(QString(reply->rawHeader(X_POST_ID_HEADER)));
+				}
 
-			fetchBackend();
-			break;
-		case QQBouchot::BackendRequest:
-			parseBackend(reply->readAll());
-			emit refreshOK();
-			break;
-			qWarning() << Q_FUNC_INFO
-					   << reply->error()
-					   << "QQBouchot::requestFinishedSlot, reply->request().attribute(QNetworkRequest::User).toInt() unknown";
+				fetchBackend();
+				break;
+			case QQBouchot::BackendRequest:
+				QString contentType = reply->header(QNetworkRequest::ContentTypeHeader).toString();
+				parseBackend(reply->readAll(), contentType);
+				emit refreshOK();
+				break;
 		}
 	}
 	reply->deleteLater();
@@ -503,18 +503,27 @@ void QQBouchot::requestFinishedSlot(QNetworkReply *reply)
 /// \brief QQBouchot::parseBackend
 /// \param data
 ///
-void QQBouchot::parseBackend(const QByteArray &data)
+void QQBouchot::parseBackend(const QByteArray &data, const QString &contentType)
 {
-	QXmlSimpleReader xmlReader;
-	QXmlInputSource xmlSource;
+	if(contentType.startsWith("text/xml") ||
+			contentType.startsWith("application/xml"))
+	{
+		QXmlSimpleReader xmlReader;
+		QXmlInputSource xmlSource;
 
-	m_xmlParser->setLastId(m_lastId);
-	m_xmlParser->setTypeSlip(m_bSettings.slipType());
+		m_xmlParser->setLastId(m_lastId);
+		m_xmlParser->setTypeSlip(m_bSettings.slipType());
 
-	xmlSource.setData(data);
-	xmlReader.setContentHandler(m_xmlParser);
-	xmlReader.setErrorHandler(m_xmlParser);
-	xmlReader.parse(&xmlSource);
+		xmlSource.setData(data);
+		xmlReader.setContentHandler(m_xmlParser);
+		xmlReader.setErrorHandler(m_xmlParser);
+		xmlReader.parse(&xmlSource);
+	}
+	else
+		qWarning() << Q_FUNC_INFO
+				   << "Bouchot :" << m_name
+				   << "Unsupported backend format (yet) :"
+				   << contentType;
 }
 
 //////////////////////////////////////////////////////////////
@@ -551,7 +560,7 @@ void QQBouchot::parsingFinished()
 	if(m_newPostHistory.size() > 0)
 	{
 		if(m_deltaTimeH == -1 &&
-		   m_history.size() > 0) //Ne peut-etre fait sur le 1° backend recupere
+				m_history.size() > 0) //Ne peut-etre fait sur le 1° backend recupere
 		{
 			//Le delta de TZ ne peut etre determine efficacement que lors d'un
 			// refresh de backend (pas lors du chargement initial).
