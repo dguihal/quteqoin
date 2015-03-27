@@ -11,7 +11,7 @@ public:
 	QQDockPalmi(QWidget *parent = 0);
 	~QQDockPalmi();
 
-	void takePalmiWidget(QQPalmipede *p);
+	void takePalmiWidget(QWidget *p);
 	void releasePalmiWidget();
 
 public slots:

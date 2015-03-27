@@ -175,8 +175,6 @@ void QQPiniOverlay::resizeEvent(QResizeEvent *event)
 ///
 void QQPiniOverlay::dlReady()
 {
-	clearOverview();
-
 	QQSettings settings;
 	int maxSize = settings.value(SETTINGS_WEB_IMAGE_PREVIEW_SIZE, DEFAULT_WEB_IMAGE_PREVIEW_SIZE).toInt();
 
@@ -188,6 +186,8 @@ void QQPiniOverlay::dlReady()
 		QGraphicsProxyWidget *gpw = scene()->addWidget(imgV, Qt::Widget);
 		moveToMousePos(gpw, imgV->size());
 
+		if(m_currentPlayer != NULL)
+			delete m_currentPlayer;
 		m_currentPlayer = new ImagePlayer(gpw, imgV);
 		m_currentPlayer->show();
 	}
@@ -273,8 +273,6 @@ void QQPiniOverlay::killDuck(bool forceSilent)
 ///
 void QQPiniOverlay::showTotoz(const QString &totozId)
 {
-	clearOverview();
-
 	QQSettings settings;
 	if(settings.value(SETTINGS_TOTOZ_VISUAL_MODE, DEFAULT_TOTOZ_VISUAL_MODE).toString() ==
 			TOTOZ_VISUAL_MODE_DISABLED)
@@ -284,6 +282,8 @@ void QQPiniOverlay::showTotoz(const QString &totozId)
 	QGraphicsProxyWidget *gpw = scene()->addWidget(v, Qt::Widget);
 	moveToMousePos(gpw, v->size());
 
+	if(m_currentPlayer != NULL)
+		delete m_currentPlayer;
 	m_currentPlayer = new TotozPlayer(gpw, v);
 	m_currentPlayer->show();
 }
@@ -395,6 +395,8 @@ void QQPiniOverlay::showVideo(const QUrl &url)
 	QGraphicsProxyWidget *gpw = scene()->addWidget(player, Qt::Widget);
 	moveToMousePos(gpw, s);
 
+	if(m_currentPlayer != NULL)
+		delete m_currentPlayer;
 	m_currentPlayer = new VideoPlayer(gpw, player, media);
 	m_currentPlayer->show();
 
@@ -407,12 +409,13 @@ void QQPiniOverlay::showVideo(const QUrl &url)
 ///
 void QQPiniOverlay::showWaitAnim()
 {
-	clearOverview();
 	QQImageViewer *imgV = new QQImageViewer();
 	imgV->displayWaitMovie();
 	QGraphicsProxyWidget *gpw = scene()->addWidget(imgV, Qt::Widget);
 	moveToMousePos(gpw, imgV->size());
 
+	if(m_currentPlayer != NULL)
+		delete m_currentPlayer;
 	m_currentPlayer = new ImagePlayer(gpw, imgV);
 	m_currentPlayer->show();
 

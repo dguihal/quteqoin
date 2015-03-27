@@ -25,7 +25,7 @@ QQDockPalmi::~QQDockPalmi()
 
 }
 
-void QQDockPalmi::takePalmiWidget(QQPalmipede *p)
+void QQDockPalmi::takePalmiWidget(QWidget *p)
 {
 	if(p == NULL)
 		return;

@@ -13,6 +13,10 @@ class QQPiniSearchWidget;
 class QQSettings;
 class QQTotozManager;
 
+#if(QT_VERSION >= QT_VERSION_CHECK(5, 4, 0))
+#define QML_PALMI 1
+class QQuickWidget;
+#endif
 
 namespace Ui {
 	class MainWindow;
@@ -26,7 +30,7 @@ public:
 	explicit MainWindow(QWidget *parent = 0);
 	~MainWindow();
 
-	QQPalmipede * getPalmi() {return m_palmi;}
+	//QQPalmipede * getPalmi() {return m_palmi;}
 
 public slots:
 	void displayOptions();
@@ -56,7 +60,11 @@ private:
 
 	QQBoardsInfo *m_boardsInfo;
 	QQDockPalmi *m_dockPalmi;
+#ifdef QML_PALMI
+	QQuickWidget *m_palmi;
+#else
 	QQPalmipede *m_palmi;
+#endif
 	QQPinipede *m_pini;
 	QQPiniSearchWidget *m_pSearchW;
 	QQTotozManager *m_totozManager;

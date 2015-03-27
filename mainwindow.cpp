@@ -22,6 +22,11 @@
 #include <QSpacerItem>
 #include <QToolButton>
 
+#ifdef QML_PALMI
+#include <QQuickWidget>
+#include <QQuickItem>
+#endif
+
 #define MAINWINDOW_STATE_CACHE_FILE "QuteQoin_Window_State"
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -38,15 +43,19 @@ MainWindow::MainWindow(QWidget *parent) :
 	QQNetworkAccessor::updateProxySettings();
 
 	// Setup du palmi
+#ifdef QML_PALMI
+	m_palmi = new QQuickWidget(QUrl("qrc:/qml/QQmlPalmi.qml"), this);
+	m_palmi->setResizeMode(QQuickWidget::SizeRootObjectToView);
+#else
 	m_palmi = new QQPalmipede(this);
 	connect(m_palmi, SIGNAL(postMessage(QString,QString)), this, SLOT(doPostMessage(QString,QString)));
+#endif
 
 	// Setup du dock du palmi
 	m_dockPalmi = new QQDockPalmi(this);
 	m_dockPalmi->setAllowedAreas(Qt::TopDockWidgetArea |
 							 Qt::BottomDockWidgetArea);
 	addDockWidget(Qt::BottomDockWidgetArea, m_dockPalmi, Qt::Horizontal);
-
 	connect(m_dockPalmi, SIGNAL(visibilityChanged(bool)), this, SLOT(doPalmiVisibilityChanged(bool)));
 
 	m_actionDockPalmi = m_dockPalmi->toggleViewAction();
@@ -193,7 +202,25 @@ void MainWindow::doPostMessage(const QString &bouchot, const QString &message)
 
 void MainWindow::doPalmiStatusChanged(bool isPalmiMini, bool isPalmiDocked)
 {
+#ifdef QML_PALMI
+	QQuickWidget::Status s = m_palmi->status();
+	qDebug() << Q_FUNC_INFO << s;
+	if(s == QQuickWidget::Error)
+	{
+		foreach (QQmlError e, m_palmi->errors()) {
+			qDebug() << Q_FUNC_INFO << e.description();
+		}
+	}
+
+	QQuickItem *palmiItem = m_palmi->rootObject();
+
+	if(isPalmiMini)
+		palmiItem->setState("MINIMIZED");
+	else
+		palmiItem->setState("MAXIMIZED");
+#else
 	m_palmi->setMinimal(isPalmiMini);
+#endif
 
 	m_actionDockPalmi->setVisible(isPalmiDocked);
 
@@ -295,7 +322,7 @@ void MainWindow::bouchotDestroyed(QQBouchot *bouchot)
 	QString name = bouchot->name();
 	QString group = bouchot->settings().group();
 
-	m_palmi->removeBouchot(bouchot->name());
+//	m_palmi->removeBouchot(bouchot->name());
 
 	QList<QQBouchot *> bouchots = QQBouchot::listBouchotsGroup(group);
 	(bouchots.size() == 0) ?
@@ -339,7 +366,7 @@ void MainWindow::initBouchot(QQBouchot *bouchot)
 	bouchot->setParent(this);
 	bouchot->registerForEventNotification(m_pini, QQBouchot::NewPostsAvailable | QQBouchot::StateChanged);
 	m_pini->addPiniTab(bouchot->settings().group());
-	m_palmi->addBouchot(bouchot->name(), bouchot->settings().colorLight());
+//	m_palmi->addBouchot(bouchot->name(), bouchot->settings().colorLight());
 
 	connect(bouchot, SIGNAL(destroyed(QQBouchot*)), this, SLOT(bouchotDestroyed(QQBouchot *)));
 	connect(bouchot, SIGNAL(groupChanged(QQBouchot*,QString)), this, SLOT(bouchotGroupChanged(QQBouchot*,QString)));

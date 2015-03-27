@@ -16,8 +16,10 @@ equals(QT_MAJOR_VERSION, 4) {
 }
 equals(QT_MAJOR_VERSION, 5) {
 	QT += widgets multimediawidgets
+	greaterThan(QT_MINOR_VERSION, 3) {
+		QT += quickwidgets
+	}
 }
-
 
 # A Tester
 #linux-g++ {
@@ -180,8 +182,8 @@ RESOURCES += \
 	rc/quteqoin_defs.qrc \
 	rc/quteqoin_anims.qrc
 
-CONFIG(debug) {
-	greaterThan(QT_MAJOR_VERSION, 4) {
+#CONFIG(debug) {
+#	greaterThan(QT_MAJOR_VERSION, 4) {
 		QT += quick
 
 		SOURCES += qml/documenthandler.cpp
@@ -200,10 +202,9 @@ CONFIG(debug) {
 			qml/QQmlSettingsItem.qml \
 			qml/QQmlSettingsItemMenuBtn.qml \
 			qml/QQmlTotozSettings.qml
-	}
-}
+#	}
+#}
 
-#QMAKE_CXXFLAGS_RELEASE += -DQT_NO_DEBUG_OUTPUT
 
 unix {
 	isEmpty(PREFIX) {
