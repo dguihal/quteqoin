@@ -33,8 +33,9 @@ private:
 
 	enum RequestTypeAttribute {
 		RequestContentType = QNetworkRequest::User,
-		RequestYoutubeInfo,
-		RequestDailyMotionInfo
+		RequestDailyMotionInfo,
+		RequestVimeoInfo,
+		RequestYoutubeInfo
 	};
 
 	void getContentType(QUrl &url);
@@ -42,6 +43,8 @@ private:
 	void getDailymotionExtendedInfo(QUrl &url);
 	void handleDailymotionExtendedInfo(const QByteArray &jsonInfo, QUrl &sourceUrl);
 	void getSaufCaExtendedInfo(QUrl &url);
+	void getVimeoExtendedInfo(QUrl &url);
+	void handleVimeoExtendedInfo(const QByteArray &jsonInfo, QUrl &sourceUrl);
 	void getYoutubeExtendedInfo(QUrl &url);
 	void handleYoutubeExtendedInfo(const QByteArray &jsonInfo, QUrl &sourceUrl);
 
