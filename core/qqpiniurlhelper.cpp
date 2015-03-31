@@ -50,6 +50,8 @@ void QQPiniUrlHelper::getUrlInfo(QUrl &url)
 		getYoutubeExtendedInfo(url);
 	else if(url.host().endsWith("dailymotion.com"))
 		getDailymotionExtendedInfo(url);
+	else if(url.host().endsWith("vimeo.com"))
+		getVimeoExtendedInfo(url);
 	else if(url.host() == "sauf.ca")
 		getSaufCaExtendedInfo(url);
 	else
@@ -130,10 +132,12 @@ void QQPiniUrlHelper::requestFinishedSlot(QNetworkReply *reply)
 
 			if(rq.attribute((QNetworkRequest::Attribute) RequestContentType, false).toBool())
 				handleContentTypeResponse(reply->header(QNetworkRequest::ContentTypeHeader).toString(), sourceUrl);
-			else if(rq.attribute((QNetworkRequest::Attribute) RequestYoutubeInfo, false).toBool())
-				handleYoutubeExtendedInfo(reply->readAll(), sourceUrl);
 			else if(rq.attribute((QNetworkRequest::Attribute) RequestDailyMotionInfo, false).toBool())
 				handleDailymotionExtendedInfo(reply->readAll(), sourceUrl);
+			else if(rq.attribute((QNetworkRequest::Attribute) RequestVimeoInfo, false).toBool())
+				handleVimeoExtendedInfo(reply->readAll(), sourceUrl);
+			else if(rq.attribute((QNetworkRequest::Attribute) RequestYoutubeInfo, false).toBool())
+				handleYoutubeExtendedInfo(reply->readAll(), sourceUrl);
 		}
 	}
 	reply->deleteLater();
@@ -311,6 +315,122 @@ void QQPiniUrlHelper::getSaufCaExtendedInfo(QUrl &url)
 }
 
 //////////////////////////////////////////////////////////////
+/// \brief QQPiniUrlHelper::getVimeoExtendedInfo
+/// \param url
+///
+void QQPiniUrlHelper::getVimeoExtendedInfo(QUrl &url)
+{
+	QQPiniUrlHelper::CacheInfo *urlInfo = m_cache[url];
+	if(urlInfo == NULL)
+	{
+		QString vidId = url.path().split('/', QString::SkipEmptyParts).first();
+
+		QUrl qUrl = QUrl(QString("http://vimeo.com/api/v2/video/%1.json").arg(vidId));
+		QNetworkRequest r(qUrl);
+		r.setAttribute((QNetworkRequest::Attribute) RequestVimeoInfo, true);
+		QNetworkReply *reply = httpGet(r);
+		reply->setProperty(INITIAL_URL_PROPERTY, url);
+
+		m_contentTypeReplies.append(reply);
+	}
+	else
+	{
+		QString cT = "image/";
+		emit mmDataAvailable(urlInfo->videoThumbnailUrl, cT);
+		emit videoTitleAvailable(url, urlInfo->videoTitle);
+	}
+
+}
+
+//////////////////////////////////////////////////////////////
+/// \brief QQPiniUrlHelper::handleVimeoExtendedInfo
+/// \param jsonInfo
+/// \param sourceUrl
+///
+/*
+[
+ {
+  "id":21003613,
+  "title":"In Heaven Everything Is Fine",
+  "description":"",
+  "url":"http:\/\/vimeo.com\/21003613",
+  "upload_date":"2011-03-13 23:28:00",
+  "mobile_url":"http:\/\/vimeo.com\/21003613",
+  "thumbnail_small":"http:\/\/i.vimeocdn.com\/video\/134783860_100x75.jpg",
+  "thumbnail_medium":"http:\/\/i.vimeocdn.com\/video\/134783860_200x150.jpg",
+  "thumbnail_large":"http:\/\/i.vimeocdn.com\/video\/134783860_640.jpg",
+  "user_id":5973882,
+  "user_name":"David Lynch",
+  "user_url":"http:\/\/vimeo.com\/davidlynchofficial",
+  "user_portrait_small":"http:\/\/i.vimeocdn.com\/portrait\/1627937_30x30.jpg",
+  "user_portrait_medium":"http:\/\/i.vimeocdn.com\/portrait\/1627937_75x75.jpg",
+  "user_portrait_large":"http:\/\/i.vimeocdn.com\/portrait\/1627937_100x100.jpg",
+  "user_portrait_huge":"http:\/\/i.vimeocdn.com\/portrait\/1627937_300x300.jpg",
+  "stats_number_of_likes":1157,
+  "stats_number_of_plays":80797,
+  "stats_number_of_comments":77,
+  "duration":98,
+  "width":1280,
+  "height":720,
+  "tags":"",
+  "embed_privacy":"anywhere"
+ }
+]
+*/
+void QQPiniUrlHelper::handleVimeoExtendedInfo(const QByteArray &jsonInfo, QUrl &sourceUrl)
+{
+	QString thumbnailUrl, title;
+
+	QQPiniUrlHelper::CacheInfo *info = new QQPiniUrlHelper::CacheInfo;
+	//JSON seulement supporté par Qt 5
+#if(QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
+	QJsonParseError error;
+	QJsonDocument d = QJsonDocument::fromJson(jsonInfo, &error);
+	if(d.isEmpty())
+	{
+		qDebug() << "error" << error.errorString();
+		return;
+	}
+	QJsonArray a = d.array();
+	QJsonObject o = a[0].toObject();
+	thumbnailUrl = o["thumbnail_medium"].toString();
+	title = o["title"].toString();
+#else
+
+	QString str = QString::fromUtf8(jsonInfo);
+	QRegExp r("\"title\": *\"([^\"]*)");
+
+	if(r.indexIn(str) > 0)
+		title = r.capturedTexts().at(1);
+
+	r = QRegExp("\"thumbnail_medium\": *\"([^\"]*)");
+	if(r.indexIn(str) > 0)
+		thumbnailUrl = r.capturedTexts().at(1);
+
+#endif
+	info->videoThumbnailUrl = thumbnailUrl;
+	info->videoTitle = title;
+	addToCache(sourceUrl, info);
+
+	if(! thumbnailUrl.isEmpty())
+	{
+		if(! title.isEmpty())
+		{
+			info->videoThumbnailUrl = thumbnailUrl;
+			info->videoTitle = title;
+			addToCache(sourceUrl, info);
+		}
+
+		QUrl tUrl(thumbnailUrl);
+		QString cT = "image/";
+		emit mmDataAvailable(tUrl, cT);
+	}
+
+	if(! title.isEmpty())
+		emit videoTitleAvailable(sourceUrl, title);
+}
+
+//////////////////////////////////////////////////////////////
 /// \brief QQPiniUrlHelper::getYoutubeExtendedInfo
 /// \param ytId
 ///
@@ -457,7 +577,6 @@ void QQPiniUrlHelper::handleYoutubeExtendedInfo(const QByteArray &jsonInfo, QUrl
 		QUrl tUrl(thumbnailUrl);
 		QString cT = "image/";
 		emit mmDataAvailable(tUrl, cT);
-		//emit thumbnailUrlAvailable(sourceUrl, tUrl);
 	}
 
 	if(! title.isEmpty())
