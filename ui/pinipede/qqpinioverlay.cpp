@@ -6,6 +6,7 @@
 #else
 #include <phonon/VideoPlayer>
 #include <phonon/MediaObject>
+#include <QCoreApplication>
 #endif
 
 #include "core/qqsettings.h"
