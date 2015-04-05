@@ -46,6 +46,9 @@ MainWindow::MainWindow(QWidget *parent) :
 #ifdef QML_PALMI
 	m_palmi = new QQuickWidget(QUrl("qrc:/qml/QQmlPalmi.qml"), this);
 	m_palmi->setResizeMode(QQuickWidget::SizeRootObjectToView);
+
+	QObject::connect(m_palmi->rootObject(), SIGNAL(post(QString, QString)),
+					 this, SLOT(doPostMessage(QString, QString)));
 #else
 	m_palmi = new QQPalmipede(this);
 	connect(m_palmi, SIGNAL(postMessage(QString,QString)), this, SLOT(doPostMessage(QString,QString)));
@@ -54,7 +57,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	// Setup du dock du palmi
 	m_dockPalmi = new QQDockPalmi(this);
 	m_dockPalmi->setAllowedAreas(Qt::TopDockWidgetArea |
-							 Qt::BottomDockWidgetArea);
+								 Qt::BottomDockWidgetArea);
 	addDockWidget(Qt::BottomDockWidgetArea, m_dockPalmi, Qt::Horizontal);
 	connect(m_dockPalmi, SIGNAL(visibilityChanged(bool)), this, SLOT(doPalmiVisibilityChanged(bool)));
 
@@ -66,7 +69,14 @@ MainWindow::MainWindow(QWidget *parent) :
 	m_totozManager = new QQTotozManager(this);
 	m_totozManager->setAllowedAreas(Qt::LeftDockWidgetArea |
 									Qt::RightDockWidgetArea);
+#ifdef QML_PALMI
+	qmlRegisterType<QQTotozManager>("QuteQoin.QmlComponents", 1, 0, "TotozManager");
+	connect(m_totozManager, SIGNAL(totozClicked(QString)),
+			m_palmi->rootObject(), SIGNAL(insertText(QString)));
+#else
 	connect(m_totozManager, SIGNAL(totozClicked(QString)), m_palmi, SLOT(insertReplaceText(QString)));
+#endif
+
 	addDockWidget(Qt::RightDockWidgetArea, m_totozManager, Qt::Vertical);
 
 	QAction *actionTotozManager = m_totozManager->toggleViewAction();
@@ -75,7 +85,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	// Setup du board info
 	m_boardsInfo = new QQBoardsInfo(this);
 	m_boardsInfo->setAllowedAreas(Qt::LeftDockWidgetArea |
-									Qt::RightDockWidgetArea);
+								  Qt::RightDockWidgetArea);
 	addDockWidget(Qt::LeftDockWidgetArea, m_boardsInfo, Qt::Vertical);
 
 	QAction *actionBoardInfo = m_boardsInfo->toggleViewAction();
@@ -98,7 +108,12 @@ MainWindow::MainWindow(QWidget *parent) :
 	m_pini = new QQPinipede(this);
 	m_pini->setToolButton(cmdToolsBtn);
 	m_pini->setTotozManager(m_totozManager);
+#ifdef QML_PALMI
+	connect(m_pini, SIGNAL(insertTextPalmi(QString, QString)),
+			m_palmi->rootObject(), SIGNAL(insertReplaceText(QString, QString)));
+#else
 	connect(m_pini, SIGNAL(insertTextPalmi(QString, QString)), m_palmi, SLOT(insertReplaceText(QString, QString)));
+#endif
 	layout->addWidget(m_pini);
 
 	m_pSearchW = new QQPiniSearchWidget(this);
@@ -123,7 +138,7 @@ MainWindow::MainWindow(QWidget *parent) :
 #endif
 
 	if(!dirData.exists())
-			dirData.mkpath(dirData.path());
+		dirData.mkpath(dirData.path());
 
 	QFile windowsStateCacheFile(dirData.filePath(MAINWINDOW_STATE_CACHE_FILE));
 	bool success = false;
@@ -146,7 +161,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	//Fin TODO
 
 	doPalmiStatusChanged(settings.value(SETTINGS_PALMI_MINI, DEFAULT_PALMI_MINI).toBool(),
-				  settings.value(SETTINGS_PALMI_DOCKED, DEFAULT_PALMI_DOCKED).toBool());
+						 settings.value(SETTINGS_PALMI_DOCKED, DEFAULT_PALMI_DOCKED).toBool());
 
 	if(settings.value(SETTINGS_GENERAL_STEALTH_MODE, DEFAULT_GENERAL_STEALTH_MODE).toBool() &&
 			QSystemTrayIcon::isSystemTrayAvailable())
@@ -192,6 +207,7 @@ void MainWindow::displayOptions()
 
 void MainWindow::doPostMessage(const QString &bouchot, const QString &message)
 {
+	qDebug() << Q_FUNC_INFO << bouchot << message;
 	QQBouchot *bouchotDest = QQBouchot::bouchot(bouchot);
 
 	if(bouchotDest != NULL)
@@ -273,7 +289,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
 #endif
 
 	if(!dirData.exists())
-			dirData.mkpath(dirData.path());
+		dirData.mkpath(dirData.path());
 
 	QFile windowsStateCacheFile(dirData.filePath(MAINWINDOW_STATE_CACHE_FILE));
 	if(windowsStateCacheFile.open(QIODevice::ReadWrite | QIODevice::Text))
@@ -322,7 +338,7 @@ void MainWindow::bouchotDestroyed(QQBouchot *bouchot)
 	QString name = bouchot->name();
 	QString group = bouchot->settings().group();
 
-//	m_palmi->removeBouchot(bouchot->name());
+	//	m_palmi->removeBouchot(bouchot->name());
 
 	QList<QQBouchot *> bouchots = QQBouchot::listBouchotsGroup(group);
 	(bouchots.size() == 0) ?
@@ -366,7 +382,14 @@ void MainWindow::initBouchot(QQBouchot *bouchot)
 	bouchot->setParent(this);
 	bouchot->registerForEventNotification(m_pini, QQBouchot::NewPostsAvailable | QQBouchot::StateChanged);
 	m_pini->addPiniTab(bouchot->settings().group());
-//	m_palmi->addBouchot(bouchot->name(), bouchot->settings().colorLight());
+#ifdef QML_PALMI
+	QMetaObject::invokeMethod(m_palmi->rootObject(), "addBouchot",
+							  Q_ARG(QVariant, bouchot->name()),
+							  Q_ARG(QVariant, bouchot->settings().color()),
+							  Q_ARG(QVariant, bouchot->settings().colorLight()) );
+#else
+	m_palmi->addBouchot(bouchot->name(), bouchot->settings().colorLight());
+#endif
 
 	connect(bouchot, SIGNAL(destroyed(QQBouchot*)), this, SLOT(bouchotDestroyed(QQBouchot *)));
 	connect(bouchot, SIGNAL(groupChanged(QQBouchot*,QString)), this, SLOT(bouchotGroupChanged(QQBouchot*,QString)));

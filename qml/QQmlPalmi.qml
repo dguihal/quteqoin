@@ -1,28 +1,52 @@
-import QtQuick 2.2
-import QtQuick.Controls 1.3
-import QtQuick.Controls.Styles 1.3
+import QtQuick 2.3
+import QtQuick.Controls 1.2
+import QtQuick.Controls.Styles 1.2
 
 Rectangle {
 	id:palmipede
 	height: 94
 	width: 400
 
-	TextField {
+	property int lineHeight: 30
+
+
+	/*************************************************
+	 * Post Line input
+	 *************************************************/
+	Rectangle {
 		id: postInput
-		height: 30
 		anchors {
 			left: palmipede.left
 			leftMargin: 2
-			right: boardSelector.left
+			right: postBtn.left
 			rightMargin: 2
+			top:palmipede.top
+			topMargin: 2
+		}
+		height: palmipede.lineHeight
+		radius: 4
+
+		TextField {
+			id: postInputTF
+			anchors.fill: parent
+			placeholderText: "coin ! coin !"
+
+			style: TextFieldStyle {
+				background: Rectangle {
+					color: "transparent"
+					border.width: 0
+				}
+			}
+
+			onAccepted: palmipede.doPost()
 		}
 
-		placeholderText: "coin ! coin !"
-		onAccepted: {
-			palmipede.post();
-		}
+		property alias text: postInputTF.text
 	}
 
+	/*************************************************
+	 * Board Selector
+	 *************************************************/
 	ComboBox {
 		id: boardSelector
 		anchors {
@@ -31,50 +55,86 @@ Rectangle {
 			verticalCenter: postInput.verticalCenter
 		}
 
-		model: [ "" ]
+		model: ListModel {
+			id: boardSelectorItems
+
+			onRowsInserted: boardSelector.doValueChanged()
+		}
+		textRole: "name"
+
+		onCurrentIndexChanged: doValueChanged()
+
+		function doValueChanged() {
+			if(currentIndex >= 0 &&
+					currentIndex < boardSelectorItems.count) {
+				postInput.color = boardSelectorItems.get(currentIndex).colorLight
+				postInput.border.color = boardSelectorItems.get(currentIndex).color
+			}
+		}
 	}
 
-	Button {
+	/*************************************************
+	 * Post Button
+	 *************************************************/
+	Rectangle {
 		id: postBtn
 		anchors {
 			right: attachBtn.left
 			rightMargin: 2
 			verticalCenter: postInput.verticalCenter
 		}
+		border.color: "darkgray"
+		color: "transparent"
+		height: palmipede.lineHeight
+		radius: 4
+		width: postBtnTxt.contentWidth + 4
 
-		text: qsTr("Post")
-		style: ButtonStyle {
-			label: Text {
-			  renderType: Text.NativeRendering
-			  verticalAlignment: Text.AlignVCenter
-			  horizontalAlignment: Text.AlignHCenter
-			  text: postBtn.text
-			}
+		Text {
+			id: postBtnTxt
+			anchors.centerIn: parent
+			text: qsTr("Post")
 		}
 
-		onClicked: {
-			palmipede.post();
+		MouseArea {
+			anchors.fill: parent
+			onPressed: palmipede.doPost()
 		}
 	}
 
-	Button {
+	/*************************************************
+	 * Attach Button
+	 *************************************************/
+	Rectangle {
 		id: attachBtn
-		width: height
 		anchors {
 			right: palmipede.right
 			rightMargin: 2
 			verticalCenter: postInput.verticalCenter
 		}
-		style: ButtonStyle {
-		}
+		border.color: "darkgray"
+		color: "transparent"
+		height: palmipede.lineHeight
+		radius: 4
+		width: height
+
 
 		Image {
-			anchors.fill: parent
+			id: attachBtnImg
+			anchors {
+				centerIn: parent
+			}
 			source: "qrc:/img/attach.png"
-			fillMode: Image.PreserveAspectFit
+		}
+
+		MouseArea {
+			anchors.fill: parent
+			onPressed: palmipede.doPost()
 		}
 	}
 
+	/*************************************************
+	 * Bold Button
+	 *************************************************/
 	Button {
 		id: boldBtn
 		height: 30
@@ -88,11 +148,11 @@ Rectangle {
 		text: qsTr("Bold")
 		style: ButtonStyle {
 			label: Text {
-			  renderType: Text.NativeRendering
-			  verticalAlignment: Text.AlignVCenter
-			  horizontalAlignment: Text.AlignHCenter
-			  font.bold: true
-			  text: boldBtn.text
+				renderType: Text.NativeRendering
+				verticalAlignment: Text.AlignVCenter
+				horizontalAlignment: Text.AlignHCenter
+				font.bold: true
+				text: boldBtn.text
 			}
 		}
 	}
@@ -109,11 +169,11 @@ Rectangle {
 		text: qsTr("Italic")
 		style: ButtonStyle {
 			label: Text {
-			  renderType: Text.NativeRendering
-			  verticalAlignment: Text.AlignVCenter
-			  horizontalAlignment: Text.AlignHCenter
-			  font.italic: true
-			  text: italicBtn.text
+				renderType: Text.NativeRendering
+				verticalAlignment: Text.AlignVCenter
+				horizontalAlignment: Text.AlignHCenter
+				font.italic: true
+				text: italicBtn.text
 			}
 		}
 	}
@@ -130,11 +190,11 @@ Rectangle {
 		text: qsTr("Underline")
 		style: ButtonStyle {
 			label: Text {
-			  renderType: Text.NativeRendering
-			  verticalAlignment: Text.AlignVCenter
-			  horizontalAlignment: Text.AlignHCenter
-			  font.underline: true
-			  text: underlineBtn.text
+				renderType: Text.NativeRendering
+				verticalAlignment: Text.AlignVCenter
+				horizontalAlignment: Text.AlignHCenter
+				font.underline: true
+				text: underlineBtn.text
 			}
 		}
 	}
@@ -151,11 +211,11 @@ Rectangle {
 		text: qsTr("Strike")
 		style: ButtonStyle {
 			label: Text {
-			  renderType: Text.NativeRendering
-			  verticalAlignment: Text.AlignVCenter
-			  horizontalAlignment: Text.AlignHCenter
-			  font.strikeout: true
-			  text: strikeBtn.text
+				renderType: Text.NativeRendering
+				verticalAlignment: Text.AlignVCenter
+				horizontalAlignment: Text.AlignHCenter
+				font.strikeout: true
+				text: strikeBtn.text
 			}
 		}
 	}
@@ -173,10 +233,10 @@ Rectangle {
 		text: qsTr("====> Moment < ====")
 		style: ButtonStyle {
 			label: Text {
-			  renderType: Text.NativeRendering
-			  verticalAlignment: Text.AlignVCenter
-			  horizontalAlignment: Text.AlignHCenter
-			  text: momentBtn.text
+				renderType: Text.NativeRendering
+				verticalAlignment: Text.AlignVCenter
+				horizontalAlignment: Text.AlignHCenter
+				text: momentBtn.text
 			}
 		}
 	}
@@ -217,8 +277,10 @@ Rectangle {
 			PropertyChanges {
 				target: postInput
 				anchors {
-					right: boardSelector.left
+					right: postBtn.left
 					rightMargin: 2
+					top:palmipede.top
+					topMargin: 2
 				}
 			}
 			PropertyChanges {
@@ -294,7 +356,25 @@ Rectangle {
 		}
 	]
 
-	function post() {
+	signal post (string bouchot, string message)
+
+	function addBouchot(name, c, cL) {
+		boardSelectorItems.append({ "name": name,
+									  "color": "" + c,
+									  "colorLight": "" + cL })
+	}
+
+	function doPost () {
+		post(boardSelector.currentText, postInput.text)
+		postInput.text = ""
+	}
+
+	signal insertText(string txt)
+	onInsertText: {
+	}
+
+	signal insertReplaceText(string head, string tail)
+	onInsertReplaceText: {
 
 	}
 }
