@@ -72,7 +72,7 @@ MainWindow::MainWindow(QWidget *parent) :
 #ifdef QML_PALMI
 	qmlRegisterType<QQTotozManager>("QuteQoin.QmlComponents", 1, 0, "TotozManager");
 	connect(m_totozManager, SIGNAL(totozClicked(QString)),
-			m_palmi->rootObject(), SIGNAL(insertText(QString)));
+			m_palmi->rootObject(), SIGNAL(insertReplaceText(QString)));
 #else
 	connect(m_totozManager, SIGNAL(totozClicked(QString)), m_palmi, SLOT(insertReplaceText(QString)));
 #endif
@@ -110,7 +110,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	m_pini->setTotozManager(m_totozManager);
 #ifdef QML_PALMI
 	connect(m_pini, SIGNAL(insertTextPalmi(QString, QString)),
-			m_palmi->rootObject(), SIGNAL(insertReplaceText(QString, QString)));
+			m_palmi->rootObject(), SIGNAL(insertReplaceTextBoard(QString, QString)));
 #else
 	connect(m_pini, SIGNAL(insertTextPalmi(QString, QString)), m_palmi, SLOT(insertReplaceText(QString, QString)));
 #endif
@@ -383,7 +383,7 @@ void MainWindow::initBouchot(QQBouchot *bouchot)
 	bouchot->registerForEventNotification(m_pini, QQBouchot::NewPostsAvailable | QQBouchot::StateChanged);
 	m_pini->addPiniTab(bouchot->settings().group());
 #ifdef QML_PALMI
-	QMetaObject::invokeMethod(m_palmi->rootObject(), "addBouchot",
+	QMetaObject::invokeMethod(m_palmi->rootObject(), "addBoard",
 							  Q_ARG(QVariant, bouchot->name()),
 							  Q_ARG(QVariant, bouchot->settings().color()),
 							  Q_ARG(QVariant, bouchot->settings().colorLight()) );
