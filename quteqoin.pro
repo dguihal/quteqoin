@@ -180,27 +180,25 @@ RESOURCES += \
 	rc/quteqoin_defs.qrc \
 	rc/quteqoin_anims.qrc
 
-CONFIG(debug) {
-	greaterThan(QT_MAJOR_VERSION, 4) {
-		QT += quick
+debug:equals(QT_MAJOR_VERSION, 5) {
+	QT += quick
 
-		SOURCES += qml/documenthandler.cpp
+	SOURCES += qml/documenthandler.cpp
 
-		HEADERS += qml/documenthandler.h
+	HEADERS += qml/documenthandler.h
 
-		RESOURCES += qml/quteqoin_qml.qrc
+	RESOURCES += qml/quteqoin_qml.qrc
 
-		OTHER_FILES += \
-			qml/QQmlMain.qml \
-			qml/QQmlNetworkSettings.qml \
-			qml/QQmlPinni.qml \
-			qml/QQmlPalmi.qml \
-			qml/QQmlGeneralSettings.qml \
-			qml/QQmlSettingsEditor.qml \
-			qml/QQmlSettingsItem.qml \
-			qml/QQmlSettingsItemMenuBtn.qml \
-			qml/QQmlTotozSettings.qml
-	}
+	OTHER_FILES += \
+		qml/QQmlMain.qml \
+		qml/QQmlNetworkSettings.qml \
+		qml/QQmlPinni.qml \
+		qml/QQmlPalmi.qml \
+		qml/QQmlGeneralSettings.qml \
+		qml/QQmlSettingsEditor.qml \
+		qml/QQmlSettingsItem.qml \
+		qml/QQmlSettingsItemMenuBtn.qml \
+		qml/QQmlTotozSettings.qml
 }
 
 #QMAKE_CXXFLAGS_RELEASE += -DQT_NO_DEBUG_OUTPUT
