@@ -80,8 +80,6 @@ void QQBouchotSettingsDialog::setBouchot()
 
 void QQBouchotSettingsDialog::usePresetPressed()
 {
-	qDebug() << "QQBouchotSettingsDialog::usePresetPressed";
-
 	m_bouchotName = ui->presetComboBox->currentText();
 
 	m_bouchotSettings = QQBouchot::getBouchotDef(m_bouchotName);

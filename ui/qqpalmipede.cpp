@@ -208,7 +208,7 @@ void QQPalmipede::blamPafActivated(const QString & text)
 	else if(text.contains(QString::fromLatin1("BLAM"), Qt::CaseInsensitive))
 		m_ui->postLineEdit->blam();
 	else
-		qDebug()<<"QQPalmipede::momentClicked : index non reconnu : " << text;
+		qDebug() << Q_FUNC_INFO << "Index non reconnu : " << text;
 }
 
 void QQPalmipede::bouchotSelectorActivated(int index)

@@ -806,7 +806,6 @@ void QQPinipede::norlogeRefHovered(QQNorlogeRef norlogeRef)
 					.append(";");
 			m_hiddenPostViewerLabel->setStyleSheet(styleSheet);
 
-			qDebug() << destDocument.blockCount();
 			//Suppression des ancres non http
 			c.beginEditBlock();
 			do
