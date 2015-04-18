@@ -41,7 +41,7 @@ void QQTMRequester::requestFinishedSlot(QNetworkReply * reply)
 	}
 	else
 	{
-		qDebug() << "QQTMRequester::requestFinishedSlot : reply->error()=" << reply->error() << ", " << reply->errorString();
+		qDebug() << Q_FUNC_INFO << "reply->error() =" << reply->error() << ", " << reply->errorString();
 		emit requestFinished();
 	}
 

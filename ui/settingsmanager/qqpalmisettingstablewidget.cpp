@@ -85,8 +85,6 @@ void QQKeyboardShortcutInput::handleEditorTextEdited(const QString &text)
 
 QWidget *QQKeyboardShortcutItemDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
-	//qDebug() << "QQKeyboardShortcutItemDelegate::createEditor :" << parent << ", " << option << ", " << index;
-
 	if (index.column() == SHORTCUT_COLUMN)
 	{
 		QQKeyboardShortcutInput *shortcutInput = new QQKeyboardShortcutInput(parent);
@@ -103,8 +101,6 @@ QWidget *QQKeyboardShortcutItemDelegate::createEditor(QWidget *parent, const QSt
 
 void QQKeyboardShortcutDataItem::setData(int role, const QVariant &value)
 {
-	//qDebug() << "QQKeyboardShortcutDataItem::setData : role =" << role << ", value =" << value;
-
 	if(role == Qt::EditRole &&
 	   value.canConvert<QString>())
 	{
