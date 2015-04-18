@@ -65,7 +65,6 @@ bool QQXmlParser::warning(const QXmlParseException & exception)
 //
 bool QQXmlParser::characters(const QString & ch)
 {
-	//	qDebug() << "QQXmlParser::characters ;; " << ch << endl;
 	if(m_isInCData)
 	{
 		m_tmpString.append(ch);
@@ -107,7 +106,6 @@ void QQXmlParser::setDocumentLocator(QXmlLocator * locator)
 //
 bool QQXmlParser::skippedEntity(const QString & name)
 {
-	//	qDebug() << "QQXmlParser::skippedEntity ;; " << name << endl;
 	if((m_elementNames.top() == "info") ||
 	   (m_elementNames.top() == "message") ||
 	   (m_elementNames.top() == "login"))
@@ -191,7 +189,6 @@ bool QQXmlParser::endElement(const QString &namespaceURI, const QString &localNa
 	(void) namespaceURI;
 	(void) qName;
 
-	//qDebug() << "QQXmlParser::endElement" << namespaceURI << " ;; " << localName << " ;; " << qName << endl;
 	if (localName != m_elementNames.top())
 	{
 		m_tmpString.append("</").append(localName).append(">");

@@ -124,7 +124,7 @@ void QQTotoz::load()
 			{
 			}
 			else
-				qDebug() << "QQTotoz::load unknown element :" << currentElement;
+				qDebug() << Q_FUNC_INFO << "unknown element :" << currentElement;
 
 			break;
 		case QXmlStreamReader::Characters:
@@ -135,7 +135,7 @@ void QQTotoz::load()
 				m_totozData = QByteArray::fromBase64(xml.text().toAscii());
 #endif
 			else
-				qDebug() << "QQTotoz::load unknown Characters :" << xml.text();
+				qDebug() << Q_FUNC_INFO << "unknown Characters :" << xml.text();
 			break;
 		case QXmlStreamReader::NoToken:
 		case QXmlStreamReader::Invalid:
