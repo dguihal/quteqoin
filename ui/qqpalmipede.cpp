@@ -113,7 +113,7 @@ void QQPalmipede::insertReplaceText(const QString &tag)
 
 	m_wasVisible = wasVisible;
 
-	setFocus();
+	QApplication::postEvent(this, new QFocusEvent(QEvent::FocusIn), Qt::LowEventPriority);
 }
 
 void QQPalmipede::focusInEvent(QFocusEvent * event)
