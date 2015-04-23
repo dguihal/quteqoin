@@ -28,6 +28,7 @@ QQPalmiLineEdit::QQPalmiLineEdit(QWidget *parent) :
 	m_indexInPostHistory(0),
 	m_postHistory()
 {
+	setAttribute(Qt::WA_InputMethodEnabled, true);
 #if(QT_VERSION >= QT_VERSION_CHECK(5, 2, 0))
 	setClearButtonEnabled(true);
 #else
