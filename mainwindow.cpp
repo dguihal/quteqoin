@@ -173,10 +173,8 @@ MainWindow::MainWindow(QWidget *parent) :
 		m_trayIcon->show();
 	}
 
-
 	// Envoyer le focus par defaut sur le palmi s'il est visible
-	if(m_palmi->isVisible())
-		m_palmi->setFocus();
+	m_palmi->setFocus();
 
 	initBouchots();
 }
