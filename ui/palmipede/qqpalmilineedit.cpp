@@ -72,6 +72,8 @@ void QQPalmiLineEdit::insertText(const QString &str)
 	int moveCursorCount = 0;
 	if(str.contains("%s"))
 	{
+		if(!hasFocus())
+			setSelection(m_savedSelection.first, m_savedSelection.second);
 		QString selection = selectedText();
 		newStr.replace("%s", selection);
 
@@ -201,6 +203,17 @@ void QQPalmiLineEdit::focusInEvent(QFocusEvent *e)
 {
 	updateTotozCompleter();
 	QLineEdit::focusInEvent(e);
+}
+
+//////////////////////////////////////////////////////////////
+/// \brief focusOutEvent
+/// \param e
+///
+void QQPalmiLineEdit::focusOutEvent(QFocusEvent *e)
+{
+	m_savedSelection = qMakePair(selectionStart(), selectedText().length());
+
+	QLineEdit::focusOutEvent(e);
 }
 
 //////////////////////////////////////////////////////////////
