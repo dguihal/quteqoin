@@ -5,6 +5,7 @@
 
 #include <QLineEdit>
 #include <QQueue>
+#include <QPair>
 
 class QFocusEvent;
 class QKeyEvent;
@@ -38,6 +39,7 @@ public slots:
 protected:
 	virtual void dropEvent(QDropEvent *event);
 	virtual void focusInEvent(QFocusEvent *e);
+	virtual void focusOutEvent(QFocusEvent *e);
 	virtual void keyPressEvent(QKeyEvent *e);
 #if(QT_VERSION < QT_VERSION_CHECK(5, 2, 0))
 	virtual void resizeEvent(QResizeEvent *e);
@@ -63,6 +65,7 @@ private:
 
 	int m_indexInPostHistory;
 	QQueue<QString> m_postHistory;
+	QPair<int, int> m_savedSelection;
 };
 
 #endif // QQPALMILINEEDIT_H
