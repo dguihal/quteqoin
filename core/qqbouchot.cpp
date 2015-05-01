@@ -33,7 +33,7 @@ typedef struct QQBouchotDef
 
 //Définition des bouchots préconfigurés
 // tiré d'olcc by Chrisix
-int bouchotsDefSize = 10;
+int bouchotsDefSize = 11;
 QQBouchotDef bouchotsDef[] =
 {
 	{ "dlfp", "http://linuxfr.org/board/index.xml", "http://linuxfr.org/board", "board[message]=%m",
