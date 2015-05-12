@@ -48,8 +48,9 @@ protected:
 	virtual void resizeEvent(QResizeEvent *event);
 
 protected slots:
-	void doVideoStateChanged(QMediaPlayer::State newState);
 	void dlReady();
+	void doVideoStateChanged(QMediaPlayer::State newState);
+	void handleVideoError(QMediaPlayer::Error error);
 
 private:
 	void moveToMousePos(QGraphicsObject *gpw, const QSize &s);

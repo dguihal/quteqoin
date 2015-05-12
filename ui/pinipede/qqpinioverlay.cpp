@@ -115,6 +115,8 @@ public:
 	virtual void show() { m_gObj->show(); }
 	virtual void hide() { m_gObj->hide(); }
 
+	QString errorString() { return m_media->errorString(); }
+
 #if(QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
 	QGraphicsVideoItem *m_gObj;
 	QMediaPlayer *m_player;
@@ -214,6 +216,57 @@ void QQPiniOverlay::doVideoStateChanged(QMediaPlayer::State newState)
 	}
 #else
 	Q_UNUSED(newState)
+#endif
+}
+
+//////////////////////////////////////////////////////////////
+/// \brief QQPiniOverlay::handleVideoError
+/// \param error
+///
+void QQPiniOverlay::handleVideoError(QMediaPlayer::Error error)
+{
+#if(QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
+	qDebug() << Q_FUNC_INFO << error;
+	if(error != QMediaPlayer::NoError)
+	{
+		QString errString = ((VideoPlayer *) m_currentPlayer)->errorString();
+		if(errString.length() == 0)
+			switch(error)
+			{
+				case QMediaPlayer::ResourceError:
+					errString = "Resource Error";
+					break;
+				case QMediaPlayer::FormatError:
+					errString = "Format Error";
+					break;
+				case QMediaPlayer::NetworkError:
+					errString = "Network Error";
+					break;
+				case QMediaPlayer::AccessDeniedError:
+					errString = "Access Denied Error";
+					break;
+				case QMediaPlayer::ServiceMissingError:
+					errString = "Service Missing Error";
+					break;
+				case QMediaPlayer::MediaIsPlaylist:
+					errString = "Media Is Playlist Error";
+					break;
+				default:
+					errString = QString("Unknown Error %1").arg(error);
+			}
+
+		QQImageViewer *v = new QQImageViewer();
+		v->setText(QString("Error playing media : %1").arg(errString));
+		QGraphicsProxyWidget *gpw = scene()->addWidget(v, Qt::Widget);
+		moveToMousePos(gpw, v->size());
+
+		if(m_currentPlayer != NULL)
+			delete m_currentPlayer;
+		m_currentPlayer = new ImagePlayer(gpw, v);
+		m_currentPlayer->show();
+	}
+#else
+	Q_UNUSED(error)
 #endif
 }
 
@@ -381,6 +434,9 @@ void QQPiniOverlay::showVideo(const QUrl &url)
 
 	connect(player, SIGNAL(stateChanged(QMediaPlayer::State)),
 			this, SLOT(doVideoStateChanged(QMediaPlayer::State)));
+
+	connect(player, SIGNAL(error(QMediaPlayer::Error)),
+			this, SLOT(handleVideoError(QMediaPlayer::Error)));
 
 	player->setPlaylist(l);
 	player->play();
