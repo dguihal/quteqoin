@@ -13,8 +13,7 @@ class QQPiniSearchWidget;
 class QQSettings;
 class QQTotozManager;
 
-#if(QT_VERSION >= QT_VERSION_CHECK(5, 4, 0))
-#define QML_PALMI 1
+#if defined(QML_PALMI)
 class QQuickWidget;
 #endif
 

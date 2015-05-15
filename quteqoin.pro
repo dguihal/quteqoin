@@ -23,10 +23,10 @@ equals(QT_MAJOR_VERSION, 5) {
 
 # A Tester
 #linux-g++ {
-#    system( g++ --version | grep -e "\<4.[8-9]" ) {
-#        message( g++ version > 4.8found )
-#        QMAKE_CXXFLAGS_DEBUG += -fsanitize=address -Og
-#    }
+#	system( g++ --version | grep -e "\<4.[8-9]" ) {
+#		message( g++ version > 4.8found )
+#		QMAKE_CXXFLAGS_DEBUG += -fsanitize=address -Og
+#	}
 #}
 #QMAKE_CXXFLAGS_RELEASE += -O2
 
@@ -182,27 +182,35 @@ RESOURCES += \
 	rc/quteqoin_defs.qrc \
 	rc/quteqoin_anims.qrc
 
-debug:equals(QT_MAJOR_VERSION, 5) {
-	QT += quick
+CONFIG(QML_PALMI) {
+        equals(QT_MAJOR_VERSION, 5):greaterThan(QT_MINOR_VERSION, 3) {
 
-	SOURCES += qml/documenthandler.cpp
+                QT += quick
 
-	HEADERS += qml/documenthandler.h
+                DEFINES += QML_PALMI
 
-	RESOURCES += qml/quteqoin_qml.qrc
+                SOURCES += qml/documenthandler.cpp
 
-	OTHER_FILES += \
-		qml/QQmlMain.qml \
-		qml/QQmlNetworkSettings.qml \
-		qml/QQmlPinni.qml \
-		qml/QQmlPalmi.qml \
-		qml/QQmlGeneralSettings.qml \
-		qml/QQmlSettingsEditor.qml \
-		qml/QQmlSettingsItem.qml \
-		qml/QQmlSettingsItemMenuBtn.qml \
-		qml/QQmlTotozSettings.qml
+                HEADERS += qml/documenthandler.h
+
+                RESOURCES += qml/quteqoin_qml.qrc
+
+                OTHER_FILES += \
+                        qml/QQmlMain.qml \
+                        qml/QQmlNetworkSettings.qml \
+                        qml/QQmlPinni.qml \
+                        qml/QQmlPalmi.qml \
+                        qml/QQmlGeneralSettings.qml \
+                        qml/QQmlSettingsEditor.qml \
+                        qml/QQmlSettingsItem.qml \
+                        qml/QQmlSettingsItemMenuBtn.qml \
+                        qml/QQmlTotozSettings.qml
+        }
+        else {
+                message("Cannot build Qt Creator with Qt version $${QT_VERSION}.")
+                error("Use at least Qt 5.4.")
+        }
 }
-
 
 unix {
 	isEmpty(PREFIX) {
@@ -227,11 +235,9 @@ unix {
 win32 {
 	RC_FILE = rc/quteqoin_win.rc
 
-	CONFIG(debug) {
-		CONFIG += console
-	}
+        CONFIG(debug, debug|release) {
+                CONFIG += console
+        }
 }
 
 # vim: ts=4 sw=4 sts=4 noexpandtab
-
-DISTFILES +=
