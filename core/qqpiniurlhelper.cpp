@@ -46,7 +46,8 @@ QQPiniUrlHelper::QQPiniUrlHelper(QObject *parent) :
 void QQPiniUrlHelper::getUrlInfo(QUrl &url)
 {
 	// Sans doute a ameliorer si la liste grandit
-	if(url.host().endsWith("youtube.com"))
+	if(url.host().endsWith("youtube.com") ||
+			url.host().endsWith("youtu.be"))
 		getYoutubeExtendedInfo(url);
 	else if(url.host().endsWith("dailymotion.com"))
 		getDailymotionExtendedInfo(url);
@@ -439,12 +440,22 @@ void QQPiniUrlHelper::getYoutubeExtendedInfo(QUrl &url)
 	QQPiniUrlHelper::CacheInfo *urlInfo = m_cache[url];
 	if(urlInfo == NULL)
 	{
+		QString ytId;
+		if(url.host().endsWith("youtu.be"))
+		{
+			QStringList pathExp = url.path().split(QChar('/'), QString::SkipEmptyParts);
+			if(pathExp.size() > 0)
+				ytId = pathExp.at(0);
+		}
+		else
+		{
 #if(QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
-		QUrlQuery urlQ(url);
-		QString ytId = urlQ.queryItemValue("v");
+			QUrlQuery urlQ(url);
+			ytId = urlQ.queryItemValue("v");
 #else
-		QString ytId = url.queryItemValue("v");
+			ytId = url.queryItemValue("v");
 #endif
+		}
 
 		if(ytId.isEmpty())
 			return;
