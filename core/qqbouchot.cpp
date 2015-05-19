@@ -9,6 +9,7 @@
 #include <QApplication>
 #include <QDateTime>
 #include <QtDebug>
+#include <QNetworkCookie>
 #include <QNetworkProxyFactory>
 #include <QNetworkReply>
 #include <QNetworkRequest>
@@ -480,6 +481,21 @@ void QQBouchot::requestFinishedSlot(QNetworkReply *reply)
 	else
 	{
 		m_state.hasError = false;
+
+		QVariant cookieVar = reply->header(QNetworkRequest::SetCookieHeader);
+		if(cookieVar.isValid())
+		{
+			QList<QNetworkCookie> listCookies = cookieVar.value<QList<QNetworkCookie> >();
+			foreach (QNetworkCookie c, listCookies)
+			{
+				QString s = QString("%1=%2")
+						.arg(QString::fromLatin1(c.name()))
+						.arg(QString::fromLatin1(c.value()));
+
+				m_bSettings.setCookie(s);
+			}
+		}
+
 		switch(reply->request().attribute(QNetworkRequest::User, QQBouchot::UnknownRequest).toInt(0))
 		{
 			case QQBouchot::PostRequest:
