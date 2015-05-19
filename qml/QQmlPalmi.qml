@@ -4,11 +4,65 @@ import QtQuick.Controls.Styles 1.3
 
 Rectangle {
 	id:palmipede
-	height: 94
+	height: boards.childrenRect.height + postInput.height + boldBtn.height + 6
 	width: 400
 
 	property int lineHeight: 30
+	property string currentBoardName: ""
 
+	ListModel {
+		id: boardListModel
+	}
+
+	///////////////////////////////////////////////////
+	Flow {
+		id: boards
+
+		anchors {
+			left: palmipede.left
+			leftMargin: 2
+			right: palmipede.right
+			rightMargin: 2
+			top: palmipede.top
+			topMargin: 2
+		}
+
+		Repeater {
+			model: boardListModel
+			delegate: Rectangle {
+				width: boardTxt.contentWidth
+				height: boardTxt.contentHeight
+
+				radius: 4
+				border.width: 1
+				border.color: "darkgray"
+
+				color: boardColorLight
+				Text {
+					id: boardTxt
+					font.pixelSize: 10
+					text: boardName
+				}
+
+				MouseArea {
+					anchors.fill: parent
+					onClicked: {
+						postInput.color = boardColorLight
+						postInput.border.color = boardColor
+						currentBoardName = boardName
+					}
+				}
+			}
+		}
+
+		onChildrenChanged: {
+			palmipede.update()
+		}
+
+		spacing: 1
+	}
+
+	///////////////////////////////////////////////////
 
 	/*************************************************
 	 * Post Line input
@@ -20,9 +74,10 @@ Rectangle {
 			leftMargin: 2
 			right: postBtn.left
 			rightMargin: 2
-			top:palmipede.top
+			top: boards.bottom //palmipede.top
 			topMargin: 2
 		}
+		border.color: "darkgray"
 		height: palmipede.lineHeight
 		radius: 4
 
@@ -38,93 +93,116 @@ Rectangle {
 				}
 			}
 
+			Keys.onUpPressed: {
+				if(event.modifiers & Qt.AltModifier)
+				{
+					var i = 0;
+					for(i; i < boardListModel.count; i++)
+					{
+						var boardElt = boardListModel.get(i)
+						if(boardElt.name === text)
+						{
+							var newBoard = boardListModel.get(i + 1)
+							postInput.color = newBoard.colorLight
+							postInput.border.color = newBoard.color
+							currentBoardName = newBoard.boardName
+
+						}
+					}
+				}
+			}
+
 			onAccepted: palmipede.doPost()
 		}
 
 		property alias text: postInputTF.text
-	}
 
-	/*************************************************
-	 * Board Selector
-	 *************************************************/
-	Rectangle {
-		id: boardSelector
-		anchors {
-			bottom: parent.bottom
-			bottomMargin: 2
-			right: postBtn.left
-			rightMargin: 2
-			top: attachBtn.bottom
-			topMargin: 2
-		}
-
-		Component {
-			id: boardSelectorDelegate
-			Rectangle {
-				width: boardSelectorGV.cellWidth
-				height: boardSelectorGV.cellHeight
-				color: colorLight
-				border {
-					color: color
-					width: 1
-				}
-				MouseArea {
-					anchors.fill: parent
-					hoverEnabled: true
-					onEntered: {
-						console.log(name)
+		Component.onCompleted: {
+			if(currentBoardName != '')
+			{
+				var i = 0;
+				for(i; i < boardListModel.count; i++)
+				{
+					var boardElt = boardListModel.get(i)
+					if(boardElt.name === currentBoardName)
+					{
+						postInput.color = boardElt.colorLight
+						postInput.border.color = boardElt.color
 					}
 				}
 			}
 		}
-
-		GridView {
-			id: boardSelectorGV
-			anchors.fill: parent
-			cellWidth: width/(boardSelectorItems.count / 2)
-			cellHeight: palmipede.height / 2
-
-			model: ListModel {
-				id: boardSelectorItems
-
-				onRowsInserted: boardSelectorGV.doValueChanged()
-			}
-			delegate: boardSelectorDelegate
-			highlight: Rectangle { color: "darkgrey"; radius: 4 }
-			focus: true
-
-			function doValueChanged() {
-				if(currentIndex >= 0 &&
-						currentIndex < boardSelectorItems.count) {
-					postInput.color = boardSelectorItems.get(currentIndex).colorLight
-					postInput.border.color = boardSelectorItems.get(currentIndex).color
-				}
-			}
-		}
 	}
-/*
-	ComboBox {
+	/*************************************************
+	 * Board Selector
+	 *************************************************/
+
+	/*
+	Rectangle {
 		id: boardSelector
 		anchors {
 			right: postBtn.left
 			rightMargin: 2
 			verticalCenter: postInput.verticalCenter
 		}
+		width: boardTxt.contentWidth + 4
+		height: palmipede.lineHeight
+		radius: 4
 
-		model: ListModel {
-			id: boardSelectorItems
-
-			onRowsInserted: boardSelector.doValueChanged()
+		Text
+		{
+			id: boardTxt
+			anchors {
+				centerIn: parent
+				margins: 2
+			}
 		}
-		textRole: "name"
 
-		onCurrentIndexChanged: doValueChanged()
+		MouseArea {
+			id: boardMA
 
-		function doValueChanged() {
-			if(currentIndex >= 0 &&
-					currentIndex < boardSelectorItems.count) {
-				postInput.color = boardSelectorItems.get(currentIndex).colorLight
-				postInput.border.color = boardSelectorItems.get(currentIndex).color
+			anchors.fill: parent
+			onClicked: boardMenu.popup()
+		}
+
+		Menu {
+			id:boardMenu
+			visible: false
+
+			Instantiator {
+				model: boardListModel
+				MenuItem {
+					text: model.boardName
+					onTriggered: {
+						var i = 0;
+						for(i; i < boardListModel.count; i++)
+						{
+							var boardElt = boardListModel.get(i)
+							if(boardElt.name === text)
+							{
+								boardMenu.doBoadSelected(boardElt)
+								break
+							}
+						}
+					}
+				}
+				onObjectAdded: boardMenu.insertItem(index, object)
+				onObjectRemoved: boardMenu.removeItem(object)
+			}
+
+			onItemsChanged: {
+				if(boardTxt.text === "")
+				{
+					doBoadSelected(boardListModel.get(0))
+				}
+			}
+
+			function doBoadSelected(boardElt)
+			{
+				boardTxt.text = boardElt.boardName
+				boardSelector.color = boardElt.boardColor
+				postInput.color = boardElt.boardColorLight
+				postInput.border.color = boardElt.boardColor
 			}
 		}
 	}
@@ -214,7 +292,7 @@ Rectangle {
 			font {
 				family: "Times New Roman"
 				bold: true
-				pointSize: 16
+				pointSize: 12
 			}
 		}
 
@@ -251,7 +329,7 @@ Rectangle {
 			font {
 				family: "Times New Roman"
 				italic: true
-				pointSize: 16
+				pointSize: 12
 			}
 		}
 
@@ -288,7 +366,7 @@ Rectangle {
 			font {
 				family: "Times New Roman"
 				underline: true
-				pointSize: 16
+				pointSize: 12
 			}
 		}
 
@@ -325,7 +403,7 @@ Rectangle {
 			font {
 				family: "Times New Roman"
 				strikeout: true
-				pointSize: 16
+				pointSize: 12
 			}
 		}
 
@@ -340,24 +418,36 @@ Rectangle {
 	/*************************************************
 	 * Moment Button
 	 *************************************************/
-	Button {
+	Rectangle {
 		id: momentBtn
 		anchors {
-			left: palmipede.left
+			left: strikeBtn.right
 			leftMargin: 2
-			top: boldBtn.bottom
-			topMargin: 2
+			top: strikeBtn.top
+			bottom: strikeBtn.bottom
 		}
-		height: palmipede.lineHeight
+		border.color: "darkgray"
+		color: "transparent"
+		radius: 4
+		width: Math.max(height, momentBtnTxt.contentWidth + 4)
 
-		text: qsTr("====> Moment < ====")
-		style: ButtonStyle {
-			label: Text {
-				renderType: Text.NativeRendering
-				verticalAlignment: Text.AlignVCenter
-				horizontalAlignment: Text.AlignHCenter
-				text: momentBtn.text
+		Text {
+			id: momentBtnTxt
+
+			anchors.centerIn: parent
+			text: qsTr("====> Moment < ====")
+			font {
+				family: "Times New Roman"
+				bold: true
+				pointSize: 12
 			}
+		}
+
+		MouseArea {
+			id: momentBtnMA
+
+			anchors.fill: parent
+			onPressed: palmipede.insertSurroundText("====> <b>Moment ", "</b> <====")
 		}
 	}
 
@@ -379,30 +469,28 @@ Rectangle {
 		}
 	}
 
-
+/*
 	states: [
 		State {
 			name: "MAXIMIZED"
 			PropertyChanges {
 				target: palmipede
-				height: 94
+				height: 98
 			}
 			PropertyChanges {
 				target: boardSelector
 				anchors {
-					left: palmipede.left
-					leftMargin: 2
 					right: postBtn.left
 					rightMargin: 2
-					top:palmipede.top
-					topMargin: 2
-//					verticalCenter: boldBtn.verticalCenter
+					verticalCenter: postInput.verticalCenter
 				}
 			}
 			PropertyChanges {
 				target: postInput
 				anchors {
-					right: postBtn.left
+					left: palmipede.left
+					leftMargin: 2
+					right: boardSelector.left
 					rightMargin: 2
 					top:palmipede.top
 					topMargin: 2
@@ -480,16 +568,34 @@ Rectangle {
 			}
 		}
 	]
+	*/
+
+	onCurrentBoardNameChanged: {
+		console.log("onCurrentBoardNameChanged", currentBoardName);
+		var i = 0;
+		for(i; i < boardListModel.count; i++)
+		{
+			var boardElt = boardListModel.get(i)
+			if(boardElt.name === currentBoardName)
+			{
+				postInput.color = boardElt.colorLight
+				postInput.border.color = boardElt.color
+			}
+		}
+	}
 
 	signal post (string bouchot, string message)
 
 	function addBoard(board, color, colorLight) {
-		boardSelectorItems.append({ "name": board,
-									  "color": "" + color,
-									  "colorLight": "" + colorLight })
+		boardListModel.append({ "boardName": board,
+								  "boardColor": "" + color,
+								  "boardColorLight": "" + colorLight })
+		if(currentBoardName === '')
+			currentBoardName = board;
 	}
 
 	function switchBoard(board) {
+		currentBoardName = board
 	}
 
 	function doPost () {
@@ -512,7 +618,6 @@ Rectangle {
 		var a = postInputTF.text.slice(0, headIdx)
 		var c = postInputTF.text.slice(tailIdx)
 
-		console.log(a, txt, c)
 		postInputTF.text = a + txt + c
 	}
 
@@ -526,7 +631,6 @@ Rectangle {
 		var b = postInputTF.text.slice(headIdx, tailIdx)
 		var c = postInputTF.text.slice(tailIdx)
 
-		console.log(a, txt, c)
 		postInputTF.text = a + head + b + tail + c
 	}
 }
