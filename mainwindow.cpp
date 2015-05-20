@@ -56,8 +56,6 @@ MainWindow::MainWindow(QWidget *parent) :
 
 	// Setup du dock du palmi
 	m_dockPalmi = new QQDockPalmi(this);
-	m_dockPalmi->setAllowedAreas(Qt::TopDockWidgetArea |
-								 Qt::BottomDockWidgetArea);
 	addDockWidget(Qt::BottomDockWidgetArea, m_dockPalmi, Qt::Horizontal);
 	connect(m_dockPalmi, SIGNAL(visibilityChanged(bool)), this, SLOT(doPalmiVisibilityChanged(bool)));
 
@@ -67,8 +65,6 @@ MainWindow::MainWindow(QWidget *parent) :
 
 	// Setup du totoz manager
 	m_totozManager = new QQTotozManager(this);
-	m_totozManager->setAllowedAreas(Qt::LeftDockWidgetArea |
-									Qt::RightDockWidgetArea);
 #ifdef QML_PALMI
 	qmlRegisterType<QQTotozManager>("QuteQoin.QmlComponents", 1, 0, "TotozManager");
 	connect(m_totozManager, SIGNAL(totozClicked(QString)),
@@ -84,8 +80,6 @@ MainWindow::MainWindow(QWidget *parent) :
 
 	// Setup du board info
 	m_boardsInfo = new QQBoardsInfo(this);
-	m_boardsInfo->setAllowedAreas(Qt::LeftDockWidgetArea |
-								  Qt::RightDockWidgetArea);
 	addDockWidget(Qt::LeftDockWidgetArea, m_boardsInfo, Qt::Vertical);
 
 	QAction *actionBoardInfo = m_boardsInfo->toggleViewAction();
