@@ -36,6 +36,12 @@ QQBoardInfo::QQBoardInfo(QQBouchot *board, QWidget *parent) :
 	m_ui->refreshPB->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
 	m_ui->refreshPB->setBoardName(board->name());
 
+	QFontInfo fi = m_ui->refreshPB->fontInfo();
+	int size = fi.pixelSize() + 2;
+	m_ui->refreshPB->setFixedHeight(size);
+	m_ui->showBtn->setFixedHeight(size);
+	m_ui->showBtn->setFixedWidth(size);
+
 	m_pctPollAnimation.setStartValue(100);
 	m_pctPollAnimation.setEndValue(0);
 	m_pctPollAnimation.setEasingCurve(QEasingCurve::Linear);
