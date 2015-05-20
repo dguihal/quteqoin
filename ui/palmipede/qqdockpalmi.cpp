@@ -18,6 +18,9 @@ QQDockPalmi::QQDockPalmi(QWidget *parent) :
 				QDockWidget::DockWidgetMovable |
 				QDockWidget::DockWidgetFloatable);
 
+	setAllowedAreas(Qt::LeftDockWidgetArea |
+					Qt::RightDockWidgetArea);
+
 }
 
 QQDockPalmi::~QQDockPalmi()
