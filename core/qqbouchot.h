@@ -109,6 +109,7 @@ public:
 
 	void startRefresh();
 	void stopRefresh();
+	int currentRefreshInterval();
 
 	QQListPostPtr takeNewPosts();
 	QQListPostPtr postsHistory() { return m_history; }
@@ -162,6 +163,7 @@ private:
 	void checkGroupModified(const QString &oldGroupName);
 	void updateLastUsers();
 	void sendBouchotEvents();
+	float currentRefreshRatio();
 
 	QQListPostPtr m_history;
 	bool m_hasXPostId; //false = unknown
@@ -190,6 +192,8 @@ private:
 
 	//static
 	static QHash<QString, QQBouchot *> s_hashBouchots;
+
+	int m_refreshRatioIndex;
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(QQBouchot::QQBouchotEvents)

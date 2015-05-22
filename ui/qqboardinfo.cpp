@@ -93,7 +93,7 @@ void QQBoardInfo::rearmRefreshPB()
 
 	m_pctPollAnimation.stop();
 	m_ui->refreshPB->setValue(0);
-	m_pctPollAnimation.setDuration(m_board->settings().refresh() * 1000);
+	m_pctPollAnimation.setDuration(m_board->currentRefreshInterval());
 	m_pctPollAnimation.start();
 }
 
