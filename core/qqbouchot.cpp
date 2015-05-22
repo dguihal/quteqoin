@@ -34,7 +34,7 @@ typedef struct QQBouchotDef
 
 //Définition des bouchots préconfigurés
 // tiré d'olcc by Chrisix
-int bouchotsDefSize = 11;
+#define BOUCHOTS_DEF_SIZE 11
 QQBouchotDef bouchotsDef[] =
 {
 	{ "dlfp", "http://linuxfr.org/board/index.xml", "http://linuxfr.org/board", "board[message]=%m",
@@ -61,6 +61,16 @@ QQBouchotDef bouchotsDef[] =
 	  "#C5D068", "ratatouille", "", QQBouchot::SlipTagsRaw }
 };
 
+#define REFRESH_RATIOS_SIZE 15
+#define REFRESH_RATIOS_MID 7
+float refreshRatiosArr[] = {
+	0.1, 0.3, 0.5, 0.7, 0.8, 0.9,
+	1.0, 1.0, 1.0,
+	1.5, 2.0, 3.0, 5.0, 7.0, 10.0
+};
+#define REFRESH_NEW_POSTS_THRESHOLD 5
+#define QQ_MIN_REFRESH_DELAY_S 3
+
 //////////////////////////////////////////////////////////////
 /// \brief QQBouchot::QQBouchot
 /// \param name
@@ -85,6 +95,8 @@ QQBouchot::QQBouchot(const QString &name, QObject *parent) :
 	connect(m_xmlParser, SIGNAL(finished()), this, SLOT(parsingFinished()));
 
 	QQBouchot::s_hashBouchots.insert(m_name, this);
+
+	m_refreshRatioIndex = REFRESH_RATIOS_MID;
 }
 
 //////////////////////////////////////////////////////////////
@@ -103,6 +115,10 @@ QQBouchot::~QQBouchot()
 ///
 void QQBouchot::postMessage(const QString &message)
 {
+	//Si l'on poste on remet un refresh "normal" si en mode lent
+	if(currentRefreshRatio() > 1.0)
+		m_refreshRatioIndex = REFRESH_RATIOS_MID;
+
 	QString url = m_bSettings.postUrl();
 	QByteArray postData = m_bSettings.postData().toLatin1();
 	QByteArray mark("%m");
@@ -169,6 +185,17 @@ void QQBouchot::stopRefresh()
 {
 	m_timer.disconnect();
 	m_timer.stop();
+
+	m_refreshRatioIndex = REFRESH_RATIOS_MID;
+}
+
+//////////////////////////////////////////////////////////////
+/// \brief QQBouchot::currentRefreshInterval
+/// \return
+///
+int QQBouchot::currentRefreshInterval()
+{
+	return qMax(int(m_bSettings.refresh() * 1000 * currentRefreshRatio()), QQ_MIN_REFRESH_DELAY_S);
 }
 
 //////////////////////////////////////////////////////////////
@@ -396,7 +423,8 @@ void QQBouchot::fetchBackend()
 	connect(reply, SIGNAL(sslErrors(const QList<QSslError>&)), this, SLOT(slotSslErrors(const QList<QSslError>&)));
 
 	emit refreshStarted();
-	m_timer.setInterval(m_bSettings.refresh() * 1000);
+	m_timer.setInterval(currentRefreshInterval());
+	qDebug() << Q_FUNC_INFO << m_name << currentRefreshRatio() << currentRefreshInterval();
 	m_timer.start();
 }
 
@@ -577,6 +605,14 @@ void QQBouchot::parsingFinished()
 {
 	if(m_newPostHistory.size() > 0)
 	{
+		if(m_newPostHistory.size() >= REFRESH_NEW_POSTS_THRESHOLD
+				&& m_refreshRatioIndex > 0)
+		{
+			m_refreshRatioIndex --; // faster
+			if(currentRefreshRatio() > 1.0)
+				m_refreshRatioIndex = REFRESH_RATIOS_MID;
+		}
+
 		if(m_deltaTimeH == -1 &&
 				m_history.size() > 0) //Ne peut-etre fait sur le 1° backend recupere
 		{
@@ -592,6 +628,8 @@ void QQBouchot::parsingFinished()
 		m_state.hasNewPosts = true;
 		sendBouchotEvents();
 	}
+	else if(m_refreshRatioIndex < REFRESH_RATIOS_SIZE - 1)
+		m_refreshRatioIndex ++; // slower
 
 	updateLastUsers();
 }
@@ -675,6 +713,21 @@ void QQBouchot::sendBouchotEvents()
 	}
 }
 
+//////////////////////////////////////////////////////////////
+/// \brief currentRefreshRatio
+/// \return
+///
+float QQBouchot::currentRefreshRatio()
+{
+	if(m_refreshRatioIndex >= 0 && m_refreshRatioIndex < REFRESH_RATIOS_SIZE)
+		return refreshRatiosArr[m_refreshRatioIndex];
+	else
+	{
+		m_refreshRatioIndex = REFRESH_RATIOS_MID;
+		return refreshRatiosArr[REFRESH_RATIOS_MID];
+	}
+}
+
 
 /////////////////////////
 // Static
@@ -691,11 +744,11 @@ QQBouchot::QQBouchotSettings QQBouchot::getBouchotDef(const QString &bouchotName
 	QQBouchot::QQBouchotSettings settings;
 
 	int i = 0;
-	for(; i < bouchotsDefSize; i++)
+	for(; i < BOUCHOTS_DEF_SIZE; i++)
 		if(QString::compare(bouchotName, QLatin1String(bouchotsDef[i].name)) == 0)
 			break;
 
-	if(i < bouchotsDefSize)
+	if(i < BOUCHOTS_DEF_SIZE)
 	{
 		settings.setAliasesFromString(bouchotsDef[i].alias);
 		settings.setBackendUrl(bouchotsDef[i].getUrl);
@@ -718,7 +771,7 @@ QStringList QQBouchot::getBouchotDefNameList()
 {
 	int i = 0;
 	QStringList res;
-	for(i = 0; i < bouchotsDefSize; i++)
+	for(i = 0; i < BOUCHOTS_DEF_SIZE; i++)
 		res.append(QString::fromLatin1(bouchotsDef[i].name));
 
 	return res;
