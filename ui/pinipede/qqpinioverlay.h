@@ -9,7 +9,8 @@
 class QMediaPlayer
 {
 public:
-	enum State { VOID };
+	enum State { VOID_S };
+	enum Error { VOID_E };
 };
 #endif
 #include <QUrl>
