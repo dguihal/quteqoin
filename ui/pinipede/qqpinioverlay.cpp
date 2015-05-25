@@ -6,8 +6,8 @@
 #else
 #include <phonon/VideoPlayer>
 #include <phonon/MediaObject>
-#include <QCoreApplication>
 #endif
+#include <QCoreApplication>
 
 #include "core/qqsettings.h"
 #include "core/qqwebimagedownloader.h"
