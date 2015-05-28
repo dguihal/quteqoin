@@ -298,7 +298,7 @@ void QQPiniUrlHelper::handleDailymotionExtendedInfo(const QByteArray &jsonInfo, 
 ///
 void QQPiniUrlHelper::getSaufCaExtendedInfo(QUrl &url)
 {
-	if(url.path().isEmpty())
+	if(url.path().size() <= 1)
 	{
 		getContentType(url);
 	}
