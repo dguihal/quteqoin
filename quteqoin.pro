@@ -55,8 +55,9 @@ SOURCES += main.cpp\
 	core/qqpurgebouchothistoevent.cpp \
 	core/qqbigornoitem.cpp \
 	core/totozmanager/qqtmrequester.cpp \
-	core/parsers/qqxmlparser.cpp \
+	core/parsers/qqbackendparser.cpp \
 	core/parsers/qqtsvparser.cpp \
+	core/parsers/qqxmlparser.cpp \
 	ui/qqmessageblockuserdata.cpp \
 	ui/qqproxyauthdialog.cpp \
 	ui/qqtotozmanager.cpp \
@@ -120,8 +121,9 @@ HEADERS  += mainwindow.h \
 	core/qqpostdisplayfilter.h \
 	core/qqsimplepostdisplayfilter.h \
 	core/qutetools.h \
-	core/parsers/qqxmlparser.h \
+	core/parsers/qqbackendparser.h \
 	core/parsers/qqtsvparser.h \
+	core/parsers/qqxmlparser.h \
 	ui/qqmessageblockuserdata.h \
 	ui/qqproxyauthdialog.h \
 	ui/qqtotozmanager.h \

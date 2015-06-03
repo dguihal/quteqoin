@@ -18,26 +18,25 @@
 #define __QQXMLPARSER_H
 //
 
-#include <QObject>
 #include <QStack>
 #include <QString>
 #include <QXmlAttributes>
 #include <QXmlDefaultHandler>
 
-#include "core/qqpost.h"
+#include "core/parsers/qqbackendparser.h"
 #include "core/qqbouchot.h"
 
 //
-class QQXmlParser : public QObject, public QXmlDefaultHandler
+class QQXmlParser : public QQBackendParser, public QXmlDefaultHandler
 {
 	Q_OBJECT
 
 public:
-	QQXmlParser();
+	QQXmlParser(QObject *parent = 0);
 	virtual ~QQXmlParser();
 
 	QString errorString () const;
-	void setLastId(qlonglong lastId) { this->m_lastId = lastId; }
+
 	void setTypeSlip(QQBouchot::TypeSlip typeSlip) { this->m_typeSlip = typeSlip; }
 
 	// Methodes héritées de QXmlErrorHandler
@@ -64,20 +63,12 @@ public:
 	bool endDATA() { m_isInCData = false; return true; }
 	//bool endDTD();
 
-	qlonglong maxId() { return m_maxId; }
-
-signals:
-	void newPostReady(QQPost & newPost);
-	void finished();
-
 private:
 	QStack<QString>	m_elementNames;
 	QString			m_tmpString;
 	QString			m_errorString;
 	QQPost			m_currentPost;
 
-	qlonglong m_lastId;
-	qlonglong m_maxId;
 	QQBouchot::TypeSlip m_typeSlip;
 
 	bool m_isInCData;
