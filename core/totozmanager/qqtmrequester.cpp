@@ -1,7 +1,7 @@
 #include "qqtmrequester.h"
 
 #include "core/qqsettings.h"
-#include "xml/totozmanager/qqtmxmlparser.h"
+#include "ui/totozmanager/qqtmxmlparser.h"
 
 #include <QtDebug>
 #include <QNetworkReply>

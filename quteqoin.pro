@@ -55,6 +55,8 @@ SOURCES += main.cpp\
 	core/qqpurgebouchothistoevent.cpp \
 	core/qqbigornoitem.cpp \
 	core/totozmanager/qqtmrequester.cpp \
+	core/parsers/qqxmlparser.cpp \
+	core/parsers/qqtsvparser.cpp \
 	ui/qqmessageblockuserdata.cpp \
 	ui/qqproxyauthdialog.cpp \
 	ui/qqtotozmanager.cpp \
@@ -92,8 +94,7 @@ SOURCES += main.cpp\
 	ui/settingsmanager/qqpalmisettings.cpp \
 	ui/settingsmanager/qqpalmisettingstablewidget.cpp \
 	ui/settingsmanager/qqtotozsettings.cpp \
-	xml/qqxmlparser.cpp \
-	xml/totozmanager/qqtmxmlparser.cpp
+	ui/totozmanager/qqtmxmlparser.cpp
 
 HEADERS  += mainwindow.h \
 	core/qqsettings.h \
@@ -119,6 +120,8 @@ HEADERS  += mainwindow.h \
 	core/qqpostdisplayfilter.h \
 	core/qqsimplepostdisplayfilter.h \
 	core/qutetools.h \
+	core/parsers/qqxmlparser.h \
+	core/parsers/qqtsvparser.h \
 	ui/qqmessageblockuserdata.h \
 	ui/qqproxyauthdialog.h \
 	ui/qqtotozmanager.h \
@@ -156,8 +159,7 @@ HEADERS  += mainwindow.h \
 	ui/settingsmanager/qqpalmisettings.h \
 	ui/settingsmanager/qqpalmisettingstablewidget.h \
 	ui/settingsmanager/qqtotozsettings.h \
-	xml/qqxmlparser.h \
-	xml/totozmanager/qqtmxmlparser.h
+	ui/totozmanager/qqtmxmlparser.h
 
 FORMS += mainwindow.ui \
 	ui/qqboardsinfo.ui \
@@ -175,7 +177,8 @@ FORMS += mainwindow.ui \
 	ui/settingsmanager/qqhuntsettings.ui \
 	ui/settingsmanager/qqnetworksettings.ui \
 	ui/settingsmanager/qqpalmisettings.ui \
-	ui/settingsmanager/qqtotozsettings.ui
+	ui/settingsmanager/qqtotozsettings.ui \
+	ui/qqunicodecharmap.ui
 
 RESOURCES += \
 	rc/quteqoin_img.qrc \
@@ -183,33 +186,33 @@ RESOURCES += \
 	rc/quteqoin_anims.qrc
 
 CONFIG(QML_PALMI) {
-        equals(QT_MAJOR_VERSION, 5):greaterThan(QT_MINOR_VERSION, 3) {
+		equals(QT_MAJOR_VERSION, 5):greaterThan(QT_MINOR_VERSION, 3) {
 
-                QT += quick
+				QT += quick
 
-                DEFINES += QML_PALMI
+				DEFINES += QML_PALMI
 
-                SOURCES += qml/documenthandler.cpp
+				SOURCES += qml/documenthandler.cpp
 
-                HEADERS += qml/documenthandler.h
+				HEADERS += qml/documenthandler.h
 
-                RESOURCES += qml/quteqoin_qml.qrc
+				RESOURCES += qml/quteqoin_qml.qrc
 
-                OTHER_FILES += \
-                        qml/QQmlMain.qml \
-                        qml/QQmlNetworkSettings.qml \
-                        qml/QQmlPinni.qml \
-                        qml/QQmlPalmi.qml \
-                        qml/QQmlGeneralSettings.qml \
-                        qml/QQmlSettingsEditor.qml \
-                        qml/QQmlSettingsItem.qml \
-                        qml/QQmlSettingsItemMenuBtn.qml \
-                        qml/QQmlTotozSettings.qml
-        }
-        else {
-                message("Cannot build Qt Creator with Qt version $${QT_VERSION}.")
-                error("Use at least Qt 5.4.")
-        }
+				OTHER_FILES += \
+						qml/QQmlMain.qml \
+						qml/QQmlNetworkSettings.qml \
+						qml/QQmlPinni.qml \
+						qml/QQmlPalmi.qml \
+						qml/QQmlGeneralSettings.qml \
+						qml/QQmlSettingsEditor.qml \
+						qml/QQmlSettingsItem.qml \
+						qml/QQmlSettingsItemMenuBtn.qml \
+						qml/QQmlTotozSettings.qml
+		}
+		else {
+				message("Cannot build Qt Creator with Qt version $${QT_VERSION}.")
+				error("Use at least Qt 5.4.")
+		}
 }
 
 unix {
@@ -235,9 +238,9 @@ unix {
 win32 {
 	RC_FILE = rc/quteqoin_win.rc
 
-        CONFIG(debug, debug|release) {
-                CONFIG += console
-        }
+		CONFIG(debug, debug|release) {
+				CONFIG += console
+		}
 }
 
 # vim: ts=4 sw=4 sts=4 noexpandtab
