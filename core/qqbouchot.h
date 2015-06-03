@@ -174,7 +174,7 @@ private:
 	QQBouchotSettings m_bSettings;
 	QTimer m_timer;
 
-	QQXmlParser *m_xmlParser;
+	QQXmlParser *m_Parser;
 
 	int m_deltaTimeH;
 	QList<QQMussel> m_lastPosters;
