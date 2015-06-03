@@ -4,7 +4,7 @@
 #include "core/qqboardstatechangeevent.h"
 #include "core/qqpurgebouchothistoevent.h"
 #include "core/qqsettings.h"
-#include "xml/qqxmlparser.h"
+#include "core/parsers/qqxmlparser.h"
 
 #include <QApplication>
 #include <QDateTime>
