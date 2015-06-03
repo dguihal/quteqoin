@@ -20,8 +20,8 @@
 #include <QTextDocument>
 
 //
-QQXmlParser::QQXmlParser()
-	: QXmlDefaultHandler()
+QQXmlParser::QQXmlParser(QObject *parent)
+	: QQBackendParser(parent), QXmlDefaultHandler()
 {
 	m_currentPost.reset();
 	m_typeSlip = QQBouchot::SlipTagsEncoded;
