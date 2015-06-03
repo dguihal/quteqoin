@@ -81,7 +81,7 @@ QQBouchot::QQBouchot(const QString &name, QObject *parent) :
 	m_hasXPostId(false), // unknown
 	m_lastId(-1),
 	m_name(name),
-	m_xmlParser(new QQXmlParser()),
+	m_Parser(new QQXmlParser()),
 	m_deltaTimeH(-1) // unknown
 {
 	m_bSettings.setRefreshFromString(DEFAULT_BOUCHOT_REFRESH);
@@ -91,8 +91,8 @@ QQBouchot::QQBouchot(const QString &name, QObject *parent) :
 	m_state.hasNewPosts = false;
 	m_state.hasResponse = false;
 
-	connect(m_xmlParser, SIGNAL(newPostReady(QQPost&)), this, SLOT(insertNewPost(QQPost&)));
-	connect(m_xmlParser, SIGNAL(finished()), this, SLOT(parsingFinished()));
+	connect(m_Parser, SIGNAL(newPostReady(QQPost&)), this, SLOT(insertNewPost(QQPost&)));
+	connect(m_Parser, SIGNAL(finished()), this, SLOT(parsingFinished()));
 
 	QQBouchot::s_hashBouchots.insert(m_name, this);
 
@@ -106,7 +106,7 @@ QQBouchot::~QQBouchot()
 {
 	QQBouchot::s_hashBouchots.remove(m_name);
 	emit destroyed(this);
-	delete m_xmlParser;
+	delete m_Parser;
 }
 
 //////////////////////////////////////////////////////////////
@@ -557,12 +557,12 @@ void QQBouchot::parseBackend(const QByteArray &data, const QString &contentType)
 		QXmlSimpleReader xmlReader;
 		QXmlInputSource xmlSource;
 
-		m_xmlParser->setLastId(m_lastId);
-		m_xmlParser->setTypeSlip(m_bSettings.slipType());
+		m_Parser->setLastId(m_lastId);
+		m_Parser->setTypeSlip(m_bSettings.slipType());
 
 		xmlSource.setData(data);
-		xmlReader.setContentHandler(m_xmlParser);
-		xmlReader.setErrorHandler(m_xmlParser);
+		xmlReader.setContentHandler(m_Parser);
+		xmlReader.setErrorHandler(m_Parser);
 		xmlReader.parse(&xmlSource);
 	}
 	else
@@ -624,7 +624,7 @@ void QQBouchot::parsingFinished()
 		}
 
 		m_history.append(m_newPostHistory);
-		m_lastId = m_xmlParser->maxId();
+		m_lastId = m_Parser->maxId();
 		m_state.hasNewPosts = true;
 		sendBouchotEvents();
 	}
