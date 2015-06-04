@@ -16,7 +16,7 @@
 #include <QUrl>
 
 class QNetworkReply;
-class QQXmlParser;
+class QQBackendParser;
 class QQSettings;
 
 
@@ -174,7 +174,7 @@ private:
 	QQBouchotSettings m_bSettings;
 	QTimer m_timer;
 
-	QQXmlParser *m_Parser;
+	QQBackendParser *m_Parser;
 
 	int m_deltaTimeH;
 	QList<QQMussel> m_lastPosters;

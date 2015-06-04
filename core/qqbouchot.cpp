@@ -4,6 +4,7 @@
 #include "core/qqboardstatechangeevent.h"
 #include "core/qqpurgebouchothistoevent.h"
 #include "core/qqsettings.h"
+#include "core/parsers/qqbackendparser.h"
 #include "core/parsers/qqxmlparser.h"
 
 #include <QApplication>
@@ -81,7 +82,7 @@ QQBouchot::QQBouchot(const QString &name, QObject *parent) :
 	m_hasXPostId(false), // unknown
 	m_lastId(-1),
 	m_name(name),
-	m_Parser(new QQXmlParser()),
+	m_Parser(NULL),
 	m_deltaTimeH(-1) // unknown
 {
 	m_bSettings.setRefreshFromString(DEFAULT_BOUCHOT_REFRESH);
@@ -90,9 +91,6 @@ QQBouchot::QQBouchot(const QString &name, QObject *parent) :
 	m_state.hasError = false;
 	m_state.hasNewPosts = false;
 	m_state.hasResponse = false;
-
-	connect(m_Parser, SIGNAL(newPostReady(QQPost&)), this, SLOT(insertNewPost(QQPost&)));
-	connect(m_Parser, SIGNAL(finished()), this, SLOT(parsingFinished()));
 
 	QQBouchot::s_hashBouchots.insert(m_name, this);
 
@@ -554,16 +552,32 @@ void QQBouchot::parseBackend(const QByteArray &data, const QString &contentType)
 	if(contentType.startsWith("text/xml") ||
 			contentType.startsWith("application/xml"))
 	{
+		QQXmlParser *p = NULL;
+		if(m_Parser == NULL)
+		{
+			p = new QQXmlParser(this);
+
+			connect(p, SIGNAL(newPostReady(QQPost&)), this, SLOT(insertNewPost(QQPost&)));
+			connect(p, SIGNAL(finished()), this, SLOT(parsingFinished()));
+
+			m_Parser=p;
+		}
+		else
+			p = qobject_cast<QQXmlParser *>(m_Parser);
+
 		QXmlSimpleReader xmlReader;
 		QXmlInputSource xmlSource;
 
-		m_Parser->setLastId(m_lastId);
-		m_Parser->setTypeSlip(m_bSettings.slipType());
+		p->setTypeSlip(m_bSettings.slipType());
+		p->setLastId(m_lastId);
 
 		xmlSource.setData(data);
-		xmlReader.setContentHandler(m_Parser);
-		xmlReader.setErrorHandler(m_Parser);
+		xmlReader.setContentHandler(p);
+		xmlReader.setErrorHandler(p);
 		xmlReader.parse(&xmlSource);
+	}
+	else if(contentType.startsWith("text/tab-separated-values"))
+	{
 	}
 	else
 		qWarning() << Q_FUNC_INFO
