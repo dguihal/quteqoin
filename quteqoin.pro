@@ -188,33 +188,33 @@ RESOURCES += \
 	rc/quteqoin_anims.qrc
 
 CONFIG(QML_PALMI) {
-		equals(QT_MAJOR_VERSION, 5):greaterThan(QT_MINOR_VERSION, 3) {
+	equals(QT_MAJOR_VERSION, 5):greaterThan(QT_MINOR_VERSION, 3) {
 
-				QT += quick
+		QT += quick
 
-				DEFINES += QML_PALMI
+		DEFINES += QML_PALMI
 
-				SOURCES += qml/documenthandler.cpp
+		SOURCES += qml/documenthandler.cpp
 
-				HEADERS += qml/documenthandler.h
+		HEADERS += qml/documenthandler.h
 
-				RESOURCES += qml/quteqoin_qml.qrc
+		RESOURCES += qml/quteqoin_qml.qrc
 
-				OTHER_FILES += \
-						qml/QQmlMain.qml \
-						qml/QQmlNetworkSettings.qml \
-						qml/QQmlPinni.qml \
-						qml/QQmlPalmi.qml \
-						qml/QQmlGeneralSettings.qml \
-						qml/QQmlSettingsEditor.qml \
-						qml/QQmlSettingsItem.qml \
-						qml/QQmlSettingsItemMenuBtn.qml \
-						qml/QQmlTotozSettings.qml
-		}
-		else {
-				message("Cannot build Qt Creator with Qt version $${QT_VERSION}.")
-				error("Use at least Qt 5.4.")
-		}
+		OTHER_FILES += \
+			qml/QQmlMain.qml \
+			qml/QQmlNetworkSettings.qml \
+			qml/QQmlPinni.qml \
+			qml/QQmlPalmi.qml \
+			qml/QQmlGeneralSettings.qml \
+			qml/QQmlSettingsEditor.qml \
+			qml/QQmlSettingsItem.qml \
+			qml/QQmlSettingsItemMenuBtn.qml \
+			qml/QQmlTotozSettings.qml
+	}
+	else {
+		message("Cannot build Qt Creator with Qt version $${QT_VERSION}.")
+		error("Use at least Qt 5.4.")
+	}
 }
 
 unix {
@@ -241,7 +241,7 @@ win32 {
 	RC_FILE = rc/quteqoin_win.rc
 
 		CONFIG(debug, debug|release) {
-				CONFIG += console
+			CONFIG += console
 		}
 }
 
