@@ -23,7 +23,9 @@
 /// \param parent
 ///
 QQBackendParser::QQBackendParser(QObject *parent) :
-	QObject(parent)
+	QObject(parent),
+	m_lastId(0),
+	m_maxId(0)
 {
 
 }

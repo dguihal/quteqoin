@@ -603,6 +603,7 @@ void QQBouchot::parseBackend(const QByteArray &data, const QString &contentType)
 		else
 			p = qobject_cast<QQTsvParser *>(m_Parser);
 
+		p->setLastId(m_lastId);
 		p->parseBackend(data);
 	}
 	else
