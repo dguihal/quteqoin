@@ -36,7 +36,7 @@ typedef struct QQBouchotDef
 
 //Définition des bouchots préconfigurés
 // tiré d'olcc by Chrisix
-#define BOUCHOTS_DEF_SIZE 11
+#define BOUCHOTS_DEF_SIZE 12
 QQBouchotDef bouchotsDef[] =
 {
 	{ "dlfp", "http://linuxfr.org/board/index.xml", "http://linuxfr.org/board", "board[message]=%m",
@@ -60,7 +60,9 @@ QQBouchotDef bouchotsDef[] =
 	{ "devnewton", "http://b3.bci.im/legacy/xml", "http://b3.bci.im/legacy/post", "message=%m",
 	  "#666666", "", "", QQBouchot::SlipTagsEncoded },
 	{ "faab", "http://ratatouille.leguyader.eu/data/backend.xml", "http://ratatouille.leguyader.eu/add.php", "message=%m",
-	  "#C5D068", "ratatouille", "", QQBouchot::SlipTagsRaw }
+	  "#C5D068", "ratatouille", "", QQBouchot::SlipTagsRaw },
+	{ "sauf.ca", "http://sauf.ca/feeds/all.tsv", "", "",
+	  "#4aff47", "", "", QQBouchot::SlipTagsRaw }
 };
 
 #define REFRESH_RATIOS_SIZE 15
