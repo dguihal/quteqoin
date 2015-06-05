@@ -5,6 +5,7 @@
 #include "core/qqpurgebouchothistoevent.h"
 #include "core/qqsettings.h"
 #include "core/parsers/qqbackendparser.h"
+#include "core/parsers/qqtsvparser.h"
 #include "core/parsers/qqxmlparser.h"
 
 #include <QApplication>
@@ -578,6 +579,20 @@ void QQBouchot::parseBackend(const QByteArray &data, const QString &contentType)
 	}
 	else if(contentType.startsWith("text/tab-separated-values"))
 	{
+		QQTsvParser *p = NULL;
+		if(m_Parser == NULL)
+		{
+			p = new QQTsvParser(this);
+
+			connect(p, SIGNAL(newPostReady(QQPost&)), this, SLOT(insertNewPost(QQPost&)));
+			connect(p, SIGNAL(finished()), this, SLOT(parsingFinished()));
+
+			m_Parser=p;
+		}
+		else
+			p = qobject_cast<QQTsvParser *>(m_Parser);
+
+		p->parseBackend(data);
 	}
 	else
 		qWarning() << Q_FUNC_INFO
