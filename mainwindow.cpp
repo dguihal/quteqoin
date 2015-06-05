@@ -380,7 +380,8 @@ void MainWindow::initBouchot(QQBouchot *bouchot)
 							  Q_ARG(QVariant, bouchot->settings().color()),
 							  Q_ARG(QVariant, bouchot->settings().colorLight()) );
 #else
-	m_palmi->addBouchot(bouchot->name(), bouchot->settings().colorLight());
+	if(! bouchot->isReadOnly())
+		m_palmi->addBouchot(bouchot->name(), bouchot->settings().colorLight());
 #endif
 
 	connect(bouchot, SIGNAL(destroyed(QQBouchot*)), this, SLOT(bouchotDestroyed(QQBouchot *)));

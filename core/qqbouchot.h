@@ -127,6 +127,8 @@ public:
 	void setHasNewResponse();
 	void setHasBigorno();
 
+	bool isReadOnly();
+
 	void registerForEventNotification(QObject *receiver, QQBouchotEvents events);
 
 	virtual bool event(QEvent *e);

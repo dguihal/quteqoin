@@ -333,6 +333,15 @@ void QQBouchot::setHasBigorno()
 }
 
 //////////////////////////////////////////////////////////////
+/// \brief QQBouchot::isReadOnly
+/// \return
+///
+bool QQBouchot::isReadOnly()
+{
+	return m_bSettings.postUrl().isEmpty();
+}
+
+//////////////////////////////////////////////////////////////
 /// \brief registerForEventNotification
 /// \param receiver
 /// \param events
