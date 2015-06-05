@@ -1,5 +1,6 @@
 #include "qqtsvparser.h"
 
+#include <QtDebug>
 #include <QBuffer>
 
 #define CHAR_SEP '\t'
@@ -25,6 +26,15 @@ bool QQTsvParser::parseBackend(const QByteArray &data)
 		QList<QByteArray> fields = l.split(CHAR_SEP);
 		if(fields.length() == 5)
 		{
+			bool ok = true;
+			qlonglong id = fields.at(0).toLongLong(&ok);
+			if(id <= m_lastId)
+				break;
+			if(!ok)
+				continue;
+			if(id > m_maxId)
+				m_maxId = id;
+
 			m_currentPost.reset();
 			m_currentPost.setId(fields.at(0));
 			m_currentPost.setNorloge(fields.at(1));
@@ -35,6 +45,8 @@ bool QQTsvParser::parseBackend(const QByteArray &data)
 			emit newPostReady(m_currentPost);
 		}
 	}
+
+	m_lastId = m_maxId;
 
 	f.close();
 	emit finished();
