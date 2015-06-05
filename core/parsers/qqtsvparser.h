@@ -6,15 +6,16 @@
 
 #include "core/parsers/qqbackendparser.h"
 
-class QQTsvParser : public QObject
+class QQTsvParser : public QQBackendParser
 {
 	Q_OBJECT
 public:
 	explicit QQTsvParser(QObject *parent = 0);
+	virtual ~QQTsvParser() {}
 
 	QString errorString () const;
 
-	bool parse(const QByteArray &data);
+	bool parseBackend(const QByteArray &data);
 
 signals:
 	void newPostReady(QQPost & newPost);

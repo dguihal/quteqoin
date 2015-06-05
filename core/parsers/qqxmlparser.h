@@ -67,7 +67,6 @@ private:
 	QStack<QString>	m_elementNames;
 	QString			m_tmpString;
 	QString			m_errorString;
-	QQPost			m_currentPost;
 
 	QQBouchot::TypeSlip m_typeSlip;
 

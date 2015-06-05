@@ -26,6 +26,8 @@ public slots:
 protected:
 	qlonglong m_lastId;
 	qlonglong m_maxId;
+
+	QQPost m_currentPost;
 };
 
 #endif // QQBACKENDPARSER_H
