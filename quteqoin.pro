@@ -179,8 +179,7 @@ FORMS += mainwindow.ui \
 	ui/settingsmanager/qqhuntsettings.ui \
 	ui/settingsmanager/qqnetworksettings.ui \
 	ui/settingsmanager/qqpalmisettings.ui \
-	ui/settingsmanager/qqtotozsettings.ui \
-	ui/qqunicodecharmap.ui
+	ui/settingsmanager/qqtotozsettings.ui
 
 RESOURCES += \
 	rc/quteqoin_img.qrc \
