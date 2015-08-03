@@ -9,6 +9,7 @@
 #include "core/parsers/qqxmlparser.h"
 
 #include <QApplication>
+#include <QBuffer>
 #include <QDateTime>
 #include <QtDebug>
 #include <QNetworkCookie>
@@ -85,7 +86,7 @@ QQBouchot::QQBouchot(const QString &name, QObject *parent) :
 	m_hasXPostId(false), // unknown
 	m_lastId(-1),
 	m_name(name),
-	m_Parser(NULL),
+	m_parser(NULL),
 	m_deltaTimeH(-1) // unknown
 {
 	m_bSettings.setRefreshFromString(DEFAULT_BOUCHOT_REFRESH);
@@ -107,7 +108,7 @@ QQBouchot::~QQBouchot()
 {
 	QQBouchot::s_hashBouchots.remove(m_name);
 	emit destroyed(this);
-	delete m_Parser;
+	delete m_parser;
 }
 
 //////////////////////////////////////////////////////////////
@@ -160,8 +161,10 @@ void QQBouchot::postMessage(const QString &message)
 void QQBouchot::setSettings(const QQBouchotSettings &newSettings)
 {
 	QString oldGroup = m_bSettings.group();
+	QString oldBackendURL = m_bSettings.backendUrl();
 	m_bSettings = newSettings;
 	checkGroupModified(oldGroup);
+	checkBackendUrlModified(oldBackendURL);
 }
 
 //////////////////////////////////////////////////////////////
@@ -563,54 +566,88 @@ void QQBouchot::parseBackend(const QByteArray &data, const QString &contentType)
 {
 	if(contentType.startsWith("text/xml") ||
 			contentType.startsWith("application/xml"))
-	{
-		QQXmlParser *p = NULL;
-		if(m_Parser == NULL)
-		{
-			p = new QQXmlParser(this);
-
-			connect(p, SIGNAL(newPostReady(QQPost&)), this, SLOT(insertNewPost(QQPost&)));
-			connect(p, SIGNAL(finished()), this, SLOT(parsingFinished()));
-
-			m_Parser=p;
-		}
-		else
-			p = qobject_cast<QQXmlParser *>(m_Parser);
-
-		QXmlSimpleReader xmlReader;
-		QXmlInputSource xmlSource;
-
-		p->setTypeSlip(m_bSettings.slipType());
-		p->setLastId(m_lastId);
-
-		xmlSource.setData(data);
-		xmlReader.setContentHandler(p);
-		xmlReader.setErrorHandler(p);
-		xmlReader.parse(&xmlSource);
-	}
+		parseBackendXML(data);
 	else if(contentType.startsWith("text/tab-separated-values"))
+		parseBackendTSV(data);
+	else
 	{
-		QQTsvParser *p = NULL;
-		if(m_Parser == NULL)
+		QBuffer b;
+		b.setData(data);
+		b.open(QIODevice::ReadOnly);
+
+		bool parserFound = false;
+		if(b.canReadLine())
 		{
-			p = new QQTsvParser(this);
-
-			connect(p, SIGNAL(newPostReady(QQPost&)), this, SLOT(insertNewPost(QQPost&)));
-			connect(p, SIGNAL(finished()), this, SLOT(parsingFinished()));
-
-			m_Parser=p;
+			QString l = b.readLine();
+			qDebug() << Q_FUNC_INFO << l;
+			if(l.startsWith("<?xml ") ||
+					l.contains(QRegExp("^<\\w+ ")))
+			{
+				qDebug() << Q_FUNC_INFO << "XML found";
+				parseBackendXML(data);
+				parserFound = true;
+			}
+			else if(l.contains(QRegExp("^\\d+\t")))
+			{
+				qDebug() << Q_FUNC_INFO << "TSV found";
+				parseBackendTSV(data);
+				parserFound = true;
+			}
 		}
-		else
-			p = qobject_cast<QQTsvParser *>(m_Parser);
+		b.close();
 
-		p->setLastId(m_lastId);
-		p->parseBackend(data);
+		if(! parserFound)
+			qWarning() << Q_FUNC_INFO
+					   << "Bouchot :" << m_name
+					   << "Unsupported backend format (yet) :"
+					   << contentType;
+	}
+}
+
+void QQBouchot::parseBackendTSV(const QByteArray &data)
+{
+	QQTsvParser *p = NULL;
+	if(m_parser == NULL)
+	{
+		p = new QQTsvParser(this);
+
+		connect(p, SIGNAL(newPostReady(QQPost&)), this, SLOT(insertNewPost(QQPost&)));
+		connect(p, SIGNAL(finished()), this, SLOT(parsingFinished()));
+
+		m_parser=p;
 	}
 	else
-		qWarning() << Q_FUNC_INFO
-				   << "Bouchot :" << m_name
-				   << "Unsupported backend format (yet) :"
-				   << contentType;
+		p = qobject_cast<QQTsvParser *>(m_parser);
+
+	p->setLastId(m_lastId);
+	p->parseBackend(data);
+}
+
+void QQBouchot::parseBackendXML(const QByteArray &data)
+{
+	QQXmlParser *p = NULL;
+	if(m_parser == NULL)
+	{
+		p = new QQXmlParser(this);
+
+		connect(p, SIGNAL(newPostReady(QQPost&)), this, SLOT(insertNewPost(QQPost&)));
+		connect(p, SIGNAL(finished()), this, SLOT(parsingFinished()));
+
+		m_parser=p;
+	}
+	else
+		p = qobject_cast<QQXmlParser *>(m_parser);
+
+	QXmlSimpleReader xmlReader;
+	QXmlInputSource xmlSource;
+
+	p->setTypeSlip(m_bSettings.slipType());
+	p->setLastId(m_lastId);
+
+	xmlSource.setData(data);
+	xmlReader.setContentHandler(p);
+	xmlReader.setErrorHandler(p);
+	xmlReader.parse(&xmlSource);
 }
 
 //////////////////////////////////////////////////////////////
@@ -665,7 +702,7 @@ void QQBouchot::parsingFinished()
 		}
 
 		m_history.append(m_newPostHistory);
-		m_lastId = m_Parser->maxId();
+		m_lastId = m_parser->maxId();
 		m_state.hasNewPosts = true;
 		sendBouchotEvents();
 	}
@@ -673,6 +710,22 @@ void QQBouchot::parsingFinished()
 		m_refreshRatioIndex ++; // slower
 
 	updateLastUsers();
+}
+
+//////////////////////////////////////////////////////////////
+/// \brief QQBouchot::checkBackendUrlModified
+/// \param oldBackendUrl
+///
+void QQBouchot::checkBackendUrlModified(const QString &oldBackendUrl)
+{
+	if(m_bSettings.backendUrl() != oldBackendUrl)
+	{
+		if(m_parser != NULL)
+		{
+			delete m_parser;
+			m_parser = NULL;
+		}
+	}
 }
 
 //////////////////////////////////////////////////////////////
