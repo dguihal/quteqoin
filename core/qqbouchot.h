@@ -101,6 +101,8 @@ public:
 	QList<QQMussel> lastPosters() const { return m_lastPosters; }
 
 	void parseBackend(const QByteArray &data, const QString &contentType);
+	void parseBackendTSV(const QByteArray &data);
+	void parseBackendXML(const QByteArray &data);
 	void postMessage(const QString &message);
 
 	QQBouchotSettings settings() { return m_bSettings; }
@@ -162,6 +164,7 @@ protected slots:
 	void parsingFinished();
 
 private:
+	void checkBackendUrlModified(const QString &oldBackendUrl);
 	void checkGroupModified(const QString &oldGroupName);
 	void updateLastUsers();
 	void sendBouchotEvents();
@@ -176,7 +179,7 @@ private:
 	QQBouchotSettings m_bSettings;
 	QTimer m_timer;
 
-	QQBackendParser *m_Parser;
+	QQBackendParser *m_parser;
 
 	int m_deltaTimeH;
 	QList<QQMussel> m_lastPosters;
