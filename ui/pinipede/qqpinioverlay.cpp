@@ -4,6 +4,7 @@
 #include <QGraphicsVideoItem>
 #include <QMediaPlaylist>
 #else
+#include <phonon/AudioOutput>
 #include <phonon/VideoPlayer>
 #include <phonon/MediaObject>
 #endif
@@ -422,6 +423,7 @@ void QQPiniOverlay::showVideo(const QUrl &url)
 
 	QMediaPlayer *player = new QMediaPlayer();
 	player->setVideoOutput(i);
+	player->setMuted(settings.value(SETTINGS_GENERAL_STEALTH_MODE, DEFAULT_GENERAL_STEALTH_MODE).toBool());
 
 	QMediaPlaylist *l = new QMediaPlaylist();
 	l->addMedia(url);
@@ -448,6 +450,7 @@ void QQPiniOverlay::showVideo(const QUrl &url)
 	Phonon::VideoPlayer *player = new Phonon::VideoPlayer(Phonon::VideoCategory);
 	connect(media, SIGNAL(finished()), player, SLOT(play()));
 	player->setFixedSize(s);
+	player->audioOutput()->setMuted(settings.value(SETTINGS_GENERAL_STEALTH_MODE, DEFAULT_GENERAL_STEALTH_MODE).toBool());
 
 	QGraphicsProxyWidget *gpw = scene()->addWidget(player, Qt::Widget);
 	moveToMousePos(gpw, s);
