@@ -17,6 +17,7 @@ class QQPiniUrlHelper : public QQNetworkAccessor, public QQMessageTransformFilte
 public:
 	explicit QQPiniUrlHelper(QObject *parent = 0);
 
+	void cancel();
 	void getUrlInfo(QUrl &url);
 
 	virtual void transformMessage(const QString& bouchot, QString &message);

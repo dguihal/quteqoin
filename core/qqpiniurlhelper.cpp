@@ -40,6 +40,17 @@ QQPiniUrlHelper::QQPiniUrlHelper(QObject *parent) :
 }
 
 //////////////////////////////////////////////////////////////
+/// \brief cancel
+///
+void QQPiniUrlHelper::cancel()
+{
+	foreach (QNetworkReply * m_contentTypeReplies, m_contentTypeReplies) {
+		m_contentTypeReplies->abort();
+	}
+	m_contentTypeReplies.clear();
+}
+
+//////////////////////////////////////////////////////////////
 /// \brief getUrlInfo
 /// \param url
 ///

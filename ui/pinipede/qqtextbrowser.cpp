@@ -422,6 +422,7 @@ void QQTextBrowser::onWebSearchAction()
 
 void QQTextBrowser::clearViewers()
 {
+	m_urlHelper->cancel();
 	if(m_displayedTotozId.length() > 0)
 		emit hideViewers();
 
