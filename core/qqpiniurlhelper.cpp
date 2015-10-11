@@ -46,6 +46,7 @@ void QQPiniUrlHelper::cancel()
 {
 	foreach (QNetworkReply * m_contentTypeReplies, m_contentTypeReplies) {
 		m_contentTypeReplies->abort();
+		m_contentTypeReplies->deleteLater();
 	}
 	m_contentTypeReplies.clear();
 }
