@@ -48,7 +48,7 @@ QQBouchotDef bouchotsDef[] =
 	  "#d0d0ff", "euro,euroxers", "", QQBouchot::SlipTagsEncoded },
 	{ "finss", "http://finss.fr/drupal/node/95/xml", "http://finss.fr/drupal/node/95/post", "message=%m",
 	  "#d0ffd0", "finss", "", QQBouchot::SlipTagsRaw },
-	{ "sveetch", "http://www.sveetch.net/tribune/remote/xml/?last=%i", "http://www.sveetch.net/tribune/post/xml", "content=%m",
+	{ "sveetch", "http://sveetch.net/tribune/remote/xml/?last=%i", "http://sveetch.net/tribune/post/xml", "content=%m",
 	  "#ededdb", "shoop,dax", "", QQBouchot::SlipTagsRaw },
 	{ "moules", "http://moules.org/board/last.php?backend=tsv&id=%i&order=desc", "http://moules.org/board/add.php", "message=%m",
 	  "#ffe3c9", "", "", QQBouchot::SlipTagsRaw },
@@ -549,6 +549,7 @@ void QQBouchot::requestFinishedSlot(QNetworkReply *reply)
 				fetchBackend();
 				break;
 			case QQBouchot::BackendRequest:
+				qDebug() << Q_FUNC_INFO << reply->url();
 				QString contentType = reply->header(QNetworkRequest::ContentTypeHeader).toString();
 				parseBackend(reply->readAll(), contentType);
 				emit refreshOK();
