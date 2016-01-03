@@ -1,9 +1,9 @@
 #include "qqpostparser.h"
 
 #include "core/qqnorlogeref.h"
-#include "core/qqpiniurlhelper.h"
 #include "core/qqsettings.h"
 #include "ui/qqmessageblockuserdata.h"
+#include "ui/pinipede/qqpiniurlhelper.h"
 
 #include <QRegExp>
 #include <QString>

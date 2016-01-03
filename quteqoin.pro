@@ -50,7 +50,6 @@ SOURCES += main.cpp\
 	core/qutetools.cpp \
 	core/qqsimplepostdisplayfilter.cpp \
 	core/qqbackendupdatedevent.cpp \
-	core/qqpiniurlhelper.cpp \
 	core/qqmessagetransformfilter.cpp \
 	core/qqpurgebouchothistoevent.cpp \
 	core/qqbigornoitem.cpp \
@@ -63,7 +62,6 @@ SOURCES += main.cpp\
 	ui/qqtotozmanager.cpp \
 	ui/qqtotozviewer.cpp \
 	ui/qqsettingsmanager.cpp \
-	ui/qqpostparser.cpp \
 	ui/qqpinisearchwidget.cpp \
 	ui/qqboardsinfo.cpp \
 	ui/qqboardinfo.cpp \
@@ -80,6 +78,8 @@ SOURCES += main.cpp\
 	ui/pinipede/qqhuntingview.cpp \
 	ui/pinipede/qqhuntpixmapitem.cpp \
 	ui/pinipede/qqpinioverlay.cpp \
+	ui/pinipede/qqpiniurlhelper.cpp \
+	ui/pinipede/qqpostparser.cpp \
 	ui/pinipede/qqtextbrowser.cpp \
 	ui/pinipede/qqwebimageviewer.cpp \
 	ui/settingsmanager/qqboardssettings.cpp \
@@ -109,7 +109,6 @@ HEADERS  += mainwindow.h \
 	core/qqbigornoitem.h \
 	core/qqnetworkaccessor.h \
 	core/qqsettingsparams.h \
-	core/qqpiniurlhelper.h \
 	core/qqmessagetransformfilter.h \
 	core/qqtypes.h \
 	core/qqbackendupdatedevent.h \
@@ -129,7 +128,6 @@ HEADERS  += mainwindow.h \
 	ui/qqtotozmanager.h \
 	ui/qqtotozviewer.h \
 	ui/qqsettingsmanager.h \
-	ui/qqpostparser.h \
 	ui/qqpinisearchwidget.h \
 	ui/qqboardsinfo.h \
 	ui/qqboardinfo.h \
@@ -146,6 +144,8 @@ HEADERS  += mainwindow.h \
 	ui/pinipede/qqhuntingview.h \
 	ui/pinipede/qqhuntpixmapitem.h \
 	ui/pinipede/qqpinioverlay.h \
+	ui/pinipede/qqpiniurlhelper.h \
+	ui/pinipede/qqpostparser.h \
 	ui/pinipede/qqtextbrowser.h \
 	ui/pinipede/qqwebimageviewer.h \
 	ui/settingsmanager/qqboardssettings.h \

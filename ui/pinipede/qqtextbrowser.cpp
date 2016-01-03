@@ -1,10 +1,10 @@
 #include "qqtextbrowser.h"
 
 #include "core/qqbouchot.h"
-#include "core/qqpiniurlhelper.h"
 #include "core/qqpost.h"
 #include "core/qqsettings.h"
 #include "ui/qqmessageblockuserdata.h"
+#include "ui/pinipede/qqpiniurlhelper.h"
 
 #include <QtDebug>
 #include <QApplication>

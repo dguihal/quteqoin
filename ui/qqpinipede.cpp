@@ -7,12 +7,12 @@
 #include "core/qqpostdisplayfilter.h"
 #include "core/qqpurgebouchothistoevent.h"
 #include "core/qqtotozdownloader.h"
-#include "ui/qqpostparser.h"
 #include "ui/qqmessageblockuserdata.h"
 #include "ui/qqpalmipede.h"
 #include "ui/qqtotozmanager.h"
 #include "ui/qqtotozviewer.h"
 #include "ui/pinipede/qqpinioverlay.h"
+#include "ui/pinipede/qqpostparser.h"
 #include "ui/pinipede/qqtextbrowser.h"
 
 #ifdef Q_OS_UNIX
