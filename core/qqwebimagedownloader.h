@@ -3,11 +3,11 @@
 
 #include "core/qqnetworkaccessor.h"
 
-class QQWebImageDownloader : public QQNetworkAccessor
+class QQWebDownloader : public QQNetworkAccessor
 {
 	Q_OBJECT
 public:
-	QQWebImageDownloader(QObject *parent);
+	QQWebDownloader(QObject *parent);
 
 	//////////////////////////////////////////////////////////////
 	/// \brief imgData
@@ -16,7 +16,7 @@ public:
 	QByteArray imgData() { return m_data; }
 	QString dataContentType() { return m_dataContentType; }
 
-	void getImage(const QUrl &url);
+	void getURL(const QUrl &url);
 
 signals:
 	void ready();

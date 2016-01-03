@@ -20,7 +20,7 @@ class OverlayPlayer;
 class QQDuckPixmapItem;
 class QQImageViewer;
 class QQTotozViewer;
-class QQWebImageDownloader;
+class QQWebDownloader;
 class QQWebImageViewer;
 
 class QGraphicsObject;
@@ -58,7 +58,7 @@ private:
 	void showVideo(const QUrl &url);
 	void showWaitAnim();
 
-	QQWebImageDownloader *m_imgDownloader;
+	QQWebDownloader *m_downloader;
 	QGraphicsPixmapItem *m_img;
 	QList<QQDuckPixmapItem *> m_duckList;
 
