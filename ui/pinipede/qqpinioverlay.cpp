@@ -11,7 +11,7 @@
 #include <QCoreApplication>
 
 #include "core/qqsettings.h"
-#include "core/qqwebimagedownloader.h"
+#include "core/qqwebdownloader.h"
 #include "ui/qqtotozviewer.h"
 #include "ui/pinipede/qqduckpixmapitem.h"
 #include "ui/pinipede/qqwebimageviewer.h"

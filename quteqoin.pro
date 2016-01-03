@@ -40,7 +40,7 @@ SOURCES += main.cpp\
 	core/qqsettings.cpp \
 	core/qqboardstatechangeevent.cpp \
 	core/qqnorloge.cpp \
-	core/qqwebimagedownloader.cpp \
+	core/qqwebdownloader.cpp \
 	core/qqbakdisplayfilter.cpp \
 	core/qqnorlogeref.cpp \
 	core/qqtotoz.cpp \
@@ -114,7 +114,7 @@ HEADERS  += mainwindow.h \
 	core/qqtypes.h \
 	core/qqbackendupdatedevent.h \
 	core/totozmanager/qqtmrequester.h \
-	core/qqwebimagedownloader.h \
+	core/qqwebdownloader.h \
 	core/qqbakdisplayfilter.h \
 	core/qqboardstatechangeevent.h \
 	core/qqmussel.h \

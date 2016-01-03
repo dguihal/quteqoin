@@ -1,4 +1,4 @@
-#include "qqwebimagedownloader.h"
+#include "qqwebdownloader.h"
 
 #include <QDebug>
 #include <QDir>

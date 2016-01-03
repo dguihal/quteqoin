@@ -2,7 +2,7 @@
 #define QQWEBIMAGEVIEWER_H
 
 #include "ui/qqimageviewer.h"
-#include "core/qqwebimagedownloader.h"
+#include "core/qqwebdownloader.h"
 
 class QQWebImageViewer : public QQImageViewer
 {
