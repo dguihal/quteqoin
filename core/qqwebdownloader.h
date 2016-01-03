@@ -1,5 +1,5 @@
-#ifndef QQWEBIMAGEDOWNLOADER_H
-#define QQWEBIMAGEDOWNLOADER_H
+#ifndef QQWEBDOWNLOADER_H
+#define QQWEBDOWNLOADER_H
 
 #include "core/qqnetworkaccessor.h"
 
@@ -30,4 +30,4 @@ private:
 	QList<QUrl> m_listPendingUrl;
 };
 
-#endif // QQWEBIMAGEDOWNLOADER_H
+#endif // QQWEBDOWNLOADER_H
