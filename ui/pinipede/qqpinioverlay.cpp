@@ -8,7 +8,6 @@
 #include <phonon/VideoPlayer>
 #include <phonon/MediaObject>
 #endif
-#include <QCoreApplication>
 
 #include "core/qqsettings.h"
 #include "core/qqwebdownloader.h"
@@ -16,8 +15,10 @@
 #include "ui/pinipede/qqduckpixmapitem.h"
 #include "ui/pinipede/qqwebimageviewer.h"
 
+#include <QCoreApplication>
 #include <QGraphicsProxyWidget>
 #include <QResizeEvent>
+#include <QTemporaryFile>
 #include <QToolTip>
 
 //////////////////////////////////////////////////////////////
@@ -158,6 +159,8 @@ QQPiniOverlay::QQPiniOverlay(QWidget *parent) :
 ///
 QQPiniOverlay::~QQPiniOverlay()
 {
+	clearOverview();
+
 	QGraphicsScene *s = scene();
 	delete s;
 }
@@ -197,7 +200,14 @@ void QQPiniOverlay::dlReady()
 	}
 	else if(contentType.startsWith("video/"))
 	{
-
+		QTemporaryFile *f = new QTemporaryFile();
+		if (f->open()) {
+			f->write(m_downloader->imgData());
+			f->flush();
+			m_tmpFiles.append(f);
+			QUrl url = QUrl::fromLocalFile(f->fileName());
+			showVideo(url);
+		}
 	}
 }
 
@@ -370,6 +380,14 @@ void QQPiniOverlay::clearOverview()
 		delete m_currentPlayer;
 		m_currentPlayer = NULL;
 	}
+
+	while(! m_tmpFiles.isEmpty())
+	{
+		QTemporaryFile *f = m_tmpFiles.takeFirst();
+
+		if(f != NULL)
+			delete f;
+	}
 }
 
 //////////////////////////////////////////////////////////////
@@ -435,7 +453,8 @@ void QQPiniOverlay::showVideo(const QUrl &url)
 	moveToMousePos(i, s);
 
 	m_pendingPlayer = new VideoPlayer(i, player, l);
-	m_currentPlayer->hide();
+	if(m_currentPlayer != NULL)
+		m_currentPlayer->hide();
 
 	connect(player, SIGNAL(stateChanged(QMediaPlayer::State)),
 			this, SLOT(doVideoStateChanged(QMediaPlayer::State)));

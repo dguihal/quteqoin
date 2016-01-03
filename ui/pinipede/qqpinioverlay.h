@@ -26,6 +26,7 @@ class QQWebImageViewer;
 class QGraphicsObject;
 class QGraphicsVideoItem;
 class QMediaPlaylist;
+class QTemporaryFile;
 
 class QQPiniOverlay : public QGraphicsView
 {
@@ -61,6 +62,7 @@ private:
 	QQWebDownloader *m_downloader;
 	QGraphicsPixmapItem *m_img;
 	QList<QQDuckPixmapItem *> m_duckList;
+	QList<QTemporaryFile *> m_tmpFiles;
 
 	OverlayPlayer *m_currentPlayer;
 	OverlayPlayer *m_pendingPlayer;
