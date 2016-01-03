@@ -6,7 +6,7 @@
 #include <QNetworkDiskCache>
 
 //////////////////////////////////////////////////////////////
-QQWebImageDownloader::QQWebImageDownloader(QObject *parent) :
+QQWebDownloader::QQWebDownloader(QObject *parent) :
 	QQNetworkAccessor(parent)
 {
 	QNetworkDiskCache *diskCache = new QNetworkDiskCache(this);
@@ -21,10 +21,10 @@ QQWebImageDownloader::QQWebImageDownloader(QObject *parent) :
 }
 
 //////////////////////////////////////////////////////////////
-/// \brief QQWebImageDownloader::getImage
+/// \brief QQWebDownloader::getImage
 /// \param url
 ///
-void QQWebImageDownloader::getImage(const QUrl &url)
+void QQWebDownloader::getURL(const QUrl &url)
 {
 	if(! m_listPendingUrl.contains(url))
 	{
@@ -40,10 +40,10 @@ void QQWebImageDownloader::getImage(const QUrl &url)
 }
 
 //////////////////////////////////////////////////////////////
-/// \brief QQWebImageDownloader::requestFinishedSlot
+/// \brief QQWebDownloader::requestFinishedSlot
 /// \param reply
 ///
-void QQWebImageDownloader::requestFinishedSlot(QNetworkReply *reply)
+void QQWebDownloader::requestFinishedSlot(QNetworkReply *reply)
 {
 	m_listPendingUrl.removeOne(reply->url());
 

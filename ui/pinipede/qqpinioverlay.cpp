@@ -135,7 +135,7 @@ public:
 ///
 QQPiniOverlay::QQPiniOverlay(QWidget *parent) :
 	QGraphicsView(parent),
-	m_imgDownloader(new QQWebImageDownloader(this)),
+	m_downloader(new QQWebDownloader(this)),
 	m_img(NULL),
 	m_currentPlayer(NULL),
 	m_pendingPlayer(NULL)
@@ -150,7 +150,7 @@ QQPiniOverlay::QQPiniOverlay(QWidget *parent) :
 	scene->setSceneRect(rect());
 	setScene(scene);
 
-	connect(m_imgDownloader, SIGNAL(ready()), this, SLOT(dlReady()));
+	connect(m_downloader, SIGNAL(ready()), this, SLOT(dlReady()));
 }
 
 //////////////////////////////////////////////////////////////
@@ -182,11 +182,11 @@ void QQPiniOverlay::dlReady()
 	QQSettings settings;
 	int maxSize = settings.value(SETTINGS_WEB_IMAGE_PREVIEW_SIZE, DEFAULT_WEB_IMAGE_PREVIEW_SIZE).toInt();
 
-	QString contentType = m_imgDownloader->dataContentType();
+	QString contentType = m_downloader->dataContentType();
 	if(contentType.startsWith("image/"))
 	{
 		QQImageViewer *imgV = new QQImageViewer();
-		imgV->updateImg(m_imgDownloader->imgData(), QSize(maxSize, maxSize));
+		imgV->updateImg(m_downloader->imgData(), QSize(maxSize, maxSize));
 		QGraphicsProxyWidget *gpw = scene()->addWidget(imgV, Qt::Widget);
 		moveToMousePos(gpw, imgV->size());
 
@@ -194,6 +194,10 @@ void QQPiniOverlay::dlReady()
 			delete m_currentPlayer;
 		m_currentPlayer = new ImagePlayer(gpw, imgV);
 		m_currentPlayer->show();
+	}
+	else if(contentType.startsWith("video/"))
+	{
+
 	}
 }
 
@@ -351,10 +355,9 @@ void QQPiniOverlay::showUrl(const QUrl &url, QString &contentType)
 {
 	showWaitAnim();
 
-	if(contentType.startsWith("video/"))
-		showVideo(url);
-	else
-		m_imgDownloader->getImage(url);
+	if(contentType.startsWith("video/") ||
+			contentType.startsWith("image/"))
+		m_downloader->getURL(url);
 }
 
 //////////////////////////////////////////////////////////////
