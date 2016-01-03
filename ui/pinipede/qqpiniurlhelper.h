@@ -1,7 +1,7 @@
 #ifndef QQPINIURLHELPER_H
 #define QQPINIURLHELPER_H
 
-#include "qqnetworkaccessor.h"
+#include "core/qqnetworkaccessor.h"
 
 #include "core/qqmessagetransformfilter.h"
 
