@@ -31,6 +31,7 @@ QQPalmiLineEdit::QQPalmiLineEdit(QWidget *parent) :
 	setAttribute(Qt::WA_InputMethodEnabled, true);
 #if(QT_VERSION >= QT_VERSION_CHECK(5, 2, 0))
 	setClearButtonEnabled(true);
+	setStyleSheet(QString("QLineEdit { color: black; }"));
 #else
 	m_clearButton = new QToolButton(this);
 	QFontMetrics fMetrics(font());
@@ -42,7 +43,7 @@ QQPalmiLineEdit::QQPalmiLineEdit(QWidget *parent) :
 	connect(m_clearButton, SIGNAL(clicked()), this, SLOT(clear()));
 	connect(this, SIGNAL(textChanged(const QString&)), this, SLOT(updateCloseButton(const QString&)));
 	int frameWidth = style()->pixelMetric(QStyle::PM_DefaultFrameWidth);
-	setStyleSheet(QString("QLineEdit { padding-right: %1px; } ").arg(m_clearButton->sizeHint().width() + frameWidth + 1));
+	setStyleSheet(QString("QLineEdit { padding-right: %1px; color: black } ").arg(m_clearButton->sizeHint().width() + frameWidth + 1));
 #endif
 	connect(&m_fPoster, SIGNAL(finished(QString)), this, SLOT(insertText(QString)));
 	connect(&m_fPoster, SIGNAL(postErr(QString)), this, SLOT(joinFileErr(QString)));
