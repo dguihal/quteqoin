@@ -803,7 +803,7 @@ void QQPinipede::norlogeRefHovered(QQNorlogeRef norlogeRef)
 			QString styleSheet = m_hiddenPostViewerLabelSSheet;
 			styleSheet.append("background-color: ")
 					.append(dBouchot->settings().colorLight().name())
-					.append(";");
+					.append("; color: black;");
 			m_hiddenPostViewerLabel->setStyleSheet(styleSheet);
 
 			//Suppression des ancres non http
