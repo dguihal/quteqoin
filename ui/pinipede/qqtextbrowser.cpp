@@ -69,6 +69,8 @@ QQTextBrowser::QQTextBrowser(QString groupName, QQPinipede *parent) :
 	verticalScrollBar()->setInvertedControls(true);
 	verticalScrollBar()->triggerAction(QAbstractSlider::SliderToMaximum);
 
+	setStyleSheet(QString("QTextBrowser { color : black; }"));
+
 }
 
 QQTextBrowser::~QQTextBrowser()
