@@ -523,7 +523,7 @@ void QQPinipede::searchText(const QString &text, bool forward)
 			}
 
 			QTextEdit::ExtraSelection extra;
-				extra.format.setBackground(highlightColor);
+			extra.format.setBackground(highlightColor);
 			extra.cursor = findCursor;
 
 			QList<QTextEdit::ExtraSelection> extraSelections;
@@ -754,9 +754,9 @@ void QQPinipede::norlogeRefHovered(QQNorlogeRef norlogeRef)
 
 	// Si rien n'a ete trouve dans la zone affichee dans le pini ou que la cible se trouve dans un autre groupe
 	if(dBouchot != NULL &&
-		((dBouchot->settings().group() != sBouchot->settings().group()) ||
-		 ! highlightSuccess)
-		)
+			((dBouchot->settings().group() != sBouchot->settings().group()) ||
+			 ! highlightSuccess)
+			)
 	{
 		QTextCursor cursor;
 		if(dBouchot->settings().group() != sBouchot->settings().group())
@@ -1098,7 +1098,7 @@ void QQPinipede::newPostsAvailable(QString groupName)
 		{
 			// Gestion de l'index de norloge multiple
 			if(newPosts.at(newPostsIndex)->norloge().toLongLong() == destlistPosts->last()->norloge().toLongLong() &&
-			   newPosts.at(newPostsIndex)->bouchot()->name().compare(destlistPosts->last()->bouchot()->name()) == 0)
+					newPosts.at(newPostsIndex)->bouchot()->name().compare(destlistPosts->last()->bouchot()->name()) == 0)
 			{
 				destlistPosts->last()->setNorlogeMultiple(true);
 				newPosts.at(newPostsIndex)->setNorlogeIndex(destlistPosts->last()->norlogeIndex() + 1);
@@ -1189,9 +1189,9 @@ bool QQPinipede::printPostAtCursor(QTextCursor &cursor, QQPost *post)
 
 	QQNorlogeRef nRef = QQNorlogeRef(*post);
 	int index = data->appendNorlogeRef(nRef);
-	QString nRefUrl = QString("nref://%1?postId=%2&index=%3")
-			.arg(post->bouchot()->name())
-			.arg(post->id()).arg(index);
+	QString nRefUrl = QString("nref://bouchot?board=%1&postId=%2&index=%3")
+					  .arg(post->bouchot()->name())
+					  .arg(post->id()).arg(index);
 	norlogeFormat.setAnchorHref(nRefUrl);
 
 	QString txt = post->norlogeFormatee();
@@ -1213,8 +1213,8 @@ bool QQPinipede::printPostAtCursor(QTextCursor &cursor, QQPost *post)
 
 	QString pctLogin = QString(QUrl::toPercentEncoding(post->login()));
 	QString pctUA = QString(QUrl::toPercentEncoding(post->UA()));
-	QString loginUAUrl = QString("msl://%1?login=%2&ua=%3")
-			.arg(post->bouchot()->name(), pctLogin, pctUA);
+	QString loginUAUrl = QString("msl://bouchot?board=%1&login=%2&ua=%3")
+						 .arg(post->bouchot()->name(), pctLogin, pctUA);
 	loginUaFormat.setAnchor(true);
 	loginUaFormat.setAnchorHref(loginUAUrl);
 

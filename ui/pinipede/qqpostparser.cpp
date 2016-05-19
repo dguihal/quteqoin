@@ -93,7 +93,7 @@ QList<QTextDocumentFragment> QQPostParser::splitMessage(const QString &message, 
 				fmt.setForeground(QColor(NORLOGE_COLOR));
 				fmt.setFontWeight(QFont::Normal);
 			}
-			QString nRefUrl = QString("nref://%1?postId=%2&index=%3")
+			QString nRefUrl = QString("nref://bouchot?board=%1&postId=%2&index=%3")
 					.arg(post->bouchot()->name())
 					.arg(post->id()).arg(index);
 			fmt.setAnchorHref(nRefUrl);
@@ -225,7 +225,7 @@ void QQPostParser::colorizeDuck(QTextDocument &doc, QQMessageBlockUserData *user
 
 		while(! (cursor = doc.find(reg, cursor)).isNull())
 		{
-			QString duckUrl = QString("duck://%1?postId=%2&self=%3")
+			QString duckUrl = QString("duck://bouchot?board=%1&postId=%2&self=%3")
 					.arg(post->bouchot()->name()).arg(post->id()).arg(post->isSelfPost());
 			fmt.setAnchorHref(duckUrl);
 			cursor.mergeCharFormat(fmt);
@@ -260,7 +260,6 @@ void QQPostParser::linkNorlogeRef(QQNorlogeRef *nRef)
 	}
 }
 
-
 //////////////////////////////////////////////////////////////
 /// \brief QQPostParser::colorizeTableVolante
 /// \param doc
@@ -281,7 +280,7 @@ void QQPostParser::colorizeTableVolante(QTextDocument &doc, QQMessageBlockUserDa
 
 	while(! (cursor = doc.find(tvReg, cursor)).isNull())
 	{
-		QString duckUrl = QString("tablev://%1?postId=%2&self=%3")
+		QString duckUrl = QString("tablev://bouchot?board=%1&postId=%2&self=%3")
 				.arg(post->bouchot()->name()).arg(post->id()).arg(post->isSelfPost());
 		fmt.setAnchorHref(duckUrl);
 		cursor.mergeCharFormat(fmt);

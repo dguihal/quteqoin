@@ -88,7 +88,7 @@ QQNorlogeRef::QQNorlogeRef(const QQPost& post, const QString& norlogeRef) :
 			m_hasSec = false;
 		//gestion du :1
 		if(timeSplit.size() > 0)
-				m_norlogeIndex = timeSplit.takeFirst().toInt();
+			m_norlogeIndex = timeSplit.takeFirst().toInt();
 
 		m_dstBouchot = capturedTexts[4];
 		//supression du @ initial
@@ -158,7 +158,7 @@ bool QQNorlogeRef::matchesPost(QQPost* post)
 	{
 		QString dstB = dstBouchot();
 		if(dstB == post->bouchot()->name() ||
-		   post->bouchot()->settings().containsAlias(dstB))
+				post->bouchot()->settings().containsAlias(dstB))
 		{
 			if(post->norlogeObj().matchingNRefsId().contains(nRefId()))
 			{

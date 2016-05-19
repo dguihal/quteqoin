@@ -138,13 +138,13 @@ void QQTextBrowser::notifAreaPaintEvent(QPaintEvent * event)
 
 	// Recuperation du premier bloc a dessiner
 	QTextBlock block = cursorForPosition(
-				event->rect().topLeft()
-				).block();
+						   event->rect().topLeft()
+						   ).block();
 
 	// Recuperation du dernier bloc a dessiner
 	QTextBlock lastBlock = cursorForPosition(
-				event->rect().bottomRight()
-				).block();
+							   event->rect().bottomRight()
+							   ).block();
 	while(block.isValid() && block.blockNumber() <= lastBlock.blockNumber())
 	{
 		QQMessageBlockUserData * uData = (QQMessageBlockUserData *) block.userData();
@@ -265,22 +265,24 @@ void QQTextBrowser::onAnchorClicked(const QUrl &link)
 #if(QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
 		QUrlQuery anchorUrlQuery(link);
 		int index = anchorUrlQuery.queryItemValue("index").toInt(&isInt);
+		QString board = anchorUrlQuery.queryItemValue("board").toUtf8();
 #else
 		int index = link.queryItemValue("index").toInt(&isInt);
+		QString board = link.queryItemValue("board").toLocal8Bit();
 #endif
-		if(isInt)
+		if(isInt && ! board.isEmpty())
 		{
-			QTextCursor c = cursorForPosition(mapFromGlobal(QCursor::pos()));
+			QTextCursor c = cursorForPosition(QCursor::pos());
 			QQMessageBlockUserData *d = (QQMessageBlockUserData *) c.block().userData();
 			if(index == 0) // clic sur la norloge du post
 			{
-				emit norlogeClicked(link.host(), d->post()->norlogeObj());
+				emit norlogeClicked(board, d->post()->norlogeObj());
 			}
 			else
 			{
 				QQNorlogeRef nRef = d->norlogeRefForIndex(index);
 				if(nRef.isValid())
-					emit norlogeRefClicked(link.host(), nRef);
+					emit norlogeRefClicked(board, nRef);
 				else
 					qWarning() << Q_FUNC_INFO << "Invalid nRef returned for" << link.toString();
 			}
@@ -294,12 +296,13 @@ void QQTextBrowser::onAnchorClicked(const QUrl &link)
 		name = QUrl::fromPercentEncoding(anchorUrlQuery.queryItemValue("login").toUtf8());
 		if(name.size() == 0)
 			name = QUrl::fromPercentEncoding(anchorUrlQuery.queryItemValue("ua").toUtf8());
+		QString board = QUrl::fromPercentEncoding(anchorUrlQuery.queryItemValue("board").toUtf8());
 #else
 		name = QUrl::fromPercentEncoding(link.queryItemValue("login").toLocal8Bit());
 		if(name.size() == 0)
 			name = QUrl::fromPercentEncoding(link.queryItemValue("ua").toLocal8Bit());
+		QString board = QUrl::fromPercentEncoding(link.queryItemValue("board").toLocal8Bit());
 #endif
-		QString board = link.host();
 		emit loginClicked(board, name);
 	}
 	else if(link.scheme() == "duck")
@@ -308,11 +311,12 @@ void QQTextBrowser::onAnchorClicked(const QUrl &link)
 		QUrlQuery anchorUrlQuery(link);
 		QString postId = anchorUrlQuery.queryItemValue("postId");
 		QString self = anchorUrlQuery.queryItemValue("self");
+		QString board = anchorUrlQuery.queryItemValue("board");
 #else
 		QString postId = link.queryItemValue("postId");
 		QString self = link.queryItemValue("self");
+		QString board = link.queryItemValue("board");
 #endif
-		QString board = link.host();
 
 		emit duckClicked(board, postId, (self == "1"));
 	}
@@ -573,13 +577,13 @@ void QQTextBrowser::paintEvent(QPaintEvent * event)
 
 	// Recuperation du premier bloc a dessiner
 	QTextBlock block = cursorForPosition(
-				event->rect().topLeft()
-				).block();
+						   event->rect().topLeft()
+						   ).block();
 
 	// Recuperation du dernier bloc a dessiner
 	QTextBlock lastBlock = cursorForPosition(
-				event->rect().bottomRight()
-				).block();
+							   event->rect().bottomRight()
+							   ).block();
 	while(block.isValid() && block.blockNumber() <= lastBlock.blockNumber())
 	{
 		QQMessageBlockUserData * uData = (QQMessageBlockUserData *) block.userData();
