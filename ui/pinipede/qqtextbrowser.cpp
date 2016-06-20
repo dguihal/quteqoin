@@ -272,7 +272,7 @@ void QQTextBrowser::onAnchorClicked(const QUrl &link)
 #endif
 		if(isInt && ! board.isEmpty())
 		{
-			QTextCursor c = cursorForPosition(QCursor::pos());
+			QTextCursor c = cursorForPosition(mapFromGlobal(QCursor::pos()));
 			QQMessageBlockUserData *d = (QQMessageBlockUserData *) c.block().userData();
 			if(index == 0) // clic sur la norloge du post
 			{
