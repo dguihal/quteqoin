@@ -11,13 +11,13 @@
 #include <QDir>
 #include <QSettings>
 
-#ifdef QT_DEBUG
+#ifdef QML_PALMI
 #if(QT_VERSION >= QT_VERSION_CHECK(5, 3, 0))
 #include "qml/documenthandler.h"
 #include <QQmlApplicationEngine>
 #include <QQuickWindow>
 #endif
-#endif //QT_DEBUG
+#endif //QML_PALMI
 
 #ifdef Q_OS_UNIX
 #undef signals
@@ -68,7 +68,7 @@ void purgeCache()
 	removeDirRecursive(dirCache.absoluteFilePath("networkCache"));
 }
 
-#ifdef QT_DEBUG
+#ifdef QML_PALMI
 #if(QT_VERSION >= QT_VERSION_CHECK(5, 3, 0))
 void dumpRecurse(QQuickItem *rootItem)
 {
@@ -79,7 +79,7 @@ void dumpRecurse(QQuickItem *rootItem)
 	}
 }
 #endif //QT_VERSION
-#endif //QT_DEBUG
+#endif //QML_PALMI
 
 int main(int argc, char *argv[])
 {
