@@ -58,6 +58,10 @@ QQTotozManager::QQTotozManager(QWidget *parent) :
 	m_ui->serverScrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
 	m_ui->bookmarkScrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
 
+#if(QT_VERSION >= QT_VERSION_CHECK(5, 2, 0))
+	m_ui->searchLineEdit->setClearButtonEnabled(true);
+#endif
+
 	connect(m_ui->qqTMTabWidget, SIGNAL(currentChanged(int)), this, SLOT(tabChanged(int)));
 	connect(m_ui->searchLineEdit, SIGNAL(returnPressed()), this, SLOT(searchTotoz()));
 	connect(m_ui->searchLineEdit, SIGNAL(textChanged(QString)), this, SLOT(handleSearchTextChanged(QString)));
