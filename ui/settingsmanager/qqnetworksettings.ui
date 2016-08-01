@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>400</width>
-    <height>222</height>
+    <height>300</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,7 +17,7 @@
    <item>
     <widget class="QRadioButton" name="noProxyRB">
      <property name="text">
-      <string>No P&amp;roxy</string>
+      <string>No Pro&amp;xy</string>
      </property>
      <property name="checked">
       <bool>true</bool>

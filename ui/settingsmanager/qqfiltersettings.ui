@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>250</width>
-    <height>257</height>
+    <width>400</width>
+    <height>300</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -63,7 +63,7 @@
          <item>
           <widget class="QRadioButton" name="fullHostUrlRB">
            <property name="text">
-            <string>Full host [www.google.fr]</string>
+            <string>Fu&amp;ll host [www.google.fr]</string>
            </property>
           </widget>
          </item>

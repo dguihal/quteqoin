@@ -277,9 +277,6 @@ void QQSettingsManager::initGeneralSettings(const QQSettings &settings)
 	QString historySize = settings.value(SETTINGS_GENERAL_MAX_HISTLEN, DEFAULT_GENERAL_MAX_HISTLEN).toString();
 	m_generalSettingsW->setMaxHistorySize(historySize);
 
-	QString defaultLogin = settings.value(SETTINGS_GENERAL_DEFAULT_LOGIN, DEFAULT_GENERAL_DEFAULT_LOGIN).toString();
-	m_generalSettingsW->setDefaultLogin(defaultLogin);
-
 	QString defaultUA = settings.value(SETTINGS_GENERAL_DEFAULT_UA, DEFAULT_GENERAL_DEFAULT_UA).toString();
 	m_generalSettingsW->setDefaultUA(defaultUA);
 
@@ -306,9 +303,6 @@ void QQSettingsManager::saveGeneralSettings(QQSettings &settings)
 
 	QString historySize = m_generalSettingsW->maxHistorySize();
 	settings.setValueWithDefault(SETTINGS_GENERAL_MAX_HISTLEN, historySize, DEFAULT_GENERAL_MAX_HISTLEN);
-
-	QString defaultLogin = m_generalSettingsW->defaultLogin();
-	settings.setValueWithDefault(SETTINGS_GENERAL_DEFAULT_LOGIN, defaultLogin, DEFAULT_GENERAL_DEFAULT_LOGIN);
 
 	QString defaultUA = m_generalSettingsW->defaultUA();
 	settings.setValueWithDefault(SETTINGS_GENERAL_DEFAULT_UA, defaultUA, DEFAULT_GENERAL_DEFAULT_UA);

@@ -22,9 +22,6 @@ public:
 	void setMaxHistorySize(const QString &maxSize);
 	QString maxHistorySize();
 
-	void setDefaultLogin(const QString &defaultLogin);
-	QString defaultLogin();
-
 	void setDefaultUA(const QString &defaultUA);
 	QString defaultUA();
 

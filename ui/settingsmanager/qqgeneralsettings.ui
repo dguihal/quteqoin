@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>324</width>
-    <height>300</height>
+    <width>400</width>
+    <height>314</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -73,27 +73,7 @@
       <item row="1" column="1">
        <widget class="QLineEdit" name="defaultUALlineEdit"/>
       </item>
-      <item row="2" column="1">
-       <widget class="QLineEdit" name="defaultLoginLineEdit"/>
-      </item>
-      <item row="2" column="0">
-       <widget class="QLabel" name="labelDefaultLogin">
-        <property name="text">
-         <string>Default login :</string>
-        </property>
-       </widget>
-      </item>
-      <item row="4" column="1">
-       <widget class="QLineEdit" name="defaultWebSearchUrlLineEdit"/>
-      </item>
-      <item row="4" column="0">
-       <widget class="QLabel" name="labelSearchUrl">
-        <property name="text">
-         <string>Default search url :</string>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="0" colspan="2">
+      <item row="2" column="0" colspan="2">
        <widget class="Line" name="line">
         <property name="frameShadow">
          <enum>QFrame::Sunken</enum>
@@ -103,14 +83,24 @@
         </property>
        </widget>
       </item>
-      <item row="5" column="0">
+      <item row="3" column="0">
+       <widget class="QLabel" name="labelSearchUrl">
+        <property name="text">
+         <string>Default search url :</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="1">
+       <widget class="QLineEdit" name="defaultWebSearchUrlLineEdit"/>
+      </item>
+      <item row="4" column="0">
        <widget class="QLabel" name="label_2">
         <property name="text">
          <string>Stealth mode :</string>
         </property>
        </widget>
       </item>
-      <item row="5" column="1">
+      <item row="4" column="1">
        <widget class="QCheckBox" name="stealthModeCB">
         <property name="text">
          <string/>
@@ -273,7 +263,7 @@
          <item>
           <widget class="QRadioButton" name="piniFlowRB">
            <property name="text">
-            <string>Flo&amp;w</string>
+            <string>F&amp;low</string>
            </property>
           </widget>
          </item>

@@ -58,9 +58,7 @@ void QQBoardWizard::accept()
 	{
 		m_s = QQBouchot::getBouchotDef(m_bName);
 	}
-	QString defaultLogin = settings.value(SETTINGS_GENERAL_DEFAULT_LOGIN, DEFAULT_GENERAL_DEFAULT_LOGIN).toString();
-	if(! defaultLogin.isEmpty())
-		m_s.setLogin(defaultLogin);
+
 	m_s.setRefreshFromString(DEFAULT_BOUCHOT_REFRESH);
 
 

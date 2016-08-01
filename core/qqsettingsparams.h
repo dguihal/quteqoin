@@ -24,9 +24,6 @@ const char notif_name[] = "QuteQoin";
 #define SETTINGS_GENERAL_DEFAULT_UA "default_ua"
 #define DEFAULT_GENERAL_DEFAULT_UA "quteqoin crash edition"
 
-#define SETTINGS_GENERAL_DEFAULT_LOGIN "default_login"
-#define DEFAULT_GENERAL_DEFAULT_LOGIN ""
-
 #define SETTINGS_GENERAL_WEBSEARCH_URL "default_websearch_url"
 #define DEFAULT_GENERAL_WEBSEARCH_URL "http://www.google.fr/search?q=%s&ie=utf-8&oe=utf-8"
 

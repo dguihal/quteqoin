@@ -88,17 +88,6 @@ QString QQGeneralSettings::maxHistorySize()
 	return ui->maxHistLineEdit->text();
 }
 
-//PROPERTY DefaultLogin
-void QQGeneralSettings::setDefaultLogin(const QString &defaultLogin)
-{
-	ui->defaultLoginLineEdit->setText(defaultLogin);
-}
-
-QString QQGeneralSettings::defaultLogin()
-{
-	return ui->defaultLoginLineEdit->text();
-}
-
 //PROPERTY DefaultUA
 void QQGeneralSettings::setDefaultUA(const QString &defaultUA)
 {
