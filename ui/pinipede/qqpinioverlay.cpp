@@ -244,7 +244,12 @@ void QQPiniOverlay::handleVideoError(QMediaPlayer::Error error)
 	qDebug() << Q_FUNC_INFO << error;
 	if(error != QMediaPlayer::NoError)
 	{
-		QString errString = ((VideoPlayer *) m_currentPlayer)->errorString();
+		QString errString;
+		if(m_pendingPlayer != NULL && m_pendingPlayer->playerType() == OverlayPlayer::TypeVideoPlayer)
+			errString = ((VideoPlayer *) m_pendingPlayer)->errorString();
+		else if(m_currentPlayer != NULL && m_currentPlayer->playerType() == OverlayPlayer::TypeVideoPlayer)
+			errString = ((VideoPlayer *) m_currentPlayer)->errorString();
+
 		if(errString.length() == 0)
 			switch(error)
 			{

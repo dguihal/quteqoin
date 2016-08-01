@@ -16,9 +16,6 @@ equals(QT_MAJOR_VERSION, 4) {
 }
 equals(QT_MAJOR_VERSION, 5) {
 	QT += widgets multimediawidgets
-	greaterThan(QT_MINOR_VERSION, 3) {
-		QT += quickwidgets
-	}
 }
 
 # A Tester
@@ -189,7 +186,7 @@ RESOURCES += \
 CONFIG(QML_PALMI) {
 	equals(QT_MAJOR_VERSION, 5):greaterThan(QT_MINOR_VERSION, 3) {
 
-		QT += quick
+		QT += quick quickwidgets
 
 		DEFINES += QML_PALMI
 
