@@ -133,7 +133,7 @@ void QQPiniUrlHelper::requestFinishedSlot(QNetworkReply *reply)
 		} // Une erreur HTTP est survenue
 		else if(reply->error() != QNetworkReply::NoError)
 		{
-			qDebug() << reply->errorString();
+			qDebug() << Q_FUNC_INFO << reply->errorString();
 			QString rep = tr("Unknown");
 			emit contentTypeAvailable(sourceUrl, rep);
 		}
@@ -401,7 +401,7 @@ void QQPiniUrlHelper::handleVimeoExtendedInfo(const QByteArray &jsonInfo, QUrl &
 	QJsonDocument d = QJsonDocument::fromJson(jsonInfo, &error);
 	if(d.isEmpty())
 	{
-		qDebug() << "error" << error.errorString();
+		qDebug() << Q_FUNC_INFO << "error" << error.errorString();
 		return;
 	}
 	QJsonArray a = d.array();
@@ -559,7 +559,7 @@ void QQPiniUrlHelper::handleYoutubeExtendedInfo(const QByteArray &jsonInfo, QUrl
 	QJsonDocument d = QJsonDocument::fromJson(jsonInfo, &error);
 	if(d.isEmpty())
 	{
-		qDebug() << "error" << error.errorString();
+		qDebug() << Q_FUNC_INFO << "error" << error.errorString();
 		return;
 	}
 	QJsonObject o = d.object();

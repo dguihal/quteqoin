@@ -76,7 +76,8 @@ void QQWebDownloader::requestFinishedSlot(QNetworkReply *reply)
 	{
 		m_dataContentType = reply->header(QNetworkRequest::ContentTypeHeader).toString();
 		m_data = reply->readAll();
-		emit ready();
+		QUrl url(reply->url());
+		emit ready(url);
 	}
 
 	reply->deleteLater();

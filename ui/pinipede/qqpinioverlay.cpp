@@ -151,7 +151,7 @@ QQPiniOverlay::QQPiniOverlay(QWidget *parent) :
 	scene->setSceneRect(rect());
 	setScene(scene);
 
-	connect(m_downloader, SIGNAL(ready()), this, SLOT(dlReady()));
+	connect(m_downloader, SIGNAL(ready(QUrl &)), this, SLOT(dlReady(QUrl &)));
 }
 
 //////////////////////////////////////////////////////////////
@@ -163,6 +163,16 @@ QQPiniOverlay::~QQPiniOverlay()
 
 	QGraphicsScene *s = scene();
 	delete s;
+}
+
+//////////////////////////////////////////////////////////////
+/// \brief QQPiniOverlay::focusOutEvent
+/// \param event
+///
+void QQPiniOverlay::focusOutEvent(QFocusEvent *event)
+{
+	qDebug() << Q_FUNC_INFO << event->reason();
+	QGraphicsView::focusOutEvent(event);
 }
 
 //////////////////////////////////////////////////////////////
@@ -180,8 +190,13 @@ void QQPiniOverlay::resizeEvent(QResizeEvent *event)
 //////////////////////////////////////////////////////////////
 /// \brief dlReady
 ///
-void QQPiniOverlay::dlReady()
+void QQPiniOverlay::dlReady(QUrl &url)
 {
+	if (m_pendingURLs.isEmpty() || m_pendingURLs.top() != url)
+		return;
+	else
+		m_pendingURLs.clear();
+
 	QQSettings settings;
 	int maxSize = settings.value(SETTINGS_WEB_IMAGE_PREVIEW_SIZE, DEFAULT_WEB_IMAGE_PREVIEW_SIZE).toInt();
 
@@ -282,6 +297,8 @@ void QQPiniOverlay::handleVideoError(QMediaPlayer::Error error)
 
 		if(m_currentPlayer != NULL)
 			delete m_currentPlayer;
+		if(m_pendingPlayer != NULL)
+			delete m_pendingPlayer;
 		m_currentPlayer = new ImagePlayer(gpw, v);
 		m_currentPlayer->show();
 	}
@@ -368,6 +385,7 @@ void QQPiniOverlay::showTotoz(const QString &totozId)
 ///
 void QQPiniOverlay::showUrl(const QUrl &url, QString &contentType)
 {
+	m_pendingURLs.push(url);
 	showWaitAnim();
 
 	if(contentType.startsWith("video/") ||
@@ -380,6 +398,7 @@ void QQPiniOverlay::showUrl(const QUrl &url, QString &contentType)
 ///
 void QQPiniOverlay::clearOverview()
 {
+	m_pendingURLs.clear();
 	if(m_currentPlayer != NULL)
 	{
 		delete m_currentPlayer;
@@ -442,6 +461,7 @@ void QQPiniOverlay::showVideo(const QUrl &url)
 	QSize s(maxSize, maxSize);
 
 #if(QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
+	qDebug() << Q_FUNC_INFO << scene()->items().length();
 	QGraphicsVideoItem *i = new QGraphicsVideoItem();
 	i->setAspectRatioMode(Qt::KeepAspectRatio);
 	i->setSize(s);

@@ -13,6 +13,7 @@ public:
 	enum Error { VOID_E };
 };
 #endif
+#include <QStack>
 #include <QUrl>
 
 class OverlayPlayer;
@@ -47,10 +48,11 @@ public slots:
 	void clearOverview();
 
 protected:
+	virtual void focusOutEvent(QFocusEvent* event);
 	virtual void resizeEvent(QResizeEvent *event);
 
 protected slots:
-	void dlReady();
+	void dlReady(QUrl &url);
 	void doVideoStateChanged(QMediaPlayer::State newState);
 	void handleVideoError(QMediaPlayer::Error error);
 
@@ -63,6 +65,7 @@ private:
 	QGraphicsPixmapItem *m_img;
 	QList<QQDuckPixmapItem *> m_duckList;
 	QList<QTemporaryFile *> m_tmpFiles;
+	QStack<QUrl> m_pendingURLs;
 
 	OverlayPlayer *m_currentPlayer;
 	OverlayPlayer *m_pendingPlayer;

@@ -3,6 +3,8 @@
 
 #include "core/qqnetworkaccessor.h"
 
+#include <QUrl>
+
 class QQWebDownloader : public QQNetworkAccessor
 {
 	Q_OBJECT
@@ -19,7 +21,7 @@ public:
 	void getURL(const QUrl &url);
 
 signals:
-	void ready();
+	void ready(QUrl &url);
 
 protected slots:
 	virtual void requestFinishedSlot(QNetworkReply *reply);
