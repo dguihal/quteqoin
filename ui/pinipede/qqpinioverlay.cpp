@@ -3,6 +3,7 @@
 #if(QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
 #include <QGraphicsVideoItem>
 #include <QMediaPlaylist>
+#include <QMediaPlayer>
 #else
 #include <phonon/AudioOutput>
 #include <phonon/VideoPlayer>
@@ -116,6 +117,7 @@ public:
 	virtual PlayerType playerType() { return TypeVideoPlayer; }
 	virtual void show() { m_gObj->show(); }
 	virtual void hide() { m_gObj->hide(); }
+	virtual void stop() { m_player->stop(); }
 
 	QString errorString() { return m_media->errorString(); }
 
@@ -261,9 +263,17 @@ void QQPiniOverlay::handleVideoError(QMediaPlayer::Error error)
 	{
 		QString errString;
 		if(m_pendingPlayer != NULL && m_pendingPlayer->playerType() == OverlayPlayer::TypeVideoPlayer)
+		{
 			errString = ((VideoPlayer *) m_pendingPlayer)->errorString();
+			((VideoPlayer *) m_pendingPlayer)->stop();
+			delete m_pendingPlayer;
+		}
 		else if(m_currentPlayer != NULL && m_currentPlayer->playerType() == OverlayPlayer::TypeVideoPlayer)
+		{
 			errString = ((VideoPlayer *) m_currentPlayer)->errorString();
+			((VideoPlayer *) m_currentPlayer)->stop();
+			delete m_currentPlayer;
+		}
 
 		if(errString.length() == 0)
 			switch(error)
@@ -295,10 +305,6 @@ void QQPiniOverlay::handleVideoError(QMediaPlayer::Error error)
 		QGraphicsProxyWidget *gpw = scene()->addWidget(v, Qt::Widget);
 		moveToMousePos(gpw, v->size());
 
-		if(m_currentPlayer != NULL)
-			delete m_currentPlayer;
-		if(m_pendingPlayer != NULL)
-			delete m_pendingPlayer;
 		m_currentPlayer = new ImagePlayer(gpw, v);
 		m_currentPlayer->show();
 	}
@@ -385,12 +391,19 @@ void QQPiniOverlay::showTotoz(const QString &totozId)
 ///
 void QQPiniOverlay::showUrl(const QUrl &url, QString &contentType)
 {
-	m_pendingURLs.push(url);
+
+#ifdef WIN32
+	if(contentType.startsWith("image/"))
+#else
 	showWaitAnim();
 
 	if(contentType.startsWith("video/") ||
 			contentType.startsWith("image/"))
+#endif
+	{
+		m_pendingURLs.push(url);
 		m_downloader->getURL(url);
+	}
 }
 
 //////////////////////////////////////////////////////////////
@@ -467,7 +480,7 @@ void QQPiniOverlay::showVideo(const QUrl &url)
 	i->setSize(s);
 	scene()->addItem(i);
 
-	QMediaPlayer *player = new QMediaPlayer();
+	QMediaPlayer *player = new QMediaPlayer(this, QMediaPlayer::VideoSurface);
 	player->setVideoOutput(i);
 	player->setMuted(settings.value(SETTINGS_GENERAL_STEALTH_MODE, DEFAULT_GENERAL_STEALTH_MODE).toBool());
 
