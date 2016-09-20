@@ -37,6 +37,7 @@ public slots:
 	void pushCurrentToHistory();
 
 protected:
+	virtual void dragEnterEvent(QDragEnterEvent *event);
 	virtual void dropEvent(QDropEvent *event);
 	virtual void focusInEvent(QFocusEvent *e);
 	virtual void focusOutEvent(QFocusEvent *e);

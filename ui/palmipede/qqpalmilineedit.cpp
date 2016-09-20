@@ -175,6 +175,17 @@ void QQPalmiLineEdit::pushCurrentToHistory()
 	m_indexInPostHistory = m_postHistory.size() - 1; //last
 }
 
+
+//////////////////////////////////////////////////////////////
+/// \brief QQPalmiLineEdit::dragEnterEvent
+/// \param event
+///
+void QQPalmiLineEdit::dragEnterEvent(QDragEnterEvent *event)
+{
+	if(event->mimeData()->hasUrls())
+		event->acceptProposedAction();
+}
+
 //////////////////////////////////////////////////////////////
 /// \brief QQPalmiLineEdit::dropEvent
 /// \param e
