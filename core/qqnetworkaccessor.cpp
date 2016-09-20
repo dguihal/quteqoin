@@ -175,6 +175,11 @@ QNetworkReply * QQNetworkAccessor::httpPost(const QNetworkRequest &request, QHtt
 	return m_qnam->post(request, multiPart);
 }
 
+QNetworkReply * QQNetworkAccessor::httpPut(const QNetworkRequest &request, QIODevice *data)
+{
+	return m_qnam->put(request, data);
+}
+
 // Gestion du proxy
 QMutex QQNetworkAccessor::m_proxyPopupMutex;
 QString QQNetworkAccessor::m_proxyUser;

@@ -10,7 +10,7 @@ class QQPalmiFilePoster : public QQNetworkAccessor
 	Q_OBJECT
 public:
 	//enum Services { PASTELINK, CJOINT };
-	enum Services { PASTELINK, UPLOAD_3TER_ORG };
+	enum Services { PASTELINK, UPLOAD_3TER_ORG, JUS_Y_FR };
 	explicit QQPalmiFilePoster(QObject *parent = 0);
 
 	bool postFile(const QString &fileName);
@@ -29,6 +29,8 @@ private:
 	void parsePasteLinkResponse(const QString &data);
 	void postFileUpload3TerOrg(QFile *file);
 	void parseUpload3TerOrg(const QString &s);
+	void postFileJusYFr(QFile *file);
+	void parseJusYFr(const QString &s);
 
 	Services m_service;
 

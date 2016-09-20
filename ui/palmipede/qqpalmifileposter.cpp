@@ -48,6 +48,9 @@ bool QQPalmiFilePoster::postFile(const QString &fileName)
 	case UPLOAD_3TER_ORG:
 		postFileUpload3TerOrg(file);
 		break;
+	case JUS_Y_FR:
+		postFileJusYFr(file);
+		break;
 	default:
 		rep = false;
 	}
@@ -73,6 +76,9 @@ void QQPalmiFilePoster::requestFinishedSlot(QNetworkReply *reply)
 		case UPLOAD_3TER_ORG:
 			parseUpload3TerOrg(s);
 			break;
+		case JUS_Y_FR:
+			parseJusYFr(s);
+			break;
 		default:
 			break;
 		}
@@ -83,6 +89,10 @@ void QQPalmiFilePoster::requestFinishedSlot(QNetworkReply *reply)
 	reply->deleteLater();
 }
 
+//////////////
+/// \brief QQPalmiFilePoster::postFilePasteLink
+/// \param file
+///
 void QQPalmiFilePoster::postFilePasteLink(QFile *file)
 {
 	QHttpMultiPart *multiPart = new QHttpMultiPart(QHttpMultiPart::FormDataType);
@@ -134,6 +144,10 @@ void QQPalmiFilePoster::parsePasteLinkResponse(const QString &data)
 #endif
 }
 
+////////////
+/// \brief QQPalmiFilePoster::postFileUpload3TerOrg
+/// \param file
+///
 void QQPalmiFilePoster::postFileUpload3TerOrg(QFile *file)
 {
 	QHttpMultiPart *multiPart = new QHttpMultiPart(QHttpMultiPart::FormDataType);
@@ -172,15 +186,42 @@ void QQPalmiFilePoster::postFileUpload3TerOrg(QFile *file)
 	multiPart->setParent(reply); // delete the multiPart with the reply
 }
 
+///////
+/// \brief QQPalmiFilePoster::parseUpload3TerOrg
+/// \param data
+///
 void QQPalmiFilePoster::parseUpload3TerOrg(const QString &data)
 {
 	QStringList strL = data.split(QChar('\n'));
 	if(strL.size() > 0)
 	{
 #if(QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
+		qDebug() << Q_FUNC_INFO << QString("http://upload.3ter.org/f.php?h=%1&p=1").arg(strL.first());
 		emit finished(QString("http://upload.3ter.org/f.php?h=%1&p=1").arg(strL.first()));
 #else
 		emit finished(QString("http://upload.3ter.org/f.php?h=") + strL.first());
 #endif
 	}
+}
+
+///////////
+/// \brief postFileJusYFr
+/// \param file
+///
+void QQPalmiFilePoster::postFileJusYFr(QFile *file)
+{
+
+	QUrl url("https://up.ÿ.fr");
+	QNetworkRequest request(url);
+
+	httpPut(request, file);
+}
+
+//////////
+/// \brief parseJusYFr
+/// \param s
+///
+void QQPalmiFilePoster::parseJusYFr(const QString &s)
+{
+	emit finished(QString(s));
 }
