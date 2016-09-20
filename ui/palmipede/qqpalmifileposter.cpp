@@ -177,6 +177,10 @@ void QQPalmiFilePoster::parseUpload3TerOrg(const QString &data)
 	QStringList strL = data.split(QChar('\n'));
 	if(strL.size() > 0)
 	{
+#if(QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
+		emit finished(QString("http://upload.3ter.org/f.php?h=%1&p=1").arg(strL.first()));
+#else
 		emit finished(QString("http://upload.3ter.org/f.php?h=") + strL.first());
+#endif
 	}
 }
