@@ -13,6 +13,7 @@
 #include <QJsonObject>
 #endif
 
+//TODO: See http://doc.qt.io/qt-5/qurl.html#topLevelDomain
 #define URL_HOST_REGEXP "(<a [^>]*href=\"https?://((?:[\\w-\\.])+\\.)*([\\w-]{3,})(\\.[\\.\\w]+)[^\"]*\"[^>]*>)\\[(?:url|https?)\\](</a>)"
 					//                   <-                          URL                             ->
 					//                            <-                 HOST                          ->
