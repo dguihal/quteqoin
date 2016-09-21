@@ -14,13 +14,7 @@
 #endif
 
 //TODO: See http://doc.qt.io/qt-5/qurl.html#topLevelDomain
-#define URL_HOST_REGEXP "(<a [^>]*href=\"https?://((?:[\\w-\\.])+\\.)*([\\w-]{3,})(\\.[\\.\\w]+)[^\"]*\"[^>]*>)\\[(?:url|https?)\\](</a>)"
-					//                   <-                          URL                             ->
-					//                            <-                 HOST                          ->
-					//                            <-       SUB     -> <-  NAME  -><-      TLD      ->
-#define FULL_HOST_REPLACE "\\1[\\2\\3\\4]\\5"
-#define SHORT_HOST_REPLACE "\\1[\\3\\4]\\5"
-#define SHORTER_HOST_REPLACE "\\1[\\3]\\5"
+#define URL_HOST_REGEXP "(<a [^>]*href=\"(https?://[^/\"]+)[^\"]*\"[^>]*>)\\[(?:url|https?)\\](</a>)"
 
 #define CONTENT_TYPE_CACHE_SIZE 500
 
@@ -81,28 +75,43 @@ void QQPiniUrlHelper::transformMessage(const QString &bouchot, QString &message)
 {
 	Q_UNUSED(bouchot);
 
-	QString urlPatternReplace;
 	QQSettings settings;
 	QuteQoin::QQSmartUrlFilerTransformType trType =
 				(QuteQoin::QQSmartUrlFilerTransformType) settings.value(SETTINGS_FILTER_SMART_URL_TRANSFORM_TYPE, DEFAULT_FILTER_SMART_URL_TRANSFORM_TYPE).toInt();
-	switch(trType)
+
+	QRegExp reg(URL_HOST_REGEXP, Qt::CaseInsensitive, QRegExp::RegExp2);
+
+	int index = 0;
+	while((index = message.indexOf(reg, index)) >= 0)
 	{
-		case QuteQoin::Full:
-			urlPatternReplace = FULL_HOST_REPLACE;
-			break;
-		case QuteQoin::Short:
-			urlPatternReplace = SHORT_HOST_REPLACE;
-			break;
-		default:
-			urlPatternReplace = SHORTER_HOST_REPLACE;
+		QUrl url(reg.capturedTexts().at(2));
+		QString host = url.host();
+
+		QString s(reg.capturedTexts().at(1));
+		s.append("[");
+
+		if (trType == QuteQoin::Full)
+			s.append(host);
+		else
+		{
+			QString tld = url.topLevelDomain();
+			QString fullDomain = host.left(host.length() - tld.length());
+
+			int dotPos = fullDomain.lastIndexOf(".");
+			QString baseDomain = fullDomain.right(fullDomain.length() - (dotPos + 1));
+
+			//trType == QuteQoin::Shorter
+			s.append(baseDomain);
+
+			if (trType == QuteQoin::Short)
+				s.append(tld);
+		}
+
+		s.append("]").append(reg.capturedTexts().at(3)); //End of "a" tag
+
+		message.replace(index, reg.capturedTexts().at(0).length(), s);
+		index += reg.matchedLength();
 	}
-
-	QRegExp reg(URL_HOST_REGEXP,
-				Qt::CaseInsensitive,
-				QRegExp::RegExp2);
-
-	message.replace(reg, urlPatternReplace);
-
 }
 
 //////////////////////////////////////////////////////////////
