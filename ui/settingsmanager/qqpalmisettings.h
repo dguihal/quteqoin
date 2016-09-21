@@ -29,6 +29,10 @@ public:
 	bool isPalmiDocked() const;
 	void setPalmiDocked(const bool &isPalmiDocked);
 
+	QString getFileSharingService() const;
+	void setFileSharingServices(const QStringList &fileSharingServices);
+	void setFileSharingService(const QString &fileSharingService);
+
 protected slots:
 
 private:

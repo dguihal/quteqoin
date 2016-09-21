@@ -18,8 +18,7 @@
 /// \param parent
 ///
 QQPalmiFilePoster::QQPalmiFilePoster(QObject *parent) :
-	QQNetworkAccessor(parent),
-	m_service(UPLOAD_3TER_ORG)
+	QQNetworkAccessor(parent)
 {
 }
 
@@ -40,17 +39,15 @@ bool QQPalmiFilePoster::postFile(const QString &fileName)
 
 	bool rep = true;
 
-	switch (m_service)
-	{
-	case UPLOAD_3TER_ORG:
-		postFileUpload3TerOrg(file);
-		break;
-	case JUS_Y_FR:
+	QQSettings settings;
+	QString sharingService = settings.value(SETTINGS_FILE_SHARING_SERVICE, DEFAULT_FILE_SHARING_SERVICE).toString();
+
+	if (sharingService == FILE_SHARING_SERVICE_UP_Y_FR)
 		postFileJusYFr(file);
-		break;
-	default:
+	else if (sharingService == FILE_SHARING_SERVICE_JIRAFEAU_3TER_ORG)
+		postFileUpload3TerOrg(file);
+	else
 		rep = false;
-	}
 
 	return rep;
 }
@@ -64,18 +61,14 @@ void QQPalmiFilePoster::requestFinishedSlot(QNetworkReply *reply)
 	if(reply->error() == QNetworkReply::NoError &&
 			reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt() == 200)
 	{
+		QQSettings settings;
+		QString sharingService = settings.value(SETTINGS_FILE_SHARING_SERVICE, DEFAULT_FILE_SHARING_SERVICE).toString();
+
 		QString s = QString(reply->readAll());
-		switch (m_service)
-		{
-		case UPLOAD_3TER_ORG:
-			parseUpload3TerOrg(s);
-			break;
-		case JUS_Y_FR:
+		if (sharingService == FILE_SHARING_SERVICE_UP_Y_FR)
 			parseJusYFr(s);
-			break;
-		default:
-			break;
-		}
+		else if (sharingService == FILE_SHARING_SERVICE_JIRAFEAU_3TER_ORG)
+			parseUpload3TerOrg(s);
 	}
 	else
 		emit postErr(reply->errorString());

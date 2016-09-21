@@ -432,6 +432,10 @@ void QQSettingsManager::initPalmiSettings(const QQSettings &settings)
 	//Palmi fixed/docked
 	bool isPalmiDocked = settings.value(SETTINGS_PALMI_DOCKED, DEFAULT_PALMI_DOCKED).toBool();
 	m_palmiSettingsW->setPalmiDocked(isPalmiDocked);
+
+	QString fsService = settings.value(SETTINGS_FILE_SHARING_SERVICE, DEFAULT_FILE_SHARING_SERVICE).toString();
+	m_palmiSettingsW->setFileSharingServices(DEFAULT_FILE_SHARING_SERVICES);
+	m_palmiSettingsW->setFileSharingService(fsService);
 }
 
 void QQSettingsManager::savePalmiSettings(QQSettings &settings)
@@ -459,6 +463,9 @@ void QQSettingsManager::savePalmiSettings(QQSettings &settings)
 
 	if(palmiMinimizedStatusChanged || palmiDockedStatusChanged)
 		palmiStatusChanged(isPalmiMini, isPalmiDocked);
+
+	QString fsService = m_palmiSettingsW->getFileSharingService();
+	settings.setValueWithDefault(SETTINGS_FILE_SHARING_SERVICE, fsService, DEFAULT_FILE_SHARING_SERVICE);
 }
 
 void QQSettingsManager::initTotozSettings(const QQSettings &settings)
