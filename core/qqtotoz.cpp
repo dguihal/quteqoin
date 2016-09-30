@@ -81,6 +81,7 @@ void QQTotoz::load()
 	QFile file(getPath(m_id));
 	file.open(QIODevice::ReadOnly);
 
+	file.waitForReadyRead(1000);
 	QByteArray compressedData = file.readAll();
 
 	m_wasmodfied = false;
