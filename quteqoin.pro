@@ -67,8 +67,9 @@ SOURCES += main.cpp\
 	ui/qqimageviewer.cpp \
 	ui/boardinfo/qqboardinfoprogressbar.cpp \
 	ui/qqpalmipede.cpp \
-	ui/palmipede/qqpalmilineedit.cpp \
 	ui/palmipede/qqpalmifileposter.cpp \
+	ui/palmipede/qqpalmilineedit.cpp \
+	ui/palmipede/qqpalmilineeditint.cpp \
 	ui/palmipede/qqdockpalmi.cpp \
 	ui/qqpinipede.cpp \
 	ui/pinipede/qqduckpixmapitem.cpp \
@@ -135,6 +136,7 @@ HEADERS  += mainwindow.h \
 	ui/qqpalmipede.h \
 	ui/palmipede/qqpalmifileposter.h \
 	ui/palmipede/qqpalmilineedit.h \
+	ui/palmipede/qqpalmilineeditint.h \
 	ui/palmipede/qqdockpalmi.h \
 	ui/qqpinipede.h \
 	ui/pinipede/qqduckpixmapitem.h \

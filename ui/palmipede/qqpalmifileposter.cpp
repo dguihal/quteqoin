@@ -37,19 +37,20 @@ bool QQPalmiFilePoster::postFile(const QString &fileName)
 	QFile *file = new QFile(fi.canonicalFilePath());
 	file->open(QIODevice::ReadOnly);
 
-	bool rep = true;
+	QNetworkReply * rep = NULL;
 
 	QQSettings settings;
 	QString sharingService = settings.value(SETTINGS_FILE_SHARING_SERVICE, DEFAULT_FILE_SHARING_SERVICE).toString();
 
 	if (sharingService == FILE_SHARING_SERVICE_UP_Y_FR)
-		postFileJusYFr(file);
+		rep = postFileJusYFr(file);
 	else if (sharingService == FILE_SHARING_SERVICE_JIRAFEAU_3TER_ORG)
-		postFileUpload3TerOrg(file);
-	else
-		rep = false;
+		rep = postFileUpload3TerOrg(file);
 
-	return rep;
+	if (rep != NULL)
+		connect(rep, SIGNAL(uploadProgress(qint64,qint64)), this, SLOT(uploadProgressSlot(qint64,qint64)));
+
+	return (rep != NULL);
 }
 
 //////////////////////////////////////////////////////////////
@@ -76,11 +77,25 @@ void QQPalmiFilePoster::requestFinishedSlot(QNetworkReply *reply)
 	reply->deleteLater();
 }
 
+//////////////////////////////////////////////////////////////
+/// \brief QQPalmiFilePoster::uploadProgressSlot
+/// \param bytesSent
+/// \param bytesTotal
+///
+void QQPalmiFilePoster::uploadProgressSlot(qint64 bytesSent, qint64 bytesTotal)
+{
+	if (bytesTotal > 0)
+	{
+		quint32 progress = (100 * bytesSent) / bytesTotal;
+		emit uploadProgress(progress);
+	}
+}
+
 ////////////
 /// \brief QQPalmiFilePoster::postFileUpload3TerOrg
 /// \param file
 ///
-void QQPalmiFilePoster::postFileUpload3TerOrg(QFile *file)
+QNetworkReply * QQPalmiFilePoster::postFileUpload3TerOrg(QFile *file)
 {
 	QHttpMultiPart *multiPart = new QHttpMultiPart(QHttpMultiPart::FormDataType);
 
@@ -116,6 +131,8 @@ void QQPalmiFilePoster::postFileUpload3TerOrg(QFile *file)
 
 	QNetworkReply *reply = httpPost(request, multiPart);
 	multiPart->setParent(reply); // delete the multiPart with the reply
+
+	return reply;
 }
 
 ///////
@@ -140,13 +157,13 @@ void QQPalmiFilePoster::parseUpload3TerOrg(const QString &data)
 /// \brief postFileJusYFr
 /// \param file
 ///
-void QQPalmiFilePoster::postFileJusYFr(QFile *file)
+QNetworkReply * QQPalmiFilePoster::postFileJusYFr(QFile *file)
 {
 
 	QUrl url("https://up.ÿ.fr");
 	QNetworkRequest request(url);
 
-	httpPut(request, file);
+	return httpPut(request, file);
 }
 
 //////////

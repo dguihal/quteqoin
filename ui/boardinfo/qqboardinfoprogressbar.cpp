@@ -99,6 +99,4 @@ void QQBoardInfoProgressBar::paintEvent(QPaintEvent *event)
 	if(m_onError)
 		textPainter.setPen(Qt::red);
 	textPainter.drawText(rect, Qt::AlignLeft | Qt::AlignVCenter, text());
-
-
 }

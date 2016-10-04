@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>443</width>
-    <height>83</height>
+    <height>106</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -48,18 +48,12 @@
        <number>0</number>
       </property>
       <item>
-       <widget class="QQPalmiLineEdit" name="postLineEdit">
+       <widget class="QQPalmiLineEdit" name="palmiEditor" native="true">
         <property name="sizePolicy">
-         <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+         <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>16777215</width>
-          <height>27</height>
-         </size>
         </property>
        </widget>
       </item>
@@ -350,8 +344,9 @@
  <customwidgets>
   <customwidget>
    <class>QQPalmiLineEdit</class>
-   <extends>QLineEdit</extends>
+   <extends>QWidget</extends>
    <header>ui/palmipede/qqpalmilineedit.h</header>
+   <container>1</container>
   </customwidget>
  </customwidgets>
  <resources>

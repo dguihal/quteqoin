@@ -3,27 +3,32 @@
 
 #include "qqpalmifileposter.h"
 
-#include <QLineEdit>
-#include <QQueue>
-#include <QPair>
+#include <QFrame>
 
-class QFocusEvent;
-class QKeyEvent;
-class QToolButton;
+class QQPalmiLineEditInt;
 
-class QQPalmiLineEdit : public QLineEdit
+class QQPalmiLineEdit : public QFrame
 {
 	Q_OBJECT
 public:
 	explicit QQPalmiLineEdit(QWidget *parent = 0);
 
-signals:
-	void changeBoard(bool next);
+	void insert(const QString &newText);
 
-public slots:
+	void clear();
+	void setText(const QString &text);
+	QString text() const;
+
+	void pushCurrentToHistory();
+
 	void changeColor(const QColor &newColor);
 	void insertText(const QString &str);
 
+signals:
+	void changeBoard(bool next);
+	void returnPressed();
+
+public slots:
 	void blam();
 	void bold();
 	void italic();
@@ -34,39 +39,23 @@ public slots:
 
 	void attachFile(QString fileName = QString(""));
 
-	void pushCurrentToHistory();
-
 protected:
 	virtual void dragEnterEvent(QDragEnterEvent *event);
 	virtual void dropEvent(QDropEvent *event);
-	virtual void focusInEvent(QFocusEvent *e);
-	virtual void focusOutEvent(QFocusEvent *e);
-	virtual void keyPressEvent(QKeyEvent *e);
-#if(QT_VERSION < QT_VERSION_CHECK(5, 2, 0))
-	virtual void resizeEvent(QResizeEvent *e);
-#endif
+
+	virtual void paintEvent(QPaintEvent *event);
 
 protected slots:
 	void joinFileErr(const QString &errStr);
-//#if(QT_VERSION < QT_VERSION_CHECK(5, 2, 0)) : Marche pas
-	void updateCloseButton(const QString &text);
-//
+	void updateUploadProgress(quint32 pctProgress);
 
 private:
-	void updateTotozCompleter();
-	void completeTotoz();
-	void rotateHistory(bool forward = true);
+
+	QColor m_currBoardcolor;
+	quint32 m_pctUp;
 
 	QQPalmiFilePoster m_fPoster;
-
-	QStringList m_listTotoz;
-#if(QT_VERSION < QT_VERSION_CHECK(5, 2, 0))
-	QToolButton *m_clearButton;
-#endif
-
-	int m_indexInPostHistory;
-	QQueue<QString> m_postHistory;
-	QPair<int, int> m_savedSelection;
+	QQPalmiLineEditInt* m_privLineEdit;
 };
 
 #endif // QQPALMILINEEDIT_H

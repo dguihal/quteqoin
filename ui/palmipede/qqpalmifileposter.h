@@ -16,15 +16,17 @@ public:
 
 signals:
 	void finished(QString url);
+	void uploadProgress(quint32 uploadPct);
 	void postErr(const QString &errMsg);
 
 protected slots:
 	virtual void requestFinishedSlot(QNetworkReply *reply);
+	void uploadProgressSlot(qint64 bytesSent, qint64 bytesTotal);
 
 private:
-	void postFileUpload3TerOrg(QFile *file);
+	QNetworkReply * postFileUpload3TerOrg(QFile *file);
 	void parseUpload3TerOrg(const QString &s);
-	void postFileJusYFr(QFile *file);
+	QNetworkReply * postFileJusYFr(QFile *file);
 	void parseJusYFr(const QString &s);
 
 };

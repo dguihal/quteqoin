@@ -22,15 +22,15 @@ QQPalmipede::QQPalmipede(QWidget *parent) :
 	m_ui->setupUi(this);
 
 	connect(m_ui->boldButton, SIGNAL(clicked()),
-			m_ui->postLineEdit, SLOT(bold()));
+			m_ui->palmiEditor, SLOT(bold()));
 	connect(m_ui->italicButton, SIGNAL(clicked()),
-			m_ui->postLineEdit, SLOT(italic()));
+			m_ui->palmiEditor, SLOT(italic()));
 	connect(m_ui->underlineButton, SIGNAL(clicked()),
-			m_ui->postLineEdit, SLOT(underline()));
+			m_ui->palmiEditor, SLOT(underline()));
 	connect(m_ui->strikeButton, SIGNAL(clicked()),
-			m_ui->postLineEdit, SLOT(strike()));
+			m_ui->palmiEditor, SLOT(strike()));
 	connect(m_ui->momentButton, SIGNAL(clicked()),
-			m_ui->postLineEdit, SLOT(moment()));
+			m_ui->palmiEditor, SLOT(moment()));
 	connect(m_ui->blamPafComboBox, SIGNAL(activated(QString)),
 			this, SLOT(blamPafActivated(QString)));
 	connect(m_ui->boardSelectorComboBox, SIGNAL(activated(int)),
@@ -39,12 +39,12 @@ QQPalmipede::QQPalmipede(QWidget *parent) :
 			this, SLOT(bouchotSelectorActivated(int)));
 	connect(m_ui->postPushButton, SIGNAL(clicked()),
 			this, SLOT(postPushButtonClicked()));
-	connect(m_ui->postLineEdit, SIGNAL(returnPressed()),
+	connect(m_ui->palmiEditor, SIGNAL(returnPressed()),
 			m_ui->postPushButton, SLOT(animateClick()));
-	connect(m_ui->postLineEdit, SIGNAL(changeBoard(bool)),
+	connect(m_ui->palmiEditor, SIGNAL(changeBoard(bool)),
 			this, SLOT(changeBoard(bool)));
 	connect(m_ui->attachButton, SIGNAL(clicked()),
-			m_ui->postLineEdit, SLOT(attachFile()));
+			m_ui->palmiEditor, SLOT(attachFile()));
 
 	setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
 
@@ -58,7 +58,7 @@ QQPalmipede::~QQPalmipede()
 
 void QQPalmipede::insertText(const QString &text)
 {
-	m_ui->postLineEdit->insert(text);
+	m_ui->palmiEditor->insert(text);
 }
 
 void QQPalmipede::addBouchot(const QString &newBouchot, const QColor& newBouchotColor)
@@ -67,7 +67,7 @@ void QQPalmipede::addBouchot(const QString &newBouchot, const QColor& newBouchot
 	m_ui->boardSelectorComboBoxMin->addItem(newBouchot, newBouchotColor);
 	int index = m_ui->boardSelectorComboBox->currentIndex();
 	QColor bouchotColor = m_ui->boardSelectorComboBox->itemData(index).value<QColor>();
-	m_ui->postLineEdit->changeColor(bouchotColor);
+	m_ui->palmiEditor->changeColor(bouchotColor);
 
 }
 
@@ -83,7 +83,7 @@ void QQPalmipede::removeBouchot(const QString &oldBouchot)
 
 void QQPalmipede::insertReplaceText(const QString &bouchot, const QString &tag)
 {
-	int wasPostLineEditEmpty = m_ui->postLineEdit->text().isEmpty();
+	int wasPostLineEditEmpty = m_ui->palmiEditor->text().isEmpty();
 	insertReplaceText(tag);
 
 	// Si le palmi est vide, il faut changer la tribune selectionnee
@@ -103,7 +103,7 @@ void QQPalmipede::insertReplaceText(const QString &bouchot, const QString &tag)
 void QQPalmipede::insertReplaceText(const QString &tag)
 {
 	QString t_tag = tag;
-	m_ui->postLineEdit->insertText(t_tag);
+	m_ui->palmiEditor->insertText(t_tag);
 
 	// Warning : le show va appeler le setVisible(bool),
 	//    il faut donc sauver l'état antérieur avant
@@ -119,12 +119,12 @@ void QQPalmipede::insertReplaceText(const QString &tag)
 void QQPalmipede::focusInEvent(QFocusEvent * event)
 {
 	QWidget::focusInEvent(event);
-	m_ui->postLineEdit->setFocus();
+	m_ui->palmiEditor->setFocus();
 }
 
 void QQPalmipede::changeNorloges(const QString & bouchot)
 {
-	QString text = m_ui->postLineEdit->text();
+	QString text = m_ui->palmiEditor->text();
 	QRegExp norlogeReg = QQNorlogeRef::norlogeRegexp();
 	QRegExp bouchotRemoverReg = QRegExp(QString::fromLatin1("@").append(bouchot),
 										Qt::CaseSensitive,
@@ -158,7 +158,7 @@ void QQPalmipede::changeNorloges(const QString & bouchot)
 	if(text.length() > 0)
 		destText.append(text);
 
-	m_ui->postLineEdit->setText(destText);
+	m_ui->palmiEditor->setText(destText);
 }
 
 void QQPalmipede::setMinimal(bool minimal)
@@ -176,12 +176,12 @@ QSize QQPalmipede::sizeHint() const
 {
 	QSize s;
 	if(m_ui->cmdGrpW->isVisible())
-		s.setHeight((m_ui->postLineEdit->height() * 3) + 2); // 2*1 spacing
+		s.setHeight((m_ui->palmiEditor->height() * 3) + 2); // 2*1 spacing
 	else
-		s.setHeight(m_ui->postLineEdit->height());
+		s.setHeight(m_ui->palmiEditor->height());
 
 
-	s.setWidth(m_ui->postLineEdit->minimumWidth());
+	s.setWidth(m_ui->palmiEditor->minimumWidth());
 
 	return s;
 }
@@ -199,14 +199,16 @@ void QQPalmipede::changeBoard(bool next)
 	m_ui->boardSelectorComboBox->setCurrentIndex(index);
 	m_ui->boardSelectorComboBoxMin->setCurrentIndex(index);
 	bouchotSelectorActivated(index);
+
+	qDebug() << Q_FUNC_INFO << QApplication::focusWidget();
 }
 
 void QQPalmipede::blamPafActivated(const QString & text)
 {
 	if(text.contains(QString::fromLatin1("paf"), Qt::CaseInsensitive))
-		m_ui->postLineEdit->paf();
+		m_ui->palmiEditor->paf();
 	else if(text.contains(QString::fromLatin1("BLAM"), Qt::CaseInsensitive))
-		m_ui->postLineEdit->blam();
+		m_ui->palmiEditor->blam();
 	else
 		qDebug() << Q_FUNC_INFO << "Index non reconnu : " << text;
 }
@@ -226,19 +228,19 @@ void QQPalmipede::bouchotSelectorActivated(int index)
 	}
 	changeNorloges(bouchot);
 	QColor bouchotColor = m_ui->boardSelectorComboBox->itemData(index).value<QColor>();
-	m_ui->postLineEdit->changeColor(bouchotColor);
-	m_ui->postLineEdit->setFocus();
+	m_ui->palmiEditor->changeColor(bouchotColor);
+	m_ui->palmiEditor->setFocus();
 	m_oldBouchot = bouchot;
 }
 
 void QQPalmipede::postPushButtonClicked()
 {
-	QString message = m_ui->postLineEdit->text();
+	QString message = m_ui->palmiEditor->text();
 	message.replace(QRegExp("\\s", Qt::CaseInsensitive, QRegExp::RegExp2), " ");
 	QString bouchotDest = m_ui->boardSelectorComboBox->currentText();
 
-	m_ui->postLineEdit->pushCurrentToHistory();
-	m_ui->postLineEdit->clear();
+	m_ui->palmiEditor->pushCurrentToHistory();
+	m_ui->palmiEditor->clear();
 
 	emit postMessage(bouchotDest, message);
 
