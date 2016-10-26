@@ -58,7 +58,7 @@ QQBouchotDef bouchotsDef[] =
 	  "#aaffbb", "", "", QQBouchot::SlipTagsRaw },
 	{ "see", "http://tout.essaye.sauf.ca/tribune.xml", "http://tout.essaye.sauf.ca/tribune/post", "message=%m",
 	  "#ffd0d0", "schee,seeschloss", "", QQBouchot::SlipTagsRaw },
-	{ "devnewton", "http://b3.bci.im/legacy/xml", "http://b3.bci.im/legacy/post", "message=%m",
+	{ "devnewton", "https://b3.bci.im/legacy/xml", "https://b3.bci.im/legacy/post", "message=%m",
 	  "#666666", "", "", QQBouchot::SlipTagsEncoded },
 	{ "faab", "http://ratatouille.leguyader.eu/data/backend.xml", "http://ratatouille.leguyader.eu/add.php", "message=%m",
 	  "#C5D068", "ratatouille", "", QQBouchot::SlipTagsRaw },
