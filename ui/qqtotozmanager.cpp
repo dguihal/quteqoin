@@ -378,11 +378,30 @@ void QQTotozManager::emojiSelected()
 	if(o != NULL)
 	{
 		if(o->property(EMOJI_IS_CAT).toBool()) {
+			bool found = false;
 			foreach (QQEmojiCat c, emojis) {
 				if(c.symbol == o->property(EMOJI_SYMBOL)) {
-					createEmojiViewer(m_ui->emojiScrollArea, c.emojis);
+					found = true;
+					QQEmojiDef folderUp;
+					folderUp.name = "..";
+					folderUp.symbol = "📁";
+					folderUp.type = CAT;
+
+					QList<QQEmojiDef> defs = c.emojis;
+					defs.prepend(folderUp);
+					createEmojiViewer(m_ui->emojiScrollArea, defs);
 					break;
 				}
+			}
+
+			if(! found) {
+				/* Pas de sub trouve, on retourne au niveau 0 */
+				QList<QQEmojiDef> l;
+				foreach (QQEmojiCat c, emojis) {
+					l.append(c);
+				}
+
+				createEmojiViewer(m_ui->emojiScrollArea, l);
 			}
 		}
 		else
