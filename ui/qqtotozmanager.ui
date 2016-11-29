@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>222</width>
+    <width>264</width>
     <height>577</height>
    </rect>
   </property>
@@ -18,15 +18,15 @@
   </property>
   <property name="minimumSize">
    <size>
-    <width>222</width>
-    <height>184</height>
+    <width>264</width>
+    <height>189</height>
    </size>
   </property>
   <property name="allowedAreas">
    <set>Qt::LeftDockWidgetArea|Qt::RightDockWidgetArea</set>
   </property>
   <property name="windowTitle">
-   <string>Totoz Manager</string>
+   <string>&amp;Totoz Manager</string>
   </property>
   <widget class="QWidget" name="dockWidgetContents">
    <property name="sizePolicy">
@@ -59,8 +59,14 @@
         <verstretch>0</verstretch>
        </sizepolicy>
       </property>
+      <property name="tabShape">
+       <enum>QTabWidget::Rounded</enum>
+      </property>
       <property name="currentIndex">
-       <number>1</number>
+       <number>2</number>
+      </property>
+      <property name="elideMode">
+       <enum>Qt::ElideRight</enum>
       </property>
       <widget class="QWidget" name="bookmarksWidget">
        <attribute name="title">
@@ -96,6 +102,12 @@
             <height>0</height>
            </size>
           </property>
+          <property name="frameShape">
+           <enum>QFrame::NoFrame</enum>
+          </property>
+          <property name="horizontalScrollBarPolicy">
+           <enum>Qt::ScrollBarAlwaysOff</enum>
+          </property>
           <property name="widgetResizable">
            <bool>true</bool>
           </property>
@@ -104,8 +116,8 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>214</width>
-             <height>500</height>
+             <width>250</width>
+             <height>471</height>
             </rect>
            </property>
           </widget>
@@ -147,6 +159,12 @@
             <height>0</height>
            </size>
           </property>
+          <property name="frameShape">
+           <enum>QFrame::NoFrame</enum>
+          </property>
+          <property name="horizontalScrollBarPolicy">
+           <enum>Qt::ScrollBarAlwaysOff</enum>
+          </property>
           <property name="widgetResizable">
            <bool>true</bool>
           </property>
@@ -155,8 +173,53 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>214</width>
-             <height>502</height>
+             <width>250</width>
+             <height>471</height>
+            </rect>
+           </property>
+          </widget>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="emojiWidget">
+       <attribute name="title">
+        <string>Emojis</string>
+       </attribute>
+       <layout class="QHBoxLayout" name="horizontalLayout_4">
+        <property name="spacing">
+         <number>3</number>
+        </property>
+        <property name="leftMargin">
+         <number>1</number>
+        </property>
+        <property name="topMargin">
+         <number>1</number>
+        </property>
+        <property name="rightMargin">
+         <number>1</number>
+        </property>
+        <property name="bottomMargin">
+         <number>1</number>
+        </property>
+        <item>
+         <widget class="QScrollArea" name="emojiScrollArea">
+          <property name="frameShape">
+           <enum>QFrame::NoFrame</enum>
+          </property>
+          <property name="horizontalScrollBarPolicy">
+           <enum>Qt::ScrollBarAlwaysOff</enum>
+          </property>
+          <property name="widgetResizable">
+           <bool>true</bool>
+          </property>
+          <widget class="QWidget" name="emojiScrollAreaContents">
+           <property name="geometry">
+            <rect>
+             <x>0</x>
+             <y>0</y>
+             <width>250</width>
+             <height>471</height>
             </rect>
            </property>
           </widget>

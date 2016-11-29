@@ -16,6 +16,7 @@ class QQTMRequester;
 
 class QScrollArea;
 
+
 class QQTotozManager : public QDockWidget
 {
 	Q_OBJECT
@@ -42,13 +43,20 @@ protected:
 	virtual void focusInEvent(QFocusEvent *event);
 
 protected slots:
+	void emojiSelected();
 	void totozSelected(QString anchor);
 	void totozBookmarkDo(QString anchor, QQTotoz::TotozBookmarkAction action);
 	void handleSearchTextChanged(QString text);
 
 private:
+	struct QQTmEmoji {
+		QString charCode;
+		QString description;
+	};
+
 	void fillBookmarks();
-	void createViewer(QScrollArea * dest, const QStringList & ids, QQTotoz::TotozBookmarkAction action);
+	void createTotozViewer(QScrollArea * dest, const QStringList & ids, QQTotoz::TotozBookmarkAction action);
+	void createEmojiViewer(QScrollArea * dest, const QList<QQTmEmoji> &emojis);
 
 	Ui::QQTotozManager *m_ui;
 
