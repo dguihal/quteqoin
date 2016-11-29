@@ -382,13 +382,17 @@ void QQTotozManager::emojiSelected()
 			foreach (QQEmojiCat c, emojis) {
 				if(c.symbol == o->property(EMOJI_SYMBOL)) {
 					found = true;
+
+					QList<QQEmojiDef> defs = c.emojis;
+
+					// Creation d'une entree "speciale" permettant de revenir au niveau 0
+					//  et ajout en debut de liste
 					QQEmojiDef folderUp;
 					folderUp.name = "..";
 					folderUp.symbol = "📁";
 					folderUp.type = CAT;
-
-					QList<QQEmojiDef> defs = c.emojis;
 					defs.prepend(folderUp);
+
 					createEmojiViewer(m_ui->emojiScrollArea, defs);
 					break;
 				}
