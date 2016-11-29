@@ -25,6 +25,9 @@
 
 #define TOTOZMANAGER_TITLE	"Totoz Manager"
 
+#define EMOJI_SYMBOL "SYMBOL"
+#define EMOJI_IS_CAT "IS_CAT"
+
 QQTotozManager::QQTotozManager(QWidget *parent) :
 	QDockWidget(TOTOZMANAGER_TITLE, parent),
 	m_ui(new Ui::QQTotozManager)
@@ -55,6 +58,7 @@ QQTotozManager::QQTotozManager(QWidget *parent) :
 	m_ui->cancelSearchButton->setIcon(style()->standardIcon(QStyle::SP_DialogCancelButton));
 	connect(m_ui->cancelSearchButton, SIGNAL(clicked()), this, SLOT(totozSearchCanceled()));
 
+	emojis = settings.listEmojis();
 
 #if(QT_VERSION >= QT_VERSION_CHECK(5, 2, 0))
 	m_ui->searchLineEdit->setClearButtonEnabled(true);
@@ -84,24 +88,12 @@ void QQTotozManager::tabChanged(int tabIndex)
 	if(tabIndex == TAB_EMOJI_INDEX)
 	{
 		m_ui->searchLineEdit->hide();
-		QList<QQTmEmoji> l;
-		QQTmEmoji e;
-		e.charCode = "😃"; e.description = "Smileys & People";
-		l.append(e);
-		e.charCode = "🐻"; e.description = "Animals & Nature";
-		l.append(e);
-		e.charCode = "🍔"; e.description = "Food & Drink";
-		l.append(e);
-		e.charCode = "⚽"; e.description = "Activity";
-		l.append(e);
-		e.charCode = "🌇"; e.description = "Travel & Places";
-		l.append(e);
-		e.charCode = "💡"; e.description = "Objects";
-		l.append(e);
-		e.charCode = "🔣"; e.description = "Symbols";
-		l.append(e);
-		e.charCode = "🎌"; e.description = "Flags";
-		l.append(e);
+
+		QList<QQEmojiDef> l;
+		foreach (QQEmojiCat c, emojis) {
+			l.append(c);
+		}
+
 		createEmojiViewer(m_ui->emojiScrollArea, l);
 	}
 	else
@@ -313,11 +305,6 @@ void QQTotozManager::handleSearchTextChanged(QString text)
 	}
 }
 
-void QQTotozManager::totozSelected(QString anchor)
-{
-	emit totozClicked(anchor);
-}
-
 void QQTotozManager::totozBookmarkDo(QString anchor, QQTotoz::TotozBookmarkAction action)
 {
 	QStringList totozIds = bookmarkedTotozIds();
@@ -371,7 +358,7 @@ void QQTotozManager::createTotozViewer(QScrollArea *dest, const QStringList &ids
 
 		viewer->setTotozId(ids.at(i));
 		connect(viewer, SIGNAL(totozBookmarkAct(QString,QQTotoz::TotozBookmarkAction)), this, SLOT(totozBookmarkDo(QString,QQTotoz::TotozBookmarkAction)));
-		connect(viewer, SIGNAL(totozClicked(QString)), this, SLOT(totozSelected(QString)));
+		connect(viewer, SIGNAL(totozClicked(QString)), this, SIGNAL(totozClicked(QString)));
 		layout->addWidget(viewer);
 	}
 
@@ -384,13 +371,33 @@ void QQTotozManager::createTotozViewer(QScrollArea *dest, const QStringList &ids
 	//Doit etre supprime "plus tard" car ici on peut avoir ete appele par le widget qu'on va detruire ici-meme
 	oldWidget->deleteLater();
 }
+
 void QQTotozManager::emojiSelected()
 {
-
+	QObject *o = sender();
+	if(o != NULL)
+	{
+		if(o->property(EMOJI_IS_CAT).toBool()) {
+			foreach (QQEmojiCat c, emojis) {
+				if(c.symbol == o->property(EMOJI_SYMBOL)) {
+					createEmojiViewer(m_ui->emojiScrollArea, c.emojis);
+					break;
+				}
+			}
+		}
+		else
+		{
+			emit totozClicked(o->property(EMOJI_SYMBOL).toString());
+		}
+	}
+	else
+	{
+		qDebug() << Q_FUNC_INFO << "o is NULL";
+	}
 }
 
 
-void QQTotozManager::createEmojiViewer(QScrollArea *dest, const QList<QQTmEmoji> &emojis)
+void QQTotozManager::createEmojiViewer(QScrollArea *dest, const QList<QQEmojiDef> &emojis)
 {
 	QWidget *widget = new QWidget(this);
 	QVBoxLayout *layout = new QVBoxLayout(widget);
@@ -401,7 +408,9 @@ void QQTotozManager::createEmojiViewer(QScrollArea *dest, const QList<QQTmEmoji>
 		QPushButton *b = new QPushButton(widget);
 		b->setFlat(true);
 		b->setStyleSheet("Text-align: left");
-		b->setText(QString(emojis[i].charCode).append(" ").append(emojis[i].description));
+		b->setProperty(EMOJI_SYMBOL, emojis[i].symbol);
+		b->setProperty(EMOJI_IS_CAT, emojis[i].type == CAT);
+		b->setText(QString(emojis[i].symbol).append(" ").append(emojis[i].name));
 		connect(b, SIGNAL(clicked(bool)), this, SLOT(emojiSelected()));
 		layout->addWidget(b);
 	}

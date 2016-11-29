@@ -12,6 +12,7 @@ const char notif_name[] = "QuteQoin";
 #define MAX_CACHE_AGE_DAYS 60
 
 #define SETTINGS_TOTOZ_PRESETS_PATH ":/totoz"
+#define SETTINGS_EMOJI_LIST_FILE SETTINGS_TOTOZ_PRESETS_PATH "/emojis"
 
 // MAIN WINDOW
 #define SETTINGS_MAINWINDOW_STATE "mainwindow_state"

@@ -2,6 +2,7 @@
 #define QQTOTOZMANAGER_H
 
 #include "core/qqtotoz.h"
+#include "core/qqsettings.h"
 
 #include <QDockWidget>
 #include <QString>
@@ -44,19 +45,13 @@ protected:
 
 protected slots:
 	void emojiSelected();
-	void totozSelected(QString anchor);
 	void totozBookmarkDo(QString anchor, QQTotoz::TotozBookmarkAction action);
 	void handleSearchTextChanged(QString text);
 
 private:
-	struct QQTmEmoji {
-		QString charCode;
-		QString description;
-	};
-
 	void fillBookmarks();
 	void createTotozViewer(QScrollArea * dest, const QStringList & ids, QQTotoz::TotozBookmarkAction action);
-	void createEmojiViewer(QScrollArea * dest, const QList<QQTmEmoji> &emojis);
+	void createEmojiViewer(QScrollArea * dest, const QList<QQEmojiDef> &emojis);
 
 	Ui::QQTotozManager *m_ui;
 
@@ -66,6 +61,7 @@ private:
 	QWidget *m_oldFocusWidget;
 
 	static QStringList m_bookmarkListCache;
+	QList<QQEmojiCat> emojis;
 };
 
 #endif // QQTOTOZMANAGER_H
