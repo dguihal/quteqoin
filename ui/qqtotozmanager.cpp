@@ -22,6 +22,7 @@
 #define TAB_EMOJI_INDEX 1
 
 #define MIN_TOTOZ_SEARCH_LEN 3
+#define REMOTE_SEARCH_LATENCY_MS 500
 
 #define TOTOZMANAGER_OBJECT_NAME "QQTotozManager"
 
@@ -33,12 +34,18 @@
 QQTotozManager::QQTotozManager(QWidget *parent) :
 	QDockWidget(TOTOZMANAGER_TITLE, parent),
 	m_ui(new Ui::QQTotozManager),
-	m_totozSearchEnabled(true)
+	m_totozSearchEnabled(true),
+	m_searchQueryTemperer(new QTimer(this))
 {
 	setObjectName(TOTOZMANAGER_OBJECT_NAME);
 	setFeatures(QDockWidget::DockWidgetClosable |
 				QDockWidget::DockWidgetMovable |
 				QDockWidget::DockWidgetFloatable);
+
+	m_searchQueryTemperer->setSingleShot(true);
+	m_searchQueryTemperer->setInterval(REMOTE_SEARCH_LATENCY_MS);
+	connect(m_searchQueryTemperer, SIGNAL(timeout()),
+			this, SLOT(searchTotoz()));
 
 	QQSettings settings;
 
@@ -75,11 +82,13 @@ QQTotozManager::QQTotozManager(QWidget *parent) :
 	l->setContentsMargins(0, 0, 0, 0);
 	m_bookmarkHeaderW = new QLabel(m_ui->totozScrollAreaContents);
 	m_bookmarkHeaderW->setText("Bookmarked :");
+	m_bookmarkHeaderW->setStyleSheet("QLabel {font: bold}");
 	l->addWidget(m_bookmarkHeaderW);
 	m_bookmarkW = new QWidget(m_ui->totozScrollAreaContents);
 	l->addWidget(m_bookmarkW);
 	m_searchHeaderW= new QLabel(m_ui->totozScrollAreaContents);
 	m_searchHeaderW->setText("Remote search :");
+	m_searchHeaderW->setStyleSheet("QLabel {font: bold}");
 	m_searchHeaderW->hide();
 	l->addWidget(m_searchHeaderW);
 	m_searchW = new QWidget(m_ui->totozScrollAreaContents);
@@ -119,24 +128,11 @@ void QQTotozManager::tabChanged(int tabIndex)
 	}
 }
 
-void QQTotozManager::searchTotoz()
-{
-	QString searchStr = m_ui->searchLineEdit->text();
-
-	if(m_ui->qqTMTabWidget->currentIndex() == TAB_TOTOZ_INDEX && searchStr.length() >= MIN_TOTOZ_SEARCH_LEN)
-	{
-		m_ui->cancelSearchButton->show();
-
-		m_ui->dockWidgetContents->setCursor(QCursor(Qt::BusyCursor));
-		m_ui->searchLineEdit->setStyleSheet("QLineEdit{background: black;color: white;}");
-
-		m_requester->searchTotoz(searchStr);
-	}
-}
-
 void QQTotozManager::totozSearchFinished()
 {
 	m_ui->cancelSearchButton->hide();
+	m_searchHeaderW->show();
+	m_searchW->show();
 
 	m_ui->dockWidgetContents->unsetCursor();
 	m_ui->searchLineEdit->setStyleSheet("");
@@ -152,6 +148,9 @@ void QQTotozManager::totozSearchFinished()
 
 void QQTotozManager::totozSearchCanceled()
 {
+	m_searchHeaderW->hide();
+	m_searchW->hide();
+
 	m_requester->cancel();
 
 	m_ui->cancelSearchButton->hide();
@@ -276,15 +275,21 @@ void QQTotozManager::showEvent(QShowEvent *ev)
 
 void QQTotozManager::handleSearchTextChanged(QString text)
 {
+	m_searchQueryTemperer->stop();
+	m_requester->cancel();
+
 	if(text.size() < MIN_TOTOZ_SEARCH_LEN)
 	{
-		QLayout *l = m_searchW->layout();
-		if(l != NULL)
-			delete l;
+		m_searchHeaderW->hide();
+		m_searchW->hide();
 	}
 
 	if(m_ui->qqTMTabWidget->currentIndex() == TAB_TOTOZ_INDEX)
 	{
+		if(m_totozSearchEnabled &&
+				text.length() >= MIN_TOTOZ_SEARCH_LEN)
+			m_searchQueryTemperer->start();
+
 		QStringList matchingTotozIds;
 		QStringList totozIds = bookmarkedTotozIds();
 		if(text.size() == 0)
@@ -300,6 +305,26 @@ void QQTotozManager::handleSearchTextChanged(QString text)
 		}
 
 		updateTotozViewer();
+	}
+}
+
+void  QQTotozManager::searchTotoz()
+{
+	QString searchStr = m_ui->searchLineEdit->text();
+
+	if(m_totozSearchEnabled &&
+			m_ui->qqTMTabWidget->currentIndex() == TAB_TOTOZ_INDEX &&
+			searchStr.length() >= MIN_TOTOZ_SEARCH_LEN)
+	{
+		m_searchHeaderW->show();
+		m_searchW->show();
+
+		m_ui->cancelSearchButton->show();
+
+		m_ui->dockWidgetContents->setCursor(QCursor(Qt::BusyCursor));
+		m_ui->searchLineEdit->setStyleSheet("QLineEdit{background: black;color: white;}");
+
+		m_requester->searchTotoz(searchStr);
 	}
 }
 
@@ -334,10 +359,8 @@ void QQTotozManager::totozBookmarkDo(QString anchor, QQTotoz::TotozBookmarkActio
 
 void QQTotozManager::updateTotozViewer()
 {
-	QWidget *widget = new QWidget(this);
-
 	/* Bookmarked */
-	QVBoxLayout *l = new QVBoxLayout(widget);
+	QVBoxLayout *l = new QVBoxLayout();
 	l->setContentsMargins(0, 0, 0, 0);
 
 	QString searchText = m_ui->searchLineEdit->text();
@@ -351,20 +374,18 @@ void QQTotozManager::updateTotozViewer()
 		}
 	}
 	else
-	{
 		ids << bookmarkedTotozIds();
-	}
-
 
 	foreach (QString id, ids)
 	{
-		QQTotozViewer *viewer = new QQTotozViewer(widget);
+		QQTotozViewer *viewer = new QQTotozViewer(m_bookmarkW);
 		viewer->setTotozDownloader(m_totozDownloader);
 		viewer->enableBookmarksRem();
 		viewer->setShowAtMousePos(false);
 		viewer->setTotozId(id);
 
-		connect(viewer, SIGNAL(totozBookmarkAct(QString,QQTotoz::TotozBookmarkAction)), this, SLOT(totozBookmarkDo(QString,QQTotoz::TotozBookmarkAction)));
+		connect(viewer, SIGNAL(totozBookmarkAct(QString,QQTotoz::TotozBookmarkAction)),
+				this, SLOT(totozBookmarkDo(QString,QQTotoz::TotozBookmarkAction)));
 		connect(viewer, SIGNAL(totozClicked(QString)), this, SIGNAL(totozClicked(QString)));
 		l->addWidget(viewer);
 	}
@@ -372,41 +393,48 @@ void QQTotozManager::updateTotozViewer()
 	if(oldL != NULL)
 	{
 		QLayoutItem *child;
-		while ((child = oldL->takeAt(0)) != 0) {
-			delete child->widget();
-			delete child;
-		}
+		while ((child = oldL->takeAt(0)) != 0)
+			child->widget()->deleteLater();
 		delete oldL;
 	}
 
 	m_bookmarkW->setLayout(l);
 
-	/*
-	for(int i = 0; i < ids.size(); i++)
+
+	if(m_searchHeaderW->isHidden())
+		return;
+
+	// Recherche server
+	l = new QVBoxLayout();
+	l->setContentsMargins(0, 0, 0, 0);
+
+	foreach (QString id, m_searchResultList)
 	{
-		QQTotozViewer *viewer = new QQTotozViewer(widget);
+		QQTotozViewer *viewer = new QQTotozViewer(m_searchW);
 		viewer->setTotozDownloader(m_totozDownloader);
-
-		if(action == QQTotoz::ADD)
-			viewer->enableBookmarksAdd();
-		else if(action == QQTotoz::REMOVE)
-			viewer->enableBookmarksRem();
+		viewer->enableBookmarksAdd();
 		viewer->setShowAtMousePos(false);
+		viewer->setTotozId(id);
 
-		viewer->setTotozId(ids.at(i));
-		connect(viewer, SIGNAL(totozBookmarkAct(QString,QQTotoz::TotozBookmarkAction)), this, SLOT(totozBookmarkDo(QString,QQTotoz::TotozBookmarkAction)));
+		connect(viewer, SIGNAL(totozBookmarkAct(QString,QQTotoz::TotozBookmarkAction)),
+				this, SLOT(totozBookmarkDo(QString,QQTotoz::TotozBookmarkAction)));
 		connect(viewer, SIGNAL(totozClicked(QString)), this, SIGNAL(totozClicked(QString)));
-		layout->addWidget(viewer);
+		l->addWidget(viewer);
 	}
 
+	if(m_searchResultList.length() == 0)
+		l->addWidget(new QLabel("Empty result search", m_searchW));
 
-	widget->setLayout(layout);
-	QWidget *oldWidget = dest->takeWidget();
-	dest->setWidget(widget);
+	oldL = m_searchW->layout();
+	if(oldL != NULL)
+	{
+		QLayoutItem *child;
+		while ((child = oldL->takeAt(0)) != 0)
+			child->widget()->deleteLater();
+		delete oldL;
+	}
 
-	//Doit etre supprime "plus tard" car ici on peut avoir ete appele par le widget qu'on va detruire ici-meme
-	oldWidget->deleteLater();
-	*/
+	m_searchW->setLayout(l);
 }
 
 void QQTotozManager::emojiSelected()

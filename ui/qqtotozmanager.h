@@ -13,6 +13,7 @@ class QQTotozManager;
 
 class QLabel;
 class QQSettings;
+class QQTimer;
 class QQTotozDownloader;
 class QQTMRequester;
 
@@ -31,7 +32,6 @@ public:
 public slots:
 	virtual void setVisible(bool visible);
 	void tabChanged(int tabIndex);
-	void searchTotoz();
 	void totozSearchFinished();
 	void totozSearchCanceled();
 	void totozSearchEnabled(bool enabled);
@@ -48,8 +48,9 @@ protected:
 
 protected slots:
 	void emojiSelected();
-	void totozBookmarkDo(QString anchor, QQTotoz::TotozBookmarkAction action);
 	void handleSearchTextChanged(QString text);
+	void searchTotoz();
+	void totozBookmarkDo(QString anchor, QQTotoz::TotozBookmarkAction action);
 
 private:
 	void updateTotozViewer();
@@ -61,6 +62,7 @@ private:
 	QQTotozDownloader *m_totozDownloader;
 	QWidget *m_oldFocusWidget;
 	bool m_totozSearchEnabled;
+	QTimer *m_searchQueryTemperer;
 
 	static QStringList m_tTZBookmarkListCache;
 	QStringList m_filteredTTZBookmarkList;
