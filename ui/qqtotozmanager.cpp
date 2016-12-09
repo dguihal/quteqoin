@@ -454,7 +454,7 @@ void QQTotozManager::emojiSelected()
 					//  et ajout en debut de liste
 					QQEmojiDef folderUp;
 					folderUp.name = "..";
-					folderUp.symbol = "📁";
+					folderUp.symbol = QString::fromUtf8("\xf0\x9f\x93\x81"); //'FILE FOLDER' (U+1F4C1) -> '📁';
 					folderUp.type = CAT;
 					defs.prepend(folderUp);
 
