@@ -11,11 +11,13 @@ namespace Ui {
 class QQTotozManager;
 }
 
+class QLabel;
 class QQSettings;
 class QQTotozDownloader;
 class QQTMRequester;
 
 class QScrollArea;
+class QWidgetItem;
 
 
 class QQTotozManager : public QDockWidget
@@ -42,6 +44,7 @@ signals:
 
 protected:
 	virtual void focusInEvent(QFocusEvent *event);
+	virtual void showEvent(QShowEvent *ev);
 
 protected slots:
 	void emojiSelected();
@@ -49,19 +52,26 @@ protected slots:
 	void handleSearchTextChanged(QString text);
 
 private:
-	void fillBookmarks();
-	void createTotozViewer(QScrollArea * dest, const QStringList & ids, QQTotoz::TotozBookmarkAction action);
-	void createEmojiViewer(QScrollArea * dest, const QList<QQEmojiDef> &emojis);
+	void updateTotozViewer();
+	void updateEmojiViewer(const QList<QQEmojiDef> &emojis);
 
 	Ui::QQTotozManager *m_ui;
 
 	QQTMRequester *m_requester;
 	QQTotozDownloader *m_totozDownloader;
-	QWidget *m_totozServerSearchWidget;
 	QWidget *m_oldFocusWidget;
+	bool m_totozSearchEnabled;
 
-	static QStringList m_bookmarkListCache;
+	static QStringList m_tTZBookmarkListCache;
+	QStringList m_filteredTTZBookmarkList;
+	QStringList m_searchResultList;
 	QList<QQEmojiCat> emojis;
+
+	QLabel *m_bookmarkHeaderW;
+	QWidget *m_bookmarkW;
+	QLabel *m_searchHeaderW;
+	QWidget *m_searchW;
+	QList<QWidgetItem *> m_displayedItems;
 };
 
 #endif // QQTOTOZMANAGER_H

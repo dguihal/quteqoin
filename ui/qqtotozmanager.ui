@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>208</width>
+    <width>270</width>
     <height>577</height>
    </rect>
   </property>
@@ -47,24 +47,18 @@
     </property>
     <item>
      <widget class="QTabWidget" name="qqTMTabWidget">
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
-      </property>
       <property name="tabShape">
        <enum>QTabWidget::Rounded</enum>
       </property>
       <property name="currentIndex">
-       <number>2</number>
+       <number>0</number>
       </property>
       <property name="elideMode">
        <enum>Qt::ElideRight</enum>
       </property>
-      <widget class="QWidget" name="bookmarksWidget">
+      <widget class="QWidget" name="totozWidget">
        <attribute name="title">
-        <string>Bookmarks</string>
+        <string>Totoz</string>
        </attribute>
        <layout class="QHBoxLayout" name="horizontalLayout_2">
         <property name="spacing">
@@ -83,92 +77,17 @@
          <number>1</number>
         </property>
         <item>
-         <widget class="QScrollArea" name="bookmarkScrollArea">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="minimumSize">
-           <size>
-            <width>200</width>
-            <height>0</height>
-           </size>
-          </property>
-          <property name="frameShape">
-           <enum>QFrame::NoFrame</enum>
-          </property>
-          <property name="horizontalScrollBarPolicy">
-           <enum>Qt::ScrollBarAlwaysOff</enum>
-          </property>
+         <widget class="QScrollArea" name="totozScrollArea">
           <property name="widgetResizable">
            <bool>true</bool>
           </property>
-          <widget class="QWidget" name="bookmSAWidgetContents">
+          <widget class="QWidget" name="totozScrollAreaContents">
            <property name="geometry">
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>250</width>
-             <height>471</height>
-            </rect>
-           </property>
-          </widget>
-         </widget>
-        </item>
-       </layout>
-      </widget>
-      <widget class="QWidget" name="serverWidget">
-       <attribute name="title">
-        <string>Server</string>
-       </attribute>
-       <layout class="QHBoxLayout" name="horizontalLayout_3">
-        <property name="spacing">
-         <number>3</number>
-        </property>
-        <property name="leftMargin">
-         <number>1</number>
-        </property>
-        <property name="topMargin">
-         <number>1</number>
-        </property>
-        <property name="rightMargin">
-         <number>1</number>
-        </property>
-        <property name="bottomMargin">
-         <number>1</number>
-        </property>
-        <item>
-         <widget class="QScrollArea" name="serverScrollArea">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="minimumSize">
-           <size>
-            <width>200</width>
-            <height>0</height>
-           </size>
-          </property>
-          <property name="frameShape">
-           <enum>QFrame::NoFrame</enum>
-          </property>
-          <property name="horizontalScrollBarPolicy">
-           <enum>Qt::ScrollBarAlwaysOff</enum>
-          </property>
-          <property name="widgetResizable">
-           <bool>true</bool>
-          </property>
-          <widget class="QWidget" name="serverScrollAreaContents">
-           <property name="geometry">
-            <rect>
-             <x>0</x>
-             <y>0</y>
-             <width>250</width>
-             <height>471</height>
+             <width>252</width>
+             <height>470</height>
             </rect>
            </property>
           </widget>
@@ -212,8 +131,8 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>194</width>
-             <height>471</height>
+             <width>256</width>
+             <height>474</height>
             </rect>
            </property>
           </widget>

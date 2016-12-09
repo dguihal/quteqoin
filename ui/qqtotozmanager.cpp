@@ -10,14 +10,16 @@
 #include <QtDebug>
 #include <QCursor>
 #include <QLabel>
+#include <QLineEdit>
+#include <QListWidget>
 #include <QGraphicsGridLayout>
 #include <QGraphicsView>
 #include <QGraphicsWidget>
 #include <QVBoxLayout>
+#include <QWidget>
 
-#define TAB_BOOKMARKS_INDEX 0
-#define TAB_SEARCH_INDEX 1
-#define TAB_EMOJI_INDEX 2
+#define TAB_TOTOZ_INDEX 0
+#define TAB_EMOJI_INDEX 1
 
 #define MIN_TOTOZ_SEARCH_LEN 3
 
@@ -30,7 +32,8 @@
 
 QQTotozManager::QQTotozManager(QWidget *parent) :
 	QDockWidget(TOTOZMANAGER_TITLE, parent),
-	m_ui(new Ui::QQTotozManager)
+	m_ui(new Ui::QQTotozManager),
+	m_totozSearchEnabled(true)
 {
 	setObjectName(TOTOZMANAGER_OBJECT_NAME);
 	setFeatures(QDockWidget::DockWidgetClosable |
@@ -45,11 +48,9 @@ QQTotozManager::QQTotozManager(QWidget *parent) :
 	m_totozDownloader = new QQTotozDownloader(this);
 
 	m_ui->setupUi(this);
-	m_totozServerSearchWidget = m_ui->qqTMTabWidget->widget(TAB_SEARCH_INDEX);
 
 	this->layout()->setContentsMargins(1, 1, 1, 1);
-	m_ui->qqTMTabWidget->widget(TAB_BOOKMARKS_INDEX)->layout()->setContentsMargins(0, 1, 0, 1);
-	m_ui->qqTMTabWidget->widget(TAB_SEARCH_INDEX)->layout()->setContentsMargins(0, 1, 0, 1);
+	m_ui->qqTMTabWidget->widget(TAB_TOTOZ_INDEX)->layout()->setContentsMargins(0, 1, 0, 1);
 	m_ui->qqTMTabWidget->widget(TAB_EMOJI_INDEX)->layout()->setContentsMargins(0, 1, 0, 1);
 
 	totozSearchEnabled(settings.value(SETTINGS_TOTOZ_SERVER_ALLOW_SEARCH, DEFAULT_TOTOZ_SERVER_ALLOW_SEARCH).toBool());
@@ -70,8 +71,23 @@ QQTotozManager::QQTotozManager(QWidget *parent) :
 
 	m_ui->dockWidgetContents->setMaximumWidth(m_ui->qqTMTabWidget->width());
 
-	if(isVisible())
-		fillBookmarks();
+	QVBoxLayout *l = new QVBoxLayout();
+	l->setContentsMargins(0, 0, 0, 0);
+	m_bookmarkHeaderW = new QLabel(m_ui->totozScrollAreaContents);
+	m_bookmarkHeaderW->setText("Bookmarked :");
+	l->addWidget(m_bookmarkHeaderW);
+	m_bookmarkW = new QWidget(m_ui->totozScrollAreaContents);
+	l->addWidget(m_bookmarkW);
+	m_searchHeaderW= new QLabel(m_ui->totozScrollAreaContents);
+	m_searchHeaderW->setText("Remote search :");
+	m_searchHeaderW->hide();
+	l->addWidget(m_searchHeaderW);
+	m_searchW = new QWidget(m_ui->totozScrollAreaContents);
+	m_searchW->hide();
+	l->addWidget(m_searchW);
+	l->addSpacerItem(new QSpacerItem(1, 1, QSizePolicy::Minimum, QSizePolicy::Expanding));
+
+	m_ui->totozScrollAreaContents->setLayout(l);
 }
 
 QQTotozManager::~QQTotozManager()
@@ -81,8 +97,6 @@ QQTotozManager::~QQTotozManager()
 
 void QQTotozManager::tabChanged(int tabIndex)
 {
-	Q_UNUSED(tabIndex);
-
 	handleSearchTextChanged(m_ui->searchLineEdit->text());
 
 	if(tabIndex == TAB_EMOJI_INDEX)
@@ -94,12 +108,14 @@ void QQTotozManager::tabChanged(int tabIndex)
 			l.append(c);
 		}
 
-		createEmojiViewer(m_ui->emojiScrollArea, l);
+		updateEmojiViewer(l);
 	}
 	else
 	{
-		m_ui->searchLineEdit->show();
-		m_ui->searchLineEdit->setFocus();
+		if(m_totozSearchEnabled) {
+			m_ui->searchLineEdit->show();
+			m_ui->searchLineEdit->setFocus();
+		}
 	}
 }
 
@@ -107,7 +123,7 @@ void QQTotozManager::searchTotoz()
 {
 	QString searchStr = m_ui->searchLineEdit->text();
 
-	if(m_ui->qqTMTabWidget->currentIndex() == TAB_SEARCH_INDEX && searchStr.length() >= MIN_TOTOZ_SEARCH_LEN)
+	if(m_ui->qqTMTabWidget->currentIndex() == TAB_TOTOZ_INDEX && searchStr.length() >= MIN_TOTOZ_SEARCH_LEN)
 	{
 		m_ui->cancelSearchButton->show();
 
@@ -125,32 +141,13 @@ void QQTotozManager::totozSearchFinished()
 	m_ui->dockWidgetContents->unsetCursor();
 	m_ui->searchLineEdit->setStyleSheet("");
 
-	QList<QString> results = m_requester->results();
+	m_searchResultList = m_requester->results();
 
-	if(results.size() > 0)
-	{
-		for(int i = 0; i < results.size(); i++)
-		{
-			QString result = results.at(i);
-			m_totozDownloader->fetchTotoz(result);
-		}
-
-		createTotozViewer(m_ui->serverScrollArea, results, QQTotoz::ADD);
+	foreach (QString totoz, m_searchResultList) {
+		m_totozDownloader->fetchTotoz(totoz);
 	}
-	else
-	{
-		QWidget *widget = new QWidget(this);
-		QVBoxLayout *layout = new QVBoxLayout();
-		layout->setContentsMargins(0, 0, 0, 0);
 
-		QLabel *label = new QLabel("No totoz found", widget);
-		layout->addWidget(label);
-
-		QWidget *oldWidget = m_ui->serverScrollArea->takeWidget();
-		m_ui->serverScrollArea->setWidget(widget);
-
-		delete oldWidget;
-	}
+	updateTotozViewer();
 }
 
 void QQTotozManager::totozSearchCanceled()
@@ -161,34 +158,31 @@ void QQTotozManager::totozSearchCanceled()
 
 	m_ui->dockWidgetContents->unsetCursor();
 	m_ui->searchLineEdit->setStyleSheet("");
+
+	m_searchResultList.clear();
+	updateTotozViewer();
 }
 
 void QQTotozManager::totozSearchEnabled(bool enabled)
 {
-	if(enabled)
-	{
-		if(m_ui->qqTMTabWidget->count() == 1)
-			m_ui->qqTMTabWidget->addTab(m_totozServerSearchWidget, tr("Server"));
-		m_ui->qqTMTabWidget->setCurrentIndex(TAB_SEARCH_INDEX);
-	}
-	else if(m_ui->qqTMTabWidget->count() > 1)
-			m_ui->qqTMTabWidget->removeTab(TAB_SEARCH_INDEX);
+	m_totozSearchEnabled = enabled;
+	m_ui->searchLineEdit->setVisible(enabled);
 }
 
-QStringList QQTotozManager::m_bookmarkListCache;
+QStringList QQTotozManager::m_tTZBookmarkListCache;
 QStringList QQTotozManager::bookmarkedTotozIds()
 {
 	//Temporaire
 	QQSettings settings;
 	if(settings.contains(SETTINGS_TOTOZ_BOOKMARKLIST))
 	{
-		m_bookmarkListCache = settings.value(SETTINGS_TOTOZ_BOOKMARKLIST, "").toStringList();
-		setBookmarkedTotozIds(m_bookmarkListCache);
+		m_tTZBookmarkListCache = settings.value(SETTINGS_TOTOZ_BOOKMARKLIST, "").toStringList();
+		setBookmarkedTotozIds(m_tTZBookmarkListCache);
 		settings.remove(SETTINGS_TOTOZ_BOOKMARKLIST);
 	}
 	//
 
-	if(m_bookmarkListCache.isEmpty())
+	if(m_tTZBookmarkListCache.isEmpty())
 	{
 #if(QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
 		QDir dirData(QStandardPaths::writableLocation(QStandardPaths::DataLocation));
@@ -207,17 +201,17 @@ QStringList QQTotozManager::bookmarkedTotozIds()
 		}
 
 		while(!totozBmFile.atEnd())
-				m_bookmarkListCache.append(QString(totozBmFile.readLine().trimmed()));
+				m_tTZBookmarkListCache.append(QString(totozBmFile.readLine().trimmed()));
 
 		totozBmFile.close();
 	}
 
-	return m_bookmarkListCache;
+	return m_tTZBookmarkListCache;
 }
 
 void QQTotozManager::setBookmarkedTotozIds(QStringList newList)
 {
-	m_bookmarkListCache = newList;
+	m_tTZBookmarkListCache = newList;
 
 #if(QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
 	QDir dirData(QStandardPaths::writableLocation(QStandardPaths::DataLocation));
@@ -236,7 +230,7 @@ void QQTotozManager::setBookmarkedTotozIds(QStringList newList)
 	}
 
 	QTextStream str(& totozBmFile);
-	foreach(QString totozId, m_bookmarkListCache)
+	foreach(QString totozId, m_tTZBookmarkListCache)
 		str << totozId << "\n";
 
 	totozBmFile.close();
@@ -273,19 +267,23 @@ void QQTotozManager::focusInEvent(QFocusEvent *event)
 	m_ui->searchLineEdit->setFocus();
 }
 
+void QQTotozManager::showEvent(QShowEvent *ev)
+{
+	QDockWidget::showEvent(ev);
+
+	updateTotozViewer();
+}
+
 void QQTotozManager::handleSearchTextChanged(QString text)
 {
 	if(text.size() < MIN_TOTOZ_SEARCH_LEN)
 	{
-		QWidget *oldWidget = m_ui->serverScrollArea->takeWidget();
-		QWidget *emptyWidget = new QWidget();
-		m_ui->serverScrollArea->setWidget(emptyWidget);
-		m_ui->serverScrollAreaContents = emptyWidget;
-
-		oldWidget->deleteLater();
+		QLayout *l = m_searchW->layout();
+		if(l != NULL)
+			delete l;
 	}
 
-	if(m_ui->qqTMTabWidget->currentIndex() == TAB_BOOKMARKS_INDEX)
+	if(m_ui->qqTMTabWidget->currentIndex() == TAB_TOTOZ_INDEX)
 	{
 		QStringList matchingTotozIds;
 		QStringList totozIds = bookmarkedTotozIds();
@@ -301,7 +299,7 @@ void QQTotozManager::handleSearchTextChanged(QString text)
 			}
 		}
 
-		createTotozViewer(m_ui->bookmarkScrollArea, matchingTotozIds, QQTotoz::REMOVE);
+		updateTotozViewer();
 	}
 }
 
@@ -330,21 +328,60 @@ void QQTotozManager::totozBookmarkDo(QString anchor, QQTotoz::TotozBookmarkActio
 	if(modified)
 	{
 		setBookmarkedTotozIds(totozIds);
-		fillBookmarks();
+		updateTotozViewer();
 	}
 }
 
-void QQTotozManager::fillBookmarks()
-{
-	createTotozViewer(m_ui->bookmarkScrollArea, bookmarkedTotozIds(), QQTotoz::REMOVE);
-}
-
-void QQTotozManager::createTotozViewer(QScrollArea *dest, const QStringList &ids, QQTotoz::TotozBookmarkAction action)
+void QQTotozManager::updateTotozViewer()
 {
 	QWidget *widget = new QWidget(this);
-	QVBoxLayout *layout = new QVBoxLayout(widget);
-	layout->setContentsMargins(0, 0, 0, 0);
 
+	/* Bookmarked */
+	QVBoxLayout *l = new QVBoxLayout(widget);
+	l->setContentsMargins(0, 0, 0, 0);
+
+	QString searchText = m_ui->searchLineEdit->text();
+	QStringList ids;
+	if(searchText.length() > 0)
+	{
+		foreach (QString id, bookmarkedTotozIds())
+		{
+			if(id.contains(searchText, Qt::CaseInsensitive))
+				ids.append(id);
+		}
+	}
+	else
+	{
+		ids << bookmarkedTotozIds();
+	}
+
+
+	foreach (QString id, ids)
+	{
+		QQTotozViewer *viewer = new QQTotozViewer(widget);
+		viewer->setTotozDownloader(m_totozDownloader);
+		viewer->enableBookmarksRem();
+		viewer->setShowAtMousePos(false);
+		viewer->setTotozId(id);
+
+		connect(viewer, SIGNAL(totozBookmarkAct(QString,QQTotoz::TotozBookmarkAction)), this, SLOT(totozBookmarkDo(QString,QQTotoz::TotozBookmarkAction)));
+		connect(viewer, SIGNAL(totozClicked(QString)), this, SIGNAL(totozClicked(QString)));
+		l->addWidget(viewer);
+	}
+	QLayout *oldL = m_bookmarkW->layout();
+	if(oldL != NULL)
+	{
+		QLayoutItem *child;
+		while ((child = oldL->takeAt(0)) != 0) {
+			delete child->widget();
+			delete child;
+		}
+		delete oldL;
+	}
+
+	m_bookmarkW->setLayout(l);
+
+	/*
 	for(int i = 0; i < ids.size(); i++)
 	{
 		QQTotozViewer *viewer = new QQTotozViewer(widget);
@@ -362,7 +399,6 @@ void QQTotozManager::createTotozViewer(QScrollArea *dest, const QStringList &ids
 		layout->addWidget(viewer);
 	}
 
-	layout->addSpacerItem(new QSpacerItem(1, 1, QSizePolicy::Minimum, QSizePolicy::Expanding));
 
 	widget->setLayout(layout);
 	QWidget *oldWidget = dest->takeWidget();
@@ -370,6 +406,7 @@ void QQTotozManager::createTotozViewer(QScrollArea *dest, const QStringList &ids
 
 	//Doit etre supprime "plus tard" car ici on peut avoir ete appele par le widget qu'on va detruire ici-meme
 	oldWidget->deleteLater();
+	*/
 }
 
 void QQTotozManager::emojiSelected()
@@ -393,7 +430,7 @@ void QQTotozManager::emojiSelected()
 					folderUp.type = CAT;
 					defs.prepend(folderUp);
 
-					createEmojiViewer(m_ui->emojiScrollArea, defs);
+					updateEmojiViewer(defs);
 					break;
 				}
 			}
@@ -405,7 +442,7 @@ void QQTotozManager::emojiSelected()
 					l.append(c);
 				}
 
-				createEmojiViewer(m_ui->emojiScrollArea, l);
+				updateEmojiViewer(l);
 			}
 		}
 		else
@@ -420,7 +457,7 @@ void QQTotozManager::emojiSelected()
 }
 
 
-void QQTotozManager::createEmojiViewer(QScrollArea *dest, const QList<QQEmojiDef> &emojis)
+void QQTotozManager::updateEmojiViewer(const QList<QQEmojiDef> &emojis)
 {
 	QWidget *widget = new QWidget(this);
 	QVBoxLayout *layout = new QVBoxLayout(widget);
@@ -441,8 +478,8 @@ void QQTotozManager::createEmojiViewer(QScrollArea *dest, const QList<QQEmojiDef
 	layout->addSpacerItem(new QSpacerItem(1, 1, QSizePolicy::Minimum, QSizePolicy::Expanding));
 
 	widget->setLayout(layout);
-	QWidget *oldWidget = dest->takeWidget();
-	dest->setWidget(widget);
+	QWidget *oldWidget = m_ui->emojiScrollArea->takeWidget();
+	m_ui->emojiScrollArea->setWidget(widget);
 
 	//Doit etre supprime "plus tard" car ici on peut avoir ete appele par le widget qu'on va detruire ici-meme
 	oldWidget->deleteLater();
