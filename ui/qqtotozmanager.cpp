@@ -98,7 +98,8 @@ QQTotozManager::QQTotozManager(QWidget *parent) :
 	m_ui->totozScrollAreaContents->setLayout(l);
 
 	// Construction de la fenetre de visu des emojis
-	updateEmojiViewer(settings.listEmojis());
+	m_emojis = settings.listEmojis();
+	updateEmojiViewer(m_emojis);
 
 }
 
@@ -283,7 +284,6 @@ void QQTotozManager::handleSearchTextChanged(QString text)
 	switch(m_ui->qqTMTabWidget->currentIndex())
 	{
 	case TAB_TOTOZ_INDEX:
-	{
 		if(text.size() < MIN_TOTOZ_SEARCH_LEN)
 		{
 			m_searchHeaderW->hide();
@@ -309,16 +309,12 @@ void QQTotozManager::handleSearchTextChanged(QString text)
 		}
 
 		updateTotozViewer();
-	}
 		break;
 	case TAB_EMOJI_INDEX:
-	{
-		QQSettings settings;
-
 		if(text.size() > 0)
 		{
 			QList<QQEmojiDef> l;
-			foreach (QQEmojiCat c, settings.listEmojis()) {
+			foreach (QQEmojiCat c, m_emojis) {
 				foreach (QQEmojiDef d, c.emojis) {
 					if(d.name.contains(text, Qt::CaseInsensitive))
 						l.append(d);
@@ -327,8 +323,7 @@ void QQTotozManager::handleSearchTextChanged(QString text)
 			updateEmojiViewer(l);
 		}
 		else
-			updateEmojiViewer(settings.listEmojis());
-	}
+			updateEmojiViewer(m_emojis);
 		break;
 	default:
 		qWarning() << Q_FUNC_INFO << "Unknown tab index";
@@ -469,10 +464,13 @@ void QQTotozManager::emojiSelected()
 	QObject *o = sender();
 	if(o != NULL)
 	{
-		if(o->property(EMOJI_IS_CAT).toBool()) {
+		if(o->property(EMOJI_IS_CAT).toBool())
+		{
 			bool found = false;
-			foreach (QQEmojiCat c, emojis) {
-				if(c.symbol == o->property(EMOJI_SYMBOL)) {
+			foreach (QQEmojiCat c, m_emojis)
+			{
+				if(c.symbol == o->property(EMOJI_SYMBOL))
+				{
 					found = true;
 
 					QList<QQEmojiDef> defs = c.emojis;
@@ -490,10 +488,11 @@ void QQTotozManager::emojiSelected()
 				}
 			}
 
-			if(! found) {
+			if(! found)
+			{
 				/* Pas de sub trouve, on retourne au niveau 0 */
 				QList<QQEmojiDef> l;
-				foreach (QQEmojiCat c, emojis) {
+				foreach (QQEmojiCat c, m_emojis) {
 					l.append(c);
 				}
 
@@ -506,9 +505,7 @@ void QQTotozManager::emojiSelected()
 		}
 	}
 	else
-	{
 		qDebug() << Q_FUNC_INFO << "o is NULL";
-	}
 }
 
 void QQTotozManager::updateEmojiViewer(const QList<QQEmojiDef> &emojis)
@@ -517,7 +514,8 @@ void QQTotozManager::updateEmojiViewer(const QList<QQEmojiDef> &emojis)
 	QVBoxLayout *layout = new QVBoxLayout(widget);
 	layout->setContentsMargins(0, 0, 0, 0);
 
-	foreach (QQEmojiDef d, emojis) {
+	foreach (QQEmojiDef d, emojis)
+	{
 		QPushButton *b = new QPushButton(widget);
 		b->setFlat(true);
 		b->setStyleSheet("Text-align: left");
@@ -541,7 +539,8 @@ void QQTotozManager::updateEmojiViewer(const QList<QQEmojiDef> &emojis)
 void QQTotozManager::updateEmojiViewer(const QList<QQEmojiCat> &emojis)
 {
 	QList<QQEmojiDef> l;
-	foreach (QQEmojiCat c, emojis) {
+	foreach (QQEmojiCat c, emojis)
+	{
 		l.append(c);
 	}
 	updateEmojiViewer(l);

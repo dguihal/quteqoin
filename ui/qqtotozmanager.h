@@ -68,7 +68,7 @@ private:
 	static QStringList m_tTZBookmarkListCache;
 	QStringList m_filteredTTZBookmarkList;
 	QStringList m_searchResultList;
-	QList<QQEmojiCat> emojis;
+	QList<QQEmojiCat> m_emojis;
 
 	QLabel *m_bookmarkHeaderW;
 	QWidget *m_bookmarkW;
