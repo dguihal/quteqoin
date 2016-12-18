@@ -66,8 +66,6 @@ QQTotozManager::QQTotozManager(QWidget *parent) :
 	m_ui->cancelSearchButton->setIcon(style()->standardIcon(QStyle::SP_DialogCancelButton));
 	connect(m_ui->cancelSearchButton, SIGNAL(clicked()), this, SLOT(totozSearchCanceled()));
 
-	emojis = settings.listEmojis();
-
 #if(QT_VERSION >= QT_VERSION_CHECK(5, 2, 0))
 	m_ui->searchLineEdit->setClearButtonEnabled(true);
 #endif
@@ -78,6 +76,7 @@ QQTotozManager::QQTotozManager(QWidget *parent) :
 
 	m_ui->dockWidgetContents->setMaximumWidth(m_ui->qqTMTabWidget->width());
 
+	// Construction de la fenetre de visu des totoz
 	QVBoxLayout *l = new QVBoxLayout();
 	l->setContentsMargins(0, 0, 0, 0);
 	m_bookmarkHeaderW = new QLabel(m_ui->totozScrollAreaContents);
@@ -97,6 +96,10 @@ QQTotozManager::QQTotozManager(QWidget *parent) :
 	l->addSpacerItem(new QSpacerItem(1, 1, QSizePolicy::Minimum, QSizePolicy::Expanding));
 
 	m_ui->totozScrollAreaContents->setLayout(l);
+
+	// Construction de la fenetre de visu des emojis
+	updateEmojiViewer(settings.listEmojis());
+
 }
 
 QQTotozManager::~QQTotozManager()
@@ -106,25 +109,24 @@ QQTotozManager::~QQTotozManager()
 
 void QQTotozManager::tabChanged(int tabIndex)
 {
-	handleSearchTextChanged(m_ui->searchLineEdit->text());
+	m_ui->searchLineEdit->clear();
+	handleSearchTextChanged(""); // Reset de l'affichage
 
-	if(tabIndex == TAB_EMOJI_INDEX)
+	switch(tabIndex)
 	{
-		m_ui->searchLineEdit->hide();
-
-		QList<QQEmojiDef> l;
-		foreach (QQEmojiCat c, emojis) {
-			l.append(c);
-		}
-
-		updateEmojiViewer(l);
-	}
-	else
-	{
-		if(m_totozSearchEnabled) {
+	case TAB_EMOJI_INDEX:
+		m_ui->searchLineEdit->show();
+		m_ui->searchLineEdit->setFocus();
+	case TAB_TOTOZ_INDEX:
+		if(m_totozSearchEnabled)
+		{
 			m_ui->searchLineEdit->show();
 			m_ui->searchLineEdit->setFocus();
 		}
+		else
+			m_ui->searchLineEdit->hide();
+	default:
+		qWarning() << Q_FUNC_INFO << "Unknown tab index";
 	}
 }
 
@@ -278,33 +280,58 @@ void QQTotozManager::handleSearchTextChanged(QString text)
 	m_searchQueryTemperer->stop();
 	m_requester->cancel();
 
-	if(text.size() < MIN_TOTOZ_SEARCH_LEN)
+	switch(m_ui->qqTMTabWidget->currentIndex())
 	{
-		m_searchHeaderW->hide();
-		m_searchW->hide();
-	}
-
-	if(m_ui->qqTMTabWidget->currentIndex() == TAB_TOTOZ_INDEX)
+	case TAB_TOTOZ_INDEX:
 	{
-		if(m_totozSearchEnabled &&
-				text.length() >= MIN_TOTOZ_SEARCH_LEN)
+		if(text.size() < MIN_TOTOZ_SEARCH_LEN)
+		{
+			m_searchHeaderW->hide();
+			m_searchW->hide();
+		}
+		else if(m_totozSearchEnabled)
+		{
 			m_searchQueryTemperer->start();
 
-		QStringList matchingTotozIds;
-		QStringList totozIds = bookmarkedTotozIds();
-		if(text.size() == 0)
-			matchingTotozIds << totozIds;
-		else
-		{
-			for(int i = 0; i < totozIds.size(); i++)
+			QStringList matchingTotozIds;
+			QStringList totozIds = bookmarkedTotozIds();
+			if(text.size() == 0)
+				matchingTotozIds << totozIds;
+			else
 			{
-				QString totozId = totozIds.at(i);
-				if(totozId.contains(text, Qt::CaseInsensitive))
-					matchingTotozIds.append(totozId);
+				for(int i = 0; i < totozIds.size(); i++)
+				{
+					QString totozId = totozIds.at(i);
+					if(totozId.contains(text, Qt::CaseInsensitive))
+						matchingTotozIds.append(totozId);
+				}
 			}
 		}
 
 		updateTotozViewer();
+	}
+		break;
+	case TAB_EMOJI_INDEX:
+	{
+		QQSettings settings;
+
+		if(text.size() > 0)
+		{
+			QList<QQEmojiDef> l;
+			foreach (QQEmojiCat c, settings.listEmojis()) {
+				foreach (QQEmojiDef d, c.emojis) {
+					if(d.name.contains(text, Qt::CaseInsensitive))
+						l.append(d);
+				}
+			}
+			updateEmojiViewer(l);
+		}
+		else
+			updateEmojiViewer(settings.listEmojis());
+	}
+		break;
+	default:
+		qWarning() << Q_FUNC_INFO << "Unknown tab index";
 	}
 }
 
@@ -484,21 +511,19 @@ void QQTotozManager::emojiSelected()
 	}
 }
 
-
 void QQTotozManager::updateEmojiViewer(const QList<QQEmojiDef> &emojis)
 {
 	QWidget *widget = new QWidget(this);
 	QVBoxLayout *layout = new QVBoxLayout(widget);
 	layout->setContentsMargins(0, 0, 0, 0);
 
-	for(int i = 0; i < emojis.size(); i++)
-	{
+	foreach (QQEmojiDef d, emojis) {
 		QPushButton *b = new QPushButton(widget);
 		b->setFlat(true);
 		b->setStyleSheet("Text-align: left");
-		b->setProperty(EMOJI_SYMBOL, emojis[i].symbol);
-		b->setProperty(EMOJI_IS_CAT, emojis[i].type == CAT);
-		b->setText(QString(emojis[i].symbol).append(" ").append(emojis[i].name));
+		b->setProperty(EMOJI_SYMBOL, d.symbol);
+		b->setProperty(EMOJI_IS_CAT, d.type == CAT);
+		b->setText(QString(d.symbol).append(" ").append(d.name));
 		connect(b, SIGNAL(clicked(bool)), this, SLOT(emojiSelected()));
 		layout->addWidget(b);
 	}
@@ -511,4 +536,13 @@ void QQTotozManager::updateEmojiViewer(const QList<QQEmojiDef> &emojis)
 
 	//Doit etre supprime "plus tard" car ici on peut avoir ete appele par le widget qu'on va detruire ici-meme
 	oldWidget->deleteLater();
+}
+
+void QQTotozManager::updateEmojiViewer(const QList<QQEmojiCat> &emojis)
+{
+	QList<QQEmojiDef> l;
+	foreach (QQEmojiCat c, emojis) {
+		l.append(c);
+	}
+	updateEmojiViewer(l);
 }

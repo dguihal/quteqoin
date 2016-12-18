@@ -55,6 +55,7 @@ protected slots:
 private:
 	void updateTotozViewer();
 	void updateEmojiViewer(const QList<QQEmojiDef> &emojis);
+	void updateEmojiViewer(const QList<QQEmojiCat> &emojis);
 
 	Ui::QQTotozManager *m_ui;
 
