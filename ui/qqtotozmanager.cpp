@@ -518,7 +518,7 @@ void QQTotozManager::updateEmojiViewer(const QList<QQEmojiDef> &emojis)
 	{
 		QPushButton *b = new QPushButton(widget);
 		b->setFlat(true);
-		b->setStyleSheet("Text-align: left");
+		b->setStyleSheet("QPushButton {text-align: left; font-size: 12px}");
 		b->setProperty(EMOJI_SYMBOL, d.symbol);
 		b->setProperty(EMOJI_IS_CAT, d.type == CAT);
 		b->setText(QString(d.symbol).append(" ").append(d.name));
