@@ -18,6 +18,8 @@ equals(QT_MAJOR_VERSION, 5) {
 	QT += widgets multimediawidgets
 }
 
+include($$PWD/gitversion.pri)
+
 # A Tester
 #linux-g++ {
 #	system( g++ --version | grep -e "\<4.[8-9]" ) {
