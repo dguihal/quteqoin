@@ -9,6 +9,12 @@
 const char notif_name[] = "QuteQoin";
 #endif
 
+#define APP_NAME "quteqoin"
+
+#ifndef GIT_VERSION
+GIT_VERSION "undefined"
+#endif
+
 #define MAX_CACHE_AGE_DAYS 60
 
 #define SETTINGS_TOTOZ_PRESETS_PATH ":/totoz"
@@ -22,7 +28,7 @@ const char notif_name[] = "QuteQoin";
 #define DEFAULT_GENERAL_MAX_HISTLEN 500
 
 #define SETTINGS_GENERAL_DEFAULT_UA "default_ua"
-#define DEFAULT_GENERAL_DEFAULT_UA "quteqoin crash edition"
+#define DEFAULT_GENERAL_DEFAULT_UA APP_NAME "/" GIT_VERSION
 
 #define SETTINGS_GENERAL_WEBSEARCH_URL "default_websearch_url"
 #define DEFAULT_GENERAL_WEBSEARCH_URL "http://www.google.fr/search?q=%s&ie=utf-8&oe=utf-8"
