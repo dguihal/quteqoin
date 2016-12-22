@@ -85,8 +85,8 @@ int main(int argc, char *argv[])
 {
 	QApplication a(argc, argv);
 	a.setOrganizationName("Moules Corp");
-	a.setApplicationName("quteqoin");
-	a.setApplicationVersion("SVN Crash Edition");
+	a.setApplicationName(APP_NAME);
+	a.setApplicationVersion(GIT_VERSION);
 	QSettings::setDefaultFormat(QSettings::IniFormat);
 
 	purgeCache();
