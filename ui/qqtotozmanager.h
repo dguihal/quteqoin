@@ -2,6 +2,7 @@
 #define QQTOTOZMANAGER_H
 
 #include "core/qqtotoz.h"
+#include "core/qqsettings.h"
 
 #include <QDockWidget>
 #include <QString>
@@ -10,11 +11,15 @@ namespace Ui {
 class QQTotozManager;
 }
 
+class QLabel;
 class QQSettings;
+class QQTimer;
 class QQTotozDownloader;
 class QQTMRequester;
 
 class QScrollArea;
+class QWidgetItem;
+
 
 class QQTotozManager : public QDockWidget
 {
@@ -27,7 +32,6 @@ public:
 public slots:
 	virtual void setVisible(bool visible);
 	void tabChanged(int tabIndex);
-	void searchTotoz();
 	void totozSearchFinished();
 	void totozSearchCanceled();
 	void totozSearchEnabled(bool enabled);
@@ -40,24 +44,37 @@ signals:
 
 protected:
 	virtual void focusInEvent(QFocusEvent *event);
+	virtual void showEvent(QShowEvent *ev);
 
 protected slots:
-	void totozSelected(QString anchor);
-	void totozBookmarkDo(QString anchor, QQTotoz::TotozBookmarkAction action);
+	void emojiSelected();
 	void handleSearchTextChanged(QString text);
+	void searchTotoz();
+	void totozBookmarkDo(QString anchor, QQTotoz::TotozBookmarkAction action);
 
 private:
-	void fillBookmarks();
-	void createViewer(QScrollArea * dest, const QStringList & ids, QQTotoz::TotozBookmarkAction action);
+	void updateTotozViewer();
+	void updateEmojiViewer(const QList<QQEmojiDef> &emojis);
+	void updateEmojiViewer(const QList<QQEmojiCat> &emojis);
 
 	Ui::QQTotozManager *m_ui;
 
 	QQTMRequester *m_requester;
 	QQTotozDownloader *m_totozDownloader;
-	QWidget *m_totozServerSearchWidget;
 	QWidget *m_oldFocusWidget;
+	bool m_totozSearchEnabled;
+	QTimer *m_searchQueryTemperer;
 
-	static QStringList m_bookmarkListCache;
+	static QStringList m_tTZBookmarkListCache;
+	QStringList m_filteredTTZBookmarkList;
+	QStringList m_searchResultList;
+	QList<QQEmojiCat> m_emojis;
+
+	QLabel *m_bookmarkHeaderW;
+	QWidget *m_bookmarkW;
+	QLabel *m_searchHeaderW;
+	QWidget *m_searchW;
+	QList<QWidgetItem *> m_displayedItems;
 };
 
 #endif // QQTOTOZMANAGER_H

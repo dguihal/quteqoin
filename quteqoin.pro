@@ -95,7 +95,8 @@ SOURCES += main.cpp\
 	ui/settingsmanager/qqpalmisettings.cpp \
 	ui/settingsmanager/qqpalmisettingstablewidget.cpp \
 	ui/settingsmanager/qqtotozsettings.cpp \
-	ui/totozmanager/qqtmxmlparser.cpp
+	ui/totozmanager/qqtmxmlparser.cpp \
+	ui/totozmanager/qqtotozmanagerheader.cpp
 
 HEADERS  += mainwindow.h \
 	core/qqsettings.h \
@@ -162,7 +163,8 @@ HEADERS  += mainwindow.h \
 	ui/settingsmanager/qqpalmisettings.h \
 	ui/settingsmanager/qqpalmisettingstablewidget.h \
 	ui/settingsmanager/qqtotozsettings.h \
-	ui/totozmanager/qqtmxmlparser.h
+	ui/totozmanager/qqtmxmlparser.h \
+	ui/totozmanager/qqtotozmanagerheader.h
 
 FORMS += mainwindow.ui \
 	ui/qqboardsinfo.ui \
@@ -180,7 +182,8 @@ FORMS += mainwindow.ui \
 	ui/settingsmanager/qqhuntsettings.ui \
 	ui/settingsmanager/qqnetworksettings.ui \
 	ui/settingsmanager/qqpalmisettings.ui \
-	ui/settingsmanager/qqtotozsettings.ui
+	ui/settingsmanager/qqtotozsettings.ui \
+	ui/totozmanager/qqtotozmanagerheader.ui
 
 RESOURCES += \
 	rc/quteqoin_img.qrc \

@@ -79,84 +79,87 @@ void QQTotoz::load()
 {
 	//qDebug() << "QQTotoz::load id: " << m_id << ", path:" << getPath(m_id);
 	QFile file(getPath(m_id));
-	file.open(QIODevice::ReadOnly);
-
-	file.waitForReadyRead(1000);
-	QByteArray compressedData = file.readAll();
-
-	m_wasmodfied = false;
-	if(compressedData.size() == 0)
-		return;
-
-	QByteArray data = qUncompress(compressedData);
-	QBuffer buffer(&data);
-	buffer.open(QIODevice::ReadOnly);
-
-	QXmlStreamReader xml;
-	xml.setDevice(&buffer);
-
-	QString currentElement;
-	while (!xml.atEnd())
+	if(file.open(QIODevice::ReadOnly))
 	{
-		xml.readNext();
-		switch (xml.tokenType())
+		QByteArray compressedData = file.readAll();
+
+		m_wasmodfied = false;
+		if(compressedData.size() == 0)
+			return;
+
+		QByteArray data = qUncompress(compressedData);
+		QBuffer buffer(&data);
+		buffer.open(QIODevice::ReadOnly);
+
+		QXmlStreamReader xml;
+		xml.setDevice(&buffer);
+
+		QString currentElement;
+		while (!xml.atEnd())
 		{
-		case QXmlStreamReader::StartElement:
-			currentElement = xml.name().toString();
+			xml.readNext();
+			switch (xml.tokenType())
+			{
+			case QXmlStreamReader::StartElement:
+				currentElement = xml.name().toString();
 
-			if(currentElement == "nsfw")
-			{
-				QString data = xml.readElementText();
-				m_isNSFW = (data != "0");
-			}
-			else if(currentElement == "tags")
-			{
-				m_tags.clear();
-			}
-			else if(currentElement == "tag")
-			{
-				m_tags.append(xml.readElementText());
-			}
-			else if(currentElement == "expiredate")
-			{
-				m_cacheExpireDate = QDateTime::fromString(xml.readElementText(), Qt::ISODate);
-			}
-			else if(currentElement == "imgdata" || currentElement == "totoz")
-			{
-			}
-			else
-				qDebug() << Q_FUNC_INFO << "unknown element :" << currentElement;
+				if(currentElement == "nsfw")
+				{
+					QString data = xml.readElementText();
+					m_isNSFW = (data != "0");
+				}
+				else if(currentElement == "tags")
+				{
+					m_tags.clear();
+				}
+				else if(currentElement == "tag")
+				{
+					m_tags.append(xml.readElementText());
+				}
+				else if(currentElement == "expiredate")
+				{
+					m_cacheExpireDate = QDateTime::fromString(xml.readElementText(), Qt::ISODate);
+				}
+				else if(currentElement == "imgdata" || currentElement == "totoz")
+				{
+				}
+				else
+					qDebug() << Q_FUNC_INFO << "unknown element :" << currentElement;
 
-			break;
-		case QXmlStreamReader::Characters:
-			if(xml.isCDATA())
-#if(QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
-				m_totozData = QByteArray::fromBase64(xml.text().toLatin1());
-#else
-				m_totozData = QByteArray::fromBase64(xml.text().toAscii());
-#endif
-			else
-				qDebug() << Q_FUNC_INFO << "unknown Characters :" << xml.text();
-			break;
-		case QXmlStreamReader::NoToken:
-		case QXmlStreamReader::Invalid:
-		case QXmlStreamReader::StartDocument:
-		case QXmlStreamReader::EndDocument:
-		case QXmlStreamReader::EndElement:
-		case QXmlStreamReader::Comment:
-		case QXmlStreamReader::DTD:
-		case QXmlStreamReader::EntityReference:
-		case QXmlStreamReader::ProcessingInstruction:
-			//Nothing
-			break;
+				break;
+			case QXmlStreamReader::Characters:
+				if(xml.isCDATA())
+	#if(QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
+					m_totozData = QByteArray::fromBase64(xml.text().toLatin1());
+	#else
+					m_totozData = QByteArray::fromBase64(xml.text().toAscii());
+	#endif
+				else
+					qDebug() << Q_FUNC_INFO << "unknown Characters :" << xml.text();
+				break;
+			case QXmlStreamReader::NoToken:
+			case QXmlStreamReader::Invalid:
+			case QXmlStreamReader::StartDocument:
+			case QXmlStreamReader::EndDocument:
+			case QXmlStreamReader::EndElement:
+			case QXmlStreamReader::Comment:
+			case QXmlStreamReader::DTD:
+			case QXmlStreamReader::EntityReference:
+			case QXmlStreamReader::ProcessingInstruction:
+				//Nothing
+				break;
 
+			}
 		}
+
+		if (xml.error() != QXmlStreamReader::NoError)
+			m_totozData.clear();
+
+		buffer.close();
+		file.close();
 	}
 
-	buffer.close();
-	file.close();
-
-	if(xml.error() != QXmlStreamReader::NoError || m_totozData.size() == 0)
+	if(m_totozData.size() == 0)
 		file.remove();
 }
 

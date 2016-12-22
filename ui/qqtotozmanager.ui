@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>222</width>
+    <width>270</width>
     <height>577</height>
    </rect>
   </property>
@@ -16,17 +16,11 @@
     <verstretch>0</verstretch>
    </sizepolicy>
   </property>
-  <property name="minimumSize">
-   <size>
-    <width>222</width>
-    <height>184</height>
-   </size>
-  </property>
   <property name="allowedAreas">
    <set>Qt::LeftDockWidgetArea|Qt::RightDockWidgetArea</set>
   </property>
   <property name="windowTitle">
-   <string>Totoz Manager</string>
+   <string>&amp;Totoz Manager</string>
   </property>
   <widget class="QWidget" name="dockWidgetContents">
    <property name="sizePolicy">
@@ -53,18 +47,18 @@
     </property>
     <item>
      <widget class="QTabWidget" name="qqTMTabWidget">
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
+      <property name="tabShape">
+       <enum>QTabWidget::Rounded</enum>
       </property>
       <property name="currentIndex">
        <number>1</number>
       </property>
-      <widget class="QWidget" name="bookmarksWidget">
+      <property name="elideMode">
+       <enum>Qt::ElideRight</enum>
+      </property>
+      <widget class="QWidget" name="totozWidget">
        <attribute name="title">
-        <string>Bookmarks</string>
+        <string>Totoz</string>
        </attribute>
        <layout class="QHBoxLayout" name="horizontalLayout_2">
         <property name="spacing">
@@ -83,29 +77,17 @@
          <number>1</number>
         </property>
         <item>
-         <widget class="QScrollArea" name="bookmarkScrollArea">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="minimumSize">
-           <size>
-            <width>200</width>
-            <height>0</height>
-           </size>
-          </property>
+         <widget class="QScrollArea" name="totozScrollArea">
           <property name="widgetResizable">
            <bool>true</bool>
           </property>
-          <widget class="QWidget" name="bookmSAWidgetContents">
+          <widget class="QWidget" name="totozScrollAreaContents">
            <property name="geometry">
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>214</width>
-             <height>500</height>
+             <width>252</width>
+             <height>470</height>
             </rect>
            </property>
           </widget>
@@ -113,11 +95,11 @@
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="serverWidget">
+      <widget class="QWidget" name="emojiWidget">
        <attribute name="title">
-        <string>Server</string>
+        <string>Emojis</string>
        </attribute>
-       <layout class="QHBoxLayout" name="horizontalLayout_3">
+       <layout class="QHBoxLayout" name="horizontalLayout_4">
         <property name="spacing">
          <number>3</number>
         </property>
@@ -134,29 +116,23 @@
          <number>1</number>
         </property>
         <item>
-         <widget class="QScrollArea" name="serverScrollArea">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
+         <widget class="QScrollArea" name="emojiScrollArea">
+          <property name="frameShape">
+           <enum>QFrame::NoFrame</enum>
           </property>
-          <property name="minimumSize">
-           <size>
-            <width>200</width>
-            <height>0</height>
-           </size>
+          <property name="horizontalScrollBarPolicy">
+           <enum>Qt::ScrollBarAsNeeded</enum>
           </property>
           <property name="widgetResizable">
            <bool>true</bool>
           </property>
-          <widget class="QWidget" name="serverScrollAreaContents">
+          <widget class="QWidget" name="emojiScrollAreaContents">
            <property name="geometry">
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>214</width>
-             <height>502</height>
+             <width>256</width>
+             <height>474</height>
             </rect>
            </property>
           </widget>

@@ -93,6 +93,49 @@ QQTotozSrvPreset QQSettings::getTotozSrvPreset(QString totozSrvPreset, bool labe
 	return preset;
 }
 
+QList<QQEmojiCat> QQSettings::listEmojis()
+{
+	QFile file(QString::fromLatin1(SETTINGS_EMOJI_LIST_FILE));
+	QList<QQEmojiCat> emojis;
+
+	if(!file.open(QIODevice::ReadOnly | QIODevice::Text))
+		return emojis;
+
+	QQEmojiCat cat;
+
+	while (!file.atEnd())
+	{
+		QString line = QString::fromUtf8(file.readLine()).trimmed();
+		QStringList fields = line.split("\t", QString::SkipEmptyParts);
+
+		if(fields.length() == 3)
+		{
+			if(fields.at(0) == "group")
+			{
+				if(cat.emojis.length() > 0) // Nouvelle categorie
+					emojis.append(cat);
+
+				cat.emojis.clear();
+				cat.symbol = fields.at(1);
+				cat.name = fields.at(2);
+				cat.type = CAT;
+			}
+			else if(fields.at(0) == "emoji")
+			{
+				QQEmojiDef emoji;
+				emoji.symbol = fields.at(1);
+				emoji.name = fields.at(2);
+				emoji.type = EMOJI;
+				cat.emojis.append(emoji);
+			}
+		}
+	}
+	if(cat.emojis.length() > 0) // Derniere categorie
+		emojis.append(cat);
+
+	return emojis;
+}
+
 void QQSettings::saveBouchot(const QString &name, const QQBouchot::QQBouchotSettings &bouchotSettings)
 {
 	beginGroup(QString::fromLatin1("bouchot"));

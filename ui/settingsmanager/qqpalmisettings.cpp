@@ -123,5 +123,5 @@ void QQPalmiSettings::setFileSharingServices(const QStringList &fileSharingServi
 ///
 void QQPalmiSettings::setFileSharingService(const QString &fileSharingService)
 {
-	ui->fsServiceProvider->setCurrentText(fileSharingService);
+	ui->fsServiceProvider->setCurrentIndex(ui->fsServiceProvider->findText(fileSharingService, Qt::MatchExactly | Qt::MatchCaseSensitive ));
 }
