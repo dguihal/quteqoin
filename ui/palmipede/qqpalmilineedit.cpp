@@ -2,7 +2,6 @@
 
 #include "qqpalmilineeditint.h"
 
-#include <QtDebug>
 #include <QBoxLayout>
 #include <QDragEnterEvent>
 #include <QFileDialog>
@@ -85,7 +84,6 @@ void QQPalmiLineEdit::dragEnterEvent(QDragEnterEvent *event)
 {
 	if(event->mimeData()->hasUrls())
 	{
-		qDebug() << Q_FUNC_INFO << event->proposedAction();
 		event->acceptProposedAction();
 	}
 }
@@ -96,7 +94,6 @@ void QQPalmiLineEdit::dragEnterEvent(QDragEnterEvent *event)
 ///
 void QQPalmiLineEdit::dropEvent(QDropEvent *event)
 {
-	qDebug() << Q_FUNC_INFO << event->mimeData()->text();
 	if(event->mimeData()->hasUrls())
 	{
 		QUrl url = event->mimeData()->urls().at(0);

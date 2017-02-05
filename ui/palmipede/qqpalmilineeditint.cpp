@@ -5,7 +5,6 @@
 #include "core/qqsettings.h"
 #include "ui/qqtotozmanager.h"
 
-#include <QtDebug>
 #include <QApplication>
 #include <QFocusEvent>
 #include <QFontMetrics>
