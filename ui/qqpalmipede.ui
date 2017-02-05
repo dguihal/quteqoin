@@ -31,6 +31,12 @@
    </property>
    <item>
     <widget class="QWidget" name="postLineW" native="true">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
      <layout class="QHBoxLayout" name="horizontalLayout_4">
       <property name="spacing">
        <number>1</number>
@@ -50,7 +56,7 @@
       <item>
        <widget class="QQPalmiLineEdit" name="palmiEditor" native="true">
         <property name="sizePolicy">
-         <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+         <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>

@@ -41,7 +41,7 @@ QQPalmiLineEditInt::QQPalmiLineEditInt(QWidget *parent) :
 	connect(m_clearButton, SIGNAL(clicked()), this, SLOT(clear()));
 	connect(this, SIGNAL(textChanged(const QString&)), this, SLOT(updateCloseButton(const QString&)));
 	int frameWidth = style()->pixelMetric(QStyle::PM_DefaultFrameWidth);
-	setStyleSheet(QString("padding-right: %1px; color: black; background-color: transparent").arg(m_clearButton->sizeHint().width() + frameWidth + 1));
+	setStyleSheet(QString("QLineEdit {padding-right: %1px; color: black; background-color: transparent; border: 0px;}").arg(m_clearButton->sizeHint().width() + frameWidth + 1));
 #endif
 
 	m_postHistory.enqueue("");
