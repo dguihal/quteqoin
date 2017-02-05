@@ -999,7 +999,7 @@ void QQPinipede::newPostsAvailable(QString groupName)
 	//On ne peut pas vérifier la valeur dans le "printPostAtCursor", trop couteux, du coup on la met a jour ici
 	m_duckAutolaunchEnabled =
 			(((QuteQoin::QQHuntMode) settings.value(SETTINGS_HUNT_MODE, DEFAULT_HUNT_MODE).toInt()) == QuteQoin::HuntMode_Auto);
-	if(m_fieldSep == '\0')
+	if(m_fieldSep.isNull())
 	{
 		QString piniMode = settings.value(SETTINGS_GENERAL_PINI_MODE, DEFAULT_GENERAL_PINI_MODE).toString();
 		if(! SETTINGS_GENERAL_PINI_MODES.contains(piniMode))
