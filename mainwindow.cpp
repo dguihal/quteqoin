@@ -163,7 +163,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	{
 		QMenu *m = new QMenu(this);
 		QAction *quit = m->addAction(tr("&Quit"));
-		connect(quit, &QAction::triggered, qApp, &QApplication::exit);
+		connect(quit, SIGNAL(triggered(bool)), qApp, SLOT(quit()));
 
 		m_trayIcon = new QSystemTrayIcon(QIcon(":/img/rubber_duck_yellow.svg"), this);
 		connect(m_trayIcon, SIGNAL(activated(QSystemTrayIcon::ActivationReason)),
