@@ -13,6 +13,7 @@
 #include "ui/qqcmdtoolbuttons.h"
 
 #include <QtDebug>
+#include <QApplication>
 #include <QCloseEvent>
 #include <QIcon>
 #include <QKeyEvent>
@@ -160,10 +161,15 @@ MainWindow::MainWindow(QWidget *parent) :
 	if(settings.value(SETTINGS_GENERAL_STEALTH_MODE, DEFAULT_GENERAL_STEALTH_MODE).toBool() &&
 			QSystemTrayIcon::isSystemTrayAvailable())
 	{
+		QMenu *m = new QMenu(this);
+		QAction *quit = m->addAction(tr("&Quit"));
+		connect(quit, &QAction::triggered, qApp, &QApplication::exit);
+
 		m_trayIcon = new QSystemTrayIcon(QIcon(":/img/rubber_duck_yellow.svg"), this);
 		connect(m_trayIcon, SIGNAL(activated(QSystemTrayIcon::ActivationReason)),
 				this, SLOT(onTrayIconActivated(QSystemTrayIcon::ActivationReason)));
 
+		m_trayIcon->setContextMenu(m);
 		m_trayIcon->show();
 	}
 
