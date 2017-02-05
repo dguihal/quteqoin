@@ -288,6 +288,7 @@ void QQTotozManager::handleSearchTextChanged(QString text)
 		{
 			m_searchHeaderW->hide();
 			m_searchW->hide();
+			m_searchResultList.clear();
 		}
 		else if(m_totozSearchEnabled)
 		{
@@ -339,7 +340,6 @@ void  QQTotozManager::searchTotoz()
 			searchStr.length() >= MIN_TOTOZ_SEARCH_LEN)
 	{
 		m_searchHeaderW->show();
-		m_searchW->show();
 
 		m_ui->cancelSearchButton->show();
 
@@ -422,7 +422,6 @@ void QQTotozManager::updateTotozViewer()
 
 	m_bookmarkW->setLayout(l);
 
-
 	if(m_searchHeaderW->isHidden())
 		return;
 
@@ -457,6 +456,7 @@ void QQTotozManager::updateTotozViewer()
 	}
 
 	m_searchW->setLayout(l);
+	m_searchW->show();
 }
 
 void QQTotozManager::emojiSelected()
