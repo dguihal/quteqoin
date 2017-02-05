@@ -93,6 +93,15 @@ void QQPalmiLineEditInt::pushCurrentToHistory()
 }
 
 //////////////////////////////////////////////////////////////
+/// \brief QQPalmiLineEditInt::dragEnterEvent
+/// \param event
+///
+void QQPalmiLineEditInt::dragEnterEvent(QDragEnterEvent *event)
+{
+	event->ignore();
+}
+
+//////////////////////////////////////////////////////////////
 /// \brief QQPalmiLineEditInt::focusInEvent
 /// \param e
 ///

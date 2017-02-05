@@ -28,6 +28,7 @@ public slots:
 	void insertText(const QString &str);
 
 protected:
+	virtual void dragEnterEvent(QDragEnterEvent *event);
 	virtual void focusInEvent(QFocusEvent *e);
 	virtual void focusOutEvent(QFocusEvent *e);
 	virtual void keyPressEvent(QKeyEvent *e);
