@@ -57,13 +57,13 @@ void QQWebDownloader::requestFinishedSlot(QNetworkReply *reply)
 			! m_listPendingUrl.contains(redirectedURL))
 	{
 		QNetworkRequest rq(redirectedURL);
+		QNetworkReply *newReply = httpGet(rq);
 
 		if(reply->property(INITIAL_URL_PROPERTY).isValid())
 			newReply->setProperty(INITIAL_URL_PROPERTY, reply->property(INITIAL_URL_PROPERTY));
 		else
 			newReply->setProperty(INITIAL_URL_PROPERTY, reply->request().url());
-
-		httpGet(rq);
+		m_listPendingUrl.append(redirectedURL);
 	} // Une erreur HTTP est survenue
 	else if (reply->error() != QNetworkReply::NoError)
 	{
