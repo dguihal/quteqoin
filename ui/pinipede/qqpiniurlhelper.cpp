@@ -131,8 +131,9 @@ void QQPiniUrlHelper::requestFinishedSlot(QNetworkReply *reply)
 		if(!redirectedURL.isEmpty() &&
 				redirectedURL != sourceUrl)
 		{
-			qDebug() << Q_FUNC_INFO << reply->url().toString() << "redirected to" << redirectedURL.toString();
-			QNetworkReply *newReply = httpHead(QNetworkRequest(redirectedURL));
+			QNetworkRequest rq(reply->request());
+			rq.setUrl(redirectedURL);
+			QNetworkReply *newReply = httpHead(rq);
 
 			if(reply->property(INITIAL_URL_PROPERTY).isValid())
 				newReply->setProperty(INITIAL_URL_PROPERTY, reply->property(INITIAL_URL_PROPERTY));
