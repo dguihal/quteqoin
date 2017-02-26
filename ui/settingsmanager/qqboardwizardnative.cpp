@@ -95,8 +95,9 @@ void QQBoardWizardNative::setListGroups(QStringList& listGroups)
 
 bool QQBoardWizardNative::isComplete() const
 {
-	bool ret = (! m_groupSelCB->currentText().isEmpty()) &&
+	bool ret = (m_groupSelCB->currentIndex() >= 0) &&
 			(! m_colorLE->text().isEmpty());
+	qDebug() << Q_FUNC_INFO << ret;
 	return ret;
 }
 
