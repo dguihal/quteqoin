@@ -127,9 +127,9 @@ void QQBouchotSettingsDialog::colorChanged(QString text)
 void QQBouchotSettingsDialog::nameChanged(QString text)
 {
 	if(m_listNames.contains(text))
-	{
 		ui->nameLineEdit->setStyleSheet("QLineEdit{color: red;}");
-	}
+	else
+		ui->nameLineEdit->setStyleSheet("QLineEdit{}");
 }
 
 void QQBouchotSettingsDialog::accept()
