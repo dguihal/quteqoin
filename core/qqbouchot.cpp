@@ -63,7 +63,7 @@ QQBouchotDef bouchotsDef[] =
 	{ "faab", "http://ratatouille.leguyader.eu/data/backend.xml", "http://ratatouille.leguyader.eu/add.php", "message=%m",
 	  "#C5D068", "ratatouille", "", QQBouchot::SlipTagsRaw },
 	{ "goboard", "https://ototu.euromussels.eu/goboard/backend/tsv", "https://ototu.euromussels.eu/goboard/post", "message=%m",
-	  "#FFFF7F", "goboard", "", QQBouchot::SlipTagsEncoded },
+	  "#fffabb", "goboard", "", QQBouchot::SlipTagsEncoded },
 	{ "sauf.ca", "http://sauf.ca/feeds/all.tsv", "", "",
 	  "#4aff47", "", "", QQBouchot::SlipTagsRaw }
 };
