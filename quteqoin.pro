@@ -15,7 +15,7 @@ equals(QT_MAJOR_VERSION, 4) {
     QT += phonon
 }
 equals(QT_MAJOR_VERSION, 5) {
-    QT += widgets multimediawidgets dbus
+    QT += widgets multimediawidgets
 }
 
 include($$PWD/gitversion.pri)
@@ -23,7 +23,6 @@ include($$PWD/gitversion.pri)
 # A Tester
 linux-g++ {
     system( g++ --version | grep -e "\<4.[8-9]" ) {
-        message( g++ version > 4.8 found )
         QMAKE_CXXFLAGS_DEBUG += -fsanitize=address -Og
     }
 }
