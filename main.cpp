@@ -19,11 +19,6 @@
 #endif
 #endif //QML_PALMI
 
-#ifdef Q_OS_UNIX
-#undef signals
-#include <libnotify/notify.h>
-#endif
-
 //#define QQ_ENABLE_QML true
 
 bool removeDirRecursive(const QString &dirName)
@@ -90,10 +85,6 @@ int main(int argc, char *argv[])
 	QSettings::setDefaultFormat(QSettings::IniFormat);
 
 	purgeCache();
-
-#ifdef Q_OS_UNIX
-	notify_init(notif_name);
-#endif
 
 	MainWindow w;
 	w.show();

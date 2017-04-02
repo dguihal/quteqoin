@@ -5,11 +5,8 @@
 
 #include <QtGlobal>
 
-#ifdef Q_OS_UNIX
-const char notif_name[] = "QuteQoin";
-#endif
-
 #define APP_NAME "quteqoin"
+#define NOTIF_APP_NAME "QuteQoin"
 
 #ifndef GIT_VERSION
 GIT_VERSION "undefined"
