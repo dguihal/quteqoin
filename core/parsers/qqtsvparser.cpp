@@ -40,7 +40,7 @@ bool QQTsvParser::parseBackend(const QByteArray &data)
 			m_currentPost.setNorloge(fields.at(1));
 			m_currentPost.setUA(fields.at(2));
 			m_currentPost.setLogin(fields.at(3));
-			m_currentPost.setMessage(fields.at(4));
+			m_currentPost.setMessage(fields.at(4).simplified());
 
 			emit newPostReady(m_currentPost);
 		}
