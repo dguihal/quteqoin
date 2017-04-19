@@ -59,7 +59,7 @@ void QQBoardWizard::accept()
 		m_s = QQBouchot::getBouchotDef(m_bName);
 	}
 
-	m_s.setRefreshFromString(DEFAULT_BOUCHOT_REFRESH);
+	m_s.setRefresh(DEFAULT_BOUCHOT_REFRESH);
 
 
 	m_s.setGroup(field(QString("%1_Group").arg(fieldPrefix)).toString());

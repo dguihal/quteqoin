@@ -91,7 +91,7 @@ QQBouchot::QQBouchot(const QString &name, QObject *parent) :
 	m_parser(NULL),
 	m_deltaTimeH(-1) // unknown
 {
-	m_bSettings.setRefreshFromString(DEFAULT_BOUCHOT_REFRESH);
+	m_bSettings.setRefresh(DEFAULT_BOUCHOT_REFRESH);
 
 	m_state.hasBigorno = false;
 	m_state.hasError = false;
@@ -852,7 +852,7 @@ QQBouchot::QQBouchotSettings QQBouchot::getBouchotDef(const QString &bouchotName
 		settings.setColorFromString(bouchotsDef[i].color);
 		settings.setPostData(bouchotsDef[i].postData);
 		settings.setPostUrl(bouchotsDef[i].postUrl);
-		settings.setRefreshFromString(DEFAULT_BOUCHOT_REFRESH);
+		settings.setRefresh(DEFAULT_BOUCHOT_REFRESH);
 		settings.setSlipType(bouchotsDef[i].typeSlip);
 		settings.setCookie(bouchotsDef[i].cookieProto);
 	}

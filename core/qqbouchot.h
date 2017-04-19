@@ -3,6 +3,7 @@
 
 #include "core/qqnetworkaccessor.h"
 #include "core/qqpost.h"
+#include "core/qqsettingsparams.h"
 #include "core/qqtypes.h"
 #include "core/qqmussel.h"
 
@@ -60,10 +61,17 @@ public:
 		QString postUrl() const { return m_postUrl; }
 		void setPostUrl(const QString &newPostUrl) { m_postUrl = newPostUrl; }
 
-		int refresh() const { return m_refresh; }
-		void setRefresh(int newRefresh) { m_refresh = newRefresh; }
+		uint refresh() const { return m_refresh; }
+		void setRefresh(uint newRefresh) { m_refresh = newRefresh; }
 		QString refreshToString() const { return QString::number(this->m_refresh); }
-		void setRefreshFromString(const QString &newRefreshString) { m_refresh = newRefreshString.toInt(); }
+		void setRefreshFromString(const QString &newRefreshString) {
+			bool isInt;
+			uint res = newRefreshString.toUInt(&isInt, 10);
+			if(isInt)
+				this->m_refresh = res;
+			else
+				this->m_refresh = DEFAULT_BOUCHOT_REFRESH;
+		}
 
 		QQBouchot::TypeSlip slipType() const { return m_slipType; }
 		void setSlipType(QQBouchot::TypeSlip newSlipType) { m_slipType = newSlipType; }
@@ -85,7 +93,7 @@ public:
 		QString m_login;
 		QString m_postData;
 		QString m_postUrl;
-		int m_refresh;
+		uint m_refresh;
 		TypeSlip m_slipType;
 		QString m_ua;
 		QString m_group;
