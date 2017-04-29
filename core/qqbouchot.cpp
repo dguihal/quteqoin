@@ -87,6 +87,7 @@ QQBouchot::QQBouchot(const QString &name, QObject *parent) :
 	QQNetworkAccessor(parent),
 	m_hasXPostId(false), // unknown
 	m_lastId(-1),
+	m_lastModifiedBackend(""),
 	m_name(name),
 	m_parser(NULL),
 	m_deltaTimeH(-1) // unknown
@@ -430,6 +431,8 @@ void QQBouchot::fetchBackend()
 						 QNetworkRequest::AlwaysNetwork);
 
 	request.setRawHeader(QString::fromLatin1("User-Agent").toLatin1(), QString(DEFAULT_GENERAL_DEFAULT_UA).toLatin1());
+	if(m_lastModifiedBackend.length() > 0)
+		request.setRawHeader(QString::fromLatin1("If-Modified-Since").toLatin1(), m_lastModifiedBackend.toLatin1());
 
 	if(m_bSettings.cookie().isEmpty() == false)
 		request.setRawHeader(QString::fromLatin1("Cookie").toLatin1(), m_bSettings.cookie().toLatin1());
@@ -551,9 +554,14 @@ void QQBouchot::requestFinishedSlot(QNetworkReply *reply)
 				fetchBackend();
 				break;
 			case QQBouchot::BackendRequest:
-				qDebug() << Q_FUNC_INFO << reply->url();
-				QString contentType = reply->header(QNetworkRequest::ContentTypeHeader).toString();
-				parseBackend(reply->readAll(), contentType);
+				if(reply->hasRawHeader("Last-Modified"))
+					m_lastModifiedBackend = QString(reply->rawHeader("Last-Modified"));
+
+				if(reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toUInt() == 200)
+				{
+					QString contentType = reply->header(QNetworkRequest::ContentTypeHeader).toString();
+					parseBackend(reply->readAll(), contentType);
+				}
 				emit refreshOK();
 				break;
 		}

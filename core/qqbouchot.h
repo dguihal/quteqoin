@@ -182,6 +182,7 @@ private:
 	bool m_hasXPostId; //false = unknown
 	QStringList m_xPostIds;
 	qlonglong m_lastId;
+	QString m_lastModifiedBackend;
 	QString m_name;
 	QQListPostPtr m_newPostHistory;
 	QQBouchotSettings m_bSettings;
