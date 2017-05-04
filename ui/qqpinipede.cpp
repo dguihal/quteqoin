@@ -18,8 +18,6 @@
 #include <QtAlgorithms>
 #include <QApplication>
 #include <QContextMenuEvent>
-#include <QDBusInterface>
-#include <QDBusMessage>
 #include <QHBoxLayout>
 #include <QImage>
 #include <QLabel>
@@ -34,6 +32,11 @@
 #include <QTime>
 #include <QToolButton>
 #include <QVBoxLayout>
+
+#ifndef WIN32
+#include <QDBusInterface>
+#include <QDBusMessage>
+#endif
 
 #define LOGIN_COLOR "#553333"
 #define UA_COLOR "#883333"
