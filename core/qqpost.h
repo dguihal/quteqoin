@@ -19,6 +19,7 @@
 #define QQPOST_H
 
 #include <QObject>
+#include <QDate>
 #include <QPointer>
 #include <QList>
 #include <QString>
@@ -61,6 +62,8 @@ public:
 	void incrIndex() { this->m_norlogeIndex ++; }
 	bool isNorlogeMultiple() const { return this->m_isNorlogeMultiple || this->m_norlogeIndex > 1; }
 	void setNorlogeMultiple(const bool isNorlogeMultiple) { this->m_isNorlogeMultiple = isNorlogeMultiple; }
+
+	QDate date();
 
 	QString UA() const { return this->m_ua; }
 	void setUA(const QString& ua) { this->m_ua = ua; }

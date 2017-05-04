@@ -28,9 +28,9 @@ public slots:
 
 private:
 	QList<QTextDocumentFragment> splitMessage(const QString &message, QQPost *post, QQMessageBlockUserData *userData);
-	void applyMessageFragmentTransformFilters(QList<QTextDocumentFragment> &listMsgFragments, const QString &bouchot);
+	void applyMessageFragmentTransformFilters(QList<QTextDocumentFragment> &listMsgFragments, const QString &bouchot, const QDate &postDate);
 
-	QString applyMessageTransformFilters(const QString &message, const QString &bouchot);
+	QString applyMessageTransformFilters(const QString &message, const QString &bouchot, const QDate &postDate);
 
 	void colorizeBigorno(QTextDocument &doc, QQPost *post, QQMessageBlockUserData *userData);
 	void colorizeDuck(QTextDocument &doc, QQMessageBlockUserData *userData);

@@ -50,13 +50,13 @@ QQNorlogeRef::QQNorlogeRef(const QQPost& post, const QString& norlogeRef) :
 		m_hasDate = false;
 		if(date.size() > 0)
 		{
-			QStringList dateSplit = date.split(QChar::fromLatin1('/'));
+			QStringList dateSplit = date.split(QRegExp(QString::fromLatin1("[/-]")));
 			if(dateSplit.size() > 2)
 				m_dateYearPart = dateSplit.takeFirst();
 
 			m_dateMonthPart = dateSplit.takeFirst();
 			m_dateDayPart = dateSplit.takeFirst();
-			m_dateDayPart.remove(QChar::fromLatin1('#'));
+			m_dateDayPart.remove(QString::fromLatin1("#T"));
 		}
 
 		QString time = capturedTexts[3];
@@ -123,7 +123,6 @@ QString QQNorlogeRef::dstBouchot() const
 {
 	return (m_dstBouchot.size() > 0) ? m_dstBouchot : m_srcBouchot;
 }
-
 
 //////////////////////////////////////////////////////////////
 /// \brief QQNorlogeRef::matchesPost
