@@ -37,9 +37,9 @@ QQPostParser::QQPostParser(QObject *parent) :
 ///
 QTextDocumentFragment* QQPostParser::formatMessage(QQPost *post, QQMessageBlockUserData *userData)
 {
-	QString message = applyMessageTransformFilters(post->message(), post->bouchot()->name());
+	QString message = applyMessageTransformFilters(post->message(), post->bouchot()->name(), post->date());
 	QList<QTextDocumentFragment> msgFragments = splitMessage(message, post, userData);
-	applyMessageFragmentTransformFilters(msgFragments, post->bouchot()->name());
+	applyMessageFragmentTransformFilters(msgFragments, post->bouchot()->name(), post->date());
 	QTextDocument doc;
 	QTextCursor cursor(&doc);
 	foreach (QTextDocumentFragment fragment, msgFragments) {
@@ -66,15 +66,12 @@ QList<QTextDocumentFragment> QQPostParser::splitMessage(const QString &message, 
 {
 	QList<QTextDocumentFragment> res;
 
-	QDate d = post->date();
-
 	if(message.length() > 0)
 	{
 		QTextDocument doc;
 		doc.setHtml(message);
 		QTextCursor docCursor(&doc);
 		QTextCursor norlogeCursor(&doc);
-		qDebug() << Q_FUNC_INFO << "doc" << doc.toPlainText();
 
 		QTextCharFormat fmt = docCursor.blockCharFormat();
 		fmt.setUnderlineStyle(QTextCharFormat::NoUnderline);
@@ -83,28 +80,13 @@ QList<QTextDocumentFragment> QQPostParser::splitMessage(const QString &message, 
 		QRegExp norlogeReg = QQNorlogeRef::norlogeRegexp();
 		while(! (norlogeCursor = doc.find(norlogeReg, norlogeCursor)).isNull())
 		{
-			qDebug() << Q_FUNC_INFO << "norlogeCursor.selection()" << norlogeCursor.selection().toPlainText();
 			QQNorlogeRef nRef = QQNorlogeRef(*post, norlogeCursor.selectedText());
 			linkNorlogeRef(&nRef);
 			int index = userData->appendNorlogeRef(nRef);
 
-			int selectionStart = norlogeCursor.selectionStart();
-			qDebug() << Q_FUNC_INFO << "norlogeCursor.selectionStart()" << norlogeCursor.selectionStart();
-			norlogeCursor.insertText(nRef.nRefFormatee(d));
-			qDebug() << Q_FUNC_INFO << "norlogeCursor.selectionStart()" << norlogeCursor.selectionStart();
-			//norlogeCursor.setPosition(oldIndex);
-			qDebug() << Q_FUNC_INFO << "norlogeCursor.selectionStart()" << norlogeCursor.selectionStart();
+			fmt.setForeground(nRef.isReponse() ? QColor(NORLOGE_REP_COLOR) : QColor(NORLOGE_COLOR));
+			fmt.setFontWeight(nRef.isReponse() ? QFont::DemiBold : QFont::Normal);
 
-			if(nRef.isReponse())
-			{
-				fmt.setForeground(QColor(NORLOGE_REP_COLOR));
-				fmt.setFontWeight(QFont::DemiBold);
-			}
-			else
-			{
-				fmt.setForeground(QColor(NORLOGE_COLOR));
-				fmt.setFontWeight(QFont::Normal);
-			}
 			QString nRefUrl = QString("nref://bouchot?board=%1&postId=%2&index=%3")
 					.arg(post->bouchot()->name())
 					.arg(post->id()).arg(index);
@@ -112,18 +94,16 @@ QList<QTextDocumentFragment> QQPostParser::splitMessage(const QString &message, 
 
 			norlogeCursor.mergeCharFormat(fmt);
 
-			//if(norlogeCursor.selectionStart() != 0)
+			int selectionStart = norlogeCursor.selectionStart();
 			if(selectionStart != 0)
 			{
 				docCursor.setPosition(selectionStart, QTextCursor::KeepAnchor);
-				qDebug() << Q_FUNC_INFO << "docCursor.selection() 1" << docCursor.selection().toPlainText();
 				if(! docCursor.selection().isEmpty())
 					res.append(docCursor.selection());
 				docCursor.setPosition(selectionStart, QTextCursor:: MoveAnchor);
 			}
 		}
 		docCursor.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
-		qDebug() << Q_FUNC_INFO << "docCursor.selection() 2" << docCursor.selection().toPlainText();
 		if(! docCursor.selection().isEmpty())
 			res.append(docCursor.selection());
 	}
@@ -138,10 +118,46 @@ QList<QTextDocumentFragment> QQPostParser::splitMessage(const QString &message, 
 /// \param listMsgFragments
 /// \param bouchot
 ///
-void QQPostParser::applyMessageFragmentTransformFilters(QList<QTextDocumentFragment> &listMsgFragments, const QString &bouchot)
+void QQPostParser::applyMessageFragmentTransformFilters(QList<QTextDocumentFragment> &listMsgFragments, const QString &bouchot, const QDate &postDate)
 {
-	Q_UNUSED(listMsgFragments);
 	Q_UNUSED(bouchot);
+
+	// Rectify ISO 9601 norloges
+	QTextDocument tmp;
+	for(int i = 0; i < listMsgFragments.size(); i++)
+	{
+		tmp.clear();
+		QTextCursor c(&tmp);
+		c.insertFragment(listMsgFragments[i]);
+		bool moveSuccess = c.movePosition(QTextCursor::Start, QTextCursor::MoveAnchor);
+
+		moveSuccess = c.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor, 5);
+		QString st = c.selectedText();
+		// If it starts with "....-" pattern, it is a ISO norloge. Let's reformat it
+		if(moveSuccess && c.charFormat().anchorHref().startsWith("nref://") &&
+			st.at(4) == QChar('-'))
+		{
+			c.beginEditBlock();
+
+			if(st.left(4) == QString::number(postDate.year()))
+				c.removeSelectedText();
+			else
+				c.insertText(QString("%1/").arg(st.left(4)));
+
+			// Process next "..-..T" characters
+			c.setPosition(c.anchor());
+			moveSuccess = c.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor, 6);
+			st = c.selectedText();
+			if(st.left(2) == QString("%1").arg(postDate.month(), 2, 10, QChar('0')) &&
+				st.mid(3, 2) == QString("%1").arg(postDate.day(), 2, 10, QChar('0')))
+				c.removeSelectedText();
+			else
+				c.insertText(QString("%1/%2#").arg(st.left(2)).arg(st.mid(3, 2)));
+
+			c.endEditBlock();
+			listMsgFragments[i] = QTextDocumentFragment(&tmp);
+		}
+	}
 }
 
 //////////////////////////////////////////////////////////
@@ -151,7 +167,7 @@ void QQPostParser::applyMessageFragmentTransformFilters(QList<QTextDocumentFragm
 /// \param data
 /// \return
 ///
-QString QQPostParser::applyMessageTransformFilters(const QString &message, const QString &bouchot)
+QString QQPostParser::applyMessageTransformFilters(const QString &message, const QString &bouchot, const QDate &postDate)
 {
 	QString newMessage = message;
 
