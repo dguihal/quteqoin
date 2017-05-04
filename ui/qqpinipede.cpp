@@ -294,12 +294,7 @@ void QQPinipede::purgePinitab(const QString &groupName, const QString &bouchotNa
 	QQPost *post = NULL;
 	do
 	{
-		qDebug() << Q_FUNC_INFO << "block num=" << cursor.block().blockNumber()
-				 << ", doc->blockCount()=" << textBrowser->document()->blockCount();
-
 		QQMessageBlockUserData * userData = (QQMessageBlockUserData *) (cursor.block().userData());
-		qDebug() << Q_FUNC_INFO << "userData->post()->bouchot()->name()=" << userData->post()->bouchot()->name()
-				 << ", bouchotName=" << bouchotName;
 		post = userData->post();
 		if(post->bouchot()->name() == bouchotName)
 		{

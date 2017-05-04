@@ -5,6 +5,7 @@
 #include "ui/qqmessageblockuserdata.h"
 #include "ui/pinipede/qqpiniurlhelper.h"
 
+#include <QtDebug>
 #include <QRegExp>
 #include <QString>
 #include <QTextCursor>
@@ -65,12 +66,15 @@ QList<QTextDocumentFragment> QQPostParser::splitMessage(const QString &message, 
 {
 	QList<QTextDocumentFragment> res;
 
+	QDate d = post->date();
+
 	if(message.length() > 0)
 	{
 		QTextDocument doc;
 		doc.setHtml(message);
 		QTextCursor docCursor(&doc);
 		QTextCursor norlogeCursor(&doc);
+		qDebug() << Q_FUNC_INFO << "doc" << doc.toPlainText();
 
 		QTextCharFormat fmt = docCursor.blockCharFormat();
 		fmt.setUnderlineStyle(QTextCharFormat::NoUnderline);
@@ -79,9 +83,17 @@ QList<QTextDocumentFragment> QQPostParser::splitMessage(const QString &message, 
 		QRegExp norlogeReg = QQNorlogeRef::norlogeRegexp();
 		while(! (norlogeCursor = doc.find(norlogeReg, norlogeCursor)).isNull())
 		{
+			qDebug() << Q_FUNC_INFO << "norlogeCursor.selection()" << norlogeCursor.selection().toPlainText();
 			QQNorlogeRef nRef = QQNorlogeRef(*post, norlogeCursor.selectedText());
 			linkNorlogeRef(&nRef);
 			int index = userData->appendNorlogeRef(nRef);
+
+			int selectionStart = norlogeCursor.selectionStart();
+			qDebug() << Q_FUNC_INFO << "norlogeCursor.selectionStart()" << norlogeCursor.selectionStart();
+			norlogeCursor.insertText(nRef.nRefFormatee(d));
+			qDebug() << Q_FUNC_INFO << "norlogeCursor.selectionStart()" << norlogeCursor.selectionStart();
+			//norlogeCursor.setPosition(oldIndex);
+			qDebug() << Q_FUNC_INFO << "norlogeCursor.selectionStart()" << norlogeCursor.selectionStart();
 
 			if(nRef.isReponse())
 			{
@@ -100,15 +112,18 @@ QList<QTextDocumentFragment> QQPostParser::splitMessage(const QString &message, 
 
 			norlogeCursor.mergeCharFormat(fmt);
 
-			if(norlogeCursor.selectionStart() != 0)
+			//if(norlogeCursor.selectionStart() != 0)
+			if(selectionStart != 0)
 			{
-				docCursor.setPosition(norlogeCursor.selectionStart(), QTextCursor::KeepAnchor);
+				docCursor.setPosition(selectionStart, QTextCursor::KeepAnchor);
+				qDebug() << Q_FUNC_INFO << "docCursor.selection() 1" << docCursor.selection().toPlainText();
 				if(! docCursor.selection().isEmpty())
 					res.append(docCursor.selection());
-				docCursor.setPosition(norlogeCursor.selectionStart(), QTextCursor:: MoveAnchor);
+				docCursor.setPosition(selectionStart, QTextCursor:: MoveAnchor);
 			}
 		}
 		docCursor.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
+		qDebug() << Q_FUNC_INFO << "docCursor.selection() 2" << docCursor.selection().toPlainText();
 		if(! docCursor.selection().isEmpty())
 			res.append(docCursor.selection());
 	}
