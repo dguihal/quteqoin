@@ -47,8 +47,6 @@ public:
 
 	QString dstBouchot() const;
 
-	QString nRefFormatee(const QDate &srcDate);
-
 	bool matchesPost(QQPost* post);
 	bool matchesNRef(QQNorlogeRef &other);
 	bool isReponse();

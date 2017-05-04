@@ -127,10 +127,7 @@ QString QQPost::norlogeFormatee() const
 ///
 QDate QQPost::date()
 {
-	int Y = m_norloge.left(4).toInt();
-	int M = m_norloge.mid(4,2).toInt();
-	int D = m_norloge.mid(6,2).toInt();
-	return QDate(Y,M,D);
+	return QDate::fromString(m_norloge.left(8), QString::fromLatin1("yyyyMMdd"));
 }
 
 //

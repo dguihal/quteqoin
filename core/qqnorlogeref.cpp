@@ -125,22 +125,6 @@ QString QQNorlogeRef::dstBouchot() const
 }
 
 //////////////////////////////////////////////////////////////
-/// \brief nRefFormatee
-/// \param dateRef
-/// \return
-///
-QString QQNorlogeRef::nRefFormatee(const QDate &srcDate)
-{
-	QRegExp r("(\\d{4})-(\\d{2})-(\\d{2})T");
-	if(r.indexIn(m_origNRef) == 0)
-	{
-		return "plop";
-	}
-	else
-		return m_origNRef;
-}
-
-//////////////////////////////////////////////////////////////
 /// \brief QQNorlogeRef::matchesPost
 /// \param post
 /// \return
