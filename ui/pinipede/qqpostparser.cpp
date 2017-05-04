@@ -169,6 +169,7 @@ void QQPostParser::applyMessageFragmentTransformFilters(QList<QTextDocumentFragm
 ///
 QString QQPostParser::applyMessageTransformFilters(const QString &message, const QString &bouchot, const QDate &postDate)
 {
+	Q_UNUSED(postDate);
 	QString newMessage = message;
 
 	QQMessageTransformFilter *messageTransformFilter;

@@ -1,6 +1,7 @@
 #ifndef QQPOSTPARSER_H
 #define QQPOSTPARSER_H
 
+#include <QDate>
 #include <QList>
 #include <QObject>
 #include <QQueue>
