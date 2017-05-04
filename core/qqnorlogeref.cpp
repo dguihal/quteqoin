@@ -33,7 +33,7 @@ QQNorlogeRef::QQNorlogeRef(const QQPost& post, const QString& norlogeRef) :
 	m_origNRef(norlogeRef),
 	m_listPostTarget(QList< QPointer<QQPost> >()),
 	m_valid(true),
-	m_hasDate(true),
+	m_hasDate(false),
 	m_hasSec(true),
 	m_isReponseDefined(false),
 	m_isResponse(false),
@@ -47,7 +47,6 @@ QQNorlogeRef::QQNorlogeRef(const QQPost& post, const QString& norlogeRef) :
 
 		QStringList capturedTexts = reg.capturedTexts();
 		QString date = capturedTexts[2];
-		m_hasDate = false;
 		if(date.size() > 0)
 		{
 			QStringList dateSplit = date.split(QRegExp(QString::fromLatin1("[/-]")));
@@ -55,8 +54,8 @@ QQNorlogeRef::QQNorlogeRef(const QQPost& post, const QString& norlogeRef) :
 				m_dateYearPart = dateSplit.takeFirst();
 
 			m_dateMonthPart = dateSplit.takeFirst();
-			m_dateDayPart = dateSplit.takeFirst();
-			m_dateDayPart.remove(QString::fromLatin1("#T"));
+			m_dateDayPart = dateSplit.takeFirst().left(2);
+			m_hasDate = true;
 		}
 
 		QString time = capturedTexts[3];
