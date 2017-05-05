@@ -40,10 +40,10 @@ QQNorlogeRef::QQNorlogeRef(const QQPost& post, const QString& norlogeRef) :
 	m_refId(QString())
 {
 	QRegExp reg = norlogeRegexp();
+	m_norlogeIndex = 0; //tous les correspondants par défaut
 
 	if(reg.exactMatch(norlogeRef))
 	{
-		m_norlogeIndex = 0; //tous les correspondants par défaut
 
 		QStringList capturedTexts = reg.capturedTexts();
 		QString date = capturedTexts[2];

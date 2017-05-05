@@ -701,7 +701,7 @@ void QQPinipede::norlogeRefHovered(QQNorlogeRef norlogeRef)
 				c.movePosition(QTextCursor::StartOfBlock, QTextCursor::MoveAnchor);
 				int nRefCounter = 0;
 				bool isInNRef = false;
-				for(int i = 0; i < norlogeRefs.size(); i++)
+				for(int i = 1; i < norlogeRefs.size(); i++)
 				{
 					QQNorlogeRef nRef = norlogeRefs.at(i);
 					if(norlogeRef.matchesNRef(nRef))
