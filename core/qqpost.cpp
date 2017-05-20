@@ -121,6 +121,15 @@ QString QQPost::norlogeFormatee() const
 	return tmp;
 }
 
+//////////////////////////////////////////////////////////
+/// \brief QQPost::date
+/// \return
+///
+QDate QQPost::date()
+{
+	return QDate::fromString(m_norloge.left(8), QString::fromLatin1("yyyyMMdd"));
+}
+
 //
 bool QQPost::equal(QQPost &b)
 {

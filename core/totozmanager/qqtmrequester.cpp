@@ -51,6 +51,7 @@ void QQTMRequester::requestFinishedSlot(QNetworkReply * reply)
 
 void QQTMRequester::searchTotoz(const QString & key)
 {
+	cancel();
 	m_totozes.clear();
 	m_currKey = key;
 	searchTotoz(key, 0);

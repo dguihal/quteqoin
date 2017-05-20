@@ -6,5 +6,9 @@
         <file>forum_hardware_fr</file>
         <file>nsfw_totoz_eu_claudex</file>
         <file>totoz_eu_claudex</file>
+        <file>emojis</file>
+    </qresource>
+    <qresource prefix="/">
+        <file>emojis</file>
     </qresource>
 </RCC>

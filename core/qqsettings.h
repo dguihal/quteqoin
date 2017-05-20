@@ -25,6 +25,17 @@ struct QQTotozSrvPreset
 	QString infoPattern;
 };
 
+enum QQEmojiType { EMOJI, CAT };
+struct QQEmojiDef {
+	QString symbol;
+	QString name;
+	QQEmojiType type;
+};
+
+struct QQEmojiCat : QQEmojiDef {
+	QList<QQEmojiDef> emojis;
+};
+
 class QQSettings : public QSettings
 {
 	Q_OBJECT
@@ -41,6 +52,8 @@ public:
 
 	QStringList listTotozSrvPresets();
 	QQTotozSrvPreset getTotozSrvPreset(QString totozSrvPreset, bool labelOnly = false);
+
+	QList<QQEmojiCat> listEmojis();
 
 	QStringList listBouchots();
 

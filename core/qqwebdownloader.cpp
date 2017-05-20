@@ -5,6 +5,8 @@
 #include <QDesktopServices>
 #include <QNetworkDiskCache>
 
+#define INITIAL_URL_PROPERTY "INITIAL_URL"
+
 //////////////////////////////////////////////////////////////
 QQWebDownloader::QQWebDownloader(QObject *parent) :
 	QQNetworkAccessor(parent)
@@ -54,12 +56,14 @@ void QQWebDownloader::requestFinishedSlot(QNetworkReply *reply)
 			redirectedURL != reply->url() &&
 			! m_listPendingUrl.contains(redirectedURL))
 	{
-		qDebug() << Q_FUNC_INFO << reply->url() << "redirected to" << redirectedURL.toString();
-		QNetworkRequest request(redirectedURL);
-		request.setAttribute(QNetworkRequest::CacheLoadControlAttribute,
-							 QNetworkRequest::PreferCache);
+		QNetworkRequest rq(redirectedURL);
+		QNetworkReply *newReply = httpGet(rq);
 
-		httpGet(request);
+		if(reply->property(INITIAL_URL_PROPERTY).isValid())
+			newReply->setProperty(INITIAL_URL_PROPERTY, reply->property(INITIAL_URL_PROPERTY));
+		else
+			newReply->setProperty(INITIAL_URL_PROPERTY, reply->request().url());
+		m_listPendingUrl.append(redirectedURL);
 	} // Une erreur HTTP est survenue
 	else if (reply->error() != QNetworkReply::NoError)
 	{
@@ -74,10 +78,13 @@ void QQWebDownloader::requestFinishedSlot(QNetworkReply *reply)
 	} // Tout est OK on poursuit
 	else
 	{
+		QUrl sourceUrl = reply->request().url();
+		if(reply->property(INITIAL_URL_PROPERTY).isValid())
+			sourceUrl = reply->property(INITIAL_URL_PROPERTY).toUrl();
+
 		m_dataContentType = reply->header(QNetworkRequest::ContentTypeHeader).toString();
 		m_data = reply->readAll();
-		QUrl url(reply->url());
-		emit ready(url);
+		emit ready(sourceUrl);
 	}
 
 	reply->deleteLater();

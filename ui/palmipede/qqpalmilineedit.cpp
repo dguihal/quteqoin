@@ -83,7 +83,9 @@ QString QQPalmiLineEdit::text() const
 void QQPalmiLineEdit::dragEnterEvent(QDragEnterEvent *event)
 {
 	if(event->mimeData()->hasUrls())
+	{
 		event->acceptProposedAction();
+	}
 }
 
 //////////////////////////////////////////////////////////////
@@ -115,8 +117,14 @@ void QQPalmiLineEdit::paintEvent(QPaintEvent *event)
 	QRect rect = geometry();
 	rect.setWidth((rect.width() * m_pctUp) / 100);
 
-	// Fill
 	QPainter rectPainter(this);
+
+	// Fill Bg
+	QBrush bg(palette().background());
+	rectPainter.setBrush(bg);
+	rectPainter.setPen(Qt::NoPen);
+	rectPainter.setOpacity(1);
+	rectPainter.drawRoundedRect(rect, 2, 2);
 
 	// Gradient
 	QLinearGradient gradient(0, 0, 0, rect.height());
@@ -128,9 +136,9 @@ void QQPalmiLineEdit::paintEvent(QPaintEvent *event)
 	gradient.setColorAt(1.0, m_currBoardcolor);
 
 
-	// Brush
-	QBrush brush(gradient);
-	rectPainter.setBrush(brush);
+	// Fill Fg
+	QBrush fg(gradient);
+	rectPainter.setBrush(fg);
 	rectPainter.setPen(Qt::NoPen);
 	rectPainter.setOpacity(1);
 	rectPainter.drawRoundedRect(rect, 2, 2);

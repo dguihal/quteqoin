@@ -5,13 +5,17 @@
 
 #include <QtGlobal>
 
-#ifdef Q_OS_UNIX
-const char notif_name[] = "QuteQoin";
+#define APP_NAME "quteqoin"
+#define NOTIF_APP_NAME "QuteQoin"
+
+#ifndef GIT_VERSION
+GIT_VERSION "undefined"
 #endif
 
 #define MAX_CACHE_AGE_DAYS 60
 
 #define SETTINGS_TOTOZ_PRESETS_PATH ":/totoz"
+#define SETTINGS_EMOJI_LIST_FILE SETTINGS_TOTOZ_PRESETS_PATH "/emojis"
 
 // MAIN WINDOW
 #define SETTINGS_MAINWINDOW_STATE "mainwindow_state"
@@ -22,7 +26,7 @@ const char notif_name[] = "QuteQoin";
 #define DEFAULT_GENERAL_MAX_HISTLEN 500
 
 #define SETTINGS_GENERAL_DEFAULT_UA "default_ua"
-#define DEFAULT_GENERAL_DEFAULT_UA "quteqoin crash edition"
+#define DEFAULT_GENERAL_DEFAULT_UA APP_NAME "/" GIT_VERSION
 
 #define SETTINGS_GENERAL_WEBSEARCH_URL "default_websearch_url"
 #define DEFAULT_GENERAL_WEBSEARCH_URL "http://www.google.fr/search?q=%s&ie=utf-8&oe=utf-8"
@@ -90,7 +94,7 @@ const char notif_name[] = "QuteQoin";
 #define SETTINGS_BOUCHOT_COLOR "color"
 #define SETTINGS_BOUCHOT_ALIASES "aliases"
 #define SETTINGS_BOUCHOT_REFRESH "refresh"
-#define DEFAULT_BOUCHOT_REFRESH "30"
+#define DEFAULT_BOUCHOT_REFRESH 30
 #define SETTINGS_BOUCHOT_LOGIN "login"
 #define SETTINGS_BOUCHOT_COOKIES "cookies"
 #define SETTINGS_BOUCHOT_UA "ua"
@@ -107,7 +111,7 @@ const char notif_name[] = "QuteQoin";
 #define SETTINGS_PALMI_DOCKED "palmi_docked"
 #define DEFAULT_PALMI_DOCKED false
 #define SETTINGS_FILE_SHARING_SERVICE "file_sharing_service"
-#define FILE_SHARING_SERVICE_UP_Y_FR "up.ÿ.fr"
+#define FILE_SHARING_SERVICE_UP_Y_FR (QString::fromUtf8("up.ÿ.fr"))
 #define FILE_SHARING_SERVICE_JIRAFEAU_3TER_ORG "upload.3ter.org"
 #define DEFAULT_FILE_SHARING_SERVICES (QStringList() << FILE_SHARING_SERVICE_UP_Y_FR << FILE_SHARING_SERVICE_JIRAFEAU_3TER_ORG)
 #define DEFAULT_FILE_SHARING_SERVICE FILE_SHARING_SERVICE_JIRAFEAU_3TER_ORG

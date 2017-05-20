@@ -58,10 +58,12 @@ QQBouchotDef bouchotsDef[] =
 	  "#aaffbb", "", "", QQBouchot::SlipTagsRaw },
 	{ "see", "http://tout.essaye.sauf.ca/tribune.xml", "http://tout.essaye.sauf.ca/tribune/post", "message=%m",
 	  "#ffd0d0", "schee,seeschloss", "", QQBouchot::SlipTagsRaw },
-	{ "devnewton", "https://b3.bci.im/legacy/xml", "https://b3.bci.im/legacy/post", "message=%m",
+	{ "devnewton", "https://b3.bci.im/legacy/xml?last=%i", "https://b3.bci.im/legacy/post", "message=%m",
 	  "#666666", "", "", QQBouchot::SlipTagsEncoded },
 	{ "faab", "http://ratatouille.leguyader.eu/data/backend.xml", "http://ratatouille.leguyader.eu/add.php", "message=%m",
 	  "#C5D068", "ratatouille", "", QQBouchot::SlipTagsRaw },
+	{ "goboard", "https://ototu.euromussels.eu/goboard/backend/tsv", "https://ototu.euromussels.eu/goboard/post", "message=%m",
+	  "#fffabb", "goboard", "", QQBouchot::SlipTagsEncoded },
 	{ "sauf.ca", "http://sauf.ca/feeds/all.tsv", "", "",
 	  "#4aff47", "", "", QQBouchot::SlipTagsRaw }
 };
@@ -85,11 +87,12 @@ QQBouchot::QQBouchot(const QString &name, QObject *parent) :
 	QQNetworkAccessor(parent),
 	m_hasXPostId(false), // unknown
 	m_lastId(-1),
+	m_lastModifiedBackend(""),
 	m_name(name),
 	m_parser(NULL),
 	m_deltaTimeH(-1) // unknown
 {
-	m_bSettings.setRefreshFromString(DEFAULT_BOUCHOT_REFRESH);
+	m_bSettings.setRefresh(DEFAULT_BOUCHOT_REFRESH);
 
 	m_state.hasBigorno = false;
 	m_state.hasError = false;
@@ -428,6 +431,8 @@ void QQBouchot::fetchBackend()
 						 QNetworkRequest::AlwaysNetwork);
 
 	request.setRawHeader(QString::fromLatin1("User-Agent").toLatin1(), QString(DEFAULT_GENERAL_DEFAULT_UA).toLatin1());
+	if(m_lastModifiedBackend.length() > 0)
+		request.setRawHeader(QString::fromLatin1("If-Modified-Since").toLatin1(), m_lastModifiedBackend.toLatin1());
 
 	if(m_bSettings.cookie().isEmpty() == false)
 		request.setRawHeader(QString::fromLatin1("Cookie").toLatin1(), m_bSettings.cookie().toLatin1());
@@ -549,9 +554,14 @@ void QQBouchot::requestFinishedSlot(QNetworkReply *reply)
 				fetchBackend();
 				break;
 			case QQBouchot::BackendRequest:
-				qDebug() << Q_FUNC_INFO << reply->url();
-				QString contentType = reply->header(QNetworkRequest::ContentTypeHeader).toString();
-				parseBackend(reply->readAll(), contentType);
+				if(reply->hasRawHeader("Last-Modified"))
+					m_lastModifiedBackend = QString(reply->rawHeader("Last-Modified"));
+
+				if(reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toUInt() == 200)
+				{
+					QString contentType = reply->header(QNetworkRequest::ContentTypeHeader).toString();
+					parseBackend(reply->readAll(), contentType);
+				}
 				emit refreshOK();
 				break;
 		}
@@ -850,7 +860,7 @@ QQBouchot::QQBouchotSettings QQBouchot::getBouchotDef(const QString &bouchotName
 		settings.setColorFromString(bouchotsDef[i].color);
 		settings.setPostData(bouchotsDef[i].postData);
 		settings.setPostUrl(bouchotsDef[i].postUrl);
-		settings.setRefreshFromString(DEFAULT_BOUCHOT_REFRESH);
+		settings.setRefresh(DEFAULT_BOUCHOT_REFRESH);
 		settings.setSlipType(bouchotsDef[i].typeSlip);
 		settings.setCookie(bouchotsDef[i].cookieProto);
 	}

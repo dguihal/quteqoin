@@ -15,11 +15,6 @@
 #include "ui/pinipede/qqpostparser.h"
 #include "ui/pinipede/qqtextbrowser.h"
 
-#ifdef Q_OS_UNIX
-#undef signals
-#include <libnotify/notify.h>
-#endif
-
 #include <QtAlgorithms>
 #include <QApplication>
 #include <QContextMenuEvent>
@@ -37,6 +32,11 @@
 #include <QTime>
 #include <QToolButton>
 #include <QVBoxLayout>
+
+#ifndef WIN32
+#include <QDBusInterface>
+#include <QDBusMessage>
+#endif
 
 #define LOGIN_COLOR "#553333"
 #define UA_COLOR "#883333"
@@ -297,12 +297,7 @@ void QQPinipede::purgePinitab(const QString &groupName, const QString &bouchotNa
 	QQPost *post = NULL;
 	do
 	{
-		qDebug() << Q_FUNC_INFO << "block num=" << cursor.block().blockNumber()
-				 << ", doc->blockCount()=" << textBrowser->document()->blockCount();
-
 		QQMessageBlockUserData * userData = (QQMessageBlockUserData *) (cursor.block().userData());
-		qDebug() << Q_FUNC_INFO << "userData->post()->bouchot()->name()=" << userData->post()->bouchot()->name()
-				 << ", bouchotName=" << bouchotName;
 		post = userData->post();
 		if(post->bouchot()->name() == bouchotName)
 		{
@@ -432,7 +427,8 @@ void QQPinipede::bigorNotify(QString &srcBouchot, QString &poster, bool global)
 
 #ifdef Q_OS_UNIX
 	QQSettings settings;
-	if(settings.value(SETTINGS_BIGORNOTIFY_ENABLED, DEFAULT_BIGORNOTIFY_ENABLED).toBool())
+	if(settings.value(SETTINGS_BIGORNOTIFY_ENABLED, DEFAULT_BIGORNOTIFY_ENABLED).toBool() &&
+			(! settings.value(SETTINGS_GENERAL_STEALTH_MODE, DEFAULT_GENERAL_STEALTH_MODE).toBool()))
 	{
 		QString msg;
 		if(global)
@@ -440,18 +436,23 @@ void QQPinipede::bigorNotify(QString &srcBouchot, QString &poster, bool global)
 		else
 			msg = QString(tr("%1 called you on %2 board")).arg(poster).arg(srcBouchot);
 
-		NotifyNotification *notification = notify_notification_new(notif_name, msg.toUtf8(), NULL);
-		if(notification)
-		{
-			notify_notification_set_timeout(notification, 3000);
-			if (!notify_notification_show(notification, NULL))
-				qDebug() << Q_FUNC_INFO << "Failed to send notification";
+		QList<QVariant> argumentList;
+		argumentList << NOTIF_APP_NAME;// app_name
+		argumentList << (uint)0;       // replace_id
+		argumentList << "";            // app_icon
+		argumentList << NOTIF_APP_NAME;// summary
+		argumentList << msg;           // body
+		argumentList << QStringList(); // actions
+		argumentList << QVariantMap(); // hints
+		argumentList << (int)3000;     // timeout in ms
 
-			/* Clean up the memory */
-			g_object_unref(notification);
-		}
-		else
-			qDebug() << Q_FUNC_INFO << "Failed to create notification";
+		QDBusInterface notifyApp("org.freedesktop.Notifications",
+										"/org/freedesktop/Notifications", "org.freedesktop.Notifications");
+		QDBusMessage reply = notifyApp.callWithArgumentList(QDBus::AutoDetect,
+									   "Notify", argumentList);
+
+		if(reply.type() == QDBusMessage::ErrorMessage)
+			qDebug() << Q_FUNC_INFO << "D-Bus Error:" << reply.errorMessage();
 	}
 #endif
 
@@ -700,7 +701,7 @@ void QQPinipede::norlogeRefHovered(QQNorlogeRef norlogeRef)
 				c.movePosition(QTextCursor::StartOfBlock, QTextCursor::MoveAnchor);
 				int nRefCounter = 0;
 				bool isInNRef = false;
-				for(int i = 0; i < norlogeRefs.size(); i++)
+				for(int i = 1; i < norlogeRefs.size(); i++)
 				{
 					QQNorlogeRef nRef = norlogeRefs.at(i);
 					if(norlogeRef.matchesNRef(nRef))
@@ -999,7 +1000,7 @@ void QQPinipede::newPostsAvailable(QString groupName)
 	//On ne peut pas vérifier la valeur dans le "printPostAtCursor", trop couteux, du coup on la met a jour ici
 	m_duckAutolaunchEnabled =
 			(((QuteQoin::QQHuntMode) settings.value(SETTINGS_HUNT_MODE, DEFAULT_HUNT_MODE).toInt()) == QuteQoin::HuntMode_Auto);
-	if(m_fieldSep == '\0')
+	if(m_fieldSep.isNull())
 	{
 		QString piniMode = settings.value(SETTINGS_GENERAL_PINI_MODE, DEFAULT_GENERAL_PINI_MODE).toString();
 		if(! SETTINGS_GENERAL_PINI_MODES.contains(piniMode))

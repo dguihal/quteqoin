@@ -65,7 +65,7 @@ void QQPalmiFilePoster::requestFinishedSlot(QNetworkReply *reply)
 		QQSettings settings;
 		QString sharingService = settings.value(SETTINGS_FILE_SHARING_SERVICE, DEFAULT_FILE_SHARING_SERVICE).toString();
 
-		QString s = QString(reply->readAll());
+		QString s = QString::fromUtf8(reply->readAll());
 		if (sharingService == FILE_SHARING_SERVICE_UP_Y_FR)
 			parseJusYFr(s);
 		else if (sharingService == FILE_SHARING_SERVICE_JIRAFEAU_3TER_ORG)
@@ -120,14 +120,14 @@ QNetworkReply * QQPalmiFilePoster::postFileUpload3TerOrg(QFile *file)
 	timePart.setBody(QString::fromLatin1("week").toLatin1());
 	multiPart->append(timePart);
 
-	QUrl url("http://upload.3ter.org/script.php");
+	QUrl url(QString("http://%1/script.php").arg(FILE_SHARING_SERVICE_JIRAFEAU_3TER_ORG));
 	QNetworkRequest request(url);
 	//request.setRawHeader("User-Agent", "Mozilla/5.0 (quteqoin)"); // Le service n'accepte pas l'ua par défaut ...
 	//request.setRawHeader("Accept", "application/json, text/javascript, */*; q=0.01");
 	//request.setRawHeader("Accept-Language", "en-US,en;q=0.5");
 	//request.setRawHeader("Accept-Encoding", "gzip, deflate"); // Qt 4 ne supporte pas gunzip nativement ....
 	//request.setRawHeader("X-Requested-With", "XMLHttpRequest");
-	request.setRawHeader("Referer", "http://upload.3ter.org/");
+	request.setRawHeader("Referer", QString("http://%1/").arg(FILE_SHARING_SERVICE_JIRAFEAU_3TER_ORG).toLatin1());
 
 	QNetworkReply *reply = httpPost(request, multiPart);
 	multiPart->setParent(reply); // delete the multiPart with the reply
@@ -143,14 +143,7 @@ void QQPalmiFilePoster::parseUpload3TerOrg(const QString &data)
 {
 	QStringList strL = data.split(QChar('\n'));
 	if(strL.size() > 0)
-	{
-#if(QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
-		qDebug() << Q_FUNC_INFO << QString("http://upload.3ter.org/f.php?h=%1&p=1").arg(strL.first());
-		emit finished(QString("http://upload.3ter.org/f.php?h=%1&p=1").arg(strL.first()));
-#else
-		emit finished(QString("http://upload.3ter.org/f.php?h=") + strL.first());
-#endif
-	}
+		emit finished(QString("http://%1/f.php?h=%2&p=1").arg(FILE_SHARING_SERVICE_JIRAFEAU_3TER_ORG).arg(strL.first()));
 }
 
 ///////////
@@ -159,8 +152,7 @@ void QQPalmiFilePoster::parseUpload3TerOrg(const QString &data)
 ///
 QNetworkReply * QQPalmiFilePoster::postFileJusYFr(QFile *file)
 {
-
-	QUrl url("https://up.ÿ.fr");
+	QUrl url(QString("https://%1").arg(FILE_SHARING_SERVICE_UP_Y_FR));
 	QNetworkRequest request(url);
 
 	return httpPut(request, file);

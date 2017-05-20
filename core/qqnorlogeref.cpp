@@ -33,30 +33,29 @@ QQNorlogeRef::QQNorlogeRef(const QQPost& post, const QString& norlogeRef) :
 	m_origNRef(norlogeRef),
 	m_listPostTarget(QList< QPointer<QQPost> >()),
 	m_valid(true),
-	m_hasDate(true),
+	m_hasDate(false),
 	m_hasSec(true),
 	m_isReponseDefined(false),
 	m_isResponse(false),
 	m_refId(QString())
 {
 	QRegExp reg = norlogeRegexp();
+	m_norlogeIndex = 0; //tous les correspondants par défaut
 
 	if(reg.exactMatch(norlogeRef))
 	{
-		m_norlogeIndex = 0; //tous les correspondants par défaut
 
 		QStringList capturedTexts = reg.capturedTexts();
 		QString date = capturedTexts[2];
-		m_hasDate = false;
 		if(date.size() > 0)
 		{
-			QStringList dateSplit = date.split(QChar::fromLatin1('/'));
+			QStringList dateSplit = date.split(QRegExp(QString::fromLatin1("[/-]")));
 			if(dateSplit.size() > 2)
 				m_dateYearPart = dateSplit.takeFirst();
 
 			m_dateMonthPart = dateSplit.takeFirst();
-			m_dateDayPart = dateSplit.takeFirst();
-			m_dateDayPart.remove(QChar::fromLatin1('#'));
+			m_dateDayPart = dateSplit.takeFirst().left(2);
+			m_hasDate = true;
 		}
 
 		QString time = capturedTexts[3];
@@ -123,7 +122,6 @@ QString QQNorlogeRef::dstBouchot() const
 {
 	return (m_dstBouchot.size() > 0) ? m_dstBouchot : m_srcBouchot;
 }
-
 
 //////////////////////////////////////////////////////////////
 /// \brief QQNorlogeRef::matchesPost

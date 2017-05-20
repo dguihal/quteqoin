@@ -35,7 +35,7 @@ public:
 	// 4 - Tribune
 	static QRegExp norlogeRegexp(const QString & bouchot)
 	{
-		return QRegExp(QString::fromLatin1("(((?:[0-9]+/)?(?:1[0-2]|0[1-9])/(?:3[0-1]|[1-2][0-9]|0[1-9])#)?" //date
+		return QRegExp(QString::fromLatin1("(((?:[0-9]+[/-])?(?:1[0-2]|0[1-9])[/-](?:3[0-1]|[1-2][0-9]|0[1-9])[#T])?" //date
 										 "((?:2[0-3]|[0-1][0-9]):(?:[0-5][0-9])(?::[0-5][0-9])?" //time
 										 "(?:[¹²³]|[:\\^][1-9]|[:\\^][1-9][0-9])?))" //subtime
 										 "(@") + bouchot + QString::fromLatin1(")?"), //tribune

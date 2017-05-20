@@ -152,53 +152,57 @@ void QQBoardInfo::updateUserList()
 
 	QHash<QQMussel, QQMusselInfo *> newMusselInfoHash;
 
-	if(! lastPosters.isEmpty())
+	QVBoxLayout *lastPostersWidgetLayout = new QVBoxLayout(boardInfoWidget);
+	lastPostersWidgetLayout->setSpacing(1);
+	lastPostersWidgetLayout->setContentsMargins(0, 0, 0, 0);
+
+	QSizePolicy policy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+	policy.setHorizontalStretch(0);
+	policy.setVerticalStretch(0);
+
+	// TODO Keep all datas, but mark them as hidden to
+	//		1/ keep tracks of slow posting mussels
+	//		2/ Avoid mem leaks
+
+	int vSpace = 0;
+	for(int i = 0; i < lastPosters.size(); i++)
 	{
-		QVBoxLayout *lastPostersWidgetLayout = new QVBoxLayout(boardInfoWidget);
-		lastPostersWidgetLayout->setSpacing(1);
-		lastPostersWidgetLayout->setContentsMargins(0, 0, 0, 0);
-
-		QSizePolicy policy(QSizePolicy::Expanding, QSizePolicy::Preferred);
-		policy.setHorizontalStretch(0);
-		policy.setVerticalStretch(0);
-
-		int vSpace = 0;
-		for(int i = 0; i < lastPosters.size(); i++)
+		QQMussel mussel = lastPosters.at(i);
+		QQMusselInfo *mi = NULL;
+		if(m_musselInfoHash.contains(mussel))
 		{
-			QQMussel mussel = lastPosters.at(i);
-			QQMusselInfo *mi = NULL;
-			if((mi = m_musselInfoHash.value(mussel, NULL)) != NULL)
-				mi->setParent(boardInfoWidget);
-			else
-			{
-				mi = new QQMusselInfo(mussel);
-				connect(mi, SIGNAL(selected(QQMussel)), this, SLOT(musselSelected(QQMussel)));
-				mi->setSizePolicy(policy);
-			}
-
-			newMusselInfoHash.insert(mussel, mi);
-			lastPostersWidgetLayout->addWidget(mi);
-			if(i < MAX_ITEMS)
-				vSpace += mi->sizeHint().height() + 1;
+			mi = m_musselInfoHash.take(mussel);
+			mi->setParent(boardInfoWidget);
+		}
+		else
+		{
+			mi = new QQMusselInfo(mussel, boardInfoWidget);
+			connect(mi, SIGNAL(selected(QQMussel)), this, SLOT(musselSelected(QQMussel)));
+			mi->setSizePolicy(policy);
 		}
 
-		QWidget *old = m_ui->usrDspSA->takeWidget();
-		if(old != NULL)
-			delete old;
+		newMusselInfoHash.insert(mussel, mi);
+		lastPostersWidgetLayout->addWidget(mi);
+		if(i < MAX_ITEMS)
+			vSpace += mi->sizeHint().height() + 1;
+	}
 
-		m_ui->usrDspSA->setWidget(boardInfoWidget);
+	QWidget *old = m_ui->usrDspSA->takeWidget();
+	if(old != NULL)
+		delete old;
+	m_ui->usrDspSA->setWidget(boardInfoWidget);
 
+	if(! lastPosters.isEmpty())
+	{
 		m_ui->usrDspSA->setMaximumHeight(vSpace);
 		m_ui->usrDspSA->setMinimumHeight(vSpace);
 
 		m_ui->usrDspSA->show();
 	}
 	else
-	{
 		m_ui->usrDspSA->hide();
-	}
 
-	m_musselInfoHash.clear();
+
 	m_musselInfoHash = newMusselInfoHash;
 }
 
