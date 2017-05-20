@@ -167,6 +167,8 @@ MainWindow::MainWindow(QWidget *parent) :
 		m_trayIcon->show();
 	}
 
+	m_pini->setAsciiLogin(settings.value(SETTINGS_PALMI_ASCII_LOGIN, DEFAULT_PALMI_ASCII_LOGIN).toBool());
+
 	// Envoyer le focus par defaut sur le palmi s'il est visible
 	m_palmi->setFocus();
 

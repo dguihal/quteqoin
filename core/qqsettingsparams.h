@@ -114,6 +114,8 @@ const char notif_name[] = "QuteQoin";
 #define SETTINGS_PALMI_SHORCUTS "palmi_shortcuts"
 #define SETTINGS_PALMI_SHORTCUTS_MIN_KEY Qt::Key_Space
 #define SETTINGS_PALMI_SHORTCUTS_MAX_KEY Qt::Key_AsciiTilde
+#define SETTINGS_PALMI_ASCII_LOGIN "ascii_login"
+#define DEFAULT_PALMI_ASCII_LOGIN false
 
 // FILTERS
 #define SETTINGS_FILTER_SMART_URL_TRANSFORMER "filter_smart_url_transformer"

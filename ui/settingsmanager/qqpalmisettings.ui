@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>400</width>
-    <height>347</height>
+    <height>385</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -88,6 +88,36 @@
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
         </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QWidget" name="widget_4" native="true">
+        <layout class="QHBoxLayout" name="horizontalLayout_4">
+         <item>
+          <widget class="QLabel" name="lable_42">
+           <property name="text">
+            <string>Show unicode login</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QRadioButton" name="dmShowUnicode">
+           <property name="text">
+            <string>T&amp;rue</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QRadioButton" name="dmHideUnicode">
+           <property name="text">
+            <string>False</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
        </widget>
       </item>
       <item>

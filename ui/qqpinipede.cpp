@@ -1251,7 +1251,7 @@ bool QQPinipede::printPostAtCursor(QTextCursor &cursor, QQPost *post)
 		txt = fm.elidedText(txt, Qt::ElideMiddle, loginUAAreaWidth - textLen);
 
 	//replace non ascii characters by '-', multiple non ascii characters are replaced by a simple '-'
-	if (ascii_login)
+	if (asciiLogin)
 	{
 		txt = txt.replace(QRegExp("[^a-zA-Z\\s]"), "-");
 		txt = txt.replace(QRegExp("-{2,}"), "-");

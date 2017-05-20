@@ -33,6 +33,9 @@ public:
 	void setFileSharingServices(const QStringList &fileSharingServices);
 	void setFileSharingService(const QString &fileSharingService);
 
+	bool isAciiLogin() const;
+	void setAsciiLogin(bool asciiLogin);
+
 protected slots:
 
 private:
