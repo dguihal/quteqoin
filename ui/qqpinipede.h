@@ -58,6 +58,12 @@ public:
 
 	virtual bool event(QEvent *e);
 
+	/**
+	 * @brief setAsciiLogin set if the user want to hide non ascii characters on login/ua
+	 * @param hideNonAscii the value to set
+	 */
+	void setAsciiLogin(bool hideNonAscii) { this->asciiLogin = hideNonAscii; }
+
 public slots:
 	void duckKilled(QString board,QString postId);
 	void norlogeClicked(QString srcBouchot, QQNorloge norloge);
@@ -100,6 +106,11 @@ private:
 	QQPiniOverlay *m_overlay;
 	bool m_duckAutolaunchEnabled;
 	QChar m_fieldSep;
+
+	/**
+	 * @brief ascii_login when true, the displayed login/ua replace non ascii characters by '-'
+	 */
+	bool asciiLogin;
 };
 
 #endif // QQPINIPEDE_H

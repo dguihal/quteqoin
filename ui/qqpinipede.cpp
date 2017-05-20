@@ -1250,6 +1250,13 @@ bool QQPinipede::printPostAtCursor(QTextCursor &cursor, QQPost *post)
 	if(textLen + fm.size(Qt::TextSingleLine | Qt::TextExpandTabs, txt).width() > loginUAAreaWidth)
 		txt = fm.elidedText(txt, Qt::ElideMiddle, loginUAAreaWidth - textLen);
 
+	//replace non ascii characters by '-', multiple non ascii characters are replaced by a simple '-'
+	if (ascii_login)
+	{
+		txt = txt.replace(QRegExp("[^a-zA-Z\\s]"), "-");
+		txt = txt.replace(QRegExp("-{2,}"), "-");
+	}
+
 	cursor.insertText(txt, loginUaFormat);
 
 	cursor.insertText(QString(m_fieldSep), defaultFormat);
