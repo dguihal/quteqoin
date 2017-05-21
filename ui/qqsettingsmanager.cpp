@@ -436,6 +436,9 @@ void QQSettingsManager::initPalmiSettings(const QQSettings &settings)
 	QString fsService = settings.value(SETTINGS_FILE_SHARING_SERVICE, DEFAULT_FILE_SHARING_SERVICE).toString();
 	m_palmiSettingsW->setFileSharingServices(DEFAULT_FILE_SHARING_SERVICES);
 	m_palmiSettingsW->setFileSharingService(fsService);
+
+	//ASCII Login
+	m_palmiSettingsW->setAsciiLogin(settings.value(SETTINGS_PALMI_ASCII_LOGIN, DEFAULT_PALMI_ASCII_LOGIN).toBool());
 }
 
 void QQSettingsManager::savePalmiSettings(QQSettings &settings)
@@ -466,6 +469,10 @@ void QQSettingsManager::savePalmiSettings(QQSettings &settings)
 
 	QString fsService = m_palmiSettingsW->getFileSharingService();
 	settings.setValueWithDefault(SETTINGS_FILE_SHARING_SERVICE, fsService, DEFAULT_FILE_SHARING_SERVICE);
+
+	//ASCII login
+	bool asciiLogin = m_palmiSettingsW->isAciiLogin();
+	settings.setValue(SETTINGS_PALMI_ASCII_LOGIN, asciiLogin);
 }
 
 void QQSettingsManager::initTotozSettings(const QQSettings &settings)

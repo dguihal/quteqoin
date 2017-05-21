@@ -125,3 +125,16 @@ void QQPalmiSettings::setFileSharingService(const QString &fileSharingService)
 {
 	ui->fsServiceProvider->setCurrentIndex(ui->fsServiceProvider->findText(fileSharingService, Qt::MatchExactly | Qt::MatchCaseSensitive ));
 }
+
+void QQPalmiSettings::setAsciiLogin(bool asciiLogin)
+{
+	if (asciiLogin)
+		ui->dmHideUnicode->setChecked(true);
+	else
+		ui->dmShowUnicode->setChecked(true);
+}
+
+bool QQPalmiSettings::isAciiLogin() const
+{
+	return ui->dmHideUnicode->isChecked();
+}
