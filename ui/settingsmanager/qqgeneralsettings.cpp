@@ -5,6 +5,7 @@
 
 #include <QtDebug>
 #include <QColorDialog>
+#include <QCheckBox>
 
 QQGeneralSettings::QQGeneralSettings(QWidget *parent) :
 	QWidget(parent),
@@ -185,3 +186,22 @@ void QQGeneralSettings::showColorDialog()
 		ui->colorChooserPB->setStyleSheet("QPushButton{background-color: " + m_color + ";}");
 	}
 }
+
+/**
+ * @brief QQGeneralSettings::setAsciiLogin
+ * @param asciiLogin
+ */
+void QQGeneralSettings::setAsciiLogin(bool asciiLogin)
+{
+	ui->asciiUACB->setChecked(asciiLogin);
+}
+
+/**
+ * @brief QQGeneralSettings::isAciiLogin
+ * @return
+ */
+bool QQGeneralSettings::isAciiLogin() const
+{
+	return ui->asciiUACB->checkState() == Qt::Checked;
+}
+

@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>400</width>
-    <height>314</height>
+    <height>349</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -135,7 +135,7 @@
       </sizepolicy>
      </property>
      <property name="title">
-      <string>Appearance</string>
+      <string>Pinipede Appearance</string>
      </property>
      <property name="alignment">
       <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
@@ -180,7 +180,7 @@
        <widget class="QComboBox" name="fontSizeComboB"/>
       </item>
       <item row="2" column="0">
-       <widget class="QLabel" name="label">
+       <widget class="QLabel" name="labelHighlightColor">
         <property name="text">
          <string>Highlight color :</string>
         </property>
@@ -231,13 +231,13 @@
       <item row="3" column="0">
        <widget class="QLabel" name="labelPiniMode">
         <property name="text">
-         <string>Pinipede mode :</string>
+         <string>Mode :</string>
         </property>
        </widget>
       </item>
       <item row="3" column="1">
        <widget class="QWidget" name="widget_3" native="true">
-        <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="1,2">
+        <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="0,0">
          <property name="spacing">
           <number>0</number>
          </property>
@@ -268,6 +268,20 @@
           </widget>
          </item>
         </layout>
+       </widget>
+      </item>
+      <item row="4" column="0">
+       <widget class="QLabel" name="labelUA">
+        <property name="text">
+         <string>User Agents :</string>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="1">
+       <widget class="QCheckBox" name="asciiUACB">
+        <property name="text">
+         <string>Substitute non ascii characters</string>
+        </property>
        </widget>
       </item>
      </layout>

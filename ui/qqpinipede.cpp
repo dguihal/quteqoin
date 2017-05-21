@@ -214,7 +214,7 @@ void QQPinipede::repaintPiniTab(const QString &groupName)
 		return;
 	}
 
-	//Prise en compte d'un eventuel changement de font
+	//Prise en compte des changements de parametre
 	QTextDocument *doc = textBrowser->document();
 	QFont docFont;
 	QQSettings settings;
@@ -230,6 +230,7 @@ void QQPinipede::repaintPiniTab(const QString &groupName)
 		m_fieldSep = ' ';
 	else //if piniMode == PINI_TABBED_MODE
 		m_fieldSep = '\t';
+	asciiLogin = settings.value(SETTINGS_GENERAL_PINI_ASCII_LOGIN, DEFAULT_GENERAL_PINI_ASCII_LOGIN).toBool();
 
 	QTextCursor cursor(doc);
 	cursor.beginEditBlock();
@@ -989,15 +990,16 @@ void QQPinipede::newPostsAvailable(QString groupName)
 		}
 	}
 
-	// Au cas ou on serait deja passe avant (cas du signal multiple)
+	//Au cas ou on serait deja passe avant (cas du signal multiple)
 	if(newPosts.size() == 0)
 	{
 		m_newPostsAvailableMutex.unlock();
 		return;
 	}
 
+	//Prise en compte des changements de parametre
+	//On ne peut pas vérifier les valeurs dans le "printPostAtCursor", trop couteux, du coup on met a jour ici
 	QQSettings settings;
-	//On ne peut pas vérifier la valeur dans le "printPostAtCursor", trop couteux, du coup on la met a jour ici
 	m_duckAutolaunchEnabled =
 			(((QuteQoin::QQHuntMode) settings.value(SETTINGS_HUNT_MODE, DEFAULT_HUNT_MODE).toInt()) == QuteQoin::HuntMode_Auto);
 	if(m_fieldSep.isNull())
@@ -1013,6 +1015,7 @@ void QQPinipede::newPostsAvailable(QString groupName)
 		else //if piniMode == PINI_TABBED_MODE
 			m_fieldSep = '\t';
 	}
+	asciiLogin = settings.value(SETTINGS_GENERAL_PINI_ASCII_LOGIN, DEFAULT_GENERAL_PINI_ASCII_LOGIN).toBool(); // Update value if it changed
 
 	int maxHistorySize = settings.value(SETTINGS_GENERAL_MAX_HISTLEN, DEFAULT_GENERAL_MAX_HISTLEN).toInt();
 	//Il ne sert a rien d'insérer plus que de posts que le max de l'historique
@@ -1251,11 +1254,9 @@ bool QQPinipede::printPostAtCursor(QTextCursor &cursor, QQPost *post)
 	if(textLen + fm.size(Qt::TextSingleLine | Qt::TextExpandTabs, txt).width() > loginUAAreaWidth)
 		txt = fm.elidedText(txt, Qt::ElideMiddle, loginUAAreaWidth - textLen);
 
-	//replace non ascii characters by '-', multiple non ascii characters are replaced by a simple '-'
+	//Replace non printable ascii characters by '-', multiple matches are replaced by a single '-'
 	if (asciiLogin)
-	{
 		txt = txt.replace(QRegExp("[^\\x20-\\x7e]+"), "-");
-	}
 
 	cursor.insertText(txt, loginUaFormat);
 

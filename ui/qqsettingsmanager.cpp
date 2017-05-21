@@ -295,6 +295,9 @@ void QQSettingsManager::initGeneralSettings(const QQSettings &settings)
 
 	QString piniMode = settings.value(SETTINGS_GENERAL_PINI_MODE, DEFAULT_GENERAL_PINI_MODE).toString();
 	m_generalSettingsW->setPiniMode(piniMode);
+
+	//ASCII Login
+	m_generalSettingsW->setAsciiLogin(settings.value(SETTINGS_GENERAL_PINI_ASCII_LOGIN, DEFAULT_GENERAL_PINI_ASCII_LOGIN).toBool());
 }
 
 void QQSettingsManager::saveGeneralSettings(QQSettings &settings)
@@ -321,6 +324,10 @@ void QQSettingsManager::saveGeneralSettings(QQSettings &settings)
 
 	QString piniMode = m_generalSettingsW->piniMode();
 	needPiniFullRepaint |= settings.setValueWithDefault(SETTINGS_GENERAL_PINI_MODE, piniMode, DEFAULT_GENERAL_PINI_MODE);
+
+	//ASCII login
+	bool asciiLogin = m_generalSettingsW->isAciiLogin();
+	needPiniFullRepaint |= settings.setValueWithDefault(SETTINGS_GENERAL_PINI_ASCII_LOGIN, asciiLogin, DEFAULT_GENERAL_PINI_ASCII_LOGIN);
 }
 
 void QQSettingsManager::initHuntSettings(const QQSettings &settings)
@@ -436,9 +443,6 @@ void QQSettingsManager::initPalmiSettings(const QQSettings &settings)
 	QString fsService = settings.value(SETTINGS_FILE_SHARING_SERVICE, DEFAULT_FILE_SHARING_SERVICE).toString();
 	m_palmiSettingsW->setFileSharingServices(DEFAULT_FILE_SHARING_SERVICES);
 	m_palmiSettingsW->setFileSharingService(fsService);
-
-	//ASCII Login
-	m_palmiSettingsW->setAsciiLogin(settings.value(SETTINGS_PALMI_ASCII_LOGIN, DEFAULT_PALMI_ASCII_LOGIN).toBool());
 }
 
 void QQSettingsManager::savePalmiSettings(QQSettings &settings)
@@ -469,10 +473,6 @@ void QQSettingsManager::savePalmiSettings(QQSettings &settings)
 
 	QString fsService = m_palmiSettingsW->getFileSharingService();
 	settings.setValueWithDefault(SETTINGS_FILE_SHARING_SERVICE, fsService, DEFAULT_FILE_SHARING_SERVICE);
-
-	//ASCII login
-	bool asciiLogin = m_palmiSettingsW->isAciiLogin();
-	settings.setValue(SETTINGS_PALMI_ASCII_LOGIN, asciiLogin);
 }
 
 void QQSettingsManager::initTotozSettings(const QQSettings &settings)

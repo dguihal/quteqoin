@@ -37,6 +37,9 @@ public:
 	void setPiniMode(const QString &mode);
 	QString piniMode();
 
+	bool isAciiLogin() const;
+	void setAsciiLogin(bool asciiLogin);
+
 protected slots:
 	void fontChanged(const QFont &font);
 	void fontSizeChanged(int index);

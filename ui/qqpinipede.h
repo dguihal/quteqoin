@@ -58,12 +58,6 @@ public:
 
 	virtual bool event(QEvent *e);
 
-	/**
-	 * @brief setAsciiLogin set if the user want to hide non ascii characters on login/ua
-	 * @param hideNonAscii the value to set
-	 */
-	void setAsciiLogin(bool hideNonAscii) { this->asciiLogin = hideNonAscii; }
-
 public slots:
 	void duckKilled(QString board,QString postId);
 	void norlogeClicked(QString srcBouchot, QQNorloge norloge);
