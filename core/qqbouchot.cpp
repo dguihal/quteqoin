@@ -125,7 +125,7 @@ void QQBouchot::postMessage(const QString &message)
 		m_refreshRatioIndex = REFRESH_RATIOS_MID;
 
 	QString url = m_bSettings.postUrl();
-	QByteArray postData = m_bSettings.postData().toLatin1();
+	QByteArray postData = m_bSettings.postData().toUtf8();
 	QByteArray mark("%m");
 
 	if(postData.contains(mark))
@@ -146,14 +146,14 @@ void QQBouchot::postMessage(const QString &message)
 			ua=QString(DEFAULT_GENERAL_DEFAULT_UA);
 	}
 
-	request.setRawHeader("User-Agent", ua.toLatin1());
+	request.setRawHeader("User-Agent", ua.toUtf8());
 
 	if(! m_bSettings.cookie().isEmpty())
-		request.setRawHeader("Cookie", m_bSettings.cookie().toLatin1());
+		request.setRawHeader("Cookie", m_bSettings.cookie().toUtf8());
 
 	request.setRawHeader("Accept", "*/*");
 	request.setRawHeader("Accept-Encoding","gzip, deflate");
-	request.setRawHeader("Referer", request.url().toString().toLatin1());
+	request.setRawHeader("Referer", request.url().toString().toUtf8());
 	httpPost(request, postData);
 }
 
