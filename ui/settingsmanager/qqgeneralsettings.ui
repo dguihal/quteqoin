@@ -103,7 +103,7 @@
       <item row="4" column="1">
        <widget class="QCheckBox" name="stealthModeCB">
         <property name="text">
-         <string/>
+         <string>(Need restart)</string>
         </property>
        </widget>
       </item>
