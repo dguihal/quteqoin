@@ -78,10 +78,11 @@ protected:
 
 private:
 	bool applyPostDisplayFilters(QQPost *post);
+	QColor getDynHighlightColor(const QColor &bgColor);
 	unsigned int insertPostToList(QQListPostPtr *listPosts, QQPost *post, unsigned int indexStart);
 	void newPostsAvailable(QString groupName);
 	bool printPostAtCursor(QTextCursor &cursor, QQPost *post);
-	QColor getDynHighlightColor(const QColor &bgColor);
+	void updatePiniDisplaySettings(QTextDocument *doc);
 
 	QQTotozDownloader *m_totozDownloader;
 	QQTotozManager *m_totozManager;
@@ -98,8 +99,11 @@ private:
 	QMutex m_newPostsAvailableMutex;
 
 	QQPiniOverlay *m_overlay;
+
 	bool m_duckAutolaunchEnabled;
 	QChar m_fieldSep;
+	int m_maxHistorySize;
+	bool m_stealthModeEnabled;
 
 	/**
 	 * @brief ascii_login when true, the displayed login/ua replace non ascii characters by '-'

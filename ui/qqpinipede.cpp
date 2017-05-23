@@ -53,7 +53,9 @@ QQPinipede::QQPinipede(QWidget * parent) :
 	m_postparser(new QQPostParser(this)),
 	m_overlay(new QQPiniOverlay(this)),
 	m_duckAutolaunchEnabled(false),
-	m_fieldSep('\0')
+	m_fieldSep('\0'),
+	m_maxHistorySize(100),
+	m_stealthModeEnabled(false)
 {
 	connect(m_postparser, SIGNAL(totozRequired(QString &)),
 			m_totozDownloader, SLOT(fetchTotoz(QString &)));
@@ -215,22 +217,9 @@ void QQPinipede::repaintPiniTab(const QString &groupName)
 	}
 
 	//Prise en compte des changements de parametre
+	//On ne peut pas vérifier les valeurs dans le "printPostAtCursor", trop couteux, du coup on met a jour ici
 	QTextDocument *doc = textBrowser->document();
-	QFont docFont;
-	QQSettings settings;
-	docFont.fromString(settings.value(SETTINGS_GENERAL_DEFAULT_FONT, DEFAULT_GENERAL_DEFAULT_FONT).toString());
-	doc->setDefaultFont(docFont);
-	QString piniMode = settings.value(SETTINGS_GENERAL_PINI_MODE, DEFAULT_GENERAL_PINI_MODE).toString();
-	if(! SETTINGS_GENERAL_PINI_MODES.contains(piniMode))
-	{
-		piniMode = DEFAULT_GENERAL_PINI_MODE;
-		settings.setValue(SETTINGS_GENERAL_PINI_MODE, DEFAULT_GENERAL_PINI_MODE);
-	}
-	if(piniMode == PINI_FLOW_MODE)
-		m_fieldSep = ' ';
-	else //if piniMode == PINI_TABBED_MODE
-		m_fieldSep = '\t';
-	asciiLogin = settings.value(SETTINGS_GENERAL_PINI_ASCII_LOGIN, DEFAULT_GENERAL_PINI_ASCII_LOGIN).toBool();
+	updatePiniDisplaySettings(doc);
 
 	QTextCursor cursor(doc);
 	cursor.beginEditBlock();
@@ -999,27 +988,11 @@ void QQPinipede::newPostsAvailable(QString groupName)
 
 	//Prise en compte des changements de parametre
 	//On ne peut pas vérifier les valeurs dans le "printPostAtCursor", trop couteux, du coup on met a jour ici
-	QQSettings settings;
-	m_duckAutolaunchEnabled =
-			(((QuteQoin::QQHuntMode) settings.value(SETTINGS_HUNT_MODE, DEFAULT_HUNT_MODE).toInt()) == QuteQoin::HuntMode_Auto);
-	if(m_fieldSep.isNull())
-	{
-		QString piniMode = settings.value(SETTINGS_GENERAL_PINI_MODE, DEFAULT_GENERAL_PINI_MODE).toString();
-		if(! SETTINGS_GENERAL_PINI_MODES.contains(piniMode))
-		{
-			piniMode = DEFAULT_GENERAL_PINI_MODE;
-			settings.setValue(SETTINGS_GENERAL_PINI_MODE, DEFAULT_GENERAL_PINI_MODE);
-		}
-		if(piniMode == PINI_FLOW_MODE)
-			m_fieldSep = ' ';
-		else //if piniMode == PINI_TABBED_MODE
-			m_fieldSep = '\t';
-	}
-	asciiLogin = settings.value(SETTINGS_GENERAL_PINI_ASCII_LOGIN, DEFAULT_GENERAL_PINI_ASCII_LOGIN).toBool(); // Update value if it changed
+	QTextDocument *doc = textBrowser->document();
+	updatePiniDisplaySettings(doc);
 
-	int maxHistorySize = settings.value(SETTINGS_GENERAL_MAX_HISTLEN, DEFAULT_GENERAL_MAX_HISTLEN).toInt();
 	//Il ne sert a rien d'insérer plus que de posts que le max de l'historique
-	while(newPosts.size() > maxHistorySize)
+	while(newPosts.size() > m_maxHistorySize)
 		newPosts.removeFirst();
 
 	bool wasAtEnd = (vScrollBar->value() == vScrollBar->maximum());
@@ -1029,7 +1002,6 @@ void QQPinipede::newPostsAvailable(QString groupName)
 
 	//On signale via la forme de la souris qu'un traitement est en cours
 	QApplication::setOverrideCursor(Qt::BusyCursor);
-	QTextDocument *doc = textBrowser->document();
 
 	QTextCursor cursor(doc);
 	cursor.beginEditBlock();
@@ -1149,6 +1121,27 @@ void QQPinipede::newPostsAvailable(QString groupName)
 
 	m_newPostsAvailableMutex.unlock();
 }
+
+//////////////////////////////////////////////////////////////
+/// \brief QQPinipede::getDynHighlightColor
+/// \param bgColor
+/// \return
+///
+#define HIGHLIGHT_COLOR_S 200
+#define HIGHLIGHT_COLOR_V 200
+QColor QQPinipede::getDynHighlightColor(const QColor &bgColor)
+{
+	int h, nh, s, ns, v, nv;
+	bgColor.getHsv(&h, &s, &v);
+	nh = (h + 180) % 360;
+	// zone a exclure car elle correspond au bleu fonce qui passe mal avec la font noire
+	if(nh > 210 && nh < 270)
+		nh = (nh <= 240) ? 210 : 270;
+	ns = qMax(s, HIGHLIGHT_COLOR_S);
+	nv = qMax(v, HIGHLIGHT_COLOR_V);
+	return QColor::fromHsv(nh, ns, nv);
+}
+
 
 //////////////////////////////////////////////////////////////
 /// \brief QQPinipede::printPostAtCursor
@@ -1287,28 +1280,36 @@ bool QQPinipede::printPostAtCursor(QTextCursor &cursor, QQPost *post)
 	if(!post->isSelfPost() && data->hasNRefToSelfPost())
 	{
 		post->bouchot()->setHasNewResponse();
-		QApplication::alert(this->parentWidget(), 0);
+		if(! m_stealthModeEnabled)
+			QApplication::alert(this->parentWidget(), 0);
 	}
 
 	return true;
 }
 
 //////////////////////////////////////////////////////////////
-/// \brief QQPinipede::getDynHighlightColor
-/// \param bgColor
-/// \return
+/// \brief QQPinipede::updatePiniDisplaySettings Mise a jour des attributs prives pour refleter l'etat des parametres positionnes par l'utilisateur
 ///
-#define HIGHLIGHT_COLOR_S 200
-#define HIGHLIGHT_COLOR_V 200
-QColor QQPinipede::getDynHighlightColor(const QColor &bgColor)
+void QQPinipede::updatePiniDisplaySettings(QTextDocument *doc)
 {
-	int h, nh, s, ns, v, nv;
-	bgColor.getHsv(&h, &s, &v);
-	nh = (h + 180) % 360;
-	// zone a exclure car elle correspond au bleu fonce qui passe mal avec la font noire
-	if(nh > 210 && nh < 270)
-		nh = (nh <= 240) ? 210 : 270;
-	ns = qMax(s, HIGHLIGHT_COLOR_S);
-	nv = qMax(v, HIGHLIGHT_COLOR_V);
-	return QColor::fromHsv(nh, ns, nv);
+	QFont docFont;
+	QQSettings settings;
+	docFont.fromString(settings.value(SETTINGS_GENERAL_DEFAULT_FONT, DEFAULT_GENERAL_DEFAULT_FONT).toString());
+	doc->setDefaultFont(docFont);
+	QString piniMode = settings.value(SETTINGS_GENERAL_PINI_MODE, DEFAULT_GENERAL_PINI_MODE).toString();
+	if(! SETTINGS_GENERAL_PINI_MODES.contains(piniMode))
+	{
+		piniMode = DEFAULT_GENERAL_PINI_MODE;
+		settings.setValue(SETTINGS_GENERAL_PINI_MODE, DEFAULT_GENERAL_PINI_MODE);
+	}
+	if(piniMode == PINI_FLOW_MODE)
+		m_fieldSep = ' ';
+	else //if piniMode == PINI_TABBED_MODE
+		m_fieldSep = '\t';
+	asciiLogin = settings.value(SETTINGS_GENERAL_PINI_ASCII_LOGIN, DEFAULT_GENERAL_PINI_ASCII_LOGIN).toBool();
+	m_stealthModeEnabled = settings.value(SETTINGS_GENERAL_STEALTH_MODE, DEFAULT_GENERAL_STEALTH_MODE).toBool();
+	m_duckAutolaunchEnabled =
+			(((QuteQoin::QQHuntMode) settings.value(SETTINGS_HUNT_MODE, DEFAULT_HUNT_MODE).toInt()) == QuteQoin::HuntMode_Auto);
+
+	m_maxHistorySize = settings.value(SETTINGS_GENERAL_MAX_HISTLEN, DEFAULT_GENERAL_MAX_HISTLEN).toInt();
 }
