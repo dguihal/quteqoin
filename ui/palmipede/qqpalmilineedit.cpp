@@ -94,13 +94,19 @@ void QQPalmiLineEdit::dragEnterEvent(QDragEnterEvent *event)
 ///
 void QQPalmiLineEdit::dropEvent(QDropEvent *event)
 {
-	if(event->mimeData()->hasUrls())
+	const QMimeData *mimeData = event->mimeData();
+	if (mimeData->hasUrls())
 	{
 		QUrl url = event->mimeData()->urls().at(0);
-		if(url.isLocalFile())
+		if (url.isLocalFile())
 			attachFile(url.toLocalFile());
 		else
 			m_privLineEdit->insertText(url.toString());
+		event->accept();
+	}
+	else if (mimeData->hasText())
+	{
+		m_privLineEdit->insertText(mimeData->text());
 		event->accept();
 	}
 	else
