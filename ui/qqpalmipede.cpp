@@ -91,13 +91,17 @@ void QQPalmipede::insertReplaceText(const QString &bouchot, const QString &tag)
 	if(wasPostLineEditEmpty)
 	{
 		boardIndex = m_ui->boardSelectorComboBox->findText(bouchot);
+		// Possible si on a ete active par un bouchot en ro
 		if(boardIndex >= 0)
 		{
 			m_ui->boardSelectorComboBox->setCurrentIndex(boardIndex);
 			m_ui->boardSelectorComboBoxMin->setCurrentIndex(boardIndex);
 		}
 	}
-	bouchotSelectorActivated(boardIndex);
+
+	// Possible si on a ete active par un bouchot en ro
+	if(boardIndex >= 0)
+		bouchotSelectorActivated(boardIndex);
 }
 
 void QQPalmipede::insertReplaceText(const QString &tag)
