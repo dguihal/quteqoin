@@ -98,12 +98,10 @@ void QQPalmiLineEdit::dropEvent(QDropEvent *event)
 	{
 		QUrl url = event->mimeData()->urls().at(0);
 		if(url.isLocalFile())
-		{
 			attachFile(url.toLocalFile());
-			event->accept();
-		}
 		else
-			QWidget::dropEvent(event);
+			m_privLineEdit->insertText(url.toString());
+		event->accept();
 	}
 	else
 		QWidget::dropEvent(event);
