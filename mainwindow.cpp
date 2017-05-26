@@ -23,11 +23,6 @@
 #include <QSpacerItem>
 #include <QToolButton>
 
-#ifdef QML_PALMI
-#include <QQuickWidget>
-#include <QQuickItem>
-#endif
-
 #define MAINWINDOW_STATE_CACHE_FILE "QuteQoin_Window_State"
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -45,11 +40,11 @@ MainWindow::MainWindow(QWidget *parent) :
 
 	// Setup du palmi
 #ifdef QML_PALMI
-	m_palmi = new QQuickWidget(QUrl("qrc:/qml/QQmlPalmi.qml"), this);
+	m_palmi = new QQmlPalmipede(this);
 	m_palmi->setResizeMode(QQuickWidget::SizeRootObjectToView);
 
-	QObject::connect(m_palmi->rootObject(), SIGNAL(post(QString, QString)),
-					 this, SLOT(doPostMessage(QString, QString)));
+	connect(m_palmi, &QQmlPalmipede::postMessage,
+			this, &MainWindow::doPostMessage);
 #else
 	m_palmi = new QQPalmipede(this);
 	connect(m_palmi, SIGNAL(postMessage(QString,QString)), this, SLOT(doPostMessage(QString,QString)));
@@ -67,9 +62,12 @@ MainWindow::MainWindow(QWidget *parent) :
 	// Setup du totoz manager
 	m_totozManager = new QQTotozManager(this);
 #ifdef QML_PALMI
-	qmlRegisterType<QQTotozManager>("QuteQoin.QmlComponents", 1, 0, "TotozManager");
-	connect(m_totozManager, SIGNAL(totozClicked(QString)),
-			m_palmi->rootObject(), SIGNAL(insertReplaceText(QString)));
+//	qmlRegisterType<QQTotozManager>("QuteQoin.QmlComponents", 1, 0, "TotozManager");
+//	connect(m_totozManager, SIGNAL(totozClicked(QString)),
+//			m_palmi->rootObject(), SIGNAL(insertReplaceText(QString)));
+
+	connect(m_totozManager, &QQTotozManager::totozClicked,
+			m_palmi, &QQmlPalmipede::insertReplaceText);
 #else
 	connect(m_totozManager, SIGNAL(totozClicked(QString)), m_palmi, SLOT(insertReplaceText(QString)));
 #endif
@@ -104,8 +102,8 @@ MainWindow::MainWindow(QWidget *parent) :
 	m_pini->setToolButton(cmdToolsBtn);
 	m_pini->setTotozManager(m_totozManager);
 #ifdef QML_PALMI
-	connect(m_pini, SIGNAL(insertTextPalmi(QString, QString)),
-			m_palmi->rootObject(), SIGNAL(insertReplaceTextBoard(QString, QString)));
+	connect(m_pini, &QQPinipede::insertTextPalmi,
+			m_palmi, &QQmlPalmipede::insertReplaceTextBoard);
 #else
 	connect(m_pini, SIGNAL(insertTextPalmi(QString, QString)), m_palmi, SLOT(insertReplaceText(QString, QString)));
 #endif

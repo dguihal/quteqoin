@@ -18,6 +18,15 @@ equals(QT_MAJOR_VERSION, 5) {
     QT += widgets multimediawidgets
 }
 
+CONFIG += QML_PALMI
+
+CONFIG(QML_PALMI) {
+    equals(QT_MAJOR_VERSION, 5):greaterThan(QT_MINOR_VERSION, 3) {
+
+        QT += quick quickwidgets quickcontrols2
+    }
+}
+
 include($$PWD/gitversion.pri)
 
 # A Tester
@@ -189,16 +198,14 @@ RESOURCES += \
     rc/quteqoin_defs.qrc \
     rc/quteqoin_anims.qrc
 
+DEFINES += QML_PALMI
+
 CONFIG(QML_PALMI) {
     equals(QT_MAJOR_VERSION, 5):greaterThan(QT_MINOR_VERSION, 3) {
 
-        QT += quick quickwidgets
+        SOURCES += ui/qqmlpalmipede.cpp
 
-        DEFINES += QML_PALMI
-
-        SOURCES += qml/documenthandler.cpp
-
-        HEADERS += qml/documenthandler.h
+        HEADERS += ui/qqmlpalmipede.h
 
         RESOURCES += qml/quteqoin_qml.qrc
 

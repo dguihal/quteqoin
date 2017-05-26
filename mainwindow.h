@@ -13,8 +13,8 @@ class QQPiniSearchWidget;
 class QQSettings;
 class QQTotozManager;
 
-#if defined(QML_PALMI)
-class QQuickWidget;
+#ifdef QML_PALMI
+#include "ui/qqmlpalmipede.h"
 #endif
 
 namespace Ui {
@@ -60,7 +60,7 @@ private:
 	QQBoardsInfo *m_boardsInfo;
 	QQDockPalmi *m_dockPalmi;
 #ifdef QML_PALMI
-	QQuickWidget *m_palmi;
+	QQmlPalmipede *m_palmi;
 #else
 	QQPalmipede *m_palmi;
 #endif

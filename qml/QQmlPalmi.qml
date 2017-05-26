@@ -1,6 +1,5 @@
-import QtQuick 2.4
-import QtQuick.Controls 1.3
-import QtQuick.Controls.Styles 1.3
+import QtQuick 2.6
+import QtQuick.Controls 2.0
 
 Rectangle {
 	id:palmipede
@@ -9,6 +8,9 @@ Rectangle {
 
 	property int lineHeight: 30
 	property string currentBoardName: ""
+
+    SystemPalette { id: myPalette; colorGroup: SystemPalette.Active }
+    color: myPalette.window
 
 	ListModel {
 		id: boardListModel
@@ -40,7 +42,7 @@ Rectangle {
 				color: boardColorLight
 				Text {
 					id: boardTxt
-					font.pixelSize: 10
+                    font.pixelSize: 10
 					text: boardName
 				}
 
@@ -77,7 +79,7 @@ Rectangle {
 			top: boards.bottom //palmipede.top
 			topMargin: 2
 		}
-		border.color: "darkgray"
+        border.color: myPalette.text
 		height: palmipede.lineHeight
 		radius: 4
 
@@ -86,12 +88,13 @@ Rectangle {
 			anchors.fill: parent
 			placeholderText: "coin ! coin !"
 
-			style: TextFieldStyle {
-				background: Rectangle {
-					color: "transparent"
-					border.width: 0
-				}
-			}
+            background: Rectangle {
+                color: "transparent"
+            }
+
+            color: "black"
+            cursorVisible: true
+            selectByMouse: true
 
 			Keys.onUpPressed: {
 				if(event.modifiers & Qt.AltModifier)
@@ -217,17 +220,18 @@ Rectangle {
 			right: attachBtn.left
 			rightMargin: 2
 			verticalCenter: postInput.verticalCenter
-		}
-		border.color: "darkgray"
-		color: "transparent"
+        }
+        border.color: myPalette.buttonText
+        color: myPalette.button
 		height: palmipede.lineHeight
 		radius: 4
-		width: postBtnTxt.contentWidth + 4
+        width: Math.max(height, postBtnTxt.contentWidth + 4)
 
 		Text {
 			id: postBtnTxt
 			anchors.centerIn: parent
-			text: qsTr("Post")
+            text: qsTr("📧")
+            color: myPalette.buttonText
 		}
 
 		MouseArea {
@@ -246,8 +250,8 @@ Rectangle {
 			rightMargin: 2
 			verticalCenter: postInput.verticalCenter
 		}
-		border.color: "darkgray"
-		color: "transparent"
+        border.color: myPalette.text
+        color: myPalette.button
 		height: palmipede.lineHeight
 		radius: 4
 		width: height
@@ -278,8 +282,8 @@ Rectangle {
 			leftMargin: 2
 			top: postInput.bottom
 			topMargin: 2
-		}
-		border.color: "darkgray"
+        }
+        border.color: myPalette.text
 		color: "transparent"
 		radius: 4
 		width: Math.max(height, boldBtnTxt.contentWidth + 4)
@@ -294,6 +298,7 @@ Rectangle {
 				bold: true
 				pointSize: 12
 			}
+            color: myPalette.text
 		}
 
 		MouseArea {
@@ -314,8 +319,8 @@ Rectangle {
 			leftMargin: 2
 			top: boldBtn.top
 			bottom: boldBtn.bottom
-		}
-		border.color: "darkgray"
+        }
+        border.color: myPalette.text
 		color: "transparent"
 		height: palmipede.lineHeight
 		radius: 4
@@ -331,6 +336,7 @@ Rectangle {
 				italic: true
 				pointSize: 12
 			}
+            color: myPalette.text
 		}
 
 		MouseArea {
@@ -351,8 +357,8 @@ Rectangle {
 			leftMargin: 2
 			top: italicBtn.top
 			bottom: italicBtn.bottom
-		}
-		border.color: "darkgray"
+        }
+        border.color: myPalette.text
 		color: "transparent"
 		height: palmipede.lineHeight
 		radius: 4
@@ -368,6 +374,7 @@ Rectangle {
 				underline: true
 				pointSize: 12
 			}
+            color: myPalette.text
 		}
 
 		MouseArea {
@@ -388,8 +395,8 @@ Rectangle {
 			leftMargin: 2
 			top: underlineBtn.top
 			bottom: underlineBtn.bottom
-		}
-		border.color: "darkgray"
+        }
+        border.color: myPalette.text
 		color: "transparent"
 		height: palmipede.lineHeight
 		radius: 4
@@ -405,6 +412,7 @@ Rectangle {
 				strikeout: true
 				pointSize: 12
 			}
+            color: myPalette.text
 		}
 
 		MouseArea {
@@ -425,8 +433,8 @@ Rectangle {
 			leftMargin: 2
 			top: strikeBtn.top
 			bottom: strikeBtn.bottom
-		}
-		border.color: "darkgray"
+        }
+        border.color: myPalette.text
 		color: "transparent"
 		radius: 4
 		width: Math.max(height, momentBtnTxt.contentWidth + 4)
@@ -441,6 +449,7 @@ Rectangle {
 				bold: true
 				pointSize: 12
 			}
+            color: myPalette.text
 		}
 
 		MouseArea {
@@ -460,13 +469,60 @@ Rectangle {
 		}
 		height: palmipede.lineHeight
 
-		model: [ "_o/* BLAM!", "_o/* paf!"]
+        delegate: ItemDelegate {
+            width: blamPafSelector.width
+            font: blamPafSelector.font
+            contentItem: Text {
+                text: modelData
+                color: myPalette.text
+                elide: Text.ElideRight
+                verticalAlignment: Text.AlignLeft
+            }
+            highlighted: myPalette.highlightedIndex == index
+        }
 
-		style: ComboBoxStyle {
-			font {
-				bold: true
-			}
-		}
+        font.bold: true
+
+        model: [ "_o/* BLAM!", "_o/* paf!"]
+
+        contentItem: Text {
+            leftPadding: 0
+            rightPadding: blamPafSelector.indicator.width + blamPafSelector.spacing
+
+            text: blamPafSelector.displayText
+            font: blamPafSelector.font
+            color: myPalette.text
+            horizontalAlignment: Text.AlignLeft
+            verticalAlignment: Text.AlignVCenter
+            elide: Text.ElideRight
+        }
+
+        background: Rectangle {
+            border.color: myPalette.text
+            color: myPalette.window
+            radius: 2
+        }
+
+        popup: Popup {
+            y: blamPafSelector.height - 1
+            width: blamPafSelector.width
+            implicitHeight: listview.contentHeight
+            padding: 1
+
+            contentItem: ListView {
+                id: listview
+                clip: true
+                model: blamPafSelector.popup.visible ? blamPafSelector.delegateModel : null
+                currentIndex: blamPafSelector.highlightedIndex
+
+                ScrollIndicator.vertical: ScrollIndicator { }
+            }
+
+            background: Rectangle {
+                border.color: myPalette.windowText
+                radius: 2
+            }
+        }
 	}
 
 /*
