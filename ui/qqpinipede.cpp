@@ -997,7 +997,6 @@ void QQPinipede::newPostsAvailable(QString groupName)
 		newPosts.removeFirst();
 
 	bool wasAtEnd = (vScrollBar->value() == vScrollBar->maximum());
-	qDebug() << Q_FUNC_INFO << wasAtEnd;
 
 	// Tri necessaire puisqu'on a potentiellement melange les posts de plusieurs tribunes
 	qSort(newPosts.begin(), newPosts.end(), postComp);
