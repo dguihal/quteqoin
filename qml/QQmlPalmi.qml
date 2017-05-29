@@ -1,16 +1,17 @@
 import QtQuick 2.6
 import QtQuick.Controls 2.0
+import QtQuick.Layouts 1.3
 
 Rectangle {
 	id:palmipede
-	height: boards.childrenRect.height + postInput.height + boldBtn.height + 6
+	height: boards.childrenRect.height + postInput.height + fmtRow.height + 6
 	width: 400
 
 	property int lineHeight: 30
 	property string currentBoardName: ""
 
-    SystemPalette { id: myPalette; colorGroup: SystemPalette.Active }
-    color: myPalette.window
+	SystemPalette { id: myPalette; colorGroup: SystemPalette.Active }
+	color: myPalette.window
 
 	ListModel {
 		id: boardListModel
@@ -42,7 +43,7 @@ Rectangle {
 				color: boardColorLight
 				Text {
 					id: boardTxt
-                    font.pixelSize: 10
+					font.pixelSize: 10
 					text: boardName
 				}
 
@@ -79,7 +80,7 @@ Rectangle {
 			top: boards.bottom //palmipede.top
 			topMargin: 2
 		}
-        border.color: myPalette.text
+		border.color: myPalette.text
 		height: palmipede.lineHeight
 		radius: 4
 
@@ -88,13 +89,13 @@ Rectangle {
 			anchors.fill: parent
 			placeholderText: "coin ! coin !"
 
-            background: Rectangle {
-                color: "transparent"
-            }
+			background: Rectangle {
+				color: "transparent"
+			}
 
-            color: "black"
-            cursorVisible: true
-            selectByMouse: true
+			color: "black"
+			cursorVisible: true
+			selectByMouse: true
 
 			Keys.onUpPressed: {
 				if(event.modifiers & Qt.AltModifier)
@@ -220,18 +221,18 @@ Rectangle {
 			right: attachBtn.left
 			rightMargin: 2
 			verticalCenter: postInput.verticalCenter
-        }
-        border.color: myPalette.buttonText
-        color: myPalette.button
+		}
+		border.color: myPalette.buttonText
+		color: myPalette.button
 		height: palmipede.lineHeight
 		radius: 4
-        width: Math.max(height, postBtnTxt.contentWidth + 4)
+		width: Math.max(height, postBtnTxt.contentWidth + 4)
 
 		Text {
 			id: postBtnTxt
 			anchors.centerIn: parent
-            text: qsTr("📧")
-            color: myPalette.buttonText
+			text: qsTr("📧")
+			color: myPalette.buttonText
 		}
 
 		MouseArea {
@@ -250,8 +251,8 @@ Rectangle {
 			rightMargin: 2
 			verticalCenter: postInput.verticalCenter
 		}
-        border.color: myPalette.text
-        color: myPalette.button
+		border.color: myPalette.text
+		color: myPalette.button
 		height: palmipede.lineHeight
 		radius: 4
 		width: height
@@ -271,9 +272,151 @@ Rectangle {
 		}
 	}
 
+	Row {
+		id: fmtRow
+		anchors {
+			right: palmipede.right
+			rightMargin: 2
+			top: postInput.bottom
+			topMargin: 2
+		}
+		layoutDirection: Qt.LeftToRight
+		width: childrenRect.width
+		spacing: 2
+
+		property int fontPtSize: 8
+
+		Rectangle {
+			width: childrenRect.width
+			height: childrenRect.height
+			color: "transparent"
+			Text { text: "Click for :"; font.pointSize: fmtRow.fontPtSize; color: myPalette.buttonText; padding: 1 }
+		}
+		Rectangle {
+			width: tB.width
+			height: tB.height
+			color: "transparent"
+			radius: 1
+			border {
+				width: maB.containsMouse ? 1 : 0
+				color: myPalette.text
+			}
+			Text { id: tB; text: "Bold"; font.bold: true; font.pointSize: fmtRow.fontPtSize; color: myPalette.buttonText; padding: 1 }
+			MouseArea {
+				id: maB
+				anchors.fill: parent
+				hoverEnabled: true
+				//onPressed: palmipede.doPost()
+			}
+		}
+		Rectangle {
+			width: tI.width
+			height: tI.height
+			color: "transparent"
+			radius: 1
+			border {
+				width: maI.containsMouse ? 1 : 0
+				color: myPalette.text
+			}
+			Text { id: tI; text: "Italic"; font.italic: true; font.pointSize: fmtRow.fontPtSize; color: myPalette.buttonText; padding: 1 }
+			MouseArea {
+				id: maI
+				anchors.fill: parent
+				hoverEnabled: true
+				//onPressed: palmipede.doPost()
+			}
+		}
+		Rectangle {
+			width: tU.width
+			height: tU.height
+			color: "transparent"
+			radius: 1
+			border {
+				width: maU.containsMouse ? 1 : 0
+				color: myPalette.text
+			}
+			Text { id: tU; text: "Underline"; font.underline: true; font.pointSize: fmtRow.fontPtSize; color: myPalette.buttonText; padding: 1 }
+			MouseArea {
+				id: maU
+				anchors.fill: parent
+				hoverEnabled: true
+				//onPressed: palmipede.doPost()
+			}
+		}
+		Rectangle {
+			width: tS.width
+			height: tS.height
+			color: "transparent"
+			radius: 1
+			border {
+				width: maS.containsMouse ? 1 : 0
+				color: myPalette.text
+			}
+			Text { id: tS; text: "Strike"; font.strikeout: true; font.pointSize: fmtRow.fontPtSize; color: myPalette.buttonText; padding: 1 }
+			MouseArea {
+				id: maS
+				anchors.fill: parent
+				hoverEnabled: true
+				//onPressed: palmipede.doPost()
+			}
+		}
+		Rectangle {
+			width: tM.width
+			height: tM.height
+			color: "transparent"
+			radius: 1
+			border {
+				width: maM.containsMouse ? 1 : 0
+				color: myPalette.text
+			}
+			Text { id: tM; text: "=> Moment <="; font.bold: true; font.pointSize: fmtRow.fontPtSize; color: myPalette.buttonText; padding: 1 }
+			MouseArea {
+				id: maM
+				anchors.fill: parent
+				hoverEnabled: true
+				//onPressed: palmipede.doPost()
+			}
+		}
+		Rectangle {
+			width: tP.width
+			height: tP.height
+			color: "transparent"
+			radius: 1
+			border {
+				width: maP.containsMouse ? 1 : 0
+				color: myPalette.text
+			}
+			Text { id: tP; text: "Paf !"; font.bold: true; font.pointSize: fmtRow.fontPtSize; color: myPalette.buttonText }
+			MouseArea {
+				id: maP
+				anchors.fill: parent
+				hoverEnabled: true
+				//onPressed: palmipede.doPost()
+			}
+		}
+		Rectangle {
+			width: tBl.width
+			height: tBl.height
+			color: "transparent"
+			radius: 1
+			border {
+				width: maBl.containsMouse ? 1 : 0
+				color: myPalette.text
+			}
+			Text { id: tBl; text: "Blam !"; font.bold: true; font.pointSize: fmtRow.fontPtSize; color: myPalette.buttonText }
+			MouseArea {
+				id: maBl
+				anchors.fill: parent
+				hoverEnabled: true
+				//onPressed: palmipede.doPost()
+			}
+		}
+	}
+
 	/*************************************************
 	 * Bold Button
 	 *************************************************/
+	/*
 	Rectangle {
 		id: boldBtn
 		height: palmipede.lineHeight
@@ -282,8 +425,8 @@ Rectangle {
 			leftMargin: 2
 			top: postInput.bottom
 			topMargin: 2
-        }
-        border.color: myPalette.text
+		}
+		border.color: myPalette.text
 		color: "transparent"
 		radius: 4
 		width: Math.max(height, boldBtnTxt.contentWidth + 4)
@@ -298,7 +441,7 @@ Rectangle {
 				bold: true
 				pointSize: 12
 			}
-            color: myPalette.text
+			color: myPalette.text
 		}
 
 		MouseArea {
@@ -308,10 +451,12 @@ Rectangle {
 			onPressed: palmipede.insertSurroundText("<b>", "</b>")
 		}
 	}
+	*/
 
 	/*************************************************
 	 * Italic Button
 	 *************************************************/
+	/*
 	Rectangle {
 		id: italicBtn
 		anchors {
@@ -319,8 +464,8 @@ Rectangle {
 			leftMargin: 2
 			top: boldBtn.top
 			bottom: boldBtn.bottom
-        }
-        border.color: myPalette.text
+		}
+		border.color: myPalette.text
 		color: "transparent"
 		height: palmipede.lineHeight
 		radius: 4
@@ -336,7 +481,7 @@ Rectangle {
 				italic: true
 				pointSize: 12
 			}
-            color: myPalette.text
+			color: myPalette.text
 		}
 
 		MouseArea {
@@ -346,10 +491,12 @@ Rectangle {
 			onPressed: palmipede.insertSurroundText("<i>", "</i>")
 		}
 	}
+	*/
 
 	/*************************************************
 	 * Underline Button
 	 *************************************************/
+	/*
 	Rectangle {
 		id: underlineBtn
 		anchors {
@@ -357,8 +504,8 @@ Rectangle {
 			leftMargin: 2
 			top: italicBtn.top
 			bottom: italicBtn.bottom
-        }
-        border.color: myPalette.text
+		}
+		border.color: myPalette.text
 		color: "transparent"
 		height: palmipede.lineHeight
 		radius: 4
@@ -374,7 +521,7 @@ Rectangle {
 				underline: true
 				pointSize: 12
 			}
-            color: myPalette.text
+			color: myPalette.text
 		}
 
 		MouseArea {
@@ -384,10 +531,11 @@ Rectangle {
 			onPressed: palmipede.insertSurroundText("<u>", "</u>")
 		}
 	}
-
+	*/
 	/*************************************************
 	 * Underline Button
 	 *************************************************/
+	/*
 	Rectangle {
 		id: strikeBtn
 		anchors {
@@ -395,8 +543,8 @@ Rectangle {
 			leftMargin: 2
 			top: underlineBtn.top
 			bottom: underlineBtn.bottom
-        }
-        border.color: myPalette.text
+		}
+		border.color: myPalette.text
 		color: "transparent"
 		height: palmipede.lineHeight
 		radius: 4
@@ -412,7 +560,7 @@ Rectangle {
 				strikeout: true
 				pointSize: 12
 			}
-            color: myPalette.text
+			color: myPalette.text
 		}
 
 		MouseArea {
@@ -422,10 +570,12 @@ Rectangle {
 			onPressed: palmipede.insertSurroundText("<s>", "</s>")
 		}
 	}
+	*/
 
 	/*************************************************
 	 * Moment Button
 	 *************************************************/
+	/*
 	Rectangle {
 		id: momentBtn
 		anchors {
@@ -433,8 +583,8 @@ Rectangle {
 			leftMargin: 2
 			top: strikeBtn.top
 			bottom: strikeBtn.bottom
-        }
-        border.color: myPalette.text
+		}
+		border.color: myPalette.text
 		color: "transparent"
 		radius: 4
 		width: Math.max(height, momentBtnTxt.contentWidth + 4)
@@ -449,7 +599,7 @@ Rectangle {
 				bold: true
 				pointSize: 12
 			}
-            color: myPalette.text
+			color: myPalette.text
 		}
 
 		MouseArea {
@@ -469,62 +619,62 @@ Rectangle {
 		}
 		height: palmipede.lineHeight
 
-        delegate: ItemDelegate {
-            width: blamPafSelector.width
-            font: blamPafSelector.font
-            contentItem: Text {
-                text: modelData
-                color: myPalette.text
-                elide: Text.ElideRight
-                verticalAlignment: Text.AlignLeft
-            }
-            highlighted: myPalette.highlightedIndex == index
-        }
+		delegate: ItemDelegate {
+			width: blamPafSelector.width
+			font: blamPafSelector.font
+			contentItem: Text {
+				text: modelData
+				color: myPalette.text
+				elide: Text.ElideRight
+				verticalAlignment: Text.AlignLeft
+			}
+			highlighted: myPalette.highlightedIndex === index
+		}
 
-        font.bold: true
+		font.bold: true
 
-        model: [ "_o/* BLAM!", "_o/* paf!"]
+		model: [ "_o/* BLAM!", "_o/* paf!"]
 
-        contentItem: Text {
-            leftPadding: 0
-            rightPadding: blamPafSelector.indicator.width + blamPafSelector.spacing
+		contentItem: Text {
+			leftPadding: 0
+			rightPadding: blamPafSelector.indicator.width + blamPafSelector.spacing
 
-            text: blamPafSelector.displayText
-            font: blamPafSelector.font
-            color: myPalette.text
-            horizontalAlignment: Text.AlignLeft
-            verticalAlignment: Text.AlignVCenter
-            elide: Text.ElideRight
-        }
+			text: blamPafSelector.displayText
+			font: blamPafSelector.font
+			color: myPalette.text
+			horizontalAlignment: Text.AlignLeft
+			verticalAlignment: Text.AlignVCenter
+			elide: Text.ElideRight
+		}
 
-        background: Rectangle {
-            border.color: myPalette.text
-            color: myPalette.window
-            radius: 2
-        }
+		background: Rectangle {
+			border.color: myPalette.text
+			color: myPalette.window
+			radius: 2
+		}
 
-        popup: Popup {
-            y: blamPafSelector.height - 1
-            width: blamPafSelector.width
-            implicitHeight: listview.contentHeight
-            padding: 1
+		popup: Popup {
+			y: blamPafSelector.height - 1
+			width: blamPafSelector.width
+			implicitHeight: listview.contentHeight
+			padding: 1
 
-            contentItem: ListView {
-                id: listview
-                clip: true
-                model: blamPafSelector.popup.visible ? blamPafSelector.delegateModel : null
-                currentIndex: blamPafSelector.highlightedIndex
+			contentItem: ListView {
+				id: listview
+				clip: true
+				model: blamPafSelector.popup.visible ? blamPafSelector.delegateModel : null
+				currentIndex: blamPafSelector.highlightedIndex
 
-                ScrollIndicator.vertical: ScrollIndicator { }
-            }
+				ScrollIndicator.vertical: ScrollIndicator { }
+			}
 
-            background: Rectangle {
-                border.color: myPalette.windowText
-                radius: 2
-            }
-        }
+			background: Rectangle {
+				border.color: myPalette.windowText
+				radius: 2
+			}
+		}
 	}
-
+*/
 /*
 	states: [
 		State {
