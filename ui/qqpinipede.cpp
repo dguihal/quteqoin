@@ -212,6 +212,7 @@ void QQPinipede::repaintPiniTab(const QString &groupName)
 	//Peut arriver lors du premier demarrage "a vide"
 	if(posts == NULL || posts->size() == 0)
 	{
+		QApplication::restoreOverrideCursor();
 		m_newPostsAvailableMutex.unlock();
 		return;
 	}
@@ -996,6 +997,7 @@ void QQPinipede::newPostsAvailable(QString groupName)
 		newPosts.removeFirst();
 
 	bool wasAtEnd = (vScrollBar->value() == vScrollBar->maximum());
+	qDebug() << Q_FUNC_INFO << wasAtEnd;
 
 	// Tri necessaire puisqu'on a potentiellement melange les posts de plusieurs tribunes
 	qSort(newPosts.begin(), newPosts.end(), postComp);
