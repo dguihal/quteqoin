@@ -201,7 +201,7 @@ void QQPinipede::repaintPiniTab(const QString &groupName)
 
 	QScrollBar *vScrollBar = textBrowser->verticalScrollBar();
 
-	bool isAtEnd = (vScrollBar->value() == vScrollBar->maximum());
+	//bool isAtEnd = (vScrollBar->value() == vScrollBar->maximum());
 	int blockNum = textBrowser->cursorForPosition(QPoint(0, 0)).blockNumber();
 
 	clearPiniTab(groupName);
@@ -233,10 +233,10 @@ void QQPinipede::repaintPiniTab(const QString &groupName)
 	}
 	cursor.endEditBlock();
 
-	if(isAtEnd)
-		vScrollBar->setSliderPosition(vScrollBar->maximum());
-	else
-	{
+	//if(isAtEnd)
+	//	vScrollBar->setSliderPosition(vScrollBar->maximum());
+	//else
+	//{
 		int currBlockNum = textBrowser->cursorForPosition(QPoint(0, 0)).blockNumber();
 		while(currBlockNum < blockNum)
 		{
@@ -248,7 +248,7 @@ void QQPinipede::repaintPiniTab(const QString &groupName)
 			vScrollBar->triggerAction(QAbstractSlider::SliderSingleStepSub);
 			currBlockNum = textBrowser->cursorForPosition(QPoint(0, 0)).blockNumber();
 		}
-	}
+	//}
 
 	QApplication::restoreOverrideCursor();
 
@@ -967,7 +967,7 @@ void QQPinipede::newPostsAvailable(QString groupName)
 		qWarning() << Q_FUNC_INFO << groupName << "tryLock timeout";
 
 	QQTextBrowser *textBrowser = m_textBrowserHash.value(groupName);
-	QScrollBar *vScrollBar = textBrowser->verticalScrollBar();
+	//QScrollBar *vScrollBar = textBrowser->verticalScrollBar();
 
 	QQListPostPtr newPosts;
 	foreach(QQBouchot *b, QQBouchot::listBouchotsGroup(groupName))
@@ -996,7 +996,7 @@ void QQPinipede::newPostsAvailable(QString groupName)
 	while(newPosts.size() > m_maxHistorySize)
 		newPosts.removeFirst();
 
-	bool wasAtEnd = (vScrollBar->value() == vScrollBar->maximum());
+	//bool wasAtEnd = (vScrollBar->value() == vScrollBar->maximum());
 
 	// Tri necessaire puisqu'on a potentiellement melange les posts de plusieurs tribunes
 	qSort(newPosts.begin(), newPosts.end(), postComp);
@@ -1021,7 +1021,7 @@ void QQPinipede::newPostsAvailable(QString groupName)
 		postWasPrinted = printPostAtCursor(cursor, firstPost);
 
 		// Si le pini était vide on scrolle forcément vers le dernier post
-		wasAtEnd = true;
+		//wasAtEnd = true;
 	}
 	else
 		destlistPosts = m_listPostsTabMap[groupName];
@@ -1100,8 +1100,8 @@ void QQPinipede::newPostsAvailable(QString groupName)
 	// Purge des anciens messages
 	purgePinitabHistory(groupName);
 
-	if(wasAtEnd)
-		vScrollBar->setSliderPosition(vScrollBar->maximum());
+	//if(wasAtEnd)
+	//	vScrollBar->setSliderPosition(vScrollBar->maximum());
 
 	//Remise en place de l'ancienne forme du pointeur
 	QApplication::restoreOverrideCursor();
