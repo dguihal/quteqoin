@@ -34,6 +34,7 @@ QQTextBrowser::QQTextBrowser(QString groupName, QQPinipede *parent) :
 	QTextBrowser(parent),
 	m_notifArea(new QQNotifArea(this)),
 	m_urlHelper(new QQPiniUrlHelper(this)),
+	m_isScrollAtBottom(true),
 	m_highlightedNorlogeRef(""),
 	m_displayedTotozId(""),
 	m_shownUrl(),
@@ -49,6 +50,9 @@ QQTextBrowser::QQTextBrowser(QString groupName, QQPinipede *parent) :
 	connect(m_urlHelper, SIGNAL(mmDataAvailable(QUrl&,QString&)), this, SLOT(onThumbnailUrlAvailable(QUrl&, QString&)));
 	connect(this, SIGNAL(anchorClicked(QUrl)), this, SLOT(onAnchorClicked(QUrl)));
 	connect(this, SIGNAL(highlighted(QUrl)), this, SLOT(onAnchorHighlighted(QUrl)));
+
+	connect(this->verticalScrollBar(), SIGNAL(valueChanged(int)), this, SLOT(onScrollValueChanged(int)));
+	connect(this->verticalScrollBar(), SIGNAL(rangeChanged(int,int)), this, SLOT(onScrollRangeChanged(int,int)));
 
 	QTextDocument *doc = document();
 	doc->setUndoRedoEnabled(false);
@@ -402,6 +406,23 @@ void QQTextBrowser::onExtendedInfoAvailable(QUrl &url, QString &contentType)
 		ttText.append(" (").append(contentType).append(")");
 		QToolTip::showText(QCursor::pos(), ttText, this);
 	}
+}
+
+/**
+ * @brief QQTextBrowser::onScrollRangeChanged
+ * @param min
+ * @param max
+ */
+void QQTextBrowser::onScrollRangeChanged(int min, int max)
+{
+	Q_UNUSED(min)
+	if(m_isScrollAtBottom)
+		verticalScrollBar()->setValue(max);
+}
+
+void QQTextBrowser::onScrollValueChanged(int value)
+{
+	m_isScrollAtBottom = (value == verticalScrollBar()->maximum());
 }
 
 void QQTextBrowser::onThumbnailUrlAvailable(QUrl &url, QString &contentType)
