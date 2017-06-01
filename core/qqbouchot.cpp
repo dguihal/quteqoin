@@ -60,7 +60,7 @@ QQBouchotDef bouchotsDef[] =
 	  "#fffabb", "goboard", "", QQBouchot::SlipTagsEncoded },
 	{ "sauf.ca", "http://sauf.ca/feeds/all.tsv", "", "",
 	  "#4aff47", "", "", QQBouchot::SlipTagsRaw },
-	{ "miaoli[42]", "http://www.miaoli.im/tribune/42/tsv", "http://www.miaoli.im/tribune/42/post", "message=%m",
+	{ "42", "http://www.miaoli.im/tribune/42/tsv", "http://www.miaoli.im/tribune/42/post", "message=%m",
 	  "#ffd0d0", "", "", QQBouchot::SlipTagsRaw }
 };
 
