@@ -52,8 +52,6 @@ QQBouchotDef bouchotsDef[] =
 	  "#ffe3c9", "", "", QQBouchot::SlipTagsRaw },
 	{ "gabuzomeu", "http://gabuzomeu.fr/tribune.xml", "http://gabuzomeu.fr/tribune/post", "message=%m",
 	  "#aaffbb", "", "", QQBouchot::SlipTagsRaw },
-	{ "see", "http://tout.essaye.sauf.ca/tribune.xml", "http://tout.essaye.sauf.ca/tribune/post", "message=%m",
-	  "#ffd0d0", "schee,seeschloss", "", QQBouchot::SlipTagsRaw },
 	{ "devnewton", "https://b3.bci.im/legacy/xml?last=%i", "https://b3.bci.im/legacy/post", "message=%m",
 	  "#666666", "", "", QQBouchot::SlipTagsEncoded },
 	{ "faab", "http://ratatouille.leguyader.eu/data/backend.xml", "http://ratatouille.leguyader.eu/add.php", "message=%m",
@@ -61,7 +59,9 @@ QQBouchotDef bouchotsDef[] =
 	{ "goboard", "https://ototu.euromussels.eu/goboard/backend/tsv", "https://ototu.euromussels.eu/goboard/post", "message=%m",
 	  "#fffabb", "goboard", "", QQBouchot::SlipTagsEncoded },
 	{ "sauf.ca", "http://sauf.ca/feeds/all.tsv", "", "",
-	  "#4aff47", "", "", QQBouchot::SlipTagsRaw }
+	  "#4aff47", "", "", QQBouchot::SlipTagsRaw },
+	{ "miaoli[42]", "http://www.miaoli.im/tribune/42/tsv", "http://www.miaoli.im/tribune/42/post", "message=%m",
+	  "#ffd0d0", "", "", QQBouchot::SlipTagsRaw }
 };
 
 #define REFRESH_RATIOS_SIZE 15
