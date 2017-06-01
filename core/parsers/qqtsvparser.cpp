@@ -28,9 +28,7 @@ bool QQTsvParser::parseBackend(const QByteArray &data)
 		{
 			bool ok = true;
 			qlonglong id = fields.at(0).toLongLong(&ok);
-			if(id <= m_lastId)
-				break;
-			if(!ok)
+			if(!ok || id <= m_lastId)
 				continue;
 			if(id > m_maxId)
 				m_maxId = id;
