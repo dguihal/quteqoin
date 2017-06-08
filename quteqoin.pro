@@ -210,15 +210,15 @@ CONFIG(QML_PALMI) {
         RESOURCES += qml/quteqoin_qml.qrc
 
         OTHER_FILES += \
-            qml/QQmlMain.qml \
-            qml/QQmlNetworkSettings.qml \
-            qml/QQmlPinni.qml \
+#            qml/QQmlMain.qml \
+#            qml/QQmlNetworkSettings.qml \
+#            qml/QQmlPinni.qml \
             qml/QQmlPalmi.qml \
-            qml/QQmlGeneralSettings.qml \
-            qml/QQmlSettingsEditor.qml \
-            qml/QQmlSettingsItem.qml \
-            qml/QQmlSettingsItemMenuBtn.qml \
-            qml/QQmlTotozSettings.qml
+#            qml/QQmlGeneralSettings.qml \
+#            qml/QQmlSettingsEditor.qml \
+#            qml/QQmlSettingsItem.qml \
+#            qml/QQmlSettingsItemMenuBtn.qml \
+#            qml/QQmlTotozSettings.qml
     }
     else {
         message("Cannot build Qt Creator with Qt version $${QT_VERSION}.")
@@ -254,3 +254,6 @@ win32 {
 }
 
 # vim: ts=4 sw=4 sts=4 noexpandtab
+
+DISTFILES += \
+    qml/QQmlPalmiEditItem.qml

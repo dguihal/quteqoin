@@ -9,5 +9,7 @@
         <file>QQmlSettingsItemMenuBtn.qml</file>
         <file>QQmlTotozSettings.qml</file>
         <file>QQmlNetworkSettings.qml</file>
+        <file>QQmlPalmiEditItem.qml</file>
+        <file>QQmlPalmiBoardItem.qml</file>
     </qresource>
 </RCC>

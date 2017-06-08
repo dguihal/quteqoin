@@ -3,7 +3,7 @@ import QtQuick.Controls 2.0
 import QtQuick.Layouts 1.3
 
 Rectangle {
-	id:palmipede
+    id:palmipede
 	height: boards.childrenRect.height + postInput.height + fmtRow.height + 6
 	width: 400
 
@@ -32,30 +32,12 @@ Rectangle {
 
 		Repeater {
 			model: boardListModel
-			delegate: Rectangle {
-				width: boardTxt.contentWidth
-				height: boardTxt.contentHeight
-
-				radius: 4
-				border.width: 1
-				border.color: "darkgray"
-
-				color: boardColorLight
-				Text {
-					id: boardTxt
-					font.pixelSize: 10
-					text: boardName
-				}
-
-				MouseArea {
-					anchors.fill: parent
-					onClicked: {
-						postInput.color = boardColorLight
-						postInput.border.color = boardColor
-						currentBoardName = boardName
-					}
-				}
-			}
+            delegate: QQmlPalmiBoardItem {
+                name: boardName
+                colorDark: boardColor
+                colorLight: boardColorLight
+                onClicked: palmipede.switchBoard(boardName)
+            }
 		}
 
 		onChildrenChanged: {
@@ -84,40 +66,61 @@ Rectangle {
 		height: palmipede.lineHeight
 		radius: 4
 
-		TextField {
-			id: postInputTF
-			anchors.fill: parent
-			placeholderText: "coin ! coin !"
+        FocusScope {
+            id: tfFocusScope
 
-			background: Rectangle {
-				color: "transparent"
-			}
+            anchors.fill: parent
+            focus: true
 
-			color: "black"
-			cursorVisible: true
-			selectByMouse: true
+            TextField {
+                id: postInputTF
 
-			Keys.onUpPressed: {
-				if(event.modifiers & Qt.AltModifier)
-				{
-					var i = 0;
-					for(i; i < boardListModel.count; i++)
-					{
-						var boardElt = boardListModel.get(i)
-						if(boardElt.name === text)
-						{
-							var newBoard = boardListModel.get(i + 1)
-							postInput.color = newBoard.colorLight
-							postInput.border.color = newBoard.color
-							currentBoardName = newBoard.boardName
+                anchors.fill: parent
+                placeholderText: "coin ! coin !"
+                focus: true
 
-						}
-					}
-				}
-			}
+                background: Rectangle {
+                    color: "transparent"
+                }
 
-			onAccepted: palmipede.doPost()
-		}
+                color: myPalette.text
+                cursorVisible: true
+                selectByMouse: true
+
+                Keys.onUpPressed: {
+                    if(event.modifiers & Qt.AltModifier)
+                    {
+                        for(var i = 0; i < boardListModel.count; i++)
+                        {
+                            var boardElt = boardListModel.get(i)
+                            if(boardElt.boardName === currentBoardName)
+                            {
+                                var newBoard = boardListModel.get((i + 1) % boardListModel.count)
+                                switchBoard(newBoard.boardName)
+                                break
+                            }
+                        }
+                    }
+                }
+                Keys.onDownPressed: {
+                    if(event.modifiers & Qt.AltModifier)
+                    {
+                        for(var i = 0; i < boardListModel.count; i++)
+                        {
+                            var boardElt = boardListModel.get(i)
+                            if(boardElt.boardName === currentBoardName)
+                            {
+                                var newBoard =  boardListModel.get(((i - 1) % boardListModel.count + boardListModel.count) % boardListModel.count)
+                                switchBoard(newBoard.boardName)
+                                break
+                            }
+                        }
+                    }
+                }
+
+                onAccepted: palmipede.doPost()
+            }
+        }
 
 		property alias text: postInputTF.text
 
@@ -270,9 +273,9 @@ Rectangle {
 			anchors.fill: parent
 			onPressed: palmipede.doPost()
 		}
-	}
+    }
 
-	Row {
+    Row {
 		id: fmtRow
 		anchors {
 			right: palmipede.right
@@ -281,400 +284,124 @@ Rectangle {
 			topMargin: 2
 		}
 		layoutDirection: Qt.LeftToRight
-		width: childrenRect.width
-		spacing: 2
+        width: childrenRect.width
+        spacing: 1
 
-		property int fontPtSize: 8
+        property int fontPtSize: 9
 
-		Rectangle {
-			width: childrenRect.width
-			height: childrenRect.height
-			color: "transparent"
-			Text { text: "Click for :"; font.pointSize: fmtRow.fontPtSize; color: myPalette.buttonText; padding: 1 }
-		}
-		Rectangle {
-			width: tB.width
-			height: tB.height
-			color: "transparent"
-			radius: 1
-			border {
-				width: maB.containsMouse ? 1 : 0
-				color: myPalette.text
-			}
-			Text { id: tB; text: "Bold"; font.bold: true; font.pointSize: fmtRow.fontPtSize; color: myPalette.buttonText; padding: 1 }
-			MouseArea {
-				id: maB
-				anchors.fill: parent
-				hoverEnabled: true
-				//onPressed: palmipede.doPost()
-			}
-		}
-		Rectangle {
-			width: tI.width
-			height: tI.height
-			color: "transparent"
-			radius: 1
-			border {
-				width: maI.containsMouse ? 1 : 0
-				color: myPalette.text
-			}
-			Text { id: tI; text: "Italic"; font.italic: true; font.pointSize: fmtRow.fontPtSize; color: myPalette.buttonText; padding: 1 }
-			MouseArea {
-				id: maI
-				anchors.fill: parent
-				hoverEnabled: true
-				//onPressed: palmipede.doPost()
-			}
-		}
-		Rectangle {
-			width: tU.width
-			height: tU.height
-			color: "transparent"
-			radius: 1
-			border {
-				width: maU.containsMouse ? 1 : 0
-				color: myPalette.text
-			}
-			Text { id: tU; text: "Underline"; font.underline: true; font.pointSize: fmtRow.fontPtSize; color: myPalette.buttonText; padding: 1 }
-			MouseArea {
-				id: maU
-				anchors.fill: parent
-				hoverEnabled: true
-				//onPressed: palmipede.doPost()
-			}
-		}
-		Rectangle {
-			width: tS.width
-			height: tS.height
-			color: "transparent"
-			radius: 1
-			border {
-				width: maS.containsMouse ? 1 : 0
-				color: myPalette.text
-			}
-			Text { id: tS; text: "Strike"; font.strikeout: true; font.pointSize: fmtRow.fontPtSize; color: myPalette.buttonText; padding: 1 }
-			MouseArea {
-				id: maS
-				anchors.fill: parent
-				hoverEnabled: true
-				//onPressed: palmipede.doPost()
-			}
-		}
-		Rectangle {
-			width: tM.width
-			height: tM.height
-			color: "transparent"
-			radius: 1
-			border {
-				width: maM.containsMouse ? 1 : 0
-				color: myPalette.text
-			}
-			Text { id: tM; text: "=> Moment <="; font.bold: true; font.pointSize: fmtRow.fontPtSize; color: myPalette.buttonText; padding: 1 }
-			MouseArea {
-				id: maM
-				anchors.fill: parent
-				hoverEnabled: true
-				//onPressed: palmipede.doPost()
-			}
-		}
-		Rectangle {
-			width: tP.width
-			height: tP.height
-			color: "transparent"
-			radius: 1
-			border {
-				width: maP.containsMouse ? 1 : 0
-				color: myPalette.text
-			}
-			Text { id: tP; text: "Paf !"; font.bold: true; font.pointSize: fmtRow.fontPtSize; color: myPalette.buttonText }
-			MouseArea {
-				id: maP
-				anchors.fill: parent
-				hoverEnabled: true
-				//onPressed: palmipede.doPost()
-			}
-		}
-		Rectangle {
-			width: tBl.width
-			height: tBl.height
-			color: "transparent"
-			radius: 1
-			border {
-				width: maBl.containsMouse ? 1 : 0
-				color: myPalette.text
-			}
-			Text { id: tBl; text: "Blam !"; font.bold: true; font.pointSize: fmtRow.fontPtSize; color: myPalette.buttonText }
-			MouseArea {
-				id: maBl
-				anchors.fill: parent
-				hoverEnabled: true
-				//onPressed: palmipede.doPost()
-			}
-		}
+        Text {
+            text: "Click for :"
+            font.pointSize: fmtRow.fontPtSize
+            color: myPalette.buttonText
+            padding: 1
+        }
+        QQmlPalmiEditItem {
+            id: boldBtn
+            borderColor: myPalette.text
+            text: "Bold"
+            textColor: myPalette.buttonText
+            textFont: Qt.font({
+                bold: true,
+                pointSize: fmtRow.fontPtSize
+            })
+        }
+        Text {
+            text: "|"
+            font.pointSize: fmtRow.fontPtSize
+            color: myPalette.buttonText
+            padding: 1
+        }
+        QQmlPalmiEditItem {
+            id: italicBtn
+            borderColor: myPalette.text
+            text: "Italic"
+            textColor: myPalette.buttonText
+            textFont: Qt.font({
+                italic: true,
+                pointSize: fmtRow.fontPtSize
+            })
+        }
+        Text {
+            text: "|"
+            font.pointSize: fmtRow.fontPtSize
+            color: myPalette.buttonText
+            padding: 1
+        }
+        QQmlPalmiEditItem {
+            id: underlineBtn
+            borderColor: myPalette.text
+            text: "Underline"
+            textColor: myPalette.buttonText
+            textFont: Qt.font({
+                underline: true,
+                pointSize: fmtRow.fontPtSize
+            })
+        }
+        Text {
+            text: "|"
+            font.pointSize: fmtRow.fontPtSize
+            color: myPalette.buttonText
+            padding: 1
+        }
+        QQmlPalmiEditItem {
+            id: strikeBtn
+            borderColor: myPalette.text
+            text: "Strike"
+            textColor: myPalette.buttonText
+            textFont: Qt.font({
+                strikeout: true,
+                pointSize: fmtRow.fontPtSize
+            })
+        }
+        Text {
+            text: "|"
+            font.pointSize: fmtRow.fontPtSize
+            color: myPalette.buttonText
+            padding: 1
+        }
+        QQmlPalmiEditItem {
+            id: momentBtn
+            borderColor: myPalette.text
+            text: "=> Moment <="
+            textColor: myPalette.buttonText
+            textFont: Qt.font({
+                bold: true,
+                pointSize: fmtRow.fontPtSize
+            })
+        }
+        Text {
+            text: "|"
+            font.pointSize: fmtRow.fontPtSize
+            color: myPalette.buttonText
+            padding: 1
+        }
+        QQmlPalmiEditItem {
+            id: pafBtn
+            borderColor: myPalette.text
+            text: "Paf !"
+            textColor: myPalette.buttonText
+            textFont: Qt.font({
+                bold: true,
+                pointSize: fmtRow.fontPtSize
+            })
+        }
+        Text {
+            text: "|"
+            font.pointSize: fmtRow.fontPtSize
+            color: myPalette.buttonText
+            padding: 1
+        }
+        QQmlPalmiEditItem {
+            id: blamBtn
+            borderColor: myPalette.text
+            text: "Blam !"
+            textColor: myPalette.buttonText
+            textFont: Qt.font({
+                bold: true,
+                pointSize: fmtRow.fontPtSize
+            })
+        }
 	}
-
-	/*************************************************
-	 * Bold Button
-	 *************************************************/
-	/*
-	Rectangle {
-		id: boldBtn
-		height: palmipede.lineHeight
-		anchors {
-			left: palmipede.left
-			leftMargin: 2
-			top: postInput.bottom
-			topMargin: 2
-		}
-		border.color: myPalette.text
-		color: "transparent"
-		radius: 4
-		width: Math.max(height, boldBtnTxt.contentWidth + 4)
-
-		Text {
-			id: boldBtnTxt
-
-			anchors.centerIn: parent
-			text: qsTr("B")
-			font {
-				family: "Times New Roman"
-				bold: true
-				pointSize: 12
-			}
-			color: myPalette.text
-		}
-
-		MouseArea {
-			id: boldBtnMA
-
-			anchors.fill: parent
-			onPressed: palmipede.insertSurroundText("<b>", "</b>")
-		}
-	}
-	*/
-
-	/*************************************************
-	 * Italic Button
-	 *************************************************/
-	/*
-	Rectangle {
-		id: italicBtn
-		anchors {
-			left: boldBtn.right
-			leftMargin: 2
-			top: boldBtn.top
-			bottom: boldBtn.bottom
-		}
-		border.color: myPalette.text
-		color: "transparent"
-		height: palmipede.lineHeight
-		radius: 4
-		width: Math.max(height, italicBtnTxt.contentWidth + 4)
-
-		Text {
-			id: italicBtnTxt
-
-			anchors.centerIn: parent
-			text: qsTr("I")
-			font {
-				family: "Times New Roman"
-				italic: true
-				pointSize: 12
-			}
-			color: myPalette.text
-		}
-
-		MouseArea {
-			id: italicBtnMA
-
-			anchors.fill: parent
-			onPressed: palmipede.insertSurroundText("<i>", "</i>")
-		}
-	}
-	*/
-
-	/*************************************************
-	 * Underline Button
-	 *************************************************/
-	/*
-	Rectangle {
-		id: underlineBtn
-		anchors {
-			left: italicBtn.right
-			leftMargin: 2
-			top: italicBtn.top
-			bottom: italicBtn.bottom
-		}
-		border.color: myPalette.text
-		color: "transparent"
-		height: palmipede.lineHeight
-		radius: 4
-		width: Math.max(height, underlineBtnTxt.contentWidth + 4)
-
-		Text {
-			id: underlineBtnTxt
-
-			anchors.centerIn: parent
-			text: qsTr("U")
-			font {
-				family: "Times New Roman"
-				underline: true
-				pointSize: 12
-			}
-			color: myPalette.text
-		}
-
-		MouseArea {
-			id: underlineBtnMA
-
-			anchors.fill: parent
-			onPressed: palmipede.insertSurroundText("<u>", "</u>")
-		}
-	}
-	*/
-	/*************************************************
-	 * Underline Button
-	 *************************************************/
-	/*
-	Rectangle {
-		id: strikeBtn
-		anchors {
-			left: underlineBtn.right
-			leftMargin: 2
-			top: underlineBtn.top
-			bottom: underlineBtn.bottom
-		}
-		border.color: myPalette.text
-		color: "transparent"
-		height: palmipede.lineHeight
-		radius: 4
-		width: Math.max(height, strikeBtnTxt.contentWidth + 4)
-
-		Text {
-			id: strikeBtnTxt
-
-			anchors.centerIn: parent
-			text: qsTr("S")
-			font {
-				family: "Times New Roman"
-				strikeout: true
-				pointSize: 12
-			}
-			color: myPalette.text
-		}
-
-		MouseArea {
-			id: strikeBtnMA
-
-			anchors.fill: parent
-			onPressed: palmipede.insertSurroundText("<s>", "</s>")
-		}
-	}
-	*/
-
-	/*************************************************
-	 * Moment Button
-	 *************************************************/
-	/*
-	Rectangle {
-		id: momentBtn
-		anchors {
-			left: strikeBtn.right
-			leftMargin: 2
-			top: strikeBtn.top
-			bottom: strikeBtn.bottom
-		}
-		border.color: myPalette.text
-		color: "transparent"
-		radius: 4
-		width: Math.max(height, momentBtnTxt.contentWidth + 4)
-
-		Text {
-			id: momentBtnTxt
-
-			anchors.centerIn: parent
-			text: qsTr("====> Moment < ====")
-			font {
-				family: "Times New Roman"
-				bold: true
-				pointSize: 12
-			}
-			color: myPalette.text
-		}
-
-		MouseArea {
-			id: momentBtnMA
-
-			anchors.fill: parent
-			onPressed: palmipede.insertSurroundText("====> <b>Moment ", "</b> <====")
-		}
-	}
-
-	ComboBox {
-		id: blamPafSelector
-		anchors {
-			left: momentBtn.right
-			leftMargin: 2
-			verticalCenter: momentBtn.verticalCenter
-		}
-		height: palmipede.lineHeight
-
-		delegate: ItemDelegate {
-			width: blamPafSelector.width
-			font: blamPafSelector.font
-			contentItem: Text {
-				text: modelData
-				color: myPalette.text
-				elide: Text.ElideRight
-				verticalAlignment: Text.AlignLeft
-			}
-			highlighted: myPalette.highlightedIndex === index
-		}
-
-		font.bold: true
-
-		model: [ "_o/* BLAM!", "_o/* paf!"]
-
-		contentItem: Text {
-			leftPadding: 0
-			rightPadding: blamPafSelector.indicator.width + blamPafSelector.spacing
-
-			text: blamPafSelector.displayText
-			font: blamPafSelector.font
-			color: myPalette.text
-			horizontalAlignment: Text.AlignLeft
-			verticalAlignment: Text.AlignVCenter
-			elide: Text.ElideRight
-		}
-
-		background: Rectangle {
-			border.color: myPalette.text
-			color: myPalette.window
-			radius: 2
-		}
-
-		popup: Popup {
-			y: blamPafSelector.height - 1
-			width: blamPafSelector.width
-			implicitHeight: listview.contentHeight
-			padding: 1
-
-			contentItem: ListView {
-				id: listview
-				clip: true
-				model: blamPafSelector.popup.visible ? blamPafSelector.delegateModel : null
-				currentIndex: blamPafSelector.highlightedIndex
-
-				ScrollIndicator.vertical: ScrollIndicator { }
-			}
-
-			background: Rectangle {
-				border.color: myPalette.windowText
-				radius: 2
-			}
-		}
-	}
-*/
 /*
 	states: [
 		State {
@@ -776,6 +503,16 @@ Rectangle {
 	]
 	*/
 
+    Component.onCompleted: {
+        boldBtn.clicked.connect(onBoldClicked)
+        italicBtn.clicked.connect(onItalicClicked)
+        underlineBtn.clicked.connect(onUnderlineClicked)
+        strikeBtn.clicked.connect(onStrikeClicked)
+        momentBtn.clicked.connect(onMomentClicked)
+        blamBtn.clicked.connect(onBlamClicked)
+        pafBtn.clicked.connect(onPafClicked)
+    }
+
 	onCurrentBoardNameChanged: {
 		console.log("onCurrentBoardNameChanged", currentBoardName);
 		var i = 0;
@@ -790,24 +527,36 @@ Rectangle {
 		}
 	}
 
-	signal post (string bouchot, string message)
-
 	function addBoard(board, color, colorLight) {
 		boardListModel.append({ "boardName": board,
 								  "boardColor": "" + color,
 								  "boardColorLight": "" + colorLight })
-		if(currentBoardName === '')
-			currentBoardName = board;
+        if(currentBoardName === "") {
+            switchBoard(board)
+        }
 	}
 
 	function switchBoard(board) {
-		currentBoardName = board
+        for(var i = 0; i <= boardListModel.count; i++)
+        {
+            var b = boardListModel.get(i)
+            if(b.boardName === board)
+            {
+                postInput.color = b.boardColorLight
+                postInput.border.color = b.boardColor
+                currentBoardName = board
+                //postInput.forceActiveFocus(Qt.MouseFocusReason)
+                break
+            }
+        }
 	}
 
+
+    signal post (string bouchot, string message)
 	function doPost () {
-		post(boardSelector.currentText, postInput.text)
+        post(currentBoardName, postInput.text)
 		postInput.text = ""
-	}
+    }
 
 	signal insertReplaceTextBoard(string board, string txt)
 	onInsertReplaceTextBoard: {
@@ -815,8 +564,22 @@ Rectangle {
 		insertReplaceText(txt)
 	}
 
-	signal insertReplaceText(string txt)
-	onInsertReplaceText: {
+    signal insertText(string txt)
+    onInsertText: {
+        var idx = txt.indexOf("%s")
+        if(idx >= 0)
+        {
+            var head = txt.slice(0, idx)
+            var tail = txt.slice(idx + 2)
+
+            insertSurroundText(head, tail)
+        }
+        else {
+            insertReplaceText(txt)
+        }
+    }
+
+    function insertReplaceText(txt) {
 		var headIdx = Math.min(postInputTF.selectionStart,
 							   postInputTF.selectionEnd)
 		var tailIdx = Math.max(postInputTF.selectionStart,
@@ -825,18 +588,52 @@ Rectangle {
 		var c = postInputTF.text.slice(tailIdx)
 
 		postInputTF.text = a + txt + c
-	}
+    }
 
-	signal insertSurroundText(string head, string tail)
-	onInsertSurroundText : {
+    function insertSurroundText(head, tail) {
 		var headIdx = Math.min(postInputTF.selectionStart,
 							   postInputTF.selectionEnd)
 		var tailIdx = Math.max(postInputTF.selectionStart,
-							   postInputTF.selectionEnd)
+                               postInputTF.selectionEnd)
 		var a = postInputTF.text.slice(0, headIdx)
 		var b = postInputTF.text.slice(headIdx, tailIdx)
 		var c = postInputTF.text.slice(tailIdx)
 
 		postInputTF.text = a + head + b + tail + c
-	}
+
+        if(headIdx != tailIdx) { // Texte selectionne
+            postInputTF.cursorPosition = postInputTF.text.length
+        }
+        else {
+            postInputTF.cursorPosition = headIdx + head.length
+        }
+    }
+
+    function onBoldClicked() {
+        insertSurroundText("<b>", "</b>");
+    }
+
+    function onItalicClicked() {
+        insertSurroundText("<i>", "</i>");
+    }
+
+    function onUnderlineClicked() {
+        insertSurroundText("<u>", "</u>");
+    }
+
+    function onStrikeClicked() {
+        insertSurroundText("<s>", "</s>");
+    }
+
+    function onMomentClicked() {
+        insertSurroundText("====> <b>Moment ", "</b> <====");
+    }
+
+    function onPafClicked() {
+        insertReplaceText("_o/* <b>paf!</b> ");
+    }
+
+    function onBlamClicked() {
+        insertReplaceText("_o/* <b>BLAM</b>! ");
+    }
 }
