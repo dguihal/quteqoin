@@ -200,7 +200,7 @@ void QQPinipede::repaintPiniTab(const QString &groupName)
 	QApplication::setOverrideCursor(Qt::BusyCursor);
 
 	int initialBlockNum = textBrowser->cursorForPosition(
-	            QPoint(0, textBrowser->height())).blockNumber();
+				QPoint(0, textBrowser->height())).blockNumber();
 
 	clearPiniTab(groupName);
 
@@ -236,7 +236,7 @@ void QQPinipede::repaintPiniTab(const QString &groupName)
 	QScrollBar *vScrollBar = textBrowser->verticalScrollBar();
 	vScrollBar->triggerAction(QAbstractSlider::SliderToMaximum);
 	int currBlockNum = textBrowser->cursorForPosition(
-	            QPoint(0, textBrowser->height())).blockNumber();
+				QPoint(0, textBrowser->height())).blockNumber();
 	while(currBlockNum > (initialBlockNum + 1))
 	{
 		vScrollBar->triggerAction(QAbstractSlider::SliderSingleStepSub);
@@ -984,7 +984,12 @@ void QQPinipede::newPostsAvailable(QString groupName)
 		newPosts.removeFirst();
 
 	// Tri necessaire puisqu'on a potentiellement melange les posts de plusieurs tribunes
-	qSort(newPosts.begin(), newPosts.end(), postComp);
+	std::sort(newPosts.begin(), newPosts.end(),
+			  // Ca fait rever les lambdas en C++ ....
+			  [](const QQPost *a, const QQPost *b) -> bool
+	{
+		return (* a) < (* b);
+	});
 
 	// On signale via la forme de la souris qu'un traitement est en cours
 	QApplication::setOverrideCursor(Qt::BusyCursor);

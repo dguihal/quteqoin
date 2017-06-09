@@ -22,7 +22,7 @@ include($$PWD/gitversion.pri)
 
 # A Tester
 linux-g++ {
-    system( g++ --version | grep -e "\<4.[8-9]" ) {
+    system( g++ --version | grep -e "\\<4.[8-9]" ) {
         QMAKE_CXXFLAGS_DEBUG += -fsanitize=address -Og
     }
 }

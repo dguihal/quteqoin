@@ -118,6 +118,7 @@ void QQTotozManager::tabChanged(int tabIndex)
 	case TAB_EMOJI_INDEX:
 		m_ui->searchLineEdit->show();
 		m_ui->searchLineEdit->setFocus();
+		break;
 	case TAB_TOTOZ_INDEX:
 		if(m_totozSearchEnabled)
 		{
@@ -126,6 +127,7 @@ void QQTotozManager::tabChanged(int tabIndex)
 		}
 		else
 			m_ui->searchLineEdit->hide();
+		break;
 	default:
 		qWarning() << Q_FUNC_INFO << "Unknown tab index";
 	}

@@ -613,9 +613,12 @@ void QQBouchot::parseBackend(const QByteArray &data, const QString &contentType)
 
 void QQBouchot::parseBackendTSV(const QByteArray &data)
 {
-	QQTsvParser *p = NULL;
-	if(m_parser == NULL)
+	QQTsvParser *p = qobject_cast<QQTsvParser *>(m_parser);
+	if(p == NULL)
 	{
+		if(m_parser != NULL)
+			delete m_parser;
+
 		p = new QQTsvParser(this);
 
 		connect(p, SIGNAL(newPostReady(QQPost&)), this, SLOT(insertNewPost(QQPost&)));
@@ -623,8 +626,6 @@ void QQBouchot::parseBackendTSV(const QByteArray &data)
 
 		m_parser=p;
 	}
-	else
-		p = qobject_cast<QQTsvParser *>(m_parser);
 
 	p->setLastId(m_lastId);
 	p->parseBackend(data);
@@ -632,9 +633,12 @@ void QQBouchot::parseBackendTSV(const QByteArray &data)
 
 void QQBouchot::parseBackendXML(const QByteArray &data)
 {
-	QQXmlParser *p = NULL;
-	if(m_parser == NULL)
+	QQXmlParser *p = qobject_cast<QQXmlParser *>(m_parser);
+	if(p == NULL)
 	{
+		if(m_parser != NULL)
+			delete m_parser;
+
 		p = new QQXmlParser(this);
 
 		connect(p, SIGNAL(newPostReady(QQPost&)), this, SLOT(insertNewPost(QQPost&)));
@@ -642,8 +646,6 @@ void QQBouchot::parseBackendXML(const QByteArray &data)
 
 		m_parser=p;
 	}
-	else
-		p = qobject_cast<QQXmlParser *>(m_parser);
 
 	QXmlSimpleReader xmlReader;
 	QXmlInputSource xmlSource;
@@ -707,6 +709,23 @@ void QQBouchot::parsingFinished()
 			QDateTime postDateTime = QDateTime::fromString(last->norloge(), "yyyyMMddHHmmss");
 			m_deltaTimeH = postDateTime.secsTo(QDateTime::currentDateTime()) / 3600; //Secondes vers Heures
 		}
+
+		//On s'assure qu'ils sont ranges du plus petit id au plus grand
+		std::sort(m_newPostHistory.begin(), m_newPostHistory.end(),
+				  // Ca fait rever les lambdas en C++ ....
+				  [](const QQPost *a, const QQPost *b) -> bool
+		{
+			return (* a) < (* b);
+		});
+
+		if(!m_history.empty())
+			Q_ASSERT(m_history.last()->id() < m_newPostHistory.first()->id());
+
+		if(m_name == "sauf.ca") {
+		foreach (QQPost *p, m_newPostHistory) {
+			qDebug() << p->id() << p->norloge();
+		}
+		};
 
 		m_history.append(m_newPostHistory);
 		m_lastId = m_parser->maxId();
