@@ -214,6 +214,8 @@ CONFIG(QML_PALMI) {
 #            qml/QQmlNetworkSettings.qml \
 #            qml/QQmlPinni.qml \
             qml/QQmlPalmi.qml \
+            qml/QQmlPalmiBoardItem.qml \
+            qml/QQmlPalmiEditItem.qml
 #            qml/QQmlGeneralSettings.qml \
 #            qml/QQmlSettingsEditor.qml \
 #            qml/QQmlSettingsItem.qml \

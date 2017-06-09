@@ -3,7 +3,7 @@ import QtQuick.Controls 2.0
 import QtQuick.Layouts 1.3
 
 Rectangle {
-    id:palmipede
+	id:palmipede
 	height: boards.childrenRect.height + postInput.height + fmtRow.height + 6
 	width: 400
 
@@ -32,12 +32,12 @@ Rectangle {
 
 		Repeater {
 			model: boardListModel
-            delegate: QQmlPalmiBoardItem {
-                name: boardName
-                colorDark: boardColor
-                colorLight: boardColorLight
-                onClicked: palmipede.switchBoard(boardName)
-            }
+			delegate: QQmlPalmiBoardItem {
+				name: boardName
+				colorDark: boardColor
+				colorLight: boardColorLight
+				onClicked: palmipede.switchBoard(boardName)
+			}
 		}
 
 		onChildrenChanged: {
@@ -66,61 +66,61 @@ Rectangle {
 		height: palmipede.lineHeight
 		radius: 4
 
-        FocusScope {
-            id: tfFocusScope
+		FocusScope {
+			id: tfFocusScope
 
-            anchors.fill: parent
-            focus: true
+			anchors.fill: parent
+			focus: true
 
-            TextField {
-                id: postInputTF
+			TextField {
+				id: postInputTF
 
-                anchors.fill: parent
-                placeholderText: "coin ! coin !"
-                focus: true
+				anchors.fill: parent
+				placeholderText: "coin ! coin !"
+				focus: true
 
-                background: Rectangle {
-                    color: "transparent"
-                }
+				background: Rectangle {
+					color: "transparent"
+				}
 
-                color: myPalette.text
-                cursorVisible: true
-                selectByMouse: true
+				color: myPalette.text
+				cursorVisible: true
+				selectByMouse: true
 
-                Keys.onUpPressed: {
-                    if(event.modifiers & Qt.AltModifier)
-                    {
-                        for(var i = 0; i < boardListModel.count; i++)
-                        {
-                            var boardElt = boardListModel.get(i)
-                            if(boardElt.boardName === currentBoardName)
-                            {
-                                var newBoard = boardListModel.get((i + 1) % boardListModel.count)
-                                switchBoard(newBoard.boardName)
-                                break
-                            }
-                        }
-                    }
-                }
-                Keys.onDownPressed: {
-                    if(event.modifiers & Qt.AltModifier)
-                    {
-                        for(var i = 0; i < boardListModel.count; i++)
-                        {
-                            var boardElt = boardListModel.get(i)
-                            if(boardElt.boardName === currentBoardName)
-                            {
-                                var newBoard =  boardListModel.get(((i - 1) % boardListModel.count + boardListModel.count) % boardListModel.count)
-                                switchBoard(newBoard.boardName)
-                                break
-                            }
-                        }
-                    }
-                }
+				Keys.onUpPressed: {
+					if(event.modifiers & Qt.AltModifier)
+					{
+						for(var i = 0; i < boardListModel.count; i++)
+						{
+							var boardElt = boardListModel.get(i)
+							if(boardElt.boardName === currentBoardName)
+							{
+								var newBoard = boardListModel.get((i + 1) % boardListModel.count)
+								switchBoard(newBoard.boardName)
+								break
+							}
+						}
+					}
+				}
+				Keys.onDownPressed: {
+					if(event.modifiers & Qt.AltModifier)
+					{
+						for(var i = 0; i < boardListModel.count; i++)
+						{
+							var boardElt = boardListModel.get(i)
+							if(boardElt.boardName === currentBoardName)
+							{
+								var newBoard =  boardListModel.get(((i - 1) % boardListModel.count + boardListModel.count) % boardListModel.count)
+								switchBoard(newBoard.boardName)
+								break
+							}
+						}
+					}
+				}
 
-                onAccepted: palmipede.doPost()
-            }
-        }
+				onAccepted: palmipede.doPost()
+			}
+		}
 
 		property alias text: postInputTF.text
 
@@ -131,7 +131,7 @@ Rectangle {
 				for(i; i < boardListModel.count; i++)
 				{
 					var boardElt = boardListModel.get(i)
-					if(boardElt.name === currentBoardName)
+					if(boardElt.boardName === currentBoardName)
 					{
 						postInput.color = boardElt.colorLight
 						postInput.border.color = boardElt.color
@@ -185,7 +185,7 @@ Rectangle {
 						for(i; i < boardListModel.count; i++)
 						{
 							var boardElt = boardListModel.get(i)
-							if(boardElt.name === text)
+							if(boardElt.boardName === text)
 							{
 								boardMenu.doBoadSelected(boardElt)
 								break
@@ -273,9 +273,9 @@ Rectangle {
 			anchors.fill: parent
 			onPressed: palmipede.doPost()
 		}
-    }
+	}
 
-    Row {
+	Row {
 		id: fmtRow
 		anchors {
 			right: palmipede.right
@@ -284,123 +284,123 @@ Rectangle {
 			topMargin: 2
 		}
 		layoutDirection: Qt.LeftToRight
-        width: childrenRect.width
-        spacing: 1
+		width: childrenRect.width
+		spacing: 1
 
-        property int fontPtSize: 9
+		property int fontPtSize: 9
 
-        Text {
-            text: "Click for :"
-            font.pointSize: fmtRow.fontPtSize
-            color: myPalette.buttonText
-            padding: 1
-        }
-        QQmlPalmiEditItem {
-            id: boldBtn
-            borderColor: myPalette.text
-            text: "Bold"
-            textColor: myPalette.buttonText
-            textFont: Qt.font({
-                bold: true,
-                pointSize: fmtRow.fontPtSize
-            })
-        }
-        Text {
-            text: "|"
-            font.pointSize: fmtRow.fontPtSize
-            color: myPalette.buttonText
-            padding: 1
-        }
-        QQmlPalmiEditItem {
-            id: italicBtn
-            borderColor: myPalette.text
-            text: "Italic"
-            textColor: myPalette.buttonText
-            textFont: Qt.font({
-                italic: true,
-                pointSize: fmtRow.fontPtSize
-            })
-        }
-        Text {
-            text: "|"
-            font.pointSize: fmtRow.fontPtSize
-            color: myPalette.buttonText
-            padding: 1
-        }
-        QQmlPalmiEditItem {
-            id: underlineBtn
-            borderColor: myPalette.text
-            text: "Underline"
-            textColor: myPalette.buttonText
-            textFont: Qt.font({
-                underline: true,
-                pointSize: fmtRow.fontPtSize
-            })
-        }
-        Text {
-            text: "|"
-            font.pointSize: fmtRow.fontPtSize
-            color: myPalette.buttonText
-            padding: 1
-        }
-        QQmlPalmiEditItem {
-            id: strikeBtn
-            borderColor: myPalette.text
-            text: "Strike"
-            textColor: myPalette.buttonText
-            textFont: Qt.font({
-                strikeout: true,
-                pointSize: fmtRow.fontPtSize
-            })
-        }
-        Text {
-            text: "|"
-            font.pointSize: fmtRow.fontPtSize
-            color: myPalette.buttonText
-            padding: 1
-        }
-        QQmlPalmiEditItem {
-            id: momentBtn
-            borderColor: myPalette.text
-            text: "=> Moment <="
-            textColor: myPalette.buttonText
-            textFont: Qt.font({
-                bold: true,
-                pointSize: fmtRow.fontPtSize
-            })
-        }
-        Text {
-            text: "|"
-            font.pointSize: fmtRow.fontPtSize
-            color: myPalette.buttonText
-            padding: 1
-        }
-        QQmlPalmiEditItem {
-            id: pafBtn
-            borderColor: myPalette.text
-            text: "Paf !"
-            textColor: myPalette.buttonText
-            textFont: Qt.font({
-                bold: true,
-                pointSize: fmtRow.fontPtSize
-            })
-        }
-        Text {
-            text: "|"
-            font.pointSize: fmtRow.fontPtSize
-            color: myPalette.buttonText
-            padding: 1
-        }
-        QQmlPalmiEditItem {
-            id: blamBtn
-            borderColor: myPalette.text
-            text: "Blam !"
-            textColor: myPalette.buttonText
-            textFont: Qt.font({
-                bold: true,
-                pointSize: fmtRow.fontPtSize
-            })
-        }
+		Text {
+			text: "Click for :"
+			font.pointSize: fmtRow.fontPtSize
+			color: myPalette.buttonText
+			padding: 1
+		}
+		QQmlPalmiEditItem {
+			id: boldBtn
+			borderColor: myPalette.text
+			text: "Bold"
+			textColor: myPalette.buttonText
+			textFont: Qt.font({
+								bold: true,
+								pointSize: fmtRow.fontPtSize
+							})
+		}
+		Text {
+			text: "|"
+			font.pointSize: fmtRow.fontPtSize
+			color: myPalette.buttonText
+			padding: 1
+		}
+		QQmlPalmiEditItem {
+			id: italicBtn
+			borderColor: myPalette.text
+			text: "Italic"
+			textColor: myPalette.buttonText
+			textFont: Qt.font({
+								italic: true,
+								pointSize: fmtRow.fontPtSize
+							})
+		}
+		Text {
+			text: "|"
+			font.pointSize: fmtRow.fontPtSize
+			color: myPalette.buttonText
+			padding: 1
+		}
+		QQmlPalmiEditItem {
+			id: underlineBtn
+			borderColor: myPalette.text
+			text: "Underline"
+			textColor: myPalette.buttonText
+			textFont: Qt.font({
+								underline: true,
+								pointSize: fmtRow.fontPtSize
+							})
+		}
+		Text {
+			text: "|"
+			font.pointSize: fmtRow.fontPtSize
+			color: myPalette.buttonText
+			padding: 1
+		}
+		QQmlPalmiEditItem {
+			id: strikeBtn
+			borderColor: myPalette.text
+			text: "Strike"
+			textColor: myPalette.buttonText
+			textFont: Qt.font({
+								strikeout: true,
+								pointSize: fmtRow.fontPtSize
+							})
+		}
+		Text {
+			text: "|"
+			font.pointSize: fmtRow.fontPtSize
+			color: myPalette.buttonText
+			padding: 1
+		}
+		QQmlPalmiEditItem {
+			id: momentBtn
+			borderColor: myPalette.text
+			text: "=> Moment <="
+			textColor: myPalette.buttonText
+			textFont: Qt.font({
+								bold: true,
+								pointSize: fmtRow.fontPtSize
+							})
+		}
+		Text {
+			text: "|"
+			font.pointSize: fmtRow.fontPtSize
+			color: myPalette.buttonText
+			padding: 1
+		}
+		QQmlPalmiEditItem {
+			id: pafBtn
+			borderColor: myPalette.text
+			text: "Paf !"
+			textColor: myPalette.buttonText
+			textFont: Qt.font({
+								bold: true,
+								pointSize: fmtRow.fontPtSize
+							})
+		}
+		Text {
+			text: "|"
+			font.pointSize: fmtRow.fontPtSize
+			color: myPalette.buttonText
+			padding: 1
+		}
+		QQmlPalmiEditItem {
+			id: blamBtn
+			borderColor: myPalette.text
+			text: "Blam !"
+			textColor: myPalette.buttonText
+			textFont: Qt.font({
+								bold: true,
+								pointSize: fmtRow.fontPtSize
+							})
+		}
 	}
 /*
 	states: [
@@ -503,15 +503,15 @@ Rectangle {
 	]
 	*/
 
-    Component.onCompleted: {
-        boldBtn.clicked.connect(onBoldClicked)
-        italicBtn.clicked.connect(onItalicClicked)
-        underlineBtn.clicked.connect(onUnderlineClicked)
-        strikeBtn.clicked.connect(onStrikeClicked)
-        momentBtn.clicked.connect(onMomentClicked)
-        blamBtn.clicked.connect(onBlamClicked)
-        pafBtn.clicked.connect(onPafClicked)
-    }
+	Component.onCompleted: {
+		boldBtn.clicked.connect(onBoldClicked)
+		italicBtn.clicked.connect(onItalicClicked)
+		underlineBtn.clicked.connect(onUnderlineClicked)
+		strikeBtn.clicked.connect(onStrikeClicked)
+		momentBtn.clicked.connect(onMomentClicked)
+		blamBtn.clicked.connect(onBlamClicked)
+		pafBtn.clicked.connect(onPafClicked)
+	}
 
 	onCurrentBoardNameChanged: {
 		console.log("onCurrentBoardNameChanged", currentBoardName);
@@ -519,10 +519,10 @@ Rectangle {
 		for(i; i < boardListModel.count; i++)
 		{
 			var boardElt = boardListModel.get(i)
-			if(boardElt.name === currentBoardName)
+			if(boardElt.boardName === currentBoardName)
 			{
-				postInput.color = boardElt.colorLight
-				postInput.border.color = boardElt.color
+				postInput.color = boardElt.boardColorLight
+				postInput.border.color = boardElt.boardColor
 			}
 		}
 	}
@@ -531,32 +531,51 @@ Rectangle {
 		boardListModel.append({ "boardName": board,
 								  "boardColor": "" + color,
 								  "boardColorLight": "" + colorLight })
-        if(currentBoardName === "") {
-            switchBoard(board)
-        }
+		if(currentBoardName === "") {
+			switchBoard(board)
+		}
+	}
+
+	function removeBoard(board) {
+		for(var i = 0; i < boardListModel.count; i++)
+		{
+			var boardElt = boardListModel.get(i)
+			console.log(board, boardElt.boardName)
+			if(boardElt.boardName === board)
+			{
+				boardListModel.remove(i)
+				if(currentBoardName === board)
+				{
+					boardElt = boardListModel.get(i % boardListModel.count)
+					console.log(board, boardElt.boardName)
+					switchBoard(boardElt.boardName)
+				}
+				break;
+			}
+		}
 	}
 
 	function switchBoard(board) {
-        for(var i = 0; i <= boardListModel.count; i++)
-        {
-            var b = boardListModel.get(i)
-            if(b.boardName === board)
-            {
-                postInput.color = b.boardColorLight
-                postInput.border.color = b.boardColor
-                currentBoardName = board
-                //postInput.forceActiveFocus(Qt.MouseFocusReason)
-                break
-            }
-        }
+		for(var i = 0; i <= boardListModel.count; i++)
+		{
+			var b = boardListModel.get(i)
+			if(b.boardName === board)
+			{
+				postInput.color = b.boardColorLight
+				postInput.border.color = b.boardColor
+				currentBoardName = board
+				//postInput.forceActiveFocus(Qt.MouseFocusReason)
+				break
+			}
+		}
 	}
 
 
-    signal post (string bouchot, string message)
+	signal post (string bouchot, string message)
 	function doPost () {
-        post(currentBoardName, postInput.text)
+		post(currentBoardName, postInput.text)
 		postInput.text = ""
-    }
+	}
 
 	signal insertReplaceTextBoard(string board, string txt)
 	onInsertReplaceTextBoard: {
@@ -564,22 +583,22 @@ Rectangle {
 		insertReplaceText(txt)
 	}
 
-    signal insertText(string txt)
-    onInsertText: {
-        var idx = txt.indexOf("%s")
-        if(idx >= 0)
-        {
-            var head = txt.slice(0, idx)
-            var tail = txt.slice(idx + 2)
+	signal insertText(string txt)
+	onInsertText: {
+		var idx = txt.indexOf("%s")
+		if(idx >= 0)
+		{
+			var head = txt.slice(0, idx)
+			var tail = txt.slice(idx + 2)
 
-            insertSurroundText(head, tail)
-        }
-        else {
-            insertReplaceText(txt)
-        }
-    }
+			insertSurroundText(head, tail)
+		}
+		else {
+			insertReplaceText(txt)
+		}
+	}
 
-    function insertReplaceText(txt) {
+	function insertReplaceText(txt) {
 		var headIdx = Math.min(postInputTF.selectionStart,
 							   postInputTF.selectionEnd)
 		var tailIdx = Math.max(postInputTF.selectionStart,
@@ -588,52 +607,52 @@ Rectangle {
 		var c = postInputTF.text.slice(tailIdx)
 
 		postInputTF.text = a + txt + c
-    }
+	}
 
-    function insertSurroundText(head, tail) {
+	function insertSurroundText(head, tail) {
 		var headIdx = Math.min(postInputTF.selectionStart,
 							   postInputTF.selectionEnd)
 		var tailIdx = Math.max(postInputTF.selectionStart,
-                               postInputTF.selectionEnd)
+							   postInputTF.selectionEnd)
 		var a = postInputTF.text.slice(0, headIdx)
 		var b = postInputTF.text.slice(headIdx, tailIdx)
 		var c = postInputTF.text.slice(tailIdx)
 
 		postInputTF.text = a + head + b + tail + c
 
-        if(headIdx != tailIdx) { // Texte selectionne
-            postInputTF.cursorPosition = postInputTF.text.length
-        }
-        else {
-            postInputTF.cursorPosition = headIdx + head.length
-        }
-    }
+		if(headIdx != tailIdx) { // Texte selectionne
+			postInputTF.cursorPosition = postInputTF.text.length
+		}
+		else {
+			postInputTF.cursorPosition = headIdx + head.length
+		}
+	}
 
-    function onBoldClicked() {
-        insertSurroundText("<b>", "</b>");
-    }
+	function onBoldClicked() {
+		insertSurroundText("<b>", "</b>");
+	}
 
-    function onItalicClicked() {
-        insertSurroundText("<i>", "</i>");
-    }
+	function onItalicClicked() {
+		insertSurroundText("<i>", "</i>");
+	}
 
-    function onUnderlineClicked() {
-        insertSurroundText("<u>", "</u>");
-    }
+	function onUnderlineClicked() {
+		insertSurroundText("<u>", "</u>");
+	}
 
-    function onStrikeClicked() {
-        insertSurroundText("<s>", "</s>");
-    }
+	function onStrikeClicked() {
+		insertSurroundText("<s>", "</s>");
+	}
 
-    function onMomentClicked() {
-        insertSurroundText("====> <b>Moment ", "</b> <====");
-    }
+	function onMomentClicked() {
+		insertSurroundText("====> <b>Moment ", "</b> <====");
+	}
 
-    function onPafClicked() {
-        insertReplaceText("_o/* <b>paf!</b> ");
-    }
+	function onPafClicked() {
+		insertReplaceText("_o/* <b>paf!</b> ");
+	}
 
-    function onBlamClicked() {
-        insertReplaceText("_o/* <b>BLAM</b>! ");
-    }
+	function onBlamClicked() {
+		insertReplaceText("_o/* <b>BLAM</b>! ");
+	}
 }
