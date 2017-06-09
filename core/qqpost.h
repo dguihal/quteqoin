@@ -85,9 +85,9 @@ public:
 	void setSelfPost(bool selfPost = true);
 	bool isSelfPost();
 
-	bool equal( QQPost &b );
-	bool operator==( QQPost& );
-	bool operator<( QQPost& );
+	bool equal(const QQPost &p) const;
+	bool operator==(const QQPost &p) const;
+	bool operator<(const QQPost &p) const;
 
 	void reset();
 
@@ -107,7 +107,5 @@ private:
 
 	bool m_unread;
 };
-
-bool postComp(QQPost * left, QQPost * right);
 
 #endif

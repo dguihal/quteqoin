@@ -37,7 +37,7 @@ typedef struct QQBouchotDef
 
 //Définition des bouchots préconfigurés
 // tiré d'olcc by Chrisix
-#define BOUCHOTS_DEF_SIZE 12
+#define BOUCHOTS_DEF_SIZE 11
 QQBouchotDef bouchotsDef[] =
 {
 	{ "dlfp", "http://linuxfr.org/board/index.xml", "http://linuxfr.org/board", "board[message]=%m",
@@ -46,26 +46,22 @@ QQBouchotDef bouchotsDef[] =
 	  "#ffccaa", "llg", "", QQBouchot::SlipTagsRaw },
 	{ "euromussels", "http://faab.euromussels.eu/data/backend.xml", "http://faab.euromussels.eu/add.php", "message=%m",
 	  "#d0d0ff", "euro,euroxers,eurofaab", "", QQBouchot::SlipTagsRaw },
-	{ "finss", "http://finss.fr/drupal/node/95/xml", "http://finss.fr/drupal/node/95/post", "message=%m",
-	  "#d0ffd0", "finss", "", QQBouchot::SlipTagsRaw },
 	{ "sveetch", "http://sveetch.net/tribune/remote/xml/?last=%i", "http://sveetch.net/tribune/post/xml", "content=%m",
 	  "#ededdb", "shoop,dax", "", QQBouchot::SlipTagsRaw },
 	{ "moules", "http://moules.org/board/last.php?backend=tsv&id=%i&order=desc", "http://moules.org/board/add.php", "message=%m",
 	  "#ffe3c9", "", "", QQBouchot::SlipTagsRaw },
-	{ "hadoken", "http://hadoken.free.fr/board/remote.php", "http://hadoken.free.fr/board/post.php", "message=%m",
-	  "#77aadd", "axel,waf", "", QQBouchot::SlipTagsEncoded },
 	{ "gabuzomeu", "http://gabuzomeu.fr/tribune.xml", "http://gabuzomeu.fr/tribune/post", "message=%m",
 	  "#aaffbb", "", "", QQBouchot::SlipTagsRaw },
-	{ "see", "http://tout.essaye.sauf.ca/tribune.xml", "http://tout.essaye.sauf.ca/tribune/post", "message=%m",
-	  "#ffd0d0", "schee,seeschloss", "", QQBouchot::SlipTagsRaw },
 	{ "devnewton", "https://b3.bci.im/legacy/xml?last=%i", "https://b3.bci.im/legacy/post", "message=%m",
 	  "#666666", "", "", QQBouchot::SlipTagsEncoded },
 	{ "faab", "http://ratatouille.leguyader.eu/data/backend.xml", "http://ratatouille.leguyader.eu/add.php", "message=%m",
 	  "#C5D068", "ratatouille", "", QQBouchot::SlipTagsRaw },
-	{ "goboard", "https://ototu.euromussels.eu/goboard/backend/tsv", "https://ototu.euromussels.eu/goboard/post", "message=%m",
+	{ "goboard", "https://ototu.euromussels.eu/goboard/backend/tsv&last=%i", "https://ototu.euromussels.eu/goboard/post", "message=%m",
 	  "#fffabb", "goboard", "", QQBouchot::SlipTagsEncoded },
 	{ "sauf.ca", "http://sauf.ca/feeds/all.tsv", "", "",
-	  "#4aff47", "", "", QQBouchot::SlipTagsRaw }
+	  "#4aff47", "", "", QQBouchot::SlipTagsRaw },
+	{ "42", "http://www.miaoli.im/tribune/42/tsv", "http://www.miaoli.im/tribune/42/post", "message=%m",
+	  "#ffd0d0", "", "", QQBouchot::SlipTagsRaw }
 };
 
 #define REFRESH_RATIOS_SIZE 15
@@ -617,9 +613,12 @@ void QQBouchot::parseBackend(const QByteArray &data, const QString &contentType)
 
 void QQBouchot::parseBackendTSV(const QByteArray &data)
 {
-	QQTsvParser *p = NULL;
-	if(m_parser == NULL)
+	QQTsvParser *p = qobject_cast<QQTsvParser *>(m_parser);
+	if(p == NULL)
 	{
+		if(m_parser != NULL)
+			delete m_parser;
+
 		p = new QQTsvParser(this);
 
 		connect(p, SIGNAL(newPostReady(QQPost&)), this, SLOT(insertNewPost(QQPost&)));
@@ -627,8 +626,6 @@ void QQBouchot::parseBackendTSV(const QByteArray &data)
 
 		m_parser=p;
 	}
-	else
-		p = qobject_cast<QQTsvParser *>(m_parser);
 
 	p->setLastId(m_lastId);
 	p->parseBackend(data);
@@ -636,9 +633,12 @@ void QQBouchot::parseBackendTSV(const QByteArray &data)
 
 void QQBouchot::parseBackendXML(const QByteArray &data)
 {
-	QQXmlParser *p = NULL;
-	if(m_parser == NULL)
+	QQXmlParser *p = qobject_cast<QQXmlParser *>(m_parser);
+	if(p == NULL)
 	{
+		if(m_parser != NULL)
+			delete m_parser;
+
 		p = new QQXmlParser(this);
 
 		connect(p, SIGNAL(newPostReady(QQPost&)), this, SLOT(insertNewPost(QQPost&)));
@@ -646,8 +646,6 @@ void QQBouchot::parseBackendXML(const QByteArray &data)
 
 		m_parser=p;
 	}
-	else
-		p = qobject_cast<QQXmlParser *>(m_parser);
 
 	QXmlSimpleReader xmlReader;
 	QXmlInputSource xmlSource;
@@ -711,6 +709,23 @@ void QQBouchot::parsingFinished()
 			QDateTime postDateTime = QDateTime::fromString(last->norloge(), "yyyyMMddHHmmss");
 			m_deltaTimeH = postDateTime.secsTo(QDateTime::currentDateTime()) / 3600; //Secondes vers Heures
 		}
+
+		//On s'assure qu'ils sont ranges du plus petit id au plus grand
+		std::sort(m_newPostHistory.begin(), m_newPostHistory.end(),
+				  // Ca fait rever les lambdas en C++ ....
+				  [](const QQPost *a, const QQPost *b) -> bool
+		{
+			return (* a) < (* b);
+		});
+
+		if(!m_history.empty())
+			Q_ASSERT(m_history.last()->id() < m_newPostHistory.first()->id());
+
+		if(m_name == "sauf.ca") {
+		foreach (QQPost *p, m_newPostHistory) {
+			qDebug() << p->id() << p->norloge();
+		}
+		};
 
 		m_history.append(m_newPostHistory);
 		m_lastId = m_parser->maxId();

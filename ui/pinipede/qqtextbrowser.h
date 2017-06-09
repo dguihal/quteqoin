@@ -59,6 +59,8 @@ protected slots:
 	void onAnchorClicked(const QUrl &link);
 	void onAnchorHighlighted(const QUrl &link);
 	void onExtendedInfoAvailable(QUrl &url, QString &contentType);
+	void onScrollRangeChanged(int min, int max);
+	void onScrollValueChanged(int value);
 	void onThumbnailUrlAvailable(QUrl &url, QString &thumbnailUrl);
 	void onWebSearchAction();
 
@@ -85,6 +87,8 @@ private:
 	QQPiniUrlHelper *m_urlHelper;
 
 	qreal m_timeUAAreaWidthPx;
+
+	bool m_isScrollAtBottom;
 
 	QString m_highlightedNorlogeRef;
 	QString m_displayedTotozId;

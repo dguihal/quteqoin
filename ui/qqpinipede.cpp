@@ -199,10 +199,8 @@ void QQPinipede::repaintPiniTab(const QString &groupName)
 
 	QApplication::setOverrideCursor(Qt::BusyCursor);
 
-	QScrollBar *vScrollBar = textBrowser->verticalScrollBar();
-
-	bool isAtEnd = (vScrollBar->value() == vScrollBar->maximum());
-	int blockNum = textBrowser->cursorForPosition(QPoint(0, 0)).blockNumber();
+	int initialBlockNum = textBrowser->cursorForPosition(
+				QPoint(0, textBrowser->height())).blockNumber();
 
 	clearPiniTab(groupName);
 
@@ -212,6 +210,7 @@ void QQPinipede::repaintPiniTab(const QString &groupName)
 	//Peut arriver lors du premier demarrage "a vide"
 	if(posts == NULL || posts->size() == 0)
 	{
+		QApplication::restoreOverrideCursor();
 		m_newPostsAvailableMutex.unlock();
 		return;
 	}
@@ -231,22 +230,17 @@ void QQPinipede::repaintPiniTab(const QString &groupName)
 		postwasPrinted = printPostAtCursor(cursor, posts->at(i));
 	}
 	cursor.endEditBlock();
+	textBrowser->repaint();
 
-	if(isAtEnd)
-		vScrollBar->setSliderPosition(vScrollBar->maximum());
-	else
+	// Redeplacement de la scrollbar pour se retrouver la ou on etait avant
+	QScrollBar *vScrollBar = textBrowser->verticalScrollBar();
+	vScrollBar->triggerAction(QAbstractSlider::SliderToMaximum);
+	int currBlockNum = textBrowser->cursorForPosition(
+				QPoint(0, textBrowser->height())).blockNumber();
+	while(currBlockNum > (initialBlockNum + 1))
 	{
-		int currBlockNum = textBrowser->cursorForPosition(QPoint(0, 0)).blockNumber();
-		while(currBlockNum < blockNum)
-		{
-			vScrollBar->triggerAction(QAbstractSlider::SliderSingleStepAdd);
-			currBlockNum = textBrowser->cursorForPosition(QPoint(0, 0)).blockNumber();
-		}
-		while(currBlockNum > blockNum)
-		{
-			vScrollBar->triggerAction(QAbstractSlider::SliderSingleStepSub);
-			currBlockNum = textBrowser->cursorForPosition(QPoint(0, 0)).blockNumber();
-		}
+		vScrollBar->triggerAction(QAbstractSlider::SliderSingleStepSub);
+		currBlockNum = textBrowser->cursorForPosition(QPoint(0, textBrowser->height())).blockNumber();
 	}
 
 	QApplication::restoreOverrideCursor();
@@ -958,49 +952,46 @@ unsigned int QQPinipede::insertPostToList(QQListPostPtr *listPosts, QQPost *post
 ///
 void QQPinipede::newPostsAvailable(QString groupName)
 {
-	//qDebug() << Q_FUNC_INFO << "from : " << groupName;
-
-	//On est obligé de locker pour éviter la pagaille dans le pini.
-	// un locking plus fin pourrait être obtenu en implémentant un lock par groupe
+	// On est obligé de locker pour éviter la pagaille dans le pini.
+	//  un locking plus fin pourrait être obtenu en implémentant un lock par groupe
 	while(! m_newPostsAvailableMutex.tryLock(1000))
 		qWarning() << Q_FUNC_INFO << groupName << "tryLock timeout";
 
 	QQTextBrowser *textBrowser = m_textBrowserHash.value(groupName);
-	QScrollBar *vScrollBar = textBrowser->verticalScrollBar();
 
 	QQListPostPtr newPosts;
 	foreach(QQBouchot *b, QQBouchot::listBouchotsGroup(groupName))
 	{
 		QQListPostPtr newPostsBouchot = b->takeNewPosts();
 		if(newPostsBouchot.size() > 0)
-		{
-			//qDebug() << Q_FUNC_INFO << "newPosts from :" << b->name();
 			newPosts.append(newPostsBouchot);
-		}
 	}
 
-	//Au cas ou on serait deja passe avant (cas du signal multiple)
+	// Au cas ou on serait deja passe avant (cas du signal multiple)
 	if(newPosts.size() == 0)
 	{
 		m_newPostsAvailableMutex.unlock();
 		return;
 	}
 
-	//Prise en compte des changements de parametre
-	//On ne peut pas vérifier les valeurs dans le "printPostAtCursor", trop couteux, du coup on met a jour ici
+	// Prise en compte des changements de parametre
+	//  On ne peut pas vérifier les valeurs dans le "printPostAtCursor", trop couteux, du coup on met a jour ici
 	QTextDocument *doc = textBrowser->document();
 	updatePiniDisplaySettings(doc);
 
-	//Il ne sert a rien d'insérer plus que de posts que le max de l'historique
+	// Il ne sert a rien d'insérer plus que de posts que le max de l'historique
 	while(newPosts.size() > m_maxHistorySize)
 		newPosts.removeFirst();
 
-	bool wasAtEnd = (vScrollBar->value() == vScrollBar->maximum());
-
 	// Tri necessaire puisqu'on a potentiellement melange les posts de plusieurs tribunes
-	qSort(newPosts.begin(), newPosts.end(), postComp);
+	std::sort(newPosts.begin(), newPosts.end(),
+			  // Ca fait rever les lambdas en C++ ....
+			  [](const QQPost *a, const QQPost *b) -> bool
+	{
+		return (* a) < (* b);
+	});
 
-	//On signale via la forme de la souris qu'un traitement est en cours
+	// On signale via la forme de la souris qu'un traitement est en cours
 	QApplication::setOverrideCursor(Qt::BusyCursor);
 
 	QTextCursor cursor(doc);
@@ -1020,7 +1011,6 @@ void QQPinipede::newPostsAvailable(QString groupName)
 		postWasPrinted = printPostAtCursor(cursor, firstPost);
 
 		// Si le pini était vide on scrolle forcément vers le dernier post
-		wasAtEnd = true;
 	}
 	else
 		destlistPosts = m_listPostsTabMap[groupName];
@@ -1036,10 +1026,10 @@ void QQPinipede::newPostsAvailable(QString groupName)
 		if(newPost == destlistPosts->last()) //insertion a la fin
 			break;
 
-		//Deplacement vers la nouvelle ligne
+		// Deplacement vers la nouvelle ligne
 		if(insertIndex == 0)
 		{
-			//Necessite de le copier car il sera supprime par le nouveau userData de la premiere ligne
+			// Necessite de le copier car il sera supprime par le nouveau userData de la premiere ligne
 			QQMessageBlockUserData * uData = new QQMessageBlockUserData(* ((QQMessageBlockUserData *) cursor.block().userData()));
 			if(postWasPrinted)
 				cursor.insertBlock();
@@ -1060,11 +1050,11 @@ void QQPinipede::newPostsAvailable(QString groupName)
 		baseInsertIndex = insertIndex;
 	}
 
-	//Insertion a la fin
+	// Insertion a la fin
 	if(newPostsIndex < newPosts.size())
 	{
-		//Le premier item a deja ete insere dans la liste destlistPosts dans la boucle while au dessus
-		//on a juste a l'afficher
+		// Le premier item a deja ete insere dans la liste destlistPosts dans la boucle while au dessus
+		//  on a juste a l'afficher
 		cursor.movePosition(QTextCursor::End);
 		if(postWasPrinted)
 			cursor.insertBlock();
@@ -1087,7 +1077,7 @@ void QQPinipede::newPostsAvailable(QString groupName)
 		}
 	}
 
-	if(!postWasPrinted) //remove last inserted bloc if not printed
+	if(!postWasPrinted) // Suppression du dernier block insere si non insere
 	{
 		cursor.movePosition(QTextCursor::PreviousBlock, QTextCursor::KeepAnchor);
 		cursor.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
@@ -1099,13 +1089,10 @@ void QQPinipede::newPostsAvailable(QString groupName)
 	// Purge des anciens messages
 	purgePinitabHistory(groupName);
 
-	if(wasAtEnd)
-		vScrollBar->setSliderPosition(vScrollBar->maximum());
-
-	//Remise en place de l'ancienne forme du pointeur
+	// Remise en place de l'ancienne forme du pointeur
 	QApplication::restoreOverrideCursor();
 
-	//Signalement de nouveaux posts dans le nom du Tab
+	// Signalement de nouveaux posts dans le nom du Tab
 	int i = 0;
 	foreach(QQPost *p, newPosts)
 	{

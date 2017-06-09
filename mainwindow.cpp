@@ -334,7 +334,7 @@ void MainWindow::bouchotDestroyed(QQBouchot *bouchot)
 	QString name = bouchot->name();
 	QString group = bouchot->settings().group();
 
-	//	m_palmi->removeBouchot(bouchot->name());
+	m_palmi->removeBouchot(bouchot->name());
 
 	QList<QQBouchot *> bouchots = QQBouchot::listBouchotsGroup(group);
 	(bouchots.size() == 0) ?

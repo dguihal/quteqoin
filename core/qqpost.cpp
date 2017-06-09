@@ -131,23 +131,23 @@ QDate QQPost::date()
 }
 
 //
-bool QQPost::equal(QQPost &b)
+bool QQPost::equal(const QQPost &p) const
 {
-	return (b.m_id == m_id); // comparaison bouchots
+	return (p.m_id == m_id) && (bouchot()->name() == p.bouchot()->name()); // comparaison bouchots
 }
 
 //
-bool QQPost::operator== (QQPost &b)
+bool QQPost::operator==(const QQPost &p) const
 {
-	return equal(b);
+	return equal(p);
 }
 
 //
-bool QQPost::operator< (QQPost &b)
+bool QQPost::operator<(const QQPost &p) const
 {
-	return (bouchot()->name() == b.bouchot()->name()) ?
-				m_id.toLongLong() < b.m_id.toLongLong() :
-				m_norloge < b.m_norloge;
+	return (bouchot()->name() == p.bouchot()->name()) ?
+				m_id.toLongLong() < p.m_id.toLongLong() :
+				m_norloge < p.m_norloge;
 }
 
 void QQPost::reset()
@@ -163,14 +163,4 @@ void QQPost::reset()
 	m_message.clear();
 	m_id.clear();
 	m_unread = true;
-}
-
-//////////////////////////////////////////////////////////////////////////
-////////////        Fonctions private        /////////////////////////////
-//////////////////////////////////////////////////////////////////////////
-
-
-bool postComp(QQPost *left, QQPost *right)
-{
-	return (* left) < (* right);
 }
