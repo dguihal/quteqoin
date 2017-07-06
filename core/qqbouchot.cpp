@@ -814,7 +814,7 @@ void QQBouchot::sendBouchotEvents()
 {
 	foreach (EventReceiver evRcv, m_listEventReceivers)
 	{
-		if(evRcv.acceptedEvents.testFlag(NewPostsAvailable) && m_state.hasNewPosts)
+		if(evRcv.acceptedEvents.testFlag(NewPostsAvailable) && m_newPostHistory.size() > 0)
 		{
 			QApplication::postEvent(evRcv.receiver,
 									new QQBackendUpdatedEvent(
