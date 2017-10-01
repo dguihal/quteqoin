@@ -770,8 +770,7 @@ void QQBouchot::updateLastUsers()
 	if(deltaTimeH < 0)
 		deltaTimeH = 0;
 
-	QDateTime currentDateTime = QDateTime::currentDateTime();
-	currentDateTime.addSecs( deltaTimeH * 3600 ); // on se met sur le meme TZ que le bouchot
+	QDateTime currentDateTime = QDateTime::currentDateTime().addSecs( deltaTimeH * 3600 ); // on se met sur le meme TZ que le bouchot
 	for(int i = m_history.size() - 1; i >= 0; i--)
 	{
 		QQPost *post = m_history.at(i);

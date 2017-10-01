@@ -1,16 +1,19 @@
-import QtQuick 2.6
-import QtQuick.Controls 2.0
+import QtQuick 2.7
+import QtQuick.Controls 2.2
 import QtQuick.Layouts 1.3
 
 Rectangle {
-	id:palmipede
+	id: palmipede
 	height: boards.childrenRect.height + postInput.height + fmtRow.height + 6
 	width: 400
 
 	property int lineHeight: 30
 	property string currentBoardName: ""
 
-	SystemPalette { id: myPalette; colorGroup: SystemPalette.Active }
+	SystemPalette {
+		id: myPalette
+		colorGroup: SystemPalette.Active
+	}
 	color: myPalette.window
 
 	ListModel {
@@ -88,14 +91,12 @@ Rectangle {
 				selectByMouse: true
 
 				Keys.onUpPressed: {
-					if(event.modifiers & Qt.AltModifier)
-					{
-						for(var i = 0; i < boardListModel.count; i++)
-						{
+					if (event.modifiers & Qt.AltModifier) {
+						for (var i = 0; i < boardListModel.count; i++) {
 							var boardElt = boardListModel.get(i)
-							if(boardElt.boardName === currentBoardName)
-							{
-								var newBoard = boardListModel.get((i + 1) % boardListModel.count)
+							if (boardElt.boardName === currentBoardName) {
+								var newBoard = boardListModel.get(
+											(i + 1) % boardListModel.count)
 								switchBoard(newBoard.boardName)
 								break
 							}
@@ -103,14 +104,13 @@ Rectangle {
 					}
 				}
 				Keys.onDownPressed: {
-					if(event.modifiers & Qt.AltModifier)
-					{
-						for(var i = 0; i < boardListModel.count; i++)
-						{
+					if (event.modifiers & Qt.AltModifier) {
+						for (var i = 0; i < boardListModel.count; i++) {
 							var boardElt = boardListModel.get(i)
-							if(boardElt.boardName === currentBoardName)
-							{
-								var newBoard =  boardListModel.get(((i - 1) % boardListModel.count + boardListModel.count) % boardListModel.count)
+							if (boardElt.boardName === currentBoardName) {
+								var newBoard = boardListModel.get(
+											((i - 1) % boardListModel.count
+											 + boardListModel.count) % boardListModel.count)
 								switchBoard(newBoard.boardName)
 								break
 							}
@@ -125,14 +125,11 @@ Rectangle {
 		property alias text: postInputTF.text
 
 		Component.onCompleted: {
-			if(currentBoardName != '')
-			{
-				var i = 0;
-				for(i; i < boardListModel.count; i++)
-				{
+			if (currentBoardName != '') {
+				var i = 0
+				for (i; i < boardListModel.count; i++) {
 					var boardElt = boardListModel.get(i)
-					if(boardElt.boardName === currentBoardName)
-					{
+					if (boardElt.boardName === currentBoardName) {
 						postInput.color = boardElt.colorLight
 						postInput.border.color = boardElt.color
 					}
@@ -141,127 +138,39 @@ Rectangle {
 		}
 	}
 	/*************************************************
-	 * Board Selector
-	 *************************************************/
-
-	/*
-	Rectangle {
-		id: boardSelector
-		anchors {
-			right: postBtn.left
-			rightMargin: 2
-			verticalCenter: postInput.verticalCenter
-		}
-		width: boardTxt.contentWidth + 4
-		height: palmipede.lineHeight
-		radius: 4
-
-		Text
-		{
-			id: boardTxt
-			anchors {
-				centerIn: parent
-				margins: 2
-			}
-		}
-
-		MouseArea {
-			id: boardMA
-
-			anchors.fill: parent
-			onClicked: boardMenu.popup()
-		}
-
-		Menu {
-			id:boardMenu
-			visible: false
-
-			Instantiator {
-				model: boardListModel
-				MenuItem {
-					text: model.boardName
-					onTriggered: {
-						var i = 0;
-						for(i; i < boardListModel.count; i++)
-						{
-							var boardElt = boardListModel.get(i)
-							if(boardElt.boardName === text)
-							{
-								boardMenu.doBoadSelected(boardElt)
-								break
-							}
-						}
-					}
-				}
-				onObjectAdded: boardMenu.insertItem(index, object)
-				onObjectRemoved: boardMenu.removeItem(object)
-			}
-
-			onItemsChanged: {
-				if(boardTxt.text === "")
-				{
-					doBoadSelected(boardListModel.get(0))
-				}
-			}
-
-			function doBoadSelected(boardElt)
-			{
-				boardTxt.text = boardElt.boardName
-				boardSelector.color = boardElt.boardColor
-				postInput.color = boardElt.boardColorLight
-				postInput.border.color = boardElt.boardColor
-			}
-		}
-	}
-	*/
-
-	/*************************************************
 	 * Post Button
 	 *************************************************/
-	Rectangle {
+	Button {
 		id: postBtn
 		anchors {
 			right: attachBtn.left
 			rightMargin: 2
 			verticalCenter: postInput.verticalCenter
 		}
-		border.color: myPalette.buttonText
-		color: myPalette.button
-		height: palmipede.lineHeight
-		radius: 4
-		width: Math.max(height, postBtnTxt.contentWidth + 4)
+		text: qsTr("📧")
+		onClicked: palmipede.doPost()
 
-		Text {
-			id: postBtnTxt
-			anchors.centerIn: parent
-			text: qsTr("📧")
-			color: myPalette.buttonText
-		}
-
-		MouseArea {
-			anchors.fill: parent
-			onPressed: palmipede.doPost()
+		background: Rectangle {
+			//implicitWidth: Math.max(height, postBtnTxt.contentWidth + 4)
+			implicitHeight: palmipede.lineHeight
+			opacity: enabled ? 1 : 0.3
+			border.width: 1
+			radius: 4
 		}
 	}
 
 	/*************************************************
 	 * Attach Button
 	 *************************************************/
-	Rectangle {
+	Button {
 		id: attachBtn
 		anchors {
 			right: palmipede.right
 			rightMargin: 2
 			verticalCenter: postInput.verticalCenter
 		}
-		border.color: myPalette.text
-		color: myPalette.button
-		height: palmipede.lineHeight
-		radius: 4
-		width: height
 
-
-		Image {
+		contentItem: Image {
 			id: attachBtnImg
 			anchors {
 				centerIn: parent
@@ -269,12 +178,19 @@ Rectangle {
 			source: "qrc:/img/attach.png"
 		}
 
-		MouseArea {
-			anchors.fill: parent
-			onPressed: palmipede.doPost()
+		//onClicked: palmipede.doAttach()
+		background: Rectangle {
+			//implicitWidth: Math.max(height, postBtnTxt.contentWidth + 4)
+			implicitHeight: palmipede.lineHeight
+			opacity: enabled ? 1 : 0.3
+			border.width: 1
+			radius: 4
 		}
 	}
 
+	/*************************************************
+	 * Text formating
+	 *************************************************/
 	Row {
 		id: fmtRow
 		anchors {
@@ -301,9 +217,9 @@ Rectangle {
 			text: "Bold"
 			textColor: myPalette.buttonText
 			textFont: Qt.font({
-								bold: true,
-								pointSize: fmtRow.fontPtSize
-							})
+								  bold: true,
+								  pointSize: fmtRow.fontPtSize
+							  })
 		}
 		Text {
 			text: "|"
@@ -317,9 +233,9 @@ Rectangle {
 			text: "Italic"
 			textColor: myPalette.buttonText
 			textFont: Qt.font({
-								italic: true,
-								pointSize: fmtRow.fontPtSize
-							})
+								  italic: true,
+								  pointSize: fmtRow.fontPtSize
+							  })
 		}
 		Text {
 			text: "|"
@@ -333,9 +249,9 @@ Rectangle {
 			text: "Underline"
 			textColor: myPalette.buttonText
 			textFont: Qt.font({
-								underline: true,
-								pointSize: fmtRow.fontPtSize
-							})
+								  underline: true,
+								  pointSize: fmtRow.fontPtSize
+							  })
 		}
 		Text {
 			text: "|"
@@ -349,9 +265,9 @@ Rectangle {
 			text: "Strike"
 			textColor: myPalette.buttonText
 			textFont: Qt.font({
-								strikeout: true,
-								pointSize: fmtRow.fontPtSize
-							})
+								  strikeout: true,
+								  pointSize: fmtRow.fontPtSize
+							  })
 		}
 		Text {
 			text: "|"
@@ -365,9 +281,9 @@ Rectangle {
 			text: "=> Moment <="
 			textColor: myPalette.buttonText
 			textFont: Qt.font({
-								bold: true,
-								pointSize: fmtRow.fontPtSize
-							})
+								  bold: true,
+								  pointSize: fmtRow.fontPtSize
+							  })
 		}
 		Text {
 			text: "|"
@@ -381,9 +297,9 @@ Rectangle {
 			text: "Paf !"
 			textColor: myPalette.buttonText
 			textFont: Qt.font({
-								bold: true,
-								pointSize: fmtRow.fontPtSize
-							})
+								  bold: true,
+								  pointSize: fmtRow.fontPtSize
+							  })
 		}
 		Text {
 			text: "|"
@@ -397,12 +313,13 @@ Rectangle {
 			text: "Blam !"
 			textColor: myPalette.buttonText
 			textFont: Qt.font({
-								bold: true,
-								pointSize: fmtRow.fontPtSize
-							})
+								  bold: true,
+								  pointSize: fmtRow.fontPtSize
+							  })
 		}
 	}
-/*
+
+	/*
 	states: [
 		State {
 			name: "MAXIMIZED"
@@ -502,7 +419,6 @@ Rectangle {
 		}
 	]
 	*/
-
 	Component.onCompleted: {
 		boldBtn.clicked.connect(onBoldClicked)
 		italicBtn.clicked.connect(onItalicClicked)
@@ -514,13 +430,11 @@ Rectangle {
 	}
 
 	onCurrentBoardNameChanged: {
-		console.log("onCurrentBoardNameChanged", currentBoardName);
-		var i = 0;
-		for(i; i < boardListModel.count; i++)
-		{
+		console.log("onCurrentBoardNameChanged", currentBoardName)
+		var i = 0
+		for (i; i < boardListModel.count; i++) {
 			var boardElt = boardListModel.get(i)
-			if(boardElt.boardName === currentBoardName)
-			{
+			if (boardElt.boardName === currentBoardName) {
 				postInput.color = boardElt.boardColorLight
 				postInput.border.color = boardElt.boardColor
 			}
@@ -528,39 +442,36 @@ Rectangle {
 	}
 
 	function addBoard(board, color, colorLight) {
-		boardListModel.append({ "boardName": board,
-								  "boardColor": "" + color,
-								  "boardColorLight": "" + colorLight })
-		if(currentBoardName === "") {
+		boardListModel.append({
+								  boardName: board,
+								  boardColor: "" + color,
+								  boardColorLight: "" + colorLight
+							  })
+		if (currentBoardName === "") {
 			switchBoard(board)
 		}
 	}
 
 	function removeBoard(board) {
-		for(var i = 0; i < boardListModel.count; i++)
-		{
+		for (var i = 0; i < boardListModel.count; i++) {
 			var boardElt = boardListModel.get(i)
 			console.log(board, boardElt.boardName)
-			if(boardElt.boardName === board)
-			{
+			if (boardElt.boardName === board) {
 				boardListModel.remove(i)
-				if(currentBoardName === board)
-				{
+				if (currentBoardName === board) {
 					boardElt = boardListModel.get(i % boardListModel.count)
 					console.log(board, boardElt.boardName)
 					switchBoard(boardElt.boardName)
 				}
-				break;
+				break
 			}
 		}
 	}
 
 	function switchBoard(board) {
-		for(var i = 0; i <= boardListModel.count; i++)
-		{
+		for (var i = 0; i <= boardListModel.count; i++) {
 			var b = boardListModel.get(i)
-			if(b.boardName === board)
-			{
+			if (b.boardName === board) {
 				postInput.color = b.boardColorLight
 				postInput.border.color = b.boardColor
 				currentBoardName = board
@@ -570,9 +481,8 @@ Rectangle {
 		}
 	}
 
-
-	signal post (string bouchot, string message)
-	function doPost () {
+	signal post(string bouchot, string message)
+	function doPost() {
 		post(currentBoardName, postInput.text)
 		postInput.text = ""
 	}
@@ -586,14 +496,12 @@ Rectangle {
 	signal insertText(string txt)
 	onInsertText: {
 		var idx = txt.indexOf("%s")
-		if(idx >= 0)
-		{
+		if (idx >= 0) {
 			var head = txt.slice(0, idx)
 			var tail = txt.slice(idx + 2)
 
 			insertSurroundText(head, tail)
-		}
-		else {
+		} else {
 			insertReplaceText(txt)
 		}
 	}
@@ -620,39 +528,39 @@ Rectangle {
 
 		postInputTF.text = a + head + b + tail + c
 
-		if(headIdx != tailIdx) { // Texte selectionne
+		if (headIdx != tailIdx) {
+			// Texte selectionne
 			postInputTF.cursorPosition = postInputTF.text.length
-		}
-		else {
+		} else {
 			postInputTF.cursorPosition = headIdx + head.length
 		}
 	}
 
 	function onBoldClicked() {
-		insertSurroundText("<b>", "</b>");
+		insertSurroundText("<b>", "</b>")
 	}
 
 	function onItalicClicked() {
-		insertSurroundText("<i>", "</i>");
+		insertSurroundText("<i>", "</i>")
 	}
 
 	function onUnderlineClicked() {
-		insertSurroundText("<u>", "</u>");
+		insertSurroundText("<u>", "</u>")
 	}
 
 	function onStrikeClicked() {
-		insertSurroundText("<s>", "</s>");
+		insertSurroundText("<s>", "</s>")
 	}
 
 	function onMomentClicked() {
-		insertSurroundText("====> <b>Moment ", "</b> <====");
+		insertSurroundText("====> <b>Moment ", "</b> <====")
 	}
 
 	function onPafClicked() {
-		insertReplaceText("_o/* <b>paf!</b> ");
+		insertReplaceText("_o/* <b>paf!</b> ")
 	}
 
 	function onBlamClicked() {
-		insertReplaceText("_o/* <b>BLAM</b>! ");
+		insertReplaceText("_o/* <b>BLAM</b>! ")
 	}
 }
