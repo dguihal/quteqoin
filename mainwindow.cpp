@@ -43,8 +43,9 @@ MainWindow::MainWindow(QWidget *parent) :
 	m_palmi = new QQmlPalmipede(this);
 	m_palmi->setResizeMode(QQuickWidget::SizeRootObjectToView);
 
-	connect(m_palmi, &QQmlPalmipede::postMessage,
+	QMetaObject::Connection c = connect(m_palmi, &QQmlPalmipede::postMessage,
 			this, &MainWindow::doPostMessage);
+
 #else
 	m_palmi = new QQPalmipede(this);
 	connect(m_palmi, SIGNAL(postMessage(QString,QString)), this, SLOT(doPostMessage(QString,QString)));

@@ -1,37 +1,38 @@
 import QtQuick 2.7
 
 Rectangle {
-	id: root
-	width: boardTxt.contentWidth + 4
-	height: boardTxt.contentHeight + 2
+    id: root
+    width: boardTxt.contentWidth + 4
+    height: boardTxt.contentHeight + 2
 
-	radius: 4
-	border.width: 1
-	border.color: colorDark
+    radius: 4
+    border.width: 1
+    border.color: colorDark
 
-	color: colorLight
+    color: colorLight
 
-	property string name: ""
-	property color colorDark: "black"
-	property color colorLight: "white"
+    property string name: ""
+    property color colorDark: "black"
+    property color colorLight: "white"
 
-	Text {
-		id: boardTxt
+    Text {
+        id: boardTxt
 
-		anchors.centerIn: root
+        anchors.centerIn: root
 
-		font.pixelSize: 10
-		text: root.name
-	}
+        font.pixelSize: 10
+        text: root.name
+        color: root.color.hslLightness > 0.179 ? "black" : "white"
+    }
 
-	MouseArea {
-		anchors.fill: parent
-		hoverEnabled: true
+    MouseArea {
+        anchors.fill: parent
+        hoverEnabled: true
 
-		onClicked: root.clicked(root.name)
-		onEntered: root.border.color = "black"
-		onExited: root.border.color = root.colorDark
-	}
+        onClicked: root.clicked(root.name)
+        onEntered: root.color = root.colorDark
+        onExited: root.color = root.colorLight
+    }
 
-	signal clicked(string name)
+    signal clicked(string name)
 }

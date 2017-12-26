@@ -11,5 +11,6 @@
         <file>QQmlNetworkSettings.qml</file>
         <file>QQmlPalmiEditItem.qml</file>
         <file>QQmlPalmiBoardItem.qml</file>
+        <file>QQmlJS.js</file>
     </qresource>
 </RCC>
