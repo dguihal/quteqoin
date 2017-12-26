@@ -92,6 +92,28 @@ Rectangle {
                 cursorVisible: true
                 selectByMouse: true
 
+                Image {
+                    anchors { top: parent.top; right: parent.right; margins: 1 }
+                    id: postInputTFClearText
+                    fillMode: Image.PreserveAspectFit
+                    smooth: true
+                    visible: postInputTF.text
+                    source: "/img/palmi-clear.png"
+                    height: parent.height - 2
+                    width: parent.height - 2
+
+                    MouseArea {
+                        id: postInputTFClear
+                        anchors { horizontalCenter: parent.horizontalCenter; verticalCenter: parent.verticalCenter }
+                        height: postInputTF.height
+                        width: postInputTF.height
+                        onClicked: {
+                            postInputTF.text = ""
+                            postInputTF.forceActiveFocus()
+                        }
+                    }
+                }
+
                 Keys.onUpPressed: {
                     if (event.modifiers & Qt.AltModifier) {
                         for (var i = 0; i < boardListModel.count; i++) {
@@ -486,7 +508,7 @@ Rectangle {
             var norlogeTxt = tabRes[0]
             if (tabRes[6] === '@' + newBoard)
                 norlogeTxt = norlogeTxt.substring(0,
-                            norlogeTxt.length - tabRes[6].length)
+                                                  norlogeTxt.length - tabRes[6].length)
             else if (typeof tabRes[6] === "undefined")
                 norlogeTxt += "@" + oldBoard
 
@@ -518,6 +540,7 @@ Rectangle {
     function insertReplaceTextBoard(board, txt) {
         insertReplaceText(txt)
         switchBoard(board)
+
     }
 
     function insertReplaceText(txt) {
@@ -529,6 +552,8 @@ Rectangle {
         var c = postInputTF.text.slice(tailIdx)
 
         postInputTF.text = a + txt + c
+
+        postInputTF.forceActiveFocus()
     }
 
     function insertSurroundText(head, tail) {
