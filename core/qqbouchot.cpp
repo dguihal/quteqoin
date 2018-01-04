@@ -721,12 +721,6 @@ void QQBouchot::parsingFinished()
 		if(!m_history.empty())
 			Q_ASSERT(m_history.last()->id() < m_newPostHistory.first()->id());
 
-		if(m_name == "sauf.ca") {
-		foreach (QQPost *p, m_newPostHistory) {
-			qDebug() << p->id() << p->norloge();
-		}
-		};
-
 		m_history.append(m_newPostHistory);
 		m_lastId = m_parser->maxId();
 		m_state.hasNewPosts = true;

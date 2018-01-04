@@ -1195,10 +1195,11 @@ bool QQPinipede::printPostAtCursor(QTextCursor &cursor, QQPost *post)
 	loginUaFormat.setFont(currFont);
 	loginUaFormat.setToolTip(post->UA());
 
-	QString pctLogin = QString(QUrl::toPercentEncoding(post->login()));
-	QString pctUA = QString(QUrl::toPercentEncoding(post->UA()));
-	QString loginUAUrl = QString("msl://bouchot?board=%1&login=%2&ua=%3")
-						 .arg(post->bouchot()->name(), pctLogin, pctUA);
+	QString loginUAUrl = QString("msl://moule?board=%1&login=%2&ua=%3&isUser=%4")
+						 .arg(post->bouchot()->name(),
+							  QString(QUrl::toPercentEncoding(post->login())),
+							  QString(QUrl::toPercentEncoding(post->UA())),
+							  post->isSelfPost() ? "true" : "false");
 	loginUaFormat.setAnchor(true);
 	loginUaFormat.setAnchorHref(loginUAUrl);
 
