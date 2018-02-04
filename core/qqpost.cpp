@@ -142,12 +142,21 @@ bool QQPost::operator==(const QQPost &p) const
 	return equal(p);
 }
 
-//
+/**
+ * @brief QQPost::operator <
+ * @param p
+ * @return
+ */
 bool QQPost::operator<(const QQPost &p) const
 {
-	return (bouchot()->name() == p.bouchot()->name()) ?
-				m_id.toLongLong() < p.m_id.toLongLong() :
-				m_norloge < p.m_norloge;
+	if(m_norloge == p.m_norloge)
+	{
+		if(bouchot()->name() == p.bouchot()->name())
+			return m_id.toLongLong() < p.m_id.toLongLong();
+		return bouchot()->name() < p.bouchot()->name();
+	}
+
+	return m_norloge < p.m_norloge;
 }
 
 void QQPost::reset()

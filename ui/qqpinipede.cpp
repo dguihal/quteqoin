@@ -979,10 +979,6 @@ void QQPinipede::newPostsAvailable(QString groupName)
 	QTextDocument *doc = textBrowser->document();
 	updatePiniDisplaySettings(doc);
 
-	// Il ne sert a rien d'insérer plus que de posts que le max de l'historique
-	while(newPosts.size() > m_maxHistorySize)
-		newPosts.removeFirst();
-
 	// Tri necessaire puisqu'on a potentiellement melange les posts de plusieurs tribunes
 	std::sort(newPosts.begin(), newPosts.end(),
 			  // Ca fait rever les lambdas en C++ ....
@@ -990,6 +986,10 @@ void QQPinipede::newPostsAvailable(QString groupName)
 	{
 		return (* a) < (* b);
 	});
+
+	// Il ne sert a rien d'insérer plus que de posts que le max de l'historique
+	while(newPosts.size() > m_maxHistorySize)
+		newPosts.removeFirst();
 
 	// On signale via la forme de la souris qu'un traitement est en cours
 	QApplication::setOverrideCursor(Qt::BusyCursor);
