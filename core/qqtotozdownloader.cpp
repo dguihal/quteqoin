@@ -80,8 +80,7 @@ void QQTotozDownloader::requestFinishedSlot(QNetworkReply * reply)
 		}
 		else
 		{
-			expire = QDateTime::currentDateTime();
-			expire.addDays(MAX_CACHE_AGE_DAYS);
+			expire = QDateTime::currentDateTime().addDays(MAX_CACHE_AGE_DAYS);
 		}
 		totoz.setCacheExpireDate(expire);
 		totoz.save();
