@@ -17,6 +17,8 @@ public slots:
 	void insertReplaceText(const QString &txt);
 	void insertReplaceTextBoard(const QString &board, const QString &txt);
 
+protected:
+	virtual void focusInEvent(QFocusEvent * event);
 };
 
 #endif // QQMLPALMIPEDE_H
