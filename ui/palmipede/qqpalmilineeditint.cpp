@@ -29,7 +29,7 @@ QQPalmiLineEditInt::QQPalmiLineEditInt(QWidget *parent) :
 	setFrame(false);
 #if(QT_VERSION >= QT_VERSION_CHECK(5, 2, 0))
 	setClearButtonEnabled(true);
-	setStyleSheet(QString("* {color: black; background-color: transparent;}"));
+    setStyleSheet(QString("QLineEdit {color: black; background-color: transparent;}"));
 #else
 	m_clearButton = new QToolButton(this);
 	QFontMetrics fMetrics(font());
