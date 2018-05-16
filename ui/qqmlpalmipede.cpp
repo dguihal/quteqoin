@@ -1,5 +1,6 @@
 #include "qqmlpalmipede.h"
 
+#include <QApplication>
 #include <QQmlContext>
 /**
  * @brief QQmlPalmipede::QQmlPalmipede
@@ -23,6 +24,7 @@ void QQmlPalmipede::insertReplaceText(const QString &txt)
 {
 	QMetaObject::invokeMethod(rootObject(), "insertReplaceText",
 			Q_ARG(QVariant, txt));
+	QApplication::postEvent(this, new QFocusEvent(QEvent::FocusIn), Qt::LowEventPriority);
 }
 
 /**
@@ -34,4 +36,13 @@ void QQmlPalmipede::insertReplaceTextBoard(const QString &board, const QString &
 	QMetaObject::invokeMethod(rootObject(), "insertReplaceTextBoard",
 			Q_ARG(QVariant, board),
 			Q_ARG(QVariant, txt));
+	QApplication::postEvent(this, new QFocusEvent(QEvent::FocusIn), Qt::LowEventPriority);
+}
+
+
+void QQmlPalmipede::focusInEvent(QFocusEvent * event)
+{
+	QQuickWidget::focusInEvent(event);
+	QMetaObject::invokeMethod(rootObject(), "setDefaultFocus");
+	//m_ui->palmiEditor->setFocus();
 }

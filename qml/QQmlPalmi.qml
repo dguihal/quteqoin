@@ -71,79 +71,72 @@ Rectangle {
         height: palmipede.lineHeight
         radius: 4
 
-        FocusScope {
-            id: tfFocusScope
+        TextField {
+            id: postInputTF
 
             anchors.fill: parent
+            placeholderText: "coin ! coin !"
             focus: true
 
-            TextField {
-                id: postInputTF
-
-                anchors.fill: parent
-                placeholderText: "coin ! coin !"
-                focus: true
-
-                background: Rectangle {
-                    color: "transparent"
-                }
-
-                color: postInput.color.hslLightness > 0.179 ? "black" : "white" // https://www.w3.org/TR/WCAG20/ contrast ratio with L1 = 0 and L1 = 255
-                cursorVisible: true
-                selectByMouse: true
-
-                Image {
-                    anchors { top: parent.top; right: parent.right; margins: 1 }
-                    id: postInputTFClearText
-                    fillMode: Image.PreserveAspectFit
-                    smooth: true
-                    visible: postInputTF.text
-                    source: "/img/palmi-clear.png"
-                    height: parent.height - 2
-                    width: parent.height - 2
-
-                    MouseArea {
-                        id: postInputTFClear
-                        anchors { horizontalCenter: parent.horizontalCenter; verticalCenter: parent.verticalCenter }
-                        height: postInputTF.height
-                        width: postInputTF.height
-                        onClicked: {
-                            postInputTF.text = ""
-                            postInputTF.forceActiveFocus()
-                        }
-                    }
-                }
-
-                Keys.onUpPressed: {
-                    if (event.modifiers & Qt.AltModifier) {
-                        for (var i = 0; i < boardListModel.count; i++) {
-                            var boardElt = boardListModel.get(i)
-                            if (boardElt.boardName === currentBoardName) {
-                                var newBoard = boardListModel.get(
-                                            (i + 1) % boardListModel.count)
-                                switchBoard(newBoard.boardName)
-                                break
-                            }
-                        }
-                    }
-                }
-                Keys.onDownPressed: {
-                    if (event.modifiers & Qt.AltModifier) {
-                        for (var i = 0; i < boardListModel.count; i++) {
-                            var boardElt = boardListModel.get(i)
-                            if (boardElt.boardName === currentBoardName) {
-                                var newBoard = boardListModel.get(
-                                            ((i - 1) % boardListModel.count
-                                             + boardListModel.count) % boardListModel.count)
-                                switchBoard(newBoard.boardName)
-                                break
-                            }
-                        }
-                    }
-                }
-
-                onAccepted: palmipede.doPost()
+            background: Rectangle {
+                color: "transparent"
             }
+
+            color: postInput.color.hslLightness > 0.179 ? "black" : "white" // https://www.w3.org/TR/WCAG20/ contrast ratio with L1 = 0 and L1 = 255
+            cursorVisible: true
+            selectByMouse: true
+
+            Image {
+                anchors { top: parent.top; right: parent.right; margins: 1 }
+                id: postInputTFClearText
+                fillMode: Image.PreserveAspectFit
+                smooth: true
+                visible: postInputTF.text
+                source: "/img/palmi-clear.png"
+                height: parent.height - 2
+                width: parent.height - 2
+
+                MouseArea {
+                    id: postInputTFClear
+                    anchors { horizontalCenter: parent.horizontalCenter; verticalCenter: parent.verticalCenter }
+                    height: postInputTF.height
+                    width: postInputTF.height
+                    onClicked: {
+                        postInputTF.text = ""
+                        postInputTF.forceActiveFocus()
+                    }
+                }
+            }
+
+            Keys.onUpPressed: {
+                if (event.modifiers & Qt.AltModifier) {
+                    for (var i = 0; i < boardListModel.count; i++) {
+                        var boardElt = boardListModel.get(i)
+                        if (boardElt.boardName === currentBoardName) {
+                            var newBoard = boardListModel.get(
+                                        (i + 1) % boardListModel.count)
+                            switchBoard(newBoard.boardName)
+                            break
+                        }
+                    }
+                }
+            }
+            Keys.onDownPressed: {
+                if (event.modifiers & Qt.AltModifier) {
+                    for (var i = 0; i < boardListModel.count; i++) {
+                        var boardElt = boardListModel.get(i)
+                        if (boardElt.boardName === currentBoardName) {
+                            var newBoard = boardListModel.get(
+                                        ((i - 1) % boardListModel.count
+                                         + boardListModel.count) % boardListModel.count)
+                            switchBoard(newBoard.boardName)
+                            break
+                        }
+                    }
+                }
+            }
+
+            onAccepted: palmipede.doPost()
         }
 
         property alias text: postInputTF.text
@@ -443,6 +436,7 @@ Rectangle {
         }
     ]
     */
+
     Component.onCompleted: {
         boldBtn.clicked.connect(onBoldClicked)
         italicBtn.clicked.connect(onItalicClicked)
@@ -544,14 +538,22 @@ Rectangle {
     }
 
     function insertReplaceText(txt) {
+        console.log(postInputTF.selectionStart)
+        console.log(postInputTF.selectionEnd)
+        console.log(postInputTF.cursorPosition)
         var headIdx = Math.min(postInputTF.selectionStart,
                                postInputTF.selectionEnd)
+        console.log(headIdx)
         var tailIdx = Math.max(postInputTF.selectionStart,
                                postInputTF.selectionEnd)
+        console.log(tailIdx)
         var a = postInputTF.text.slice(0, headIdx)
+        console.log(a)
         var c = postInputTF.text.slice(tailIdx)
+        console.log(c)
 
         postInputTF.text = a + txt + c
+        postInputTF.cursorPosition = headIdx + txt.length
 
         postInputTF.forceActiveFocus()
     }
@@ -601,5 +603,9 @@ Rectangle {
 
     function onBlamClicked() {
         insertReplaceText("_o/* <b>BLAM</b>! ")
+    }
+
+    function setDefaultFocus() {
+        postInputTF.forceActiveFocus()
     }
 }
