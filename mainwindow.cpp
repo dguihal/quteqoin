@@ -336,7 +336,12 @@ void MainWindow::bouchotDestroyed(QQBouchot *bouchot)
 	QString name = bouchot->name();
 	QString group = bouchot->settings().group();
 
+#ifdef QML_PALMI
+	QMetaObject::invokeMethod(m_palmi->rootObject(), "removeBoard",
+							  Q_ARG(QVariant, bouchot->name()));
+#else
 	m_palmi->removeBouchot(bouchot->name());
+#endif
 
 	QList<QQBouchot *> bouchots = QQBouchot::listBouchotsGroup(group);
 	(bouchots.size() == 0) ?

@@ -3,7 +3,7 @@ import QtQuick.Controls 1.3
 import QtQuick.Controls.Styles 1.3
 
 Rectangle {
-	id:palmipede
+	id: palmipede
 	height: boards.childrenRect.height + postInput.height + boldBtn.height + 6
 	width: 400
 
@@ -94,19 +94,15 @@ Rectangle {
 			}
 
 			Keys.onUpPressed: {
-				if(event.modifiers & Qt.AltModifier)
-				{
-					var i = 0;
-					for(i; i < boardListModel.count; i++)
-					{
+				if (event.modifiers & Qt.AltModifier) {
+					var i = 0
+					for (i; i < boardListModel.count; i++) {
 						var boardElt = boardListModel.get(i)
-						if(boardElt.name === text)
-						{
+						if (boardElt.name === text) {
 							var newBoard = boardListModel.get(i + 1)
 							postInput.color = newBoard.colorLight
 							postInput.border.color = newBoard.color
 							currentBoardName = newBoard.boardName
-
 						}
 					}
 				}
@@ -118,14 +114,11 @@ Rectangle {
 		property alias text: postInputTF.text
 
 		Component.onCompleted: {
-			if(currentBoardName != '')
-			{
-				var i = 0;
-				for(i; i < boardListModel.count; i++)
-				{
+			if (currentBoardName != '') {
+				var i = 0
+				for (i; i < boardListModel.count; i++) {
 					var boardElt = boardListModel.get(i)
-					if(boardElt.name === currentBoardName)
-					{
+					if (boardElt.name === currentBoardName) {
 						postInput.color = boardElt.colorLight
 						postInput.border.color = boardElt.color
 					}
@@ -251,7 +244,6 @@ Rectangle {
 		height: palmipede.lineHeight
 		radius: 4
 		width: height
-
 
 		Image {
 			id: attachBtnImg
@@ -447,7 +439,8 @@ Rectangle {
 			id: momentBtnMA
 
 			anchors.fill: parent
-			onPressed: palmipede.insertSurroundText("====> <b>Moment ", "</b> <====")
+			onPressed: palmipede.insertSurroundText("====> <b>Moment ",
+													"</b> <====")
 		}
 	}
 
@@ -460,7 +453,7 @@ Rectangle {
 		}
 		height: palmipede.lineHeight
 
-		model: [ "_o/* BLAM!", "_o/* paf!"]
+		model: ["_o/* BLAM!", "_o/* paf!"]
 
 		style: ComboBoxStyle {
 			font {
@@ -469,7 +462,7 @@ Rectangle {
 		}
 	}
 
-/*
+	/*
 	states: [
 		State {
 			name: "MAXIMIZED"
@@ -569,36 +562,46 @@ Rectangle {
 		}
 	]
 	*/
-
 	onCurrentBoardNameChanged: {
-		console.log("onCurrentBoardNameChanged", currentBoardName);
-		var i = 0;
-		for(i; i < boardListModel.count; i++)
-		{
+		console.log("onCurrentBoardNameChanged", currentBoardName)
+		var i = 0
+		for (i; i < boardListModel.count; i++) {
 			var boardElt = boardListModel.get(i)
-			if(boardElt.name === currentBoardName)
-			{
+			if (boardElt.name === currentBoardName) {
 				postInput.color = boardElt.colorLight
 				postInput.border.color = boardElt.color
 			}
 		}
 	}
 
-	signal post (string bouchot, string message)
+	signal post(string bouchot, string message)
 
 	function addBoard(board, color, colorLight) {
-		boardListModel.append({ "boardName": board,
-								  "boardColor": "" + color,
-								  "boardColorLight": "" + colorLight })
-		if(currentBoardName === '')
-			currentBoardName = board;
+		boardListModel.append({
+								  boardName: board,
+								  boardColor: "" + color,
+								  boardColorLight: "" + colorLight
+							  })
+		if (currentBoardName === '')
+			currentBoardName = board
+	}
+
+	function removeBoard(board) {
+		var i = 0
+		for (i; i < boardListModel.count; i++) {
+			var boardElt = boardListModel.get(i)
+			if (boardElt.boardName === board) {
+				boardListModel.remove(i)
+				break
+			}
+		}
 	}
 
 	function switchBoard(board) {
 		currentBoardName = board
 	}
 
-	function doPost () {
+	function doPost() {
 		post(boardSelector.currentText, postInput.text)
 		postInput.text = ""
 	}
@@ -622,7 +625,7 @@ Rectangle {
 	}
 
 	signal insertSurroundText(string head, string tail)
-	onInsertSurroundText : {
+	onInsertSurroundText: {
 		var headIdx = Math.min(postInputTF.selectionStart,
 							   postInputTF.selectionEnd)
 		var tailIdx = Math.max(postInputTF.selectionStart,
