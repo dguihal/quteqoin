@@ -1,5 +1,5 @@
-label=Totoz.eu NSFW (Adult content, post-moderated)
-url=https://nsfw.totoz.eu
+label=Totoz.eu NSFW / totoz.moules.es (Adult content, post-moderated)
+url=https://nsfw.totoz.moul.es
 base_img_dir=img
 img_suffix=
 search_pattern=search.xml?terms=%t&offset=%o

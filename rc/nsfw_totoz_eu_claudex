@@ -1,5 +1,5 @@
 label=Totoz.eu NSFW / Claudex (Adult content, post-moderated)
-url=http://claudex.be
+url=https://claudex.be
 base_img_dir=ttz
 img_suffix=.gif
 search_pattern=ttz/search.xml?terms=%t

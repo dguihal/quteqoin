@@ -1,5 +1,5 @@
 label=Totoz.eu (Safe, post-moderated)
-url=http://totoz.eu
+url=https://totoz.eu
 base_img_dir=img
 img_suffix=
 search_pattern=search.xml?terms=%t&offset=%o
