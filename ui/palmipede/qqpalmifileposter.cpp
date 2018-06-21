@@ -44,7 +44,7 @@ bool QQPalmiFilePoster::postFile(const QString &fileName)
 
 	if (sharingService == FILE_SHARING_SERVICE_UP_Y_FR)
 		rep = postFileJusYFr(file);
-	else if (sharingService == FILE_SHARING_SERVICE_JIRAFEAU_3TER_ORG)
+	else if (sharingService == FILE_SHARING_SERVICE_JIRAFEAU_EUROMUSSELS_EU)
 		rep = postFileUpload3TerOrg(file);
 
 	if (rep != NULL)
@@ -68,7 +68,7 @@ void QQPalmiFilePoster::requestFinishedSlot(QNetworkReply *reply)
 		QString s = QString::fromUtf8(reply->readAll());
 		if (sharingService == FILE_SHARING_SERVICE_UP_Y_FR)
 			parseJusYFr(s);
-		else if (sharingService == FILE_SHARING_SERVICE_JIRAFEAU_3TER_ORG)
+		else if (sharingService == FILE_SHARING_SERVICE_JIRAFEAU_EUROMUSSELS_EU)
 			parseUpload3TerOrg(s);
 	}
 	else
@@ -120,14 +120,14 @@ QNetworkReply * QQPalmiFilePoster::postFileUpload3TerOrg(QFile *file)
 	timePart.setBody(QString::fromLatin1("week").toLatin1());
 	multiPart->append(timePart);
 
-	QUrl url(QString("http://%1/script.php").arg(FILE_SHARING_SERVICE_JIRAFEAU_3TER_ORG));
+	QUrl url(QString("http://%1/script.php").arg(FILE_SHARING_SERVICE_JIRAFEAU_EUROMUSSELS_EU));
 	QNetworkRequest request(url);
 	//request.setRawHeader("User-Agent", "Mozilla/5.0 (quteqoin)"); // Le service n'accepte pas l'ua par défaut ...
 	//request.setRawHeader("Accept", "application/json, text/javascript, */*; q=0.01");
 	//request.setRawHeader("Accept-Language", "en-US,en;q=0.5");
 	//request.setRawHeader("Accept-Encoding", "gzip, deflate"); // Qt 4 ne supporte pas gunzip nativement ....
 	//request.setRawHeader("X-Requested-With", "XMLHttpRequest");
-	request.setRawHeader("Referer", QString("http://%1/").arg(FILE_SHARING_SERVICE_JIRAFEAU_3TER_ORG).toLatin1());
+	request.setRawHeader("Referer", QString("http://%1/").arg(FILE_SHARING_SERVICE_JIRAFEAU_EUROMUSSELS_EU).toLatin1());
 
 	QNetworkReply *reply = httpPost(request, multiPart);
 	multiPart->setParent(reply); // delete the multiPart with the reply
@@ -143,7 +143,7 @@ void QQPalmiFilePoster::parseUpload3TerOrg(const QString &data)
 {
 	QStringList strL = data.split(QChar('\n'));
 	if(strL.size() > 0)
-		emit finished(QString("http://%1/f.php?h=%2&p=1").arg(FILE_SHARING_SERVICE_JIRAFEAU_3TER_ORG).arg(strL.first()));
+		emit finished(QString("http://%1/f.php?h=%2&p=1").arg(FILE_SHARING_SERVICE_JIRAFEAU_EUROMUSSELS_EU).arg(strL.first()));
 }
 
 ///////////
