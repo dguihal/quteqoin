@@ -252,11 +252,14 @@ void QQTextBrowser::showTotoz(QString & totozId)
 	}
 }
 
+/**
+ * @brief QQTextBrowser::onAddTotozToBookmarksAction
+ */
 void QQTextBrowser::onAddTotozToBookmarksAction()
 {
-	qDebug() << Q_FUNC_INFO << m_contextMenuTotozId;
-	emit totozBookmarkAct(m_contextMenuTotozId, QQTotoz::ADD);
-	m_contextMenuTotozId.clear();
+	//qDebug() << Q_FUNC_INFO << m_contextMenuContextualString;
+	emit totozBookmarkAct(m_contextMenuContextualString, QQTotoz::ADD);
+	m_contextMenuContextualString.clear();
 }
 
 void QQTextBrowser::onAnchorClicked(const QUrl &link)
@@ -330,6 +333,10 @@ void QQTextBrowser::onAnchorClicked(const QUrl &link)
 	setTextCursor(c);
 }
 
+/**
+ * @brief QQTextBrowser::onAnchorHighlighted
+ * @param link
+ */
 void QQTextBrowser::onAnchorHighlighted(const QUrl &link)
 {
 	viewport()->unsetCursor();
@@ -357,12 +364,12 @@ void QQTextBrowser::onAnchorHighlighted(const QUrl &link)
 			QString totozId = link.path().remove(0, 1); // Le / initial
 			showTotoz(totozId);
 		}
-		else if ((linkScheme == "msl") || // Une moule
+		else if((linkScheme == "msl") || // Une moule
 				 (linkScheme == "duck") || // Une moule
 				 (linkScheme == "tablev")) // Une table volante
 		{
 		}
-		else if (linkScheme == "nref") // Une norloge
+		else if(linkScheme == "nref") // Une norloge
 		{
 
 			QTextCursor c = cursorForPosition(mapFromGlobal(QCursor::pos()));
@@ -398,6 +405,42 @@ void QQTextBrowser::onAnchorHighlighted(const QUrl &link)
 	}
 }
 
+/**
+ * @brief QQTextBrowser::onBakUserAction
+ */
+void QQTextBrowser::onBakUserAction()
+{
+	QUrl userUrl(m_contextMenuContextualString);
+	m_contextMenuContextualString.clear();
+
+	if(! userUrl.isValid())
+		return;
+
+	QUrlQuery userUrlQuery(userUrl);
+
+	if(QUrl::fromPercentEncoding(userUrlQuery.queryItemValue("isUser").toUtf8()) != "true")
+	{
+		QString board = QUrl::fromPercentEncoding(userUrlQuery.queryItemValue("board").toUtf8());
+
+		QQBouchot* b = QQBouchot::bouchot(board);
+
+		if(b == NULL) // Not found, shouldn't happen but better check than crash
+			return;
+
+		QString login = QUrl::fromPercentEncoding(userUrlQuery.queryItemValue("login").toUtf8());
+		bool isAuth = (login == "");
+		if(! isAuth)
+			login = QUrl::fromPercentEncoding(userUrlQuery.queryItemValue("ua").toUtf8());
+
+		b->addToBak(login, isAuth);
+	}
+}
+
+/**
+ * @brief QQTextBrowser::onExtendedInfoAvailable
+ * @param url
+ * @param contentType
+ */
 void QQTextBrowser::onExtendedInfoAvailable(QUrl &url, QString &contentType)
 {
 	QString ttText = QToolTip::text();
@@ -405,6 +448,37 @@ void QQTextBrowser::onExtendedInfoAvailable(QUrl &url, QString &contentType)
 	{
 		ttText.append(" (").append(contentType).append(")");
 		QToolTip::showText(QCursor::pos(), ttText, this);
+	}
+}
+
+/**
+ * @brief QQTextBrowser::onPlopifyUserAction
+ */
+void QQTextBrowser::onPlopifyUserAction()
+{
+	QUrl userUrl(m_contextMenuContextualString);
+	m_contextMenuContextualString.clear();
+
+	if(! userUrl.isValid())
+		return;
+
+	QUrlQuery userUrlQuery(userUrl);
+
+	if(QUrl::fromPercentEncoding(userUrlQuery.queryItemValue("isUser").toUtf8()) != "true")
+	{
+		QString board = QUrl::fromPercentEncoding(userUrlQuery.queryItemValue("board").toUtf8());
+
+		QQBouchot* b = QQBouchot::bouchot(board);
+
+		if(b == NULL) // Not found, shouldn't happen but better check than crash
+			return;
+
+		QString login = QUrl::fromPercentEncoding(userUrlQuery.queryItemValue("login").toUtf8());
+		bool isAuth = (login == "");
+		if(! isAuth)
+			login = QUrl::fromPercentEncoding(userUrlQuery.queryItemValue("ua").toUtf8());
+
+		b->addToPlopify(login, isAuth);
 	}
 }
 
@@ -481,7 +555,7 @@ void QQTextBrowser::contextMenuEvent(QContextMenuEvent * ev)
 		QString anchorUrlScheme = anchorUrl.scheme();
 		if(anchorUrlScheme == "totoz") // Un [:totoz]
 		{
-			m_contextMenuTotozId = anchorUrl.path().remove(0, 1); // Le / initial
+			m_contextMenuContextualString = anchorUrl.path().remove(0, 1); // Le / initial
 
 			QAction *action = menu->addAction(tr("Add to &bookmarks"));
 			connect(action, SIGNAL(triggered()), this, SLOT(onAddTotozToBookmarksAction()));
@@ -489,13 +563,42 @@ void QQTextBrowser::contextMenuEvent(QContextMenuEvent * ev)
 			//Suppression du Copy Link Location
 			menu->actions().at(1)->setEnabled(false);
 		}
-		else if ((anchorUrlScheme == "msl")    || // Une moule
+		else if((anchorUrlScheme == "msl")    || // Une moule
 				 (anchorUrlScheme == "duck")   || // Un canard
 				 (anchorUrlScheme == "tablev") || // Une table volante
 				 (anchorUrlScheme == "nref"))     // Une norloge
 		{
 			//Suppression du Copy Link Location
-			menu->actions().at(1)->setEnabled(false);
+			menu->actions().at(1)->setVisible(false);
+
+			if(anchorUrlScheme == "msl")
+			{
+				QUrlQuery anchorUrlQuery(anchorUrl);
+				if(QUrl::fromPercentEncoding(anchorUrlQuery.queryItemValue("isUser").toUtf8()) != "true")
+				{
+					QString board = QUrl::fromPercentEncoding(anchorUrlQuery.queryItemValue("board").toUtf8());
+
+					QQBouchot* b = QQBouchot::bouchot(board);
+
+					if(b == NULL) // Not found, shouldn't happen but better check than crash
+						return;
+
+					QString login = QUrl::fromPercentEncoding(anchorUrlQuery.queryItemValue("login").toUtf8());
+					bool isAuth = (login == "");
+					if(! isAuth)
+						login = QUrl::fromPercentEncoding(anchorUrlQuery.queryItemValue("ua").toUtf8());
+
+					QAction *action = menu->addAction(tr("Bak"));
+					connect(action, SIGNAL(triggered()), this, SLOT(onBakUserAction()));
+
+					if(! b->isPlopified(login, isAuth))
+					{
+						action = menu->addAction(tr("Plopify"));
+						connect(action, SIGNAL(triggered()), this, SLOT(onPlopifyUserAction()));
+					}
+					m_contextMenuContextualString = anchorUrl.toString();
+				}
+			}
 		}
 	}
 

@@ -133,12 +133,12 @@ QDateTime QQNetworkAccessor::parseRC822(QString string)
 	if(fields[4].startsWith('+'))
 	{
 		QString offset = fields[4].right(4);
-		time.addSecs(offset.left(2).toInt() * 3600 + offset.right(2).toInt() * 60);
+		time = time.addSecs(offset.left(2).toInt() * 3600 + offset.right(2).toInt() * 60);
 	}
 	else if(fields[4].startsWith('-'))
 	{
 		QString offset = fields[4].right(4);
-		time.addSecs(0 - (offset.left(2).toInt() * 3600 + offset.right(2).toInt() * 60));
+		time = time.addSecs(0 - (offset.left(2).toInt() * 3600 + offset.right(2).toInt() * 60));
 	}
 	QDateTime datetime(date, time, Qt::UTC);
 	return datetime;

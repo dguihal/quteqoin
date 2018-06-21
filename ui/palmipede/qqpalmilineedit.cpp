@@ -33,6 +33,7 @@ QQPalmiLineEdit::QQPalmiLineEdit(QWidget *parent) :
 	l->addWidget(m_privLineEdit);
 
 	connect(m_privLineEdit, SIGNAL(returnPressed()), this, SIGNAL(returnPressed()));
+	connect(m_privLineEdit, SIGNAL(textChanged(QString)), this, SLOT(update()));
 	connect(m_privLineEdit, SIGNAL(changeBoard(bool)), this, SIGNAL(changeBoard(bool)));
 
 	connect(&m_fPoster, SIGNAL(finished(QString)), m_privLineEdit, SLOT(insertText(QString)));
@@ -119,18 +120,32 @@ void QQPalmiLineEdit::dropEvent(QDropEvent *event)
 void QQPalmiLineEdit::paintEvent(QPaintEvent *event)
 {
 	QRect rect = geometry();
-	rect.setWidth((rect.width() * m_pctUp) / 100);
 
 	QPainter rectPainter(this);
 
-	// Fill Bg
+	// Background
 	QBrush bg(palette().background());
 	rectPainter.setBrush(bg);
 	rectPainter.setPen(Qt::NoPen);
 	rectPainter.setOpacity(1);
 	rectPainter.drawRoundedRect(rect, 2, 2);
 
-	// Gradient
+	// Foreground
+	QRect rf = rect;
+#if(QT_VERSION >= QT_VERSION_CHECK(5, 2, 0))
+	int clearBtnWidth = 0;
+	if(palette().background().color().lightness() < 64 && ! m_privLineEdit->text().isEmpty())
+	{
+		QStyle *s = style();
+		clearBtnWidth = s->pixelMetric(QStyle::PM_ButtonIconSize) +
+							s->pixelMetric(QStyle::PM_LayoutLeftMargin) +
+							s->pixelMetric(QStyle::PM_LayoutRightMargin);
+
+		rf.setWidth(rf.width() - (clearBtnWidth - 2));
+	}
+#endif
+	rf.setWidth((rf.width() * m_pctUp) / 100);
+
 	QLinearGradient gradient(0, 0, 0, rect.height());
 	gradient.setColorAt(0.0, m_currBoardcolor);
 	gradient.setColorAt(0.1, m_currBoardcolor);
@@ -139,13 +154,27 @@ void QQPalmiLineEdit::paintEvent(QPaintEvent *event)
 	gradient.setColorAt(0.9, m_currBoardcolor);
 	gradient.setColorAt(1.0, m_currBoardcolor);
 
-
 	// Fill Fg
 	QBrush fg(gradient);
 	rectPainter.setBrush(fg);
 	rectPainter.setPen(Qt::NoPen);
 	rectPainter.setOpacity(1);
-	rectPainter.drawRoundedRect(rect, 2, 2);
+	rectPainter.drawRoundedRect(rf, 2, 2);
+
+#if(QT_VERSION >= QT_VERSION_CHECK(5, 2, 0))
+	if(clearBtnWidth > 0)
+	{
+		QRect rf2 = rect;
+		rf2.setWidth(clearBtnWidth);
+		rf2.moveRight(rect.width());
+
+		QBrush b(m_currBoardcolor.darker(150));
+		rectPainter.setBrush(b);
+		rectPainter.setPen(Qt::NoPen);
+		rectPainter.setOpacity(1);
+		rectPainter.drawRoundedRect(rf2, 2, 2);
+	}
+#endif
 
 	rectPainter.setBrush(Qt::NoBrush);
 	rectPainter.setPen(QPen(m_currBoardcolor.darker(120)));
@@ -180,7 +209,7 @@ void QQPalmiLineEdit::joinFileErr(const QString &errStr)
 	msgBox->exec();
 
 	m_pctUp = 100;
-	repaint();
+	update();
 }
 
 //////////////////////////////////////////////////////////////
@@ -198,7 +227,7 @@ void QQPalmiLineEdit::pushCurrentToHistory()
 void QQPalmiLineEdit::changeColor(const QColor &newColor)
 {
 	m_currBoardcolor = newColor;
-	repaint();
+	update();
 }
 
 //////////////////////////////////////////////////////////////
@@ -275,5 +304,5 @@ void QQPalmiLineEdit::underline()
 void QQPalmiLineEdit::updateUploadProgress(quint32 pctProgress)
 {
 	m_pctUp = qMin(pctProgress, quint32(100));
-	repaint();
+	update();
 }

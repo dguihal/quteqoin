@@ -58,7 +58,9 @@ protected slots:
 	void onAddTotozToBookmarksAction();
 	void onAnchorClicked(const QUrl &link);
 	void onAnchorHighlighted(const QUrl &link);
+	void onBakUserAction();
 	void onExtendedInfoAvailable(QUrl &url, QString &contentType);
+	void onPlopifyUserAction();
 	void onScrollRangeChanged(int min, int max);
 	void onScrollValueChanged(int value);
 	void onThumbnailUrlAvailable(QUrl &url, QString &thumbnailUrl);
@@ -92,7 +94,7 @@ private:
 
 	QString m_highlightedNorlogeRef;
 	QString m_displayedTotozId;
-	QString m_contextMenuTotozId;
+	QString m_contextMenuContextualString;
 	QUrl m_shownUrl;
 
 	QString m_groupName;

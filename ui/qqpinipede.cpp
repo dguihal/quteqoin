@@ -979,10 +979,6 @@ void QQPinipede::newPostsAvailable(QString groupName)
 	QTextDocument *doc = textBrowser->document();
 	updatePiniDisplaySettings(doc);
 
-	// Il ne sert a rien d'insérer plus que de posts que le max de l'historique
-	while(newPosts.size() > m_maxHistorySize)
-		newPosts.removeFirst();
-
 	// Tri necessaire puisqu'on a potentiellement melange les posts de plusieurs tribunes
 	std::sort(newPosts.begin(), newPosts.end(),
 			  // Ca fait rever les lambdas en C++ ....
@@ -990,6 +986,10 @@ void QQPinipede::newPostsAvailable(QString groupName)
 	{
 		return (* a) < (* b);
 	});
+
+	// Il ne sert a rien d'insérer plus que de posts que le max de l'historique
+	while(newPosts.size() > m_maxHistorySize)
+		newPosts.removeFirst();
 
 	// On signale via la forme de la souris qu'un traitement est en cours
 	QApplication::setOverrideCursor(Qt::BusyCursor);
@@ -1195,10 +1195,11 @@ bool QQPinipede::printPostAtCursor(QTextCursor &cursor, QQPost *post)
 	loginUaFormat.setFont(currFont);
 	loginUaFormat.setToolTip(post->UA());
 
-	QString pctLogin = QString(QUrl::toPercentEncoding(post->login()));
-	QString pctUA = QString(QUrl::toPercentEncoding(post->UA()));
-	QString loginUAUrl = QString("msl://bouchot?board=%1&login=%2&ua=%3")
-						 .arg(post->bouchot()->name(), pctLogin, pctUA);
+	QString loginUAUrl = QString("msl://moule?board=%1&login=%2&ua=%3&isUser=%4")
+						 .arg(post->bouchot()->name(),
+							  QString(QUrl::toPercentEncoding(post->login())),
+							  QString(QUrl::toPercentEncoding(post->UA())),
+							  post->isSelfPost() ? "true" : "false");
 	loginUaFormat.setAnchor(true);
 	loginUaFormat.setAnchorHref(loginUAUrl);
 

@@ -48,6 +48,15 @@ bool QQTMXmlParser::startElement(const QString & namespaceURI, const QString & l
 
 	m_elementNames.push(localName);
 
+	if(localName == "totozes")
+	{
+		QString resCount = atts.value("results");
+		bool ok = false;
+		m_numResults = resCount.toInt(&ok, 10);
+		if(!ok)
+			m_numResults = 0;
+	}
+
 	return true;
 }
 
