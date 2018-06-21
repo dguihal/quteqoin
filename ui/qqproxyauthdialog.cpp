@@ -2,6 +2,7 @@
 #include "ui_qqproxyauthdialog.h"
 
 #include <QApplication>
+#include <QStyle>
 
 QQProxyAuthDialog::QQProxyAuthDialog(QWidget *parent) :
 	QDialog(parent),
