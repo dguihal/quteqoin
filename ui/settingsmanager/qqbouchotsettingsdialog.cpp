@@ -68,7 +68,7 @@ void QQBouchotSettingsDialog::setBouchot()
 	ui->refreshRateLineEdit->setText(m_bouchotSettings.refreshToString());
 	ui->loginLineEdit->setText(m_bouchotSettings.login());
 	ui->uaLineEdit->setText(m_bouchotSettings.ua());
-	ui->cookieLineEdit->setText(m_bouchotSettings.cookie());
+	ui->cookieLineEdit->setText(m_bouchotSettings.cookies());
 	ui->urlPostLineEdit->setText(m_bouchotSettings.postUrl());
 	ui->urlBackendLineEdit->setText(m_bouchotSettings.backendUrl());
 	ui->postDataLineEdit->setText(m_bouchotSettings.postData());
@@ -142,7 +142,7 @@ void QQBouchotSettingsDialog::accept()
 		m_bouchotSettings.setRefreshFromString(ui->refreshRateLineEdit->text());
 		m_bouchotSettings.setLogin(ui->loginLineEdit->text());
 		m_bouchotSettings.setUa(ui->uaLineEdit->text());
-		m_bouchotSettings.setCookie(ui->cookieLineEdit->text());
+		m_bouchotSettings.setCookies(ui->cookieLineEdit->text());
 		m_bouchotSettings.setPostUrl(ui->urlPostLineEdit->text());
 		m_bouchotSettings.setBackendUrl(ui->urlBackendLineEdit->text());
 		m_bouchotSettings.setPostData(ui->postDataLineEdit->text());

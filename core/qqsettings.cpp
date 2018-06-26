@@ -145,7 +145,7 @@ void QQSettings::saveBouchot(const QString &name, const QQBouchot::QQBouchotSett
 	setValue(SETTINGS_BOUCHOT_ALIASES, bouchotSettings.aliasesToString());
 	setValue(SETTINGS_BOUCHOT_REFRESH, bouchotSettings.refreshToString());
 	setValue(SETTINGS_BOUCHOT_LOGIN, bouchotSettings.login());
-	setValue(SETTINGS_BOUCHOT_COOKIES, bouchotSettings.cookie());
+	setValue(SETTINGS_BOUCHOT_COOKIES, bouchotSettings.cookies());
 	setValue(SETTINGS_BOUCHOT_UA, bouchotSettings.ua());
 	setValue(SETTINGS_BOUCHOT_BACKENDURL, bouchotSettings.backendUrl());
 	setValue(SETTINGS_BOUCHOT_POSTURL, bouchotSettings.postUrl());
@@ -178,7 +178,7 @@ QQBouchot * QQSettings::loadBouchot(const QString &name)
 	newBouchotSettings.setAliasesFromString(value(SETTINGS_BOUCHOT_ALIASES, "").toString());
 	newBouchotSettings.setRefresh(value(SETTINGS_BOUCHOT_REFRESH, "").toInt());
 	newBouchotSettings.setLogin(value(SETTINGS_BOUCHOT_LOGIN, "").toString());
-	newBouchotSettings.setCookie(value(SETTINGS_BOUCHOT_COOKIES, "").toString());
+	newBouchotSettings.setCookies(value(SETTINGS_BOUCHOT_COOKIES, "").toString());
 	newBouchotSettings.setUa(value(SETTINGS_BOUCHOT_UA, "").toString());
 	newBouchotSettings.setBackendUrl(value(SETTINGS_BOUCHOT_BACKENDURL, "").toString());
 	newBouchotSettings.setPostUrl(value(SETTINGS_BOUCHOT_POSTURL, "").toString());

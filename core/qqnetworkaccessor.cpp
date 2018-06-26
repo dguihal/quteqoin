@@ -6,6 +6,8 @@
 #include <QtDebug>
 #include <QApplication>
 #include <QAuthenticator>
+#include <QNetworkCookie>
+#include <QNetworkCookieJar>
 #include <QNetworkProxyFactory>
 #include <QTimer>
 
@@ -178,6 +180,39 @@ QNetworkReply * QQNetworkAccessor::httpPost(const QNetworkRequest &request, QHtt
 QNetworkReply * QQNetworkAccessor::httpPut(const QNetworkRequest &request, QIODevice *data)
 {
 	return m_qnam->put(request, data);
+}
+
+// Gestion des cookies
+/**
+ * @brief QQNetworkAccessor::setCookiesforUrl
+ * @param cookieList
+ * @param url
+ * @return
+ */
+void QQNetworkAccessor::clearCookiesForUrl(const QUrl &url)
+{
+	QNetworkCookieJar *cj =  m_qnam->cookieJar();
+	if(cj == NULL)
+		return;
+
+	foreach (QNetworkCookie c, cj->cookiesForUrl(url)) {
+		cj->deleteCookie(c);
+	}
+}
+
+/**
+ * @brief QQNetworkAccessor::setCookieforUrl
+ * @param cookieList
+ * @param url
+ * @return
+ */
+bool QQNetworkAccessor::setCookiesFromUrl(const QList<QNetworkCookie> &cookieList, const QUrl &url)
+{
+	QNetworkCookieJar *cj =  m_qnam->cookieJar();
+	if(cj == NULL)
+		return false;
+
+	return cj->setCookiesFromUrl(cookieList, url);
 }
 
 // Gestion du proxy

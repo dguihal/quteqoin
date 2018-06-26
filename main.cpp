@@ -11,6 +11,8 @@
 #include <QDir>
 #include <QSettings>
 
+#undef QML_PALMI
+
 #ifdef QML_PALMI
 #if(QT_VERSION >= QT_VERSION_CHECK(5, 3, 0))
 #include "qml/documenthandler.h"

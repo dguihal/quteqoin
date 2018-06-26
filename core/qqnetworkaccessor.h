@@ -37,6 +37,10 @@ protected:
 							 QHttpMultiPart *multiPart);
 	QNetworkReply *httpPut(const QNetworkRequest &request,
 						   QIODevice *data);
+
+	void clearCookiesForUrl(const QUrl &url);
+	bool setCookiesFromUrl(const QList<QNetworkCookie> &cookieList, const QUrl &url);
+
 	void setNetCacheManager(QAbstractNetworkCache *networkCache) { m_qnam->setCache(networkCache); }
 
 protected slots:

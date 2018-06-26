@@ -20,7 +20,6 @@ class QNetworkReply;
 class QQBackendParser;
 class QQSettings;
 
-
 class QQBouchot : public QQNetworkAccessor
 {
 	Q_OBJECT
@@ -49,8 +48,8 @@ public:
 		QString colorToString() const { return m_color.name(); }
 		void setColorFromString(const QString &newColorString) { m_color.setNamedColor(newColorString); }
 
-		QString cookie() const { return m_cookie; }
-		void setCookie(const QString &newCookie) { m_cookie = newCookie; }
+		QString cookies() const { return m_cookie; }
+		void setCookies(const QString &newCookie) { m_cookie = newCookie; }
 
 		QString login() const { return m_login; }
 		void setLogin(const QString &newLogin) { m_login = newLogin; }
