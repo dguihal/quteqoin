@@ -47,20 +47,20 @@
 /// \param parent
 ///
 QQPinipede::QQPinipede(QWidget * parent) :
-	QTabWidget(parent),
-	m_totozDownloader(new QQTotozDownloader(this)),
-	m_totozManager(NULL),
-	m_postparser(new QQPostParser(this)),
-	m_overlay(new QQPiniOverlay(this)),
-	m_duckAutolaunchEnabled(false),
-	m_fieldSep('\0'),
-	m_maxHistorySize(100),
-	m_stealthModeEnabled(false)
+    QTabWidget(parent),
+    m_totozDownloader(new QQTotozDownloader(this)),
+    m_totozManager(NULL),
+    m_postparser(new QQPostParser(this)),
+    m_overlay(new QQPiniOverlay(this)),
+    m_duckAutolaunchEnabled(false),
+    m_fieldSep('\0'),
+    m_maxHistorySize(100),
+    m_stealthModeEnabled(false)
 {
 	connect(m_postparser, SIGNAL(totozRequired(QString &)),
-			m_totozDownloader, SLOT(fetchTotoz(QString &)));
+	        m_totozDownloader, SLOT(fetchTotoz(QString &)));
 	connect(m_postparser, SIGNAL(bigorNotify(QString &, QString &, bool)),
-			this, SLOT(bigorNotify(QString &, QString &, bool)));
+	        this, SLOT(bigorNotify(QString &, QString &, bool)));
 
 	m_hiddenPostViewerLabelSSheet = QString::fromLatin1("border: 2px solid black; border-radius: 4px;");
 	m_hiddenPostViewerLabel = new QLabel(this);
@@ -73,7 +73,7 @@ QQPinipede::QQPinipede(QWidget * parent) :
 	m_hiddenPostViewerLabel->hide();
 
 	connect(m_overlay, SIGNAL(duckKilled(QString,QString)),
-			this, SLOT(duckKilled(QString,QString)));
+	        this, SLOT(duckKilled(QString,QString)));
 
 	addTab(new QWidget(), "(void)");
 
@@ -133,7 +133,7 @@ void QQPinipede::addPiniTab(const QString &groupName)
 
 	QQSettings settings;
 	textBrowser->verticalScrollBar()->setMaximum(
-				settings.value(SETTINGS_GENERAL_MAX_HISTLEN, DEFAULT_GENERAL_MAX_HISTLEN).toInt());
+	            settings.value(SETTINGS_GENERAL_MAX_HISTLEN, DEFAULT_GENERAL_MAX_HISTLEN).toInt());
 
 	m_textBrowserHash.insert(groupName, textBrowser);
 
@@ -150,7 +150,7 @@ void QQPinipede::addPiniTab(const QString &groupName)
 	connect(textBrowser, SIGNAL(newPostsAcknowledged(QString)), this, SLOT(tabEventsAcknowledged(QString)));
 	if(m_totozManager != NULL)
 		connect(textBrowser, SIGNAL(totozBookmarkAct(QString,QQTotoz::TotozBookmarkAction)),
-				m_totozManager, SLOT(totozBookmarkDo(QString,QQTotoz::TotozBookmarkAction)));
+		        m_totozManager, SLOT(totozBookmarkDo(QString,QQTotoz::TotozBookmarkAction)));
 }
 
 //////////////////////////////////////////////////////////////
@@ -200,7 +200,7 @@ void QQPinipede::repaintPiniTab(const QString &groupName)
 	QApplication::setOverrideCursor(Qt::BusyCursor);
 
 	int initialBlockNum = textBrowser->cursorForPosition(
-				QPoint(0, textBrowser->height())).blockNumber();
+	            QPoint(0, textBrowser->height())).blockNumber();
 
 	clearPiniTab(groupName);
 
@@ -236,7 +236,7 @@ void QQPinipede::repaintPiniTab(const QString &groupName)
 	QScrollBar *vScrollBar = textBrowser->verticalScrollBar();
 	vScrollBar->triggerAction(QAbstractSlider::SliderToMaximum);
 	int currBlockNum = textBrowser->cursorForPosition(
-				QPoint(0, textBrowser->height())).blockNumber();
+	            QPoint(0, textBrowser->height())).blockNumber();
 	while(currBlockNum > (initialBlockNum + 1))
 	{
 		vScrollBar->triggerAction(QAbstractSlider::SliderSingleStepSub);
@@ -412,7 +412,7 @@ void QQPinipede::bigorNotify(QString &srcBouchot, QString &poster, bool global)
 #ifdef Q_OS_UNIX
 	QQSettings settings;
 	if(settings.value(SETTINGS_BIGORNOTIFY_ENABLED, DEFAULT_BIGORNOTIFY_ENABLED).toBool() &&
-			(! settings.value(SETTINGS_GENERAL_STEALTH_MODE, DEFAULT_GENERAL_STEALTH_MODE).toBool()))
+	        (! settings.value(SETTINGS_GENERAL_STEALTH_MODE, DEFAULT_GENERAL_STEALTH_MODE).toBool()))
 	{
 		QString msg;
 		if(global)
@@ -431,9 +431,9 @@ void QQPinipede::bigorNotify(QString &srcBouchot, QString &poster, bool global)
 		argumentList << (int)3000;     // timeout in ms
 
 		QDBusInterface notifyApp("org.freedesktop.Notifications",
-										"/org/freedesktop/Notifications", "org.freedesktop.Notifications");
+		                                "/org/freedesktop/Notifications", "org.freedesktop.Notifications");
 		QDBusMessage reply = notifyApp.callWithArgumentList(QDBus::AutoDetect,
-									   "Notify", argumentList);
+		                               "Notify", argumentList);
 
 		if(reply.type() == QDBusMessage::ErrorMessage)
 			qDebug() << Q_FUNC_INFO << "D-Bus Error:" << reply.errorMessage();
@@ -473,15 +473,15 @@ void QQPinipede::searchText(const QString &text, bool forward)
 			if(forward && findCursor.selectionStart() == cursor.position())
 			{
 				cursor.movePosition(QTextCursor::NextCharacter,
-									QTextCursor::MoveAnchor,
-									findCursor.selectedText().size());
+				                    QTextCursor::MoveAnchor,
+				                    findCursor.selectedText().size());
 				findCursor = doc->find(text, cursor, flags);
 			}
 			else if(findCursor.selectionEnd() == cursor.position())
 			{
 				cursor.movePosition(QTextCursor::PreviousCharacter,
-									QTextCursor::MoveAnchor,
-									findCursor.selectedText().size());
+				                    QTextCursor::MoveAnchor,
+				                    findCursor.selectedText().size());
 				findCursor = doc->find(text, cursor, flags);
 			}
 		}
@@ -709,7 +709,7 @@ void QQPinipede::norlogeRefHovered(QQNorlogeRef norlogeRef)
 									c.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor);
 									while(! c.atBlockEnd() && c.charFormat().anchorHref().startsWith("nref://"))
 										c.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor);
-									if(! c.atBlockEnd())
+									if(! c.charFormat().anchorHref().startsWith("nref://"))
 										c.movePosition(QTextCursor::PreviousCharacter, QTextCursor::KeepAnchor);
 
 									QTextEdit::ExtraSelection extra;
@@ -739,9 +739,9 @@ void QQPinipede::norlogeRefHovered(QQNorlogeRef norlogeRef)
 
 	// Si rien n'a ete trouve dans la zone affichee dans le pini ou que la cible se trouve dans un autre groupe
 	if(dBouchot != NULL &&
-			((dBouchot->settings().group() != sBouchot->settings().group()) ||
-			 ! highlightSuccess)
-			)
+	        ((dBouchot->settings().group() != sBouchot->settings().group()) ||
+	         ! highlightSuccess)
+	        )
 	{
 		QTextCursor cursor;
 		if(dBouchot->settings().group() != sBouchot->settings().group())
@@ -775,7 +775,7 @@ void QQPinipede::norlogeRefHovered(QQNorlogeRef norlogeRef)
 				found = true;
 			}
 			else if(norlogeRef.dstBouchot() == userData->post()->bouchot()->name() &&
-					found == true) // Fin de block matchant, inutile de continuer
+			        found == true) // Fin de block matchant, inutile de continuer
 				break;
 
 		} while(cursor.movePosition(QTextCursor::PreviousBlock));
@@ -787,8 +787,8 @@ void QQPinipede::norlogeRefHovered(QQNorlogeRef norlogeRef)
 			m_hiddenPostViewerLabel->setFixedWidth(this->currentWidget()->width());
 			QString styleSheet = m_hiddenPostViewerLabelSSheet;
 			styleSheet.append("background-color: ")
-					.append(dBouchot->settings().colorLight().name())
-					.append("; color: black;");
+			        .append(dBouchot->settings().colorLight().name())
+			        .append("; color: black;");
 			m_hiddenPostViewerLabel->setStyleSheet(styleSheet);
 
 			//Suppression des ancres non http
@@ -882,7 +882,7 @@ void QQPinipede::setTotozManager(QQTotozManager * ttManager)
 		foreach(QQTextBrowser *tb, m_textBrowserHash.values())
 		{
 			connect(tb, SIGNAL(totozBookmarkAct(QString,QQTotoz::TotozBookmarkAction)),
-					m_totozManager, SLOT(totozBookmarkDo(QString,QQTotoz::TotozBookmarkAction)));
+			        m_totozManager, SLOT(totozBookmarkDo(QString,QQTotoz::TotozBookmarkAction)));
 		}
 	}
 }
@@ -936,7 +936,7 @@ unsigned int QQPinipede::insertPostToList(QQListPostPtr *listPosts, QQPost *post
 		}
 		// Gestion de l'index de norloge multiple
 		else if(listPosts->at(i)->norloge().toLongLong() == post->norloge().toLongLong() &&
-				listPosts->at(i)->bouchot()->name().compare(post->bouchot()->name()) == 0)
+		        listPosts->at(i)->bouchot()->name().compare(post->bouchot()->name()) == 0)
 		{
 			listPosts->at(i)->setNorlogeMultiple(true);
 			post->setNorlogeIndex(listPosts->at(i)->norlogeIndex() + 1);
@@ -981,8 +981,8 @@ void QQPinipede::newPostsAvailable(QString groupName)
 
 	// Tri necessaire puisqu'on a potentiellement melange les posts de plusieurs tribunes
 	std::sort(newPosts.begin(), newPosts.end(),
-			  // Ca fait rever les lambdas en C++ ....
-			  [](const QQPost *a, const QQPost *b) -> bool
+	          // Ca fait rever les lambdas en C++ ....
+	          [](const QQPost *a, const QQPost *b) -> bool
 	{
 		return (* a) < (* b);
 	});
@@ -1064,7 +1064,7 @@ void QQPinipede::newPostsAvailable(QString groupName)
 		{
 			// Gestion de l'index de norloge multiple
 			if(newPosts.at(newPostsIndex)->norloge().toLongLong() == destlistPosts->last()->norloge().toLongLong() &&
-					newPosts.at(newPostsIndex)->bouchot()->name().compare(destlistPosts->last()->bouchot()->name()) == 0)
+			        newPosts.at(newPostsIndex)->bouchot()->name().compare(destlistPosts->last()->bouchot()->name()) == 0)
 			{
 				destlistPosts->last()->setNorlogeMultiple(true);
 				newPosts.at(newPostsIndex)->setNorlogeIndex(destlistPosts->last()->norlogeIndex() + 1);
@@ -1174,8 +1174,8 @@ bool QQPinipede::printPostAtCursor(QTextCursor &cursor, QQPost *post)
 	QQNorlogeRef nRef = QQNorlogeRef(*post);
 	int index = data->appendNorlogeRef(nRef);
 	QString nRefUrl = QString("nref://bouchot?board=%1&postId=%2&index=%3")
-					  .arg(post->bouchot()->name())
-					  .arg(post->id()).arg(index);
+	                  .arg(post->bouchot()->name())
+	                  .arg(post->id()).arg(index);
 	norlogeFormat.setAnchorHref(nRefUrl);
 
 	QString txt = post->norlogeFormatee();
@@ -1196,10 +1196,10 @@ bool QQPinipede::printPostAtCursor(QTextCursor &cursor, QQPost *post)
 	loginUaFormat.setToolTip(post->UA());
 
 	QString loginUAUrl = QString("msl://moule?board=%1&login=%2&ua=%3&isUser=%4")
-						 .arg(post->bouchot()->name(),
-							  QString(QUrl::toPercentEncoding(post->login())),
-							  QString(QUrl::toPercentEncoding(post->UA())),
-							  post->isSelfPost() ? "true" : "false");
+	                     .arg(post->bouchot()->name(),
+	                          QString(QUrl::toPercentEncoding(post->login())),
+	                          QString(QUrl::toPercentEncoding(post->UA())),
+	                          post->isSelfPost() ? "true" : "false");
 	loginUaFormat.setAnchor(true);
 	loginUaFormat.setAnchorHref(loginUAUrl);
 
@@ -1297,7 +1297,7 @@ void QQPinipede::updatePiniDisplaySettings(QTextDocument *doc)
 	asciiLogin = settings.value(SETTINGS_GENERAL_PINI_ASCII_LOGIN, DEFAULT_GENERAL_PINI_ASCII_LOGIN).toBool();
 	m_stealthModeEnabled = settings.value(SETTINGS_GENERAL_STEALTH_MODE, DEFAULT_GENERAL_STEALTH_MODE).toBool();
 	m_duckAutolaunchEnabled =
-			(((QuteQoin::QQHuntMode) settings.value(SETTINGS_HUNT_MODE, DEFAULT_HUNT_MODE).toInt()) == QuteQoin::HuntMode_Auto);
+	        (((QuteQoin::QQHuntMode) settings.value(SETTINGS_HUNT_MODE, DEFAULT_HUNT_MODE).toInt()) == QuteQoin::HuntMode_Auto);
 
 	m_maxHistorySize = settings.value(SETTINGS_GENERAL_MAX_HISTLEN, DEFAULT_GENERAL_MAX_HISTLEN).toInt();
 }
