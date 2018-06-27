@@ -544,7 +544,7 @@ void QQBouchot::requestFinishedSlot(QNetworkReply *reply)
 		switch(reply->request().attribute(QNetworkRequest::User, QQBouchot::UnknownRequest).toInt(0))
 		{
 			case QQBouchot::PostRequest:
-
+#ifndef QT_NO_DEBUG
 				qDebug() << Q_FUNC_INFO << reply->attribute(QNetworkRequest::HttpStatusCodeAttribute);
 				foreach (QByteArray ba, reply->rawHeaderList()) {
 					qDebug() << Q_FUNC_INFO << ba << QString(reply->rawHeader(ba));
@@ -555,7 +555,7 @@ void QQBouchot::requestFinishedSlot(QNetworkReply *reply)
 				foreach (QByteArray ba, reply->request().rawHeaderList()) {
 					qDebug() << Q_FUNC_INFO << ba << QString(reply->request().rawHeader(ba));
 				}
-
+#endif
 
 				if(reply->hasRawHeader(X_POST_ID_HEADER))
 				{
