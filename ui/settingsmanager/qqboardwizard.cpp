@@ -63,7 +63,7 @@ void QQBoardWizard::accept()
 
 
 	m_s.setGroup(field(QString("%1_Group").arg(fieldPrefix)).toString());
-	m_s.setCookie(field(QString("%1_Cookie").arg(fieldPrefix)).toString());
+	m_s.setCookies(field(QString("%1_Cookie").arg(fieldPrefix)).toString());
 
 	//Adv.
 	m_s.setStrictHttpsCertif(true);
