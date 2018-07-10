@@ -73,10 +73,11 @@ void QQTotozViewer::updateTotoz()
 	clear();
 
 	QQTotoz totoz(m_totozId);
-	QByteArray totozData = totoz.data();
-	if(! updateImg(totozData))
+	auto totozData = totoz.data();
+	if(! totoz.isImage())
+		displayText(QString::fromLatin1(totozData));
+	else if(! updateImg(totozData))
 		handleInvalidTotozData();
-
 }
 
 void QQTotozViewer::contextMenuEvent(QContextMenuEvent *ev)
@@ -126,7 +127,7 @@ void QQTotozViewer::handleInvalidTotozData()
 		m_hasfailed = true; // to prevent infinite loops
 
 		connect(m_downloader, SIGNAL(fetchTotozFinished(QString &, bool, QString &)),
-				this, SLOT(totozAvailable(QString &, bool, QString &)));
+		        this, SLOT(totozAvailable(QString &, bool, QString &)));
 		m_downloader->fetchTotoz(m_totozId);
 	}
 	else

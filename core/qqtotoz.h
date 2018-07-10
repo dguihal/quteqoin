@@ -25,6 +25,8 @@ public:
 
 	QByteArray data() { return m_totozData; }
 	void setData(QByteArray array) { m_totozData = array; m_wasmodfied = true; }
+	void setDataContentType(QByteArray array) { m_totozDataContentType = array; m_wasmodfied = true; }
+	bool isImage() {return m_totozDataContentType.length() == 0 || m_totozDataContentType.startsWith("image");}
 	QStringList getTags() { return m_tags; }
 	bool isNSFW() { return m_isNSFW; }
 	void setCacheExpireDate(const QDateTime &cacheExpireDate) { m_cacheExpireDate = cacheExpireDate; }
@@ -49,6 +51,7 @@ private:
 	QString m_id;
 
 	QByteArray m_totozData;
+	QByteArray m_totozDataContentType;
 	QStringList m_tags;
 	bool m_isNSFW;
 	QDateTime m_cacheExpireDate;

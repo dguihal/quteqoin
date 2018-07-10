@@ -22,15 +22,15 @@ void QQTotozDownloader::fetchTotoz(QString & totozId)
 		QString totozIdSuffix = settings.value(SETTINGS_TOTOZ_SERVER_NAME_SUFFIX, DEFAULT_TOTOZ_SERVER_NAME_SUFFIX).toString();
 		QString queryUrl = settings.value(SETTINGS_TOTOZ_SERVER_URL, DEFAULT_TOTOZ_SERVER_URL).toString();
 		queryUrl.append("/")
-				.append(settings.value(SETTINGS_TOTOZ_SERVER_BASE_IMG, DEFAULT_TOTOZ_SERVER_BASE_IMG).toString())
-				.append("/")
-				.append(totozId)
-				.append(totozIdSuffix);
+		        .append(settings.value(SETTINGS_TOTOZ_SERVER_BASE_IMG, DEFAULT_TOTOZ_SERVER_BASE_IMG).toString())
+		        .append("/")
+		        .append(totozId)
+		        .append(totozIdSuffix);
 		QUrl url(queryUrl);
 
 		QNetworkRequest request(url);
 		request.setAttribute(QNetworkRequest::CacheLoadControlAttribute,
-							 QNetworkRequest::PreferCache);
+		                     QNetworkRequest::PreferCache);
 
 		QNetworkReply * reply = httpGet(request);
 		m_totozIdReplyHash.insert(reply, totozId);
@@ -47,12 +47,12 @@ void QQTotozDownloader::requestFinishedSlot(QNetworkReply * reply)
 	m_totozIdReplyHash.remove(reply);
 
 	if(!redirectedURL.isEmpty() &&
-			redirectedURL != reply->url())
+	        redirectedURL != reply->url())
 	{
 		qDebug() << Q_FUNC_INFO << "Redirected to " << redirectedURL.toString();
 		QNetworkRequest request(redirectedURL);
 		request.setAttribute(QNetworkRequest::CacheLoadControlAttribute,
-							 QNetworkRequest::PreferCache);
+		                     QNetworkRequest::PreferCache);
 
 		QNetworkReply * reply = httpGet(request);
 		m_totozIdReplyHash.insert(reply, totozId);
@@ -63,15 +63,30 @@ void QQTotozDownloader::requestFinishedSlot(QNetworkReply * reply)
 		QString statusCodeV = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toString();
 		QString errString = reply->attribute(QNetworkRequest::HttpReasonPhraseAttribute).toString();
 
-		qWarning() << Q_FUNC_INFO
-				   << "error : " << errString
-				   << "HTTP statusCode : " << statusCodeV;
-		emit fetchTotozFinished(totozId, false, errString);
+		if (reply->error() != QNetworkReply::ContentAccessDenied)
+		{
+			qWarning() << Q_FUNC_INFO
+			           << "reply error : " << reply->error()
+			           << "error : " << errString
+			           << "HTTP statusCode : " << statusCodeV;
+		}
+
+		QQTotoz totoz(totozId);
+		auto replyContent = reply->readAll();
+		totoz.setData(replyContent);
+		totoz.setDataContentType(reply->rawHeader("Content-Type"));
+		auto expire = QDateTime::currentDateTime().addDays(MAX_CACHE_AGE_DAYS);
+		totoz.setCacheExpireDate(expire);
+		totoz.save();
+
+		auto errMsg = replyContent.isEmpty() ? errString : QString::fromLatin1(replyContent);
+		emit fetchTotozFinished(totozId, false, errMsg);
 	} // Tout est OK on poursuit
 	else
 	{
 		QQTotoz totoz(totozId);
 		totoz.setData(reply->readAll());
+		totoz.setDataContentType(reply->rawHeader("Content-Type"));
 		QDateTime expire;
 		if(reply->hasRawHeader("Expires"))
 		{

@@ -120,7 +120,10 @@ void QQTotoz::load()
 				{
 					m_cacheExpireDate = QDateTime::fromString(xml.readElementText(), Qt::ISODate);
 				}
-				else if(currentElement == "imgdata" || currentElement == "totoz")
+				else if(currentElement == "totozdata"
+				        || currentElement == "totozdatacontenttype"
+				        || currentElement == "totoz"
+				        || currentElement == "imgdata" ) // TODO: legacy to be removed one day
 				{
 				}
 				else
@@ -129,11 +132,13 @@ void QQTotoz::load()
 				break;
 			case QXmlStreamReader::Characters:
 				if(xml.isCDATA())
-	#if(QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
-					m_totozData = QByteArray::fromBase64(xml.text().toLatin1());
-	#else
-					m_totozData = QByteArray::fromBase64(xml.text().toAscii());
-	#endif
+				{
+					auto content = xml.text().toLatin1();
+					if(currentElement == "totozdata")
+						m_totozData = QByteArray::fromBase64(content);
+					else if(currentElement == "totozdatacontenttype")
+						m_totozDataContentType = content;
+				}
 				else
 					qDebug() << Q_FUNC_INFO << "unknown Characters :" << xml.text();
 				break;
@@ -196,9 +201,13 @@ void QQTotoz::save()
 	xml.writeCharacters(m_cacheExpireDate.toString(Qt::ISODate));
 	xml.writeEndElement(); //expiredate
 
-	xml.writeStartElement("imgdata");
+	xml.writeStartElement("totozdatacontenttype");
+	xml.writeCDATA(m_totozDataContentType);
+	xml.writeEndElement(); //totozdata
+
+	xml.writeStartElement("totozdata");
 	xml.writeCDATA(m_totozData.toBase64());
-	xml.writeEndElement(); //imgdata
+	xml.writeEndElement(); //totozdata
 
 	xml.writeEndElement(); //totoz
 
