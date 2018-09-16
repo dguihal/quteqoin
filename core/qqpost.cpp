@@ -39,7 +39,8 @@ QQPost::QQPost(const QQPost& post) :
 	m_isSelfPost(post.m_isSelfPost),
 	m_message(post.m_message),
 	m_id(post.m_id),
-	m_unread(post.m_unread)
+	m_unread(post.m_unread),
+	m_isAloneInMinute(post.m_isAloneInMinute)
 {
 }
 
@@ -99,6 +100,9 @@ QQNorloge QQPost::norlogeObj() const
 					  norloge());
 	if(isNorlogeMultiple())
 		targetN.setNorlogeIndex(norlogeIndex());
+
+	if(isAloneInMinute())
+		targetN.setUniqueMinute(true);
 
 	return targetN;
 }
@@ -164,6 +168,7 @@ void QQPost::reset()
 	m_norloge.clear();
 	m_norlogeIndex = 1;
 	m_isNorlogeMultiple = false;
+	m_isAloneInMinute = false;
 
 	m_login.clear();
 	m_ua.clear();
@@ -172,4 +177,5 @@ void QQPost::reset()
 	m_message.clear();
 	m_id.clear();
 	m_unread = true;
+
 }

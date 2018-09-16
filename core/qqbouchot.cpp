@@ -23,6 +23,8 @@
 #include <QXmlSimpleReader>
 #include <QXmlInputSource>
 
+#include <algorithm>
+
 #define X_POST_ID_HEADER "X-Post-Id"
 
 typedef struct QQBouchotDef
@@ -740,6 +742,23 @@ void QQBouchot::parsingFinished()
 		m_history.append(m_newPostHistory);
 		m_lastId = m_parser->maxId();
 		m_state.hasNewPosts = true;
+
+		//On vérifie pour chaque post s'il est le seul pour la minute
+		if (m_bSettings.isShortNorlogeEnabled()) {
+			for (int i = std::max(1, m_history.size()-m_newPostHistory.size()-1); i<m_history.size() -1  ; ++i) {
+				auto lastPost = m_history.at(i-1);
+				auto curPost = m_history.at(i);
+				auto nextPost = m_history.at(i+1);
+
+				auto lastNorloge = lastPost->norlogeMinute();
+				auto curNorloge = curPost->norlogeMinute();
+				auto nextNorloge = nextPost->norlogeMinute();
+
+				if (lastNorloge != curNorloge && curNorloge != nextNorloge) {
+					curPost->setAloneInMinute(true);
+				}
+			}
+		}
 		sendBouchotEvents();
 	}
 	else if(m_refreshRatioIndex < REFRESH_RATIOS_SIZE - 1)

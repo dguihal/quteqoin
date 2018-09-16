@@ -20,6 +20,10 @@ public:
 	void setNorlogeIndex(int index) { m_norlogeIndex = index;}
 	int norlogeIndex() { return m_norlogeIndex; }
 
+	void setUniqueMinute(bool unique) {
+		m_uniqueMinute = unique;
+	}
+
 protected:
 	QString m_srcBouchot;
 
@@ -31,6 +35,8 @@ protected:
 	QString m_dateSecondPart;
 
 	int m_norlogeIndex;
+
+	bool m_uniqueMinute;
 };
 
 #endif // QQNORLOGE_H

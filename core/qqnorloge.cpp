@@ -6,7 +6,8 @@
 
 
 QQNorloge::QQNorloge() :
-	m_norlogeIndex(0)
+	m_norlogeIndex(0),
+	m_uniqueMinute(false)
 {
 }
 
@@ -19,7 +20,8 @@ QQNorloge::QQNorloge(QString bouchot, QString dateh) :
 	m_dateHourPart(dateh.mid(8, 2)),
 	m_dateMinutePart(dateh.mid(10, 2)),
 	m_dateSecondPart(dateh.mid(12, 2)),
-	m_norlogeIndex(0)
+	m_norlogeIndex(0),
+	m_uniqueMinute(false)
 {
 	QStringList indexSpit = dateh.split("^", QString::SkipEmptyParts);
 	if(indexSpit.size() > 1)
@@ -34,7 +36,8 @@ QQNorloge::QQNorloge(const QQNorloge& norloge) :
 	m_dateHourPart(norloge.m_dateHourPart),
 	m_dateMinutePart(norloge.m_dateMinutePart),
 	m_dateSecondPart(norloge.m_dateSecondPart),
-	m_norlogeIndex(norloge.m_norlogeIndex)
+	m_norlogeIndex(norloge.m_norlogeIndex),
+	m_uniqueMinute(norloge.m_uniqueMinute)
 {
 }
 
@@ -92,12 +95,18 @@ QString QQNorloge::toStringPalmi()
 				.append(QString::fromUtf8("#"));
 		startPrint = true;
 	}
-	//On a TOUJOURS l'heure
+	//On a TOUJOURS l'heure SAUF parfois les secondes
 	rep.append(m_dateHourPart)
 			.append(QString::fromUtf8(":"))
-			.append(m_dateMinutePart)
-			.append(QString::fromUtf8(":"))
+			.append(m_dateMinutePart);
+
+	if (m_uniqueMinute == false) {
+		rep.append(QString::fromUtf8(":"))
 			.append(m_dateSecondPart);
+	}
+	if (m_uniqueMinute == true) {
+		qDebug() << "test";
+	}
 
 	switch (m_norlogeIndex)
 	{

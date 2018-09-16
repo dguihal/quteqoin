@@ -62,6 +62,9 @@ public:
 	void incrIndex() { this->m_norlogeIndex ++; }
 	bool isNorlogeMultiple() const { return this->m_isNorlogeMultiple || this->m_norlogeIndex > 1; }
 	void setNorlogeMultiple(const bool isNorlogeMultiple) { this->m_isNorlogeMultiple = isNorlogeMultiple; }
+	bool isAloneInMinute() const { return this->m_isAloneInMinute; }
+	void setAloneInMinute(const bool isAloneInMinute) { this->m_isAloneInMinute = isAloneInMinute; }
+	QString norlogeMinute() const { return this->norloge().remove(12,2); }
 
 	QDate date();
 
@@ -97,6 +100,7 @@ private:
 	QString m_norloge;
 	bool m_isNorlogeMultiple;
 	int m_norlogeIndex;
+	bool m_isAloneInMinute;
 
 	QString m_login;
 	QString m_ua;
