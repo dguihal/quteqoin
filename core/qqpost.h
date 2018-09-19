@@ -39,13 +39,13 @@ public:
 	//////////////////////////////////////////////////////////////////////////
 	////////////            Constructeurs        /////////////////////////////
 	//////////////////////////////////////////////////////////////////////////
-	QQPost(QQBouchot * parent = 0);
+	QQPost(QQBouchot * parent = nullptr);
 	QQPost(const QQPost& post);
 
 	//////////////////////////////////////////////////////////////////////////
 	////////////             Accesseurs          /////////////////////////////
 	//////////////////////////////////////////////////////////////////////////
-	QQBouchot * bouchot() const { return (QQBouchot *) parent(); }
+	QQBouchot * bouchot() const;
 
 	QString login() const { return this->m_login; }
 	void setLogin(const QString& login) { this->m_login = login; }
@@ -99,17 +99,17 @@ private:
 
 	QString m_norloge;
 	bool m_isNorlogeMultiple;
-	int m_norlogeIndex;
 	bool m_isAloneInMinute;
+	int m_norlogeIndex;
 
 	QString m_login;
 	QString m_ua;
 	IsSelfPost m_isSelfPost;
 
+	bool m_unread;
+
 	QString m_message;
 	QString m_id;
-
-	bool m_unread;
 };
 
 #endif

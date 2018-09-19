@@ -23,25 +23,33 @@
 
 //
 QQPost::QQPost(QQBouchot * parent) :
-	QObject(parent)
+    QObject(parent)
 {
 	reset();
 }
 
 //
 QQPost::QQPost(const QQPost& post) :
-	QObject(post.parent()),
-	m_norloge(post.m_norloge),
-	m_isNorlogeMultiple(post.m_isNorlogeMultiple),
-	m_norlogeIndex(post.m_norlogeIndex),
-	m_login(post.m_login),
-	m_ua(post.m_ua),
-	m_isSelfPost(post.m_isSelfPost),
-	m_message(post.m_message),
-	m_id(post.m_id),
-	m_unread(post.m_unread),
-	m_isAloneInMinute(post.m_isAloneInMinute)
+    QObject(post.parent()),
+    m_norloge(post.m_norloge),
+    m_isNorlogeMultiple(post.m_isNorlogeMultiple),
+    m_isAloneInMinute(post.m_isAloneInMinute),
+    m_norlogeIndex(post.m_norlogeIndex),
+    m_login(post.m_login),
+    m_ua(post.m_ua),
+    m_isSelfPost(post.m_isSelfPost),
+    m_unread(post.m_unread),
+    m_message(post.m_message),
+    m_id(post.m_id)
 {
+}
+
+//////////////////////////////////////////////////////////////
+/// \brief QQPost::bouchot
+/// \return
+///
+QQBouchot * QQPost::bouchot() const {
+	return static_cast<QQBouchot *>(parent());
 }
 
 //
@@ -49,9 +57,9 @@ QString QQPost::toText()
 {
 	QString tmp(m_login);
 	tmp.append(QString(" "))
-			.append(norlogeFormatee())
-			.append(QString(" "))
-			.append(m_message);
+	        .append(norlogeFormatee())
+	        .append(QString(" "))
+	        .append(m_message);
 	return tmp;
 }
 
@@ -97,7 +105,7 @@ bool QQPost::isSelfPost()
 QQNorloge QQPost::norlogeObj() const
 {
 	QQNorloge targetN(bouchot()->name(),
-					  norloge());
+	                  norloge());
 	if(isNorlogeMultiple())
 		targetN.setNorlogeIndex(norlogeIndex());
 
@@ -119,9 +127,9 @@ QString QQPost::norlogeFormatee() const
 {
 	QString tmp("");
 	tmp.append("[")
-			.append(m_norloge.mid(8,2)).append(":")
-			.append(m_norloge.mid(10,2)).append(":")
-			.append(m_norloge.mid(12,2)).append("]");
+	        .append(m_norloge.mid(8,2)).append(":")
+	        .append(m_norloge.mid(10,2)).append(":")
+	        .append(m_norloge.mid(12,2)).append("]");
 	return tmp;
 }
 
@@ -168,7 +176,7 @@ void QQPost::reset()
 	m_norloge.clear();
 	m_norlogeIndex = 1;
 	m_isNorlogeMultiple = false;
-	m_isAloneInMinute = false;
+	m_isAloneInMinute = true;
 
 	m_login.clear();
 	m_ua.clear();

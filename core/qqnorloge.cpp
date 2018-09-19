@@ -6,22 +6,22 @@
 
 
 QQNorloge::QQNorloge() :
-	m_norlogeIndex(0),
-	m_uniqueMinute(false)
+    m_norlogeIndex(0),
+    m_uniqueMinute(false)
 {
 }
 
 //m_date = QDateTime::fromString(dateh.left(14), QString::fromUtf8("yyyyMMddHHmmss(^i)?"));
 QQNorloge::QQNorloge(QString bouchot, QString dateh) :
-	m_srcBouchot(bouchot),
-	m_dateYearPart(dateh.left(4)),
-	m_dateMonthPart(dateh.mid(4, 2)),
-	m_dateDayPart(dateh.mid(6, 2)),
-	m_dateHourPart(dateh.mid(8, 2)),
-	m_dateMinutePart(dateh.mid(10, 2)),
-	m_dateSecondPart(dateh.mid(12, 2)),
-	m_norlogeIndex(0),
-	m_uniqueMinute(false)
+    m_srcBouchot(bouchot),
+    m_dateYearPart(dateh.left(4)),
+    m_dateMonthPart(dateh.mid(4, 2)),
+    m_dateDayPart(dateh.mid(6, 2)),
+    m_dateHourPart(dateh.mid(8, 2)),
+    m_dateMinutePart(dateh.mid(10, 2)),
+    m_dateSecondPart(dateh.mid(12, 2)),
+    m_norlogeIndex(0),
+    m_uniqueMinute(false)
 {
 	QStringList indexSpit = dateh.split("^", QString::SkipEmptyParts);
 	if(indexSpit.size() > 1)
@@ -29,15 +29,15 @@ QQNorloge::QQNorloge(QString bouchot, QString dateh) :
 }
 
 QQNorloge::QQNorloge(const QQNorloge& norloge) :
-	m_srcBouchot(norloge.m_srcBouchot),
-	m_dateYearPart(norloge.m_dateYearPart),
-	m_dateMonthPart(norloge.m_dateMonthPart),
-	m_dateDayPart(norloge.m_dateDayPart),
-	m_dateHourPart(norloge.m_dateHourPart),
-	m_dateMinutePart(norloge.m_dateMinutePart),
-	m_dateSecondPart(norloge.m_dateSecondPart),
-	m_norlogeIndex(norloge.m_norlogeIndex),
-	m_uniqueMinute(norloge.m_uniqueMinute)
+    m_srcBouchot(norloge.m_srcBouchot),
+    m_dateYearPart(norloge.m_dateYearPart),
+    m_dateMonthPart(norloge.m_dateMonthPart),
+    m_dateDayPart(norloge.m_dateDayPart),
+    m_dateHourPart(norloge.m_dateHourPart),
+    m_dateMinutePart(norloge.m_dateMinutePart),
+    m_dateSecondPart(norloge.m_dateSecondPart),
+    m_norlogeIndex(norloge.m_norlogeIndex),
+    m_uniqueMinute(norloge.m_uniqueMinute)
 {
 }
 
@@ -51,12 +51,12 @@ QStringList QQNorloge::matchingNRefsId() const
 	rep.append(baseHmsStr);
 
 	QString baseMDhmsStr = QString(m_dateMonthPart).append("M")
-			.append(m_dateDayPart).append("D")
-			.append(baseHmsStr);
+	                       .append(m_dateDayPart).append("D")
+	                       .append(baseHmsStr);
 	rep.append(baseMDhmsStr);
 
 	QString baseYMDhmsStr = QString(m_dateYearPart).append("Y")
-			.append(baseMDhmsStr);
+	                        .append(baseMDhmsStr);
 	rep.append(baseYMDhmsStr);
 
 	if(m_norlogeIndex > 0)
@@ -81,48 +81,47 @@ QString QQNorloge::toStringPalmi()
 	QString rep;
 
 	bool startPrint = false;
+	bool hasDate = false;
 	if(m_dateYearPart.toInt() != currDateT.date().year())
 	{
 		rep.append(m_dateYearPart)
-				.append(QString::fromUtf8("/"));
+		        .append(QString::fromUtf8("/"));
 		startPrint = true;
+		hasDate = true;
 	}
 	if(startPrint || m_dateMonthPart.toInt() != currDateT.date().month() || m_dateDayPart.toInt() != currDateT.date().day())
 	{
 		rep.append(m_dateMonthPart)
-				.append(QString::fromUtf8("/"))
-				.append(m_dateDayPart)
-				.append(QString::fromUtf8("#"));
+		        .append(QString::fromUtf8("/"))
+		        .append(m_dateDayPart)
+		        .append(QString::fromUtf8("#"));
 		startPrint = true;
+		hasDate = true;
 	}
 	//On a TOUJOURS l'heure SAUF parfois les secondes
 	rep.append(m_dateHourPart)
-			.append(QString::fromUtf8(":"))
-			.append(m_dateMinutePart);
+	        .append(QString::fromUtf8(":"))
+	        .append(m_dateMinutePart);
 
-	if (m_uniqueMinute == false) {
+	if (m_uniqueMinute == false || hasDate) {
 		rep.append(QString::fromUtf8(":"))
-			.append(m_dateSecondPart);
+		        .append(m_dateSecondPart);
 	}
-	if (m_uniqueMinute == true) {
-		qDebug() << "test";
-	}
-
 	switch (m_norlogeIndex)
 	{
-	case 0:
-		break;
-	case 1:
-		rep.append(QString::fromUtf8("¹"));
-		break;
-	case 2:
-		rep.append(QString::fromUtf8("²"));
-		break;
-	case 3:
-		rep.append(QString::fromUtf8("³"));
-		break;
-	default:
-		rep.append(QString("^%1").arg(m_norlogeIndex));
+		case 0:
+			break;
+		case 1:
+			rep.append(QString::fromUtf8("¹"));
+			break;
+		case 2:
+			rep.append(QString::fromUtf8("²"));
+			break;
+		case 3:
+			rep.append(QString::fromUtf8("³"));
+			break;
+		default:
+			rep.append(QString("^%1").arg(m_norlogeIndex));
 	}
 
 	rep.append(QString::fromUtf8("@")).append(m_srcBouchot);

@@ -23,8 +23,6 @@
 #include <QXmlSimpleReader>
 #include <QXmlInputSource>
 
-#include <algorithm>
-
 #define X_POST_ID_HEADER "X-Post-Id"
 
 typedef struct QQBouchotDef
@@ -42,7 +40,7 @@ typedef struct QQBouchotDef
 //Définition des bouchots préconfigurés
 // tiré d'olcc by Chrisix
 #define BOUCHOTS_DEF_SIZE 11
-QQBouchotDef bouchotsDef[] =
+static QQBouchotDef bouchotsDef[] =
 {
     { "dlfp", "https://linuxfr.org/board/index.xml", "https://linuxfr.org/board", "board%5Bmessage%5D=%m",
       "#dac0de", "linuxfr,beyrouth,passite,dapassite", "linuxfr.org_session=;remember_account_token=", QQBouchot::SlipTagsEncoded },
@@ -70,8 +68,8 @@ QQBouchotDef bouchotsDef[] =
 
 #define REFRESH_RATIOS_SIZE 15
 #define REFRESH_RATIOS_MID 7
-float refreshRatiosArr[] = {
-    0.1, 0.3, 0.5, 0.7, 0.8, 0.9,
+static float refreshRatiosArr[] = {
+    0.1f, 0.3f, 0.5, 0.7f, 0.8f, 0.9f,
     1.0, 1.0, 1.0,
     1.5, 2.0, 3.0, 5.0, 7.0, 10.0
 };
@@ -89,7 +87,7 @@ QQBouchot::QQBouchot(const QString &name, QObject *parent) :
     m_lastId(-1),
     m_lastModifiedBackend(""),
     m_name(name),
-    m_parser(NULL),
+    m_parser(nullptr),
     m_deltaTimeH(-1) // unknown
 {
 	m_bSettings.setRefresh(DEFAULT_BOUCHOT_REFRESH);
@@ -121,7 +119,7 @@ QQBouchot::~QQBouchot()
 void QQBouchot::postMessage(const QString &message)
 {
 	//Si l'on poste on remet un refresh "normal" si en mode lent
-	if(currentRefreshRatio() > 1.0)
+	if(currentRefreshRatio() > 1.0f)
 		m_refreshRatioIndex = REFRESH_RATIOS_MID;
 
 	QString url = m_bSettings.postUrl();
@@ -490,7 +488,7 @@ void QQBouchot::slotSslErrors(const QList<QSslError> &errors)
 	if(msgs.length() > 0)
 		emit refreshError(msgs);
 	else
-		((QNetworkReply *)sender())->ignoreSslErrors();
+		qobject_cast<QNetworkReply *>(sender())->ignoreSslErrors();
 }
 
 //////////////////////////////////////////////////////////////
@@ -528,7 +526,7 @@ void QQBouchot::requestFinishedSlot(QNetworkReply *reply)
 		           << "Bouchot :" << m_name
 		           << "error :" << reply->error()
 		           << "msg :" << reply->errorString();
-		switch(reply->request().attribute(QNetworkRequest::User, QQBouchot::UnknownRequest).toInt(0))
+		switch(reply->request().attribute(QNetworkRequest::User, QQBouchot::UnknownRequest).toInt())
 		{
 			case QQBouchot::BackendRequest:
 				emit refreshError(errMsg);
@@ -537,13 +535,13 @@ void QQBouchot::requestFinishedSlot(QNetworkReply *reply)
 				qWarning() << Q_FUNC_INFO
 				           << "Bouchot :" << m_name
 				           << "reply->request().attribute(QNetworkRequest::User).toInt() unknown :"
-				           << reply->request().attribute(QNetworkRequest::User, QQBouchot::UnknownRequest).toInt(0);
+				           << reply->request().attribute(QNetworkRequest::User, QQBouchot::UnknownRequest).toInt();
 		}
 	}
 	else
 	{
 		m_state.hasError = false;
-		switch(reply->request().attribute(QNetworkRequest::User, QQBouchot::UnknownRequest).toInt(0))
+		switch(reply->request().attribute(QNetworkRequest::User, QQBouchot::UnknownRequest).toInt())
 		{
 			case QQBouchot::PostRequest:
 #ifndef QT_NO_DEBUG
@@ -632,9 +630,9 @@ void QQBouchot::parseBackend(const QByteArray &data, const QString &contentType)
 void QQBouchot::parseBackendTSV(const QByteArray &data)
 {
 	QQTsvParser *p = qobject_cast<QQTsvParser *>(m_parser);
-	if(p == NULL)
+	if(p == nullptr)
 	{
-		if(m_parser != NULL)
+		if(m_parser != nullptr)
 			delete m_parser;
 
 		p = new QQTsvParser(this);
@@ -652,9 +650,9 @@ void QQBouchot::parseBackendTSV(const QByteArray &data)
 void QQBouchot::parseBackendXML(const QByteArray &data)
 {
 	QQXmlParser *p = qobject_cast<QQXmlParser *>(m_parser);
-	if(p == NULL)
+	if(p == nullptr)
 	{
-		if(m_parser != NULL)
+		if(m_parser != nullptr)
 			delete m_parser;
 
 		p = new QQXmlParser(this);
@@ -714,7 +712,7 @@ void QQBouchot::parsingFinished()
 		        && m_refreshRatioIndex > 0)
 		{
 			m_refreshRatioIndex --; // faster
-			if(currentRefreshRatio() > 1.0)
+			if(currentRefreshRatio() > 1.0f)
 				m_refreshRatioIndex = REFRESH_RATIOS_MID;
 		}
 
@@ -725,7 +723,7 @@ void QQBouchot::parsingFinished()
 			// refresh de backend (pas lors du chargement initial).
 			QQPost *last = m_newPostHistory.last();
 			QDateTime postDateTime = QDateTime::fromString(last->norloge(), "yyyyMMddHHmmss");
-			m_deltaTimeH = postDateTime.secsTo(QDateTime::currentDateTime()) / 3600; //Secondes vers Heures
+			m_deltaTimeH = static_cast<int>(postDateTime.secsTo(QDateTime::currentDateTime()) / 3600ll); //Secondes vers Heures
 		}
 
 		//On s'assure qu'ils sont ranges du plus petit id au plus grand
@@ -739,26 +737,40 @@ void QQBouchot::parsingFinished()
 		if(!m_history.empty())
 			Q_ASSERT(m_history.last()->id() < m_newPostHistory.first()->id());
 
+		//On verifie pour chaque post s'il est le seul pour la minute
+		QPointer<QQPost> prevPost;
+		if(m_history.isEmpty())
+		{
+			prevPost = m_newPostHistory.takeFirst();
+			prevPost->setAloneInMinute(false);
+			m_history.append(prevPost);
+		}
+		else
+		{
+			//Eventuellement on corrige le statut du dernier post de l'historique actuel vu qu'on dispose du contexte complet desormais
+			if(m_history.size() >= 2 &&
+			   m_history.at(m_history.size() -2)->norlogeMinute() != m_history.last()->norlogeMinute() &&
+			   m_history.last()->norlogeMinute() != m_newPostHistory.first()->norlogeMinute())
+			{
+				m_history.last()->setAloneInMinute(true);
+			}
+			prevPost = m_history.last();
+		}
+		foreach(auto curPost, m_newPostHistory)
+		{
+			if(prevPost->norlogeMinute() == curPost->norlogeMinute())
+			{
+				prevPost->setAloneInMinute(false);
+				curPost->setAloneInMinute(false);
+			}
+			prevPost = curPost;
+		}
+		m_newPostHistory.last()->setAloneInMinute(false); //Pas de norloges raccourcies pour le dernier post tant qu'on a pas tout le contexte
+
 		m_history.append(m_newPostHistory);
 		m_lastId = m_parser->maxId();
 		m_state.hasNewPosts = true;
 
-		//On vérifie pour chaque post s'il est le seul pour la minute
-		if (m_bSettings.isShortNorlogeEnabled()) {
-			for (int i = std::max(1, m_history.size()-m_newPostHistory.size()-1); i<m_history.size() -1  ; ++i) {
-				auto lastPost = m_history.at(i-1);
-				auto curPost = m_history.at(i);
-				auto nextPost = m_history.at(i+1);
-
-				auto lastNorloge = lastPost->norlogeMinute();
-				auto curNorloge = curPost->norlogeMinute();
-				auto nextNorloge = nextPost->norlogeMinute();
-
-				if (lastNorloge != curNorloge && curNorloge != nextNorloge) {
-					curPost->setAloneInMinute(true);
-				}
-			}
-		}
 		sendBouchotEvents();
 	}
 	else if(m_refreshRatioIndex < REFRESH_RATIOS_SIZE - 1)
@@ -775,10 +787,10 @@ void QQBouchot::checkBackendUrlModified(const QString &oldBackendUrl)
 {
 	if(m_bSettings.backendUrl() != oldBackendUrl)
 	{
-		if(m_parser != NULL)
+		if(m_parser != nullptr)
 		{
 			delete m_parser;
-			m_parser = NULL;
+			m_parser = nullptr;
 		}
 	}
 }
@@ -938,7 +950,7 @@ QHash<QString, QQBouchot *> QQBouchot::s_hashBouchots;
 ///
 QQBouchot * QQBouchot::bouchot(const QString &bouchotName)
 {
-	QQBouchot * ret = NULL;
+	QQBouchot * ret = nullptr;
 	if(s_hashBouchots.contains(bouchotName))
 		ret = s_hashBouchots.value(bouchotName);
 	else
