@@ -84,6 +84,8 @@ public:
 		bool isStrictHttpsCertif() const { return m_strictHttpsCertif; }
 		void setStrictHttpsCertif(bool strictHttpsCertif) { m_strictHttpsCertif = strictHttpsCertif; }
 
+		bool isShortNorlogeEnabled() const  { return m_short_norloge; }
+
 	private:
 		QStringList m_aliases;
 		QString m_backendUrl;
@@ -97,6 +99,7 @@ public:
 		QString m_ua;
 		QString m_group;
 		bool m_strictHttpsCertif;
+		bool m_short_norloge = true; // si vrai, les posts seuls seuls dans la minutes seront affichés sans secondes dans le palmi
 
 		static const char Separator = ',';
 	};
