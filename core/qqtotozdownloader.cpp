@@ -47,7 +47,7 @@ void QQTotozDownloader::requestFinishedSlot(QNetworkReply * reply)
 	m_totozIdReplyHash.remove(reply);
 
 	if(!redirectedURL.isEmpty() &&
-	        redirectedURL != reply->url())
+	   redirectedURL != reply->url())
 	{
 		qDebug() << Q_FUNC_INFO << "Redirected to " << redirectedURL.toString();
 		QNetworkRequest request(redirectedURL);
@@ -60,27 +60,15 @@ void QQTotozDownloader::requestFinishedSlot(QNetworkReply * reply)
 	else if (reply->error() != QNetworkReply::NoError)
 	{
 		// Recuperation du Statut HTTP
-		QString statusCodeV = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toString();
 		QString errString = reply->attribute(QNetworkRequest::HttpReasonPhraseAttribute).toString();
 
-		if (reply->error() != QNetworkReply::ContentAccessDenied)
-		{
-			qWarning() << Q_FUNC_INFO
-			           << "reply error : " << reply->error()
-			           << "error : " << errString
-			           << "HTTP statusCode : " << statusCodeV;
-		}
-
 		QQTotoz totoz(totozId);
-		auto replyContent = reply->readAll();
-		totoz.setData(replyContent);
-		totoz.setDataContentType(reply->rawHeader("Content-Type"));
-		auto expire = QDateTime::currentDateTime().addDays(MAX_CACHE_AGE_DAYS);
-		totoz.setCacheExpireDate(expire);
+		totoz.setData(errString.toUtf8());
+		totoz.setDataContentType("Text/Plain");
+		totoz.setCacheExpireDate(QDateTime::currentDateTime().addSecs(60));
 		totoz.save();
 
-		auto errMsg = replyContent.isEmpty() ? errString : QString::fromLatin1(replyContent);
-		emit fetchTotozFinished(totozId, false, errMsg);
+		emit fetchTotozFinished(totozId, false, errString);
 	} // Tout est OK on poursuit
 	else
 	{
