@@ -29,6 +29,9 @@ public:
 	bool isPalmiDocked() const;
 	void setPalmiDocked(const bool &isPalmiDocked);
 
+	bool isShortNorlogesEnabled() const;
+	void setShortNorlogesEnabled(const bool &isShortNorlogeEnabled);
+
 	QString getFileSharingService() const;
 	void setFileSharingServices(const QStringList &fileSharingServices);
 	void setFileSharingService(const QString &fileSharingService);

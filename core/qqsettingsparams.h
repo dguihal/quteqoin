@@ -120,6 +120,8 @@ GIT_VERSION "undefined"
 #define SETTINGS_PALMI_SHORCUTS "palmi_shortcuts"
 #define SETTINGS_PALMI_SHORTCUTS_MIN_KEY Qt::Key_Space
 #define SETTINGS_PALMI_SHORTCUTS_MAX_KEY Qt::Key_AsciiTilde
+#define SETTINGS_PALMI_SHORT_NORLOGE_ENABLED "palmi_short_norloge_enabled"
+#define DEFAULT_PALMI_SHORT_NORLOGE_ENABLED true
 
 // FILTERS
 #define SETTINGS_FILTER_SMART_URL_TRANSFORMER "filter_smart_url_transformer"

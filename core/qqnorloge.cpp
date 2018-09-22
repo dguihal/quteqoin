@@ -4,6 +4,7 @@
 #include <QDateTime>
 #include <QStringList>
 
+#include "qqsettings.h"
 
 QQNorloge::QQNorloge() :
     m_norlogeIndex(0),
@@ -98,12 +99,16 @@ QString QQNorloge::toStringPalmi()
 		startPrint = true;
 		hasDate = true;
 	}
-	//On a TOUJOURS l'heure SAUF parfois les secondes
+	//On a TOUJOURS l'heure et les minutes
 	rep.append(m_dateHourPart)
 	        .append(QString::fromUtf8(":"))
 	        .append(m_dateMinutePart);
 
-	if (m_uniqueMinute == false || hasDate) {
+	//Mais pas toujours les secondes
+	QQSettings settings;
+	if (m_uniqueMinute == false || hasDate ||
+	    settings.value(SETTINGS_PALMI_SHORT_NORLOGE_ENABLED, DEFAULT_PALMI_SHORT_NORLOGE_ENABLED).toBool() == false)
+	{
 		rep.append(QString::fromUtf8(":"))
 		        .append(m_dateSecondPart);
 	}

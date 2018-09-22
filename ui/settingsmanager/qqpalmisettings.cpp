@@ -9,8 +9,8 @@
 /// \param parent
 ///
 QQPalmiSettings::QQPalmiSettings(QWidget *parent) :
-	QWidget(parent),
-	ui(new Ui::QQPalmiSettings)
+    QWidget(parent),
+    ui(new Ui::QQPalmiSettings)
 {
 	ui->setupUi(this);
 }
@@ -95,6 +95,24 @@ void QQPalmiSettings::setPalmiDocked(const bool &isPalmiDocked)
 {
 	ui->dmFixedRB->setChecked(! isPalmiDocked);
 	ui->dmDockRB->setChecked(isPalmiDocked);
+}
+
+///
+/// \brief isShortNorlogesEnabled
+/// \return
+///
+bool QQPalmiSettings::isShortNorlogesEnabled() const
+{
+	return ui->snEnableCB->isChecked();
+}
+
+///
+/// \brief setShortNorlogesEnabled
+/// \param isShortNorlogeEnabled
+///
+void QQPalmiSettings::setShortNorlogesEnabled(const bool &isShortNorlogeEnabled)
+{
+	ui->snEnableCB->setChecked(isShortNorlogeEnabled);
 }
 
 ///

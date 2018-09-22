@@ -734,16 +734,11 @@ void QQBouchot::parsingFinished()
 			return (* a) < (* b);
 		});
 
-		if(!m_history.empty())
-			Q_ASSERT(m_history.last()->id() < m_newPostHistory.first()->id());
-
 		//On verifie pour chaque post s'il est le seul pour la minute
 		QPointer<QQPost> prevPost;
 		if(m_history.isEmpty())
 		{
-			prevPost = m_newPostHistory.takeFirst();
-			prevPost->setAloneInMinute(false);
-			m_history.append(prevPost);
+			prevPost = m_newPostHistory.first();
 		}
 		else
 		{

@@ -24,8 +24,8 @@
 
 
 QQSettingsManager::QQSettingsManager(QWidget *parent) :
-	QDialog(parent),
-	ui(new Ui::QQSettingsManager)
+    QDialog(parent),
+    ui(new Ui::QQSettingsManager)
 {
 	ui->setupUi(this);
 	needPiniFullRepaint = false;
@@ -39,63 +39,63 @@ QQSettingsManager::QQSettingsManager(QWidget *parent) :
 	listSettingsTheme->setIconSize(QSize(32, 32));
 
 	listSettingsTheme->addItem(
-				new QListWidgetItem(QIcon(":/img/general-icon.png"), tr("General"),
-									listSettingsTheme, ITEM_GENERAL_TYPE)
-				);
+	            new QListWidgetItem(QIcon(":/img/general-icon.png"), tr("General"),
+	                                listSettingsTheme, ITEM_GENERAL_TYPE)
+	            );
 	m_generalSettingsW = new QQGeneralSettings(this);
 	initGeneralSettings(settings);
 	m_generalSettingsW->hide();
 	layout->addWidget(m_generalSettingsW);
 
 	listSettingsTheme->addItem(
-				new QListWidgetItem(QIcon(":/img/totoz-icon.jpeg"), tr("Totoz"),
-									listSettingsTheme, ITEM_TOTOZ_TYPE)
-				);
+	            new QListWidgetItem(QIcon(":/img/totoz-icon.jpeg"), tr("Totoz"),
+	                                listSettingsTheme, ITEM_TOTOZ_TYPE)
+	            );
 	m_totozSettingsW = new QQTotozSettings(this);
 	initTotozSettings(settings);
 	m_totozSettingsW->hide();
 	layout->addWidget(m_totozSettingsW);
 
 	listSettingsTheme->addItem(
-				new QListWidgetItem(QIcon(":/img/board-icon.png"), tr("Boards"),
-									listSettingsTheme, ITEM_BOARDS_TYPE)
-				);
+	            new QListWidgetItem(QIcon(":/img/board-icon.png"), tr("Boards"),
+	                                listSettingsTheme, ITEM_BOARDS_TYPE)
+	            );
 	m_boardsSettingsW = new QQBoardsSettings(this);
 	initBoardsSettings(settings);
 	m_boardsSettingsW->hide();
 	layout->addWidget(m_boardsSettingsW);
 
 	listSettingsTheme->addItem(
-				new QListWidgetItem(QIcon(":/img/palmipede-icon.png"), tr("Palmipede"),
-									listSettingsTheme, ITEM_PALMI_TYPE)
-				);
+	            new QListWidgetItem(QIcon(":/img/palmipede-icon.png"), tr("Palmipede"),
+	                                listSettingsTheme, ITEM_PALMI_TYPE)
+	            );
 	m_palmiSettingsW = new QQPalmiSettings(this);
 	initPalmiSettings(settings);
 	m_palmiSettingsW->hide();
 	layout->addWidget(m_palmiSettingsW);
 
 	listSettingsTheme->addItem(
-				new QListWidgetItem(QIcon(":/img/filter-icon.png"), tr("Filters"),
-									listSettingsTheme, ITEM_FILTER_TYPE)
-				);
+	            new QListWidgetItem(QIcon(":/img/filter-icon.png"), tr("Filters"),
+	                                listSettingsTheme, ITEM_FILTER_TYPE)
+	            );
 	m_filterSettingsW = new QQFilterSettings(this);
 	initFilterSettings(settings);
 	m_filterSettingsW->hide();
 	layout->addWidget(m_filterSettingsW);
 
 	listSettingsTheme->addItem(
-				new QListWidgetItem(QIcon(":/img/hunt-icon.png"), tr("Hunt"),
-									listSettingsTheme, ITEM_HUNT_TYPE)
-				);
+	            new QListWidgetItem(QIcon(":/img/hunt-icon.png"), tr("Hunt"),
+	                                listSettingsTheme, ITEM_HUNT_TYPE)
+	            );
 	m_huntSettingsW = new QQHuntSettings(this);
 	initHuntSettings(settings);
 	m_huntSettingsW->hide();
 	layout->addWidget(m_huntSettingsW);
 
 	listSettingsTheme->addItem(
-				new QListWidgetItem(QIcon(":/img/network-icon.png"), tr("Network"),
-									listSettingsTheme, ITEM_NETWORK_TYPE)
-				);
+	            new QListWidgetItem(QIcon(":/img/network-icon.png"), tr("Network"),
+	                                listSettingsTheme, ITEM_NETWORK_TYPE)
+	            );
 	m_networkSettingsW = new QQNetworkSettings(this);
 	initNetworkSettings(settings);
 	m_networkSettingsW->hide();
@@ -103,7 +103,7 @@ QQSettingsManager::QQSettingsManager(QWidget *parent) :
 
 	listSettingsTheme->setMaximumWidth(listSettingsTheme->sizeHintForColumn(0) + 15);
 	connect(listSettingsTheme, SIGNAL(itemSelectionChanged()),
-			this, SLOT(configItemChanged()));
+	        this, SLOT(configItemChanged()));
 
 	ui->settingsSelWidget->setLayout(layout);
 	listSettingsTheme->setCurrentRow(0);
@@ -179,7 +179,7 @@ void QQSettingsManager::initBoardsSettings(const QQSettings &settings)
 
 	//Les bouchots existant
 	QList<QQBouchot *> listBouchots = QQBouchot::listBouchots();
-	QQBouchot *bouchot = NULL;
+	QQBouchot *bouchot = nullptr;
 	for(int i = 0; i < listBouchots.size(); i++)
 	{
 		bouchot = listBouchots.at(i);
@@ -203,7 +203,7 @@ void QQSettingsManager::saveBoardsSettings(QQSettings &settings)
 {
 	//QQSettings settings;
 
-	QQBouchot *bouchot = NULL;
+	QQBouchot *bouchot = nullptr;
 
 	// Les bouchots supprimes
 	QStringList lstOldBouchots = m_boardsSettingsW->getOldBouchots();
@@ -211,7 +211,7 @@ void QQSettingsManager::saveBoardsSettings(QQSettings &settings)
 	{
 		settings.removeBouchot(lstOldBouchots.at(i));
 		bouchot = QQBouchot::bouchot(lstOldBouchots.at(i));
-		if(bouchot != NULL)
+		if(bouchot != nullptr)
 			delete bouchot;
 	}
 
@@ -222,7 +222,7 @@ void QQSettingsManager::saveBoardsSettings(QQSettings &settings)
 	{
 		QString bouchotName = bouchotNames.at(i);
 		bouchot = QQBouchot::bouchot(bouchotName);
-		if(bouchot != NULL)
+		if(bouchot != nullptr)
 		{
 			bouchot->setSettings(mBouchots.value(bouchotName));
 			settings.saveBouchot(bouchotName, mBouchots.value(bouchotName));
@@ -255,7 +255,7 @@ void QQSettingsManager::initFilterSettings(const QQSettings &settings)
 	bool enableUrlTransformer = settings.value(SETTINGS_FILTER_SMART_URL_TRANSFORMER,  DEFAULT_FILTER_SMART_URL_TRANSFORMER).toBool();
 	m_filterSettingsW->setSmartUrlEnabled(enableUrlTransformer);
 
-	QuteQoin::QQSmartUrlFilerTransformType smartUrlTransformerType = (QuteQoin::QQSmartUrlFilerTransformType) settings.value(SETTINGS_FILTER_SMART_URL_TRANSFORM_TYPE,  DEFAULT_FILTER_SMART_URL_TRANSFORM_TYPE).toInt();
+	QuteQoin::QQSmartUrlFilerTransformType smartUrlTransformerType = static_cast<QuteQoin::QQSmartUrlFilerTransformType>(settings.value(SETTINGS_FILTER_SMART_URL_TRANSFORM_TYPE,  DEFAULT_FILTER_SMART_URL_TRANSFORM_TYPE).toInt());
 	m_filterSettingsW->setSmartUrlTransformerType(smartUrlTransformerType);
 }
 
@@ -334,10 +334,10 @@ void QQSettingsManager::initHuntSettings(const QQSettings &settings)
 {
 	//QQSettings settings;
 
-	QuteQoin::QQHuntMode huntMode = (QuteQoin::QQHuntMode) settings.value(SETTINGS_HUNT_MODE, DEFAULT_HUNT_MODE).toInt();
+	QuteQoin::QQHuntMode huntMode = static_cast<QuteQoin::QQHuntMode>(settings.value(SETTINGS_HUNT_MODE, DEFAULT_HUNT_MODE).toInt());
 	m_huntSettingsW->setHuntMode(huntMode);
 
-	QuteQoin::QQSLHuntMode slHuntMode = (QuteQoin::QQSLHuntMode) settings.value(SETTINGS_SL_HUNT_MODE, DEFAULT_SL_HUNT_MODE).toInt();
+	QuteQoin::QQSLHuntMode slHuntMode = static_cast<QuteQoin::QQSLHuntMode>(settings.value(SETTINGS_SL_HUNT_MODE, DEFAULT_SL_HUNT_MODE).toInt());
 	m_huntSettingsW->setSlHuntMode(slHuntMode);
 
 	bool silentHuntEnable = settings.value(SETTINGS_HUNT_SILENT_ENABLED, DEFAULT_HUNT_SILENT_ENABLED).toBool();
@@ -360,7 +360,7 @@ void QQSettingsManager::saveHuntSettings(QQSettings &settings)
 	bool silentHuntEnable = m_huntSettingsW->silentHuntEnabled();
 	settings.setValueWithDefault(SETTINGS_HUNT_SILENT_ENABLED, silentHuntEnable, DEFAULT_HUNT_SILENT_ENABLED);
 
-	int maxHuntableItems = m_huntSettingsW->maxHuntableItems();
+	unsigned int maxHuntableItems = m_huntSettingsW->maxHuntableItems();
 	settings.setValueWithDefault(SETTINGS_HUNT_MAX_ITEMS, maxHuntableItems, DEFAULT_HUNT_MAX_ITEMS);
 }
 
@@ -411,7 +411,7 @@ void QQSettingsManager::saveNetworkSettings(QQSettings &settings)
 		val = m_networkSettingsW->proxySettingsPort();
 		hasChanged |= settings.setValueWithDefault(SETTINGS_NETWORK_PROXY_PORT, val, DEFAULT_NETWORK_PROXY_PORT);
 		hasChanged |= settings.setValueWithDefault(SETTINGS_NETWORK_PROXY_IS_HTTP,
-									 m_networkSettingsW->proxyIsHTTP(), DEFAULT_NETWORK_PROXY_IS_HTTP);
+		                             m_networkSettingsW->proxyIsHTTP(), DEFAULT_NETWORK_PROXY_IS_HTTP);
 	}
 	else
 	{
@@ -439,6 +439,10 @@ void QQSettingsManager::initPalmiSettings(const QQSettings &settings)
 	//Palmi fixed/docked
 	bool isPalmiDocked = settings.value(SETTINGS_PALMI_DOCKED, DEFAULT_PALMI_DOCKED).toBool();
 	m_palmiSettingsW->setPalmiDocked(isPalmiDocked);
+
+	//Palmi short norlogeds
+	bool isShortNorlogesEnabled = settings.value(SETTINGS_PALMI_SHORT_NORLOGE_ENABLED, DEFAULT_PALMI_SHORT_NORLOGE_ENABLED).toBool();
+	m_palmiSettingsW->setShortNorlogesEnabled(isShortNorlogesEnabled);
 
 	QString fsService = settings.value(SETTINGS_FILE_SHARING_SERVICE, DEFAULT_FILE_SHARING_SERVICE).toString();
 	m_palmiSettingsW->setFileSharingServices(DEFAULT_FILE_SHARING_SERVICES);
@@ -470,6 +474,10 @@ void QQSettingsManager::savePalmiSettings(QQSettings &settings)
 
 	if(palmiMinimizedStatusChanged || palmiDockedStatusChanged)
 		palmiStatusChanged(isPalmiMini, isPalmiDocked);
+
+	//Palmi short norlogeds
+	bool isShortNorlogesEnabled = m_palmiSettingsW->isShortNorlogesEnabled();
+	settings.setValueWithDefault(SETTINGS_PALMI_SHORT_NORLOGE_ENABLED, QVariant(isShortNorlogesEnabled), DEFAULT_PALMI_SHORT_NORLOGE_ENABLED);
 
 	QString fsService = m_palmiSettingsW->getFileSharingService();
 	settings.setValueWithDefault(SETTINGS_FILE_SHARING_SERVICE, fsService, DEFAULT_FILE_SHARING_SERVICE);
