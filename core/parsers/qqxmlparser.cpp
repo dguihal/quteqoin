@@ -174,7 +174,11 @@ bool QQXmlParser::startElement(const QString &namespaceURI, const QString &local
 	{
 		m_tmpString.append("<").append(localName);
 		for(int i = 0; i < atts.length(); i++)
-			m_tmpString.append(" ").append(atts.qName(i)).append("=\"").append(atts.value(i)).append("\"");
+#if(QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
+			m_tmpString.append(" ").append(atts.qName(i)).append("=\"").append(atts.value(i).toHtmlEscaped()).append("\"");
+#else
+			m_tmpString.append(" ").append(atts.qName(i)).append("=\"").append(Qt::escape(atts.value(i))).append("\"");
+#endif			
 		m_tmpString.append(">");
 	}
 	else
