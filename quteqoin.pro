@@ -84,9 +84,7 @@ SOURCES += main.cpp\
     ui/settingsmanager/qqboardssettings.cpp \
     ui/settingsmanager/qqbouchotsettingsdialog.cpp \
     ui/settingsmanager/qqboardwizard.cpp \
-    ui/settingsmanager/qqboardwizardintro.cpp \
     ui/settingsmanager/qqboardwizardnative.cpp \
-    ui/settingsmanager/qqboardwizardolccs.cpp \
     ui/settingsmanager/qqfiltersettings.cpp \
     ui/settingsmanager/qqgeneralsettings.cpp \
     ui/settingsmanager/qqhuntsettings.cpp \
@@ -152,9 +150,7 @@ HEADERS  += mainwindow.h \
     ui/settingsmanager/qqboardssettings.h \
     ui/settingsmanager/qqbouchotsettingsdialog.h \
     ui/settingsmanager/qqboardwizard.h \
-    ui/settingsmanager/qqboardwizardintro.h \
     ui/settingsmanager/qqboardwizardnative.h \
-    ui/settingsmanager/qqboardwizardolccs.h \
     ui/settingsmanager/qqfiltersettings.h \
     ui/settingsmanager/qqgeneralsettings.h \
     ui/settingsmanager/qqhuntsettings.h \
