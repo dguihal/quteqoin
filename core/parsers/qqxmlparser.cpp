@@ -21,7 +21,7 @@
 
 //
 QQXmlParser::QQXmlParser(QObject *parent)
-	: QQBackendParser(parent), QXmlDefaultHandler()
+    : QQBackendParser(parent), QXmlDefaultHandler()
 {
 	m_currentPost.reset();
 	m_typeSlip = QQBouchot::SlipTagsEncoded;
@@ -74,11 +74,7 @@ bool QQXmlParser::characters(const QString & ch)
 	   (m_elementNames.top() == "login"))
 	{
 		if (m_typeSlip == QQBouchot::SlipTagsRaw)
-#if(QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
 			m_tmpString.append(ch.toHtmlEscaped());
-#else
-			m_tmpString.append(Qt::escape(ch));
-#endif
 		else
 			m_tmpString.append(ch);
 	}
@@ -137,7 +133,7 @@ bool QQXmlParser::endDocument ()
 
 //
 bool QQXmlParser::startElement(const QString &namespaceURI, const QString &localName,
-							   const QString &qName, const QXmlAttributes &atts)
+                               const QString &qName, const QXmlAttributes &atts)
 {
 	// Pour éviter le warning
 	(void) namespaceURI;
@@ -167,14 +163,14 @@ bool QQXmlParser::startElement(const QString &namespaceURI, const QString &local
 	}
 
 	if (m_elementNames.size() > 0 &&
-		((m_elementNames.top() == "info") ||
-		 (m_elementNames.top() == "message") ||
-		 (m_elementNames.top() == "login"))
-		)
+	    ((m_elementNames.top() == "info") ||
+	     (m_elementNames.top() == "message") ||
+	     (m_elementNames.top() == "login"))
+	    )
 	{
 		m_tmpString.append("<").append(localName);
 		for(int i = 0; i < atts.length(); i++)
-			m_tmpString.append(" ").append(atts.qName(i)).append("=\"").append(atts.value(i)).append("\"");
+			m_tmpString.append(" ").append(atts.qName(i)).append("=\"").append(atts.value(i).toHtmlEscaped()).append("\"");
 		m_tmpString.append(">");
 	}
 	else
@@ -183,7 +179,7 @@ bool QQXmlParser::startElement(const QString &namespaceURI, const QString &local
 }
 //
 bool QQXmlParser::endElement(const QString &namespaceURI, const QString &localName,
-							 const QString &qName)
+                             const QString &qName)
 {
 	// Pour éviter le warning
 	(void) namespaceURI;
@@ -203,19 +199,11 @@ bool QQXmlParser::endElement(const QString &namespaceURI, const QString &localNa
 	else
 	{
 		if (localName == "info")
-#if(QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
 			m_currentPost.setUA(m_tmpString.trimmed().toHtmlEscaped());
-#else
-			m_currentPost.setUA(Qt::escape(m_tmpString.trimmed()));
-#endif
 		else if (localName == "message")
 			m_currentPost.setMessage(m_tmpString.trimmed());
 		else if (localName == "login")
-#if(QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
 			m_currentPost.setLogin(m_tmpString.trimmed().toHtmlEscaped());
-#else
-			m_currentPost.setLogin(Qt::escape(m_tmpString.trimmed()));
-#endif
 		m_tmpString.clear();
 	}
 	m_elementNames.pop();
