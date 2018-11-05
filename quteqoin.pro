@@ -5,27 +5,23 @@
 #-------------------------------------------------
 
 #version check qt
-contains(QT_VERSION, ^4\\.[0-7]\\..*) {
+equals(QT_MAJOR_VERSION, 5):lessThan(QT_MINOR_VERSION, 4) {
     message("Cannot build Qt Creator with Qt version $${QT_VERSION}.")
-    error("Use at least Qt 4.8.")
+    error("Use at least Qt 5.4 .")
 }
 
-QT += core network xml
-equals(QT_MAJOR_VERSION, 4) {
-    QT += phonon
-}
-equals(QT_MAJOR_VERSION, 5) {
-    QT += widgets multimediawidgets
-}
+QT += core network xml widgets multimediawidgets
 
 include($$PWD/gitversion.pri)
 
 # A Tester
 linux-g++ {
-    system( g++ --version | grep -e "\\<4.[8-9]" ) {
-        QMAKE_CXXFLAGS_DEBUG += -fsanitize=address -Og
+    QMAKE_CXXFLAGS_DEBUG += -fsanitize=address -Og
+    debug {
+        LIBS += -lasan
     }
 }
+
 QMAKE_CXXFLAGS_RELEASE += -O2
 
 TARGET = quteqoin
@@ -186,33 +182,26 @@ RESOURCES += \
     rc/quteqoin_anims.qrc
 
 CONFIG(QML_PALMI) {
-    equals(QT_MAJOR_VERSION, 5):greaterThan(QT_MINOR_VERSION, 3) {
+    QT += quick quickwidgets
 
-        QT += quick quickwidgets
+    DEFINES += QML_PALMI
 
-        DEFINES += QML_PALMI
+    SOURCES += qml/documenthandler.cpp
 
-        SOURCES += qml/documenthandler.cpp
+    HEADERS += qml/documenthandler.h
 
-        HEADERS += qml/documenthandler.h
+    RESOURCES += qml/quteqoin_qml.qrc
 
-        RESOURCES += qml/quteqoin_qml.qrc
-
-        OTHER_FILES += \
-            qml/QQmlMain.qml \
-            qml/QQmlNetworkSettings.qml \
-            qml/QQmlPinni.qml \
-            qml/QQmlPalmi.qml \
-            qml/QQmlGeneralSettings.qml \
-            qml/QQmlSettingsEditor.qml \
-            qml/QQmlSettingsItem.qml \
-            qml/QQmlSettingsItemMenuBtn.qml \
-            qml/QQmlTotozSettings.qml
-    }
-    else {
-        message("Cannot build Qt Creator with Qt version $${QT_VERSION}.")
-        error("Use at least Qt 5.4.")
-    }
+    OTHER_FILES += \
+        qml/QQmlMain.qml \
+        qml/QQmlNetworkSettings.qml \
+        qml/QQmlPinni.qml \
+        qml/QQmlPalmi.qml \
+        qml/QQmlGeneralSettings.qml \
+        qml/QQmlSettingsEditor.qml \
+        qml/QQmlSettingsItem.qml \
+        qml/QQmlSettingsItemMenuBtn.qml \
+        qml/QQmlTotozSettings.qml
 }
 
 unix {
@@ -237,9 +226,9 @@ unix {
 win32 {
     RC_FILE = rc/quteqoin_win.rc
 
-        CONFIG(debug, debug|release) {
-            CONFIG += console
-        }
+    CONFIG(debug, debug|release) {
+        CONFIG += console
+    }
 }
 
 # vim: ts=4 sw=4 sts=4 noexpandtab
