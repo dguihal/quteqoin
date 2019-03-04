@@ -104,7 +104,7 @@ public:
 		static const char Separator = ',';
 	};
 
-	QQBouchot(const QString &name, QObject *parent = 0);
+	QQBouchot(const QString &name, QObject *parent = nullptr);
 	~QQBouchot();
 
 	QString name() const { return m_name; }
@@ -143,6 +143,9 @@ public:
 
 	void registerForEventNotification(QObject *receiver, QQBouchotEvents events);
 
+	void toggleVisibility();
+	bool isVisible() { return ! m_state.isHidden; }
+
 	virtual bool event(QEvent *e);
 
 	//static
@@ -165,6 +168,7 @@ signals:
 	void refreshOK();
 	void refreshError(QString &errMsg);
 	void removed(QString name, QString groupName);
+	void visibilitychanged(QString name);
 
 
 protected slots:

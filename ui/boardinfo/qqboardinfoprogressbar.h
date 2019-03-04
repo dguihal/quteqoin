@@ -12,7 +12,7 @@ class QQBoardInfoProgressBar : public QProgressBar
 	Q_PROPERTY(QColor color READ boardColor WRITE setBoardColor)
 
 public:
-	explicit QQBoardInfoProgressBar(QWidget *parent = 0);
+	explicit QQBoardInfoProgressBar(QWidget *parent = nullptr);
 
 	void setBoardStatusFlags(const QString &flags);
 	void setBoardName(const QString &boardName);
@@ -23,7 +23,7 @@ public:
 	bool isOnError() const { return m_onError; }
 	void setOnError(const bool &onError);
 signals:
-	void bouchotSelected(const QString &bouchotName);
+	void bouchotSelected();
 
 public slots:
 

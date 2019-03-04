@@ -9,8 +9,8 @@
 /// \param boardName
 ///
 QQBoardInfoProgressBar::QQBoardInfoProgressBar(QWidget *parent) :
-	QProgressBar(parent),
-	m_onError(false)
+    QProgressBar(parent),
+    m_onError(false)
 {
 #ifdef Q_OS_WIN32
 	QFont font("Segoe UI Symbol", 10);
@@ -61,7 +61,7 @@ void QQBoardInfoProgressBar::setOnError(const bool &onError)
 void QQBoardInfoProgressBar::mousePressEvent(QMouseEvent *event)
 {
 	QProgressBar::mousePressEvent(event);
-	emit bouchotSelected(m_boardName);
+	emit bouchotSelected();
 }
 
 //////////////////////////////////////////////////////////////
@@ -73,7 +73,7 @@ void QQBoardInfoProgressBar::paintEvent(QPaintEvent *event)
 	Q_UNUSED(event);
 
 	QRect rect = this->geometry();
-	rect.setWidth(rect.width() * ((double)value() / (double) maximum()));
+	rect.setWidth(static_cast<int>(rect.width() * (static_cast<double>(value()) / static_cast<double> (maximum()))));
 
 	//Fill
 	QPainter rectPainter(this);

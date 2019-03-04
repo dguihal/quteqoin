@@ -31,28 +31,30 @@
 #define ITEM_AREA_WIDTH 6 //Px
 
 QQTextBrowser::QQTextBrowser(QString groupName, QQPinipede *parent) :
-	QTextBrowser(parent),
-	m_notifArea(new QQNotifArea(this)),
-	m_urlHelper(new QQPiniUrlHelper(this)),
-	m_isScrollAtBottom(true),
-	m_highlightedNorlogeRef(""),
-	m_displayedTotozId(""),
-	m_shownUrl(),
-	m_groupName(groupName)
+    QTextBrowser(parent),
+    m_notifArea(new QQNotifArea(this)),
+    m_urlHelper(new QQPiniUrlHelper(this)),
+    m_isScrollAtBottom(true),
+    m_highlightedNorlogeRef(""),
+    m_displayedTotozId(""),
+    m_shownUrl(),
+    m_groupName(groupName)
 {
 	setFrameStyle(QFrame::NoFrame);
 	setReadOnly(true);
 	setOpenLinks(false);
 	setTextInteractionFlags(Qt::TextSelectableByMouse | Qt::LinksAccessibleByMouse);
 
-	connect(m_urlHelper, SIGNAL(contentTypeAvailable(QUrl&, QString&)), this, SLOT(onExtendedInfoAvailable(QUrl&, QString&)));
-	connect(m_urlHelper, SIGNAL(videoTitleAvailable(QUrl&, QString&)), this, SLOT(onExtendedInfoAvailable(QUrl&, QString&)));
-	connect(m_urlHelper, SIGNAL(mmDataAvailable(QUrl&,QString&)), this, SLOT(onThumbnailUrlAvailable(QUrl&, QString&)));
-	connect(this, SIGNAL(anchorClicked(QUrl)), this, SLOT(onAnchorClicked(QUrl)));
-	connect(this, SIGNAL(highlighted(QUrl)), this, SLOT(onAnchorHighlighted(QUrl)));
+	connect(m_urlHelper, &QQPiniUrlHelper::contentTypeAvailable, this, &QQTextBrowser::onExtendedInfoAvailable);
+	connect(m_urlHelper, &QQPiniUrlHelper::videoTitleAvailable, this, &QQTextBrowser::onExtendedInfoAvailable);
+	connect(m_urlHelper, &QQPiniUrlHelper::mmDataAvailable, this, &QQTextBrowser::onThumbnailUrlAvailable);
+	connect(this, &QQTextBrowser::anchorClicked, this, &QQTextBrowser::onAnchorClicked);
+	// Need to use QOverload due to QQTextBrowser::highlighted having multiple signatures (overloading) and sticking with C++11
+	// See : http://doc.qt.io/qt-5/qtglobal.html#qOverload
+	connect(this, QOverload<const QUrl &>::of(&QQTextBrowser::highlighted), this, &QQTextBrowser::onAnchorHighlighted);
 
-	connect(this->verticalScrollBar(), SIGNAL(valueChanged(int)), this, SLOT(onScrollValueChanged(int)));
-	connect(this->verticalScrollBar(), SIGNAL(rangeChanged(int,int)), this, SLOT(onScrollRangeChanged(int,int)));
+	connect(this->verticalScrollBar(), &QScrollBar::valueChanged, this, &QQTextBrowser::onScrollValueChanged);
+	connect(this->verticalScrollBar(), &QScrollBar::rangeChanged, this, &QQTextBrowser::onScrollRangeChanged);
 
 	QTextDocument *doc = document();
 	doc->setUndoRedoEnabled(false);
@@ -68,7 +70,7 @@ QQTextBrowser::QQTextBrowser(QString groupName, QQPinipede *parent) :
 	this->setMouseTracking(true);
 	setViewportMargins(notifAreaWidth(), 0, 0, 0);
 
-	connect(this->verticalScrollBar(), SIGNAL(valueChanged(int)), this, SLOT(updateNotifArea(int)));
+	connect(this->verticalScrollBar(), &QScrollBar::valueChanged, this, &QQTextBrowser::updateNotifArea);
 
 	verticalScrollBar()->setInvertedControls(true);
 	verticalScrollBar()->triggerAction(QAbstractSlider::SliderToMaximum);
@@ -142,21 +144,21 @@ void QQTextBrowser::notifAreaPaintEvent(QPaintEvent * event)
 
 	// Recuperation du premier bloc a dessiner
 	QTextBlock block = cursorForPosition(
-						   event->rect().topLeft()
-						   ).block();
+	                       event->rect().topLeft()
+	                       ).block();
 
 	// Recuperation du dernier bloc a dessiner
 	QTextBlock lastBlock = cursorForPosition(
-							   event->rect().bottomRight()
-							   ).block();
+	                           event->rect().bottomRight()
+	                           ).block();
 	while(block.isValid() && block.blockNumber() <= lastBlock.blockNumber())
 	{
-		QQMessageBlockUserData * uData = (QQMessageBlockUserData *) block.userData();
+		QQMessageBlockUserData * uData = static_cast<QQMessageBlockUserData *>(block.userData());
 		int offset = 0;
-		if(uData != NULL && uData->post() != NULL)
+		if(uData != nullptr && uData->post() != nullptr)
 		{
 			QTextCursor curs(block);
-			qreal height = block.layout()->boundingRect().height();
+			qint32 height = static_cast<qint32>(block.layout()->boundingRect().height());
 			int posY = cursorRect(curs).y();
 			QQPost * post = uData->post();
 
@@ -269,18 +271,14 @@ void QQTextBrowser::onAnchorClicked(const QUrl &link)
 	else if(link.scheme() == "nref")
 	{
 		bool isInt = true;
-#if(QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
 		QUrlQuery anchorUrlQuery(link);
 		int index = anchorUrlQuery.queryItemValue("index").toInt(&isInt);
 		QString board = anchorUrlQuery.queryItemValue("board").toUtf8();
-#else
-		int index = link.queryItemValue("index").toInt(&isInt);
-		QString board = link.queryItemValue("board").toLocal8Bit();
-#endif
+
 		if(isInt && ! board.isEmpty())
 		{
 			QTextCursor c = cursorForPosition(mapFromGlobal(QCursor::pos()));
-			QQMessageBlockUserData *d = (QQMessageBlockUserData *) c.block().userData();
+			QQMessageBlockUserData *d = static_cast<QQMessageBlockUserData *>(c.block().userData());
 			if(index == 0) // clic sur la norloge du post
 			{
 				emit norlogeClicked(board, d->post()->norlogeObj());
@@ -298,32 +296,20 @@ void QQTextBrowser::onAnchorClicked(const QUrl &link)
 	else if(link.scheme() == "msl")
 	{
 		QString name;
-#if(QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
 		QUrlQuery anchorUrlQuery(link);
 		name = QUrl::fromPercentEncoding(anchorUrlQuery.queryItemValue("login").toUtf8());
 		if(name.size() == 0)
 			name = QUrl::fromPercentEncoding(anchorUrlQuery.queryItemValue("ua").toUtf8());
 		QString board = QUrl::fromPercentEncoding(anchorUrlQuery.queryItemValue("board").toUtf8());
-#else
-		name = QUrl::fromPercentEncoding(link.queryItemValue("login").toLocal8Bit());
-		if(name.size() == 0)
-			name = QUrl::fromPercentEncoding(link.queryItemValue("ua").toLocal8Bit());
-		QString board = QUrl::fromPercentEncoding(link.queryItemValue("board").toLocal8Bit());
-#endif
+
 		emit loginClicked(board, name);
 	}
 	else if(link.scheme() == "duck")
 	{
-#if(QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
 		QUrlQuery anchorUrlQuery(link);
 		QString postId = anchorUrlQuery.queryItemValue("postId");
 		QString self = anchorUrlQuery.queryItemValue("self");
 		QString board = anchorUrlQuery.queryItemValue("board");
-#else
-		QString postId = link.queryItemValue("postId");
-		QString self = link.queryItemValue("self");
-		QString board = link.queryItemValue("board");
-#endif
 
 		emit duckClicked(board, postId, (self == "1"));
 	}
@@ -365,23 +351,19 @@ void QQTextBrowser::onAnchorHighlighted(const QUrl &link)
 			showTotoz(totozId);
 		}
 		else if((linkScheme == "msl") || // Une moule
-				 (linkScheme == "duck") || // Une moule
-				 (linkScheme == "tablev")) // Une table volante
+		         (linkScheme == "duck") || // Une moule
+		         (linkScheme == "tablev")) // Une table volante
 		{
 		}
 		else if(linkScheme == "nref") // Une norloge
 		{
 
 			QTextCursor c = cursorForPosition(mapFromGlobal(QCursor::pos()));
-			QQMessageBlockUserData *d = (QQMessageBlockUserData *) c.block().userData();
+			QQMessageBlockUserData *d = static_cast<QQMessageBlockUserData *>(c.block().userData());
 
 			bool isInt = true;
-#if(QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
 			QUrlQuery linkQuery(link);
 			int index = linkQuery.queryItemValue("index").toInt(&isInt);
-#else
-			int index = link.queryItemValue("index").toInt(&isInt);
-#endif
 			if(isInt)
 			{
 				QQNorlogeRef nRef = d->norlogeRefForIndex(index);
@@ -424,7 +406,7 @@ void QQTextBrowser::onBakUserAction()
 
 		QQBouchot* b = QQBouchot::bouchot(board);
 
-		if(b == NULL) // Not found, shouldn't happen but better check than crash
+		if(b == nullptr) // Not found, shouldn't happen but better check than crash
 			return;
 
 		QString login = QUrl::fromPercentEncoding(userUrlQuery.queryItemValue("login").toUtf8());
@@ -434,6 +416,15 @@ void QQTextBrowser::onBakUserAction()
 
 		b->addToBak(login, isAuth);
 	}
+}
+
+/**
+ * @brief QQTextBrowser::onHideBoardAction
+ */
+void QQTextBrowser::onHideBoardAction()
+{
+	auto b = QQBouchot::bouchot(m_contextMenuBoardName);
+	b->toggleVisibility();
 }
 
 /**
@@ -470,7 +461,7 @@ void QQTextBrowser::onPlopifyUserAction()
 
 		QQBouchot* b = QQBouchot::bouchot(board);
 
-		if(b == NULL) // Not found, shouldn't happen but better check than crash
+		if(b == nullptr) // Not found, shouldn't happen but better check than crash
 			return;
 
 		QString login = QUrl::fromPercentEncoding(userUrlQuery.queryItemValue("login").toUtf8());
@@ -536,16 +527,23 @@ void QQTextBrowser::clearViewers()
 
 void QQTextBrowser::contextMenuEvent(QContextMenuEvent * ev)
 {
-	QPoint evPos = ev->pos();
-	evPos.setX(evPos.x() + horizontalScrollBar()->value());
-	evPos.setY(evPos.y() + verticalScrollBar()->value());
-	QMenu *menu = createStandardContextMenu(evPos);
-	QTextCursor cursor = textCursor();
+	QMenu *menu = createStandardContextMenu(ev->pos());
 
+	QTextCursor cursor = cursorForPosition(ev->pos());
+	QQMessageBlockUserData * uData = static_cast<QQMessageBlockUserData *>(cursor.block().userData());
+	if(uData != nullptr)
+	{
+		QString boardName = uData->post()->bouchot()->name();
+		QAction *action = menu->addAction(QString(tr("&Hide %1")).arg(boardName));
+		connect(action, &QAction::triggered, this, &QQTextBrowser::onHideBoardAction);
+		m_contextMenuBoardName = boardName;
+	}
+
+	cursor = textCursor();
 	if(cursor.hasSelection())
 	{
 		QAction *action = menu->addAction(tr("&Search on web"));
-		connect(action, SIGNAL(triggered()), this, SLOT(onWebSearchAction()));
+		connect(action, &QAction::triggered, this, &QQTextBrowser::onWebSearchAction);
 	}
 
 	QString anchor = anchorAt(ev->pos());
@@ -558,15 +556,15 @@ void QQTextBrowser::contextMenuEvent(QContextMenuEvent * ev)
 			m_contextMenuContextualString = anchorUrl.path().remove(0, 1); // Le / initial
 
 			QAction *action = menu->addAction(tr("Add to &bookmarks"));
-			connect(action, SIGNAL(triggered()), this, SLOT(onAddTotozToBookmarksAction()));
+			connect(action, &QAction::triggered, this, &QQTextBrowser::onAddTotozToBookmarksAction);
 
 			//Suppression du Copy Link Location
 			menu->actions().at(1)->setEnabled(false);
 		}
 		else if((anchorUrlScheme == "msl")    || // Une moule
-				 (anchorUrlScheme == "duck")   || // Un canard
-				 (anchorUrlScheme == "tablev") || // Une table volante
-				 (anchorUrlScheme == "nref"))     // Une norloge
+		         (anchorUrlScheme == "duck")   || // Un canard
+		         (anchorUrlScheme == "tablev") || // Une table volante
+		         (anchorUrlScheme == "nref"))     // Une norloge
 		{
 			//Suppression du Copy Link Location
 			menu->actions().at(1)->setVisible(false);
@@ -580,7 +578,7 @@ void QQTextBrowser::contextMenuEvent(QContextMenuEvent * ev)
 
 					QQBouchot* b = QQBouchot::bouchot(board);
 
-					if(b == NULL) // Not found, shouldn't happen but better check than crash
+					if(b == nullptr) // Not found, shouldn't happen but better check than crash
 						return;
 
 					QString login = QUrl::fromPercentEncoding(anchorUrlQuery.queryItemValue("login").toUtf8());
@@ -589,12 +587,12 @@ void QQTextBrowser::contextMenuEvent(QContextMenuEvent * ev)
 						login = QUrl::fromPercentEncoding(anchorUrlQuery.queryItemValue("ua").toUtf8());
 
 					QAction *action = menu->addAction(tr("Bak"));
-					connect(action, SIGNAL(triggered()), this, SLOT(onBakUserAction()));
+					connect(action, &QAction::triggered, this, &QQTextBrowser::onBakUserAction);
 
 					if(! b->isPlopified(login, isAuth))
 					{
 						action = menu->addAction(tr("Plopify"));
-						connect(action, SIGNAL(triggered()), this, SLOT(onPlopifyUserAction()));
+						connect(action, &QAction::triggered, this, &QQTextBrowser::onPlopifyUserAction);
 					}
 					m_contextMenuContextualString = anchorUrl.toString();
 				}
@@ -701,17 +699,17 @@ void QQTextBrowser::paintEvent(QPaintEvent * event)
 
 	// Recuperation du premier bloc a dessiner
 	QTextBlock block = cursorForPosition(
-						   event->rect().topLeft()
-						   ).block();
+	                       event->rect().topLeft()
+	                       ).block();
 
 	// Recuperation du dernier bloc a dessiner
 	QTextBlock lastBlock = cursorForPosition(
-							   event->rect().bottomRight()
-							   ).block();
+	                           event->rect().bottomRight()
+	                           ).block();
 	while(block.isValid() && block.blockNumber() <= lastBlock.blockNumber())
 	{
-		QQMessageBlockUserData * uData = (QQMessageBlockUserData *) block.userData();
-		if(uData != NULL)
+		QQMessageBlockUserData * uData = static_cast<QQMessageBlockUserData *>(block.userData());
+		if(uData != nullptr)
 		{
 			///////////////////////////////////////////////////////////////////
 			/////        LE BIGORNO                           /////////////////

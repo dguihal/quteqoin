@@ -19,7 +19,7 @@ class QQBoardInfo : public QWidget
 	Q_OBJECT
 
 public:
-	explicit QQBoardInfo(QQBouchot *board, QWidget *parent = 0);
+	explicit QQBoardInfo(QQBouchot *board, QWidget *parent = nullptr);
 	~QQBoardInfo();
 
 	virtual QSize sizeHint() const;
@@ -32,14 +32,14 @@ public slots:
 	void rearmRefreshPB();
 	void resetFromErrorState();
 	void showRefreshError(QString &errMsg);
+	void toggleBoardVisibility();
 	void toggleExpandedView();
 	void updateUserList();
+	void updateNameWithStatus();
 
 	virtual bool event(QEvent *e);
 
 private:
-	void updateNameWithStatus();
-
 	Ui::QQBoardInfo *m_ui;
 
 	QQBouchot *m_board;

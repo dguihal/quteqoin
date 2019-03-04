@@ -37,7 +37,7 @@ class QQPinipede : public QTabWidget
 	Q_OBJECT
 
 public:
-	explicit QQPinipede(QWidget *parent = 0);
+	explicit QQPinipede(QWidget *parent = nullptr);
 	~QQPinipede();
 
 	void setToolButton(QWidget *toolButton);
@@ -59,6 +59,7 @@ public:
 	virtual bool event(QEvent *e);
 
 public slots:
+	void bouchotVisibilityChanged(QString board);
 	void duckKilled(QString board,QString postId);
 	void norlogeClicked(QString srcBouchot, QQNorloge norloge);
 	void norlogeRefClicked(QString srcBouchot, QQNorlogeRef nRef);

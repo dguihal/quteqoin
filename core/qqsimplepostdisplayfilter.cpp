@@ -81,7 +81,7 @@ QString QQSimplePostDisplayFilter::Rule::getPostValue(QQPost *post)
 		rep = post->login();
 		if(rep.length() > 0 || field == LOGIN)
 			break;
-	case UA:
+	[[fallthrough]]; case UA:
 		rep = post->UA();
 		break;
 	case MESSAGE:
@@ -93,8 +93,6 @@ QString QQSimplePostDisplayFilter::Rule::getPostValue(QQPost *post)
 	case GROUP:
 		rep = post->bouchot()->settings().group();
 		break;
-	default:
-		rep.clear();
 	}
 	return rep;
 }

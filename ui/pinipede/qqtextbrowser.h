@@ -19,7 +19,7 @@ class QQTextBrowser : public QTextBrowser
 	Q_OBJECT
 
 public:
-	explicit QQTextBrowser(QString groupName, QQPinipede *parent = 0);
+	explicit QQTextBrowser(QString groupName, QQPinipede *parent = nullptr);
 	~QQTextBrowser();
 
 	int notifAreaWidth();
@@ -59,6 +59,7 @@ protected slots:
 	void onAnchorClicked(const QUrl &link);
 	void onAnchorHighlighted(const QUrl &link);
 	void onBakUserAction();
+	void onHideBoardAction();
 	void onExtendedInfoAvailable(QUrl &url, QString &contentType);
 	void onPlopifyUserAction();
 	void onScrollRangeChanged(int min, int max);
@@ -95,6 +96,7 @@ private:
 	QString m_highlightedNorlogeRef;
 	QString m_displayedTotozId;
 	QString m_contextMenuContextualString;
+	QString m_contextMenuBoardName;
 	QUrl m_shownUrl;
 
 	QString m_groupName;

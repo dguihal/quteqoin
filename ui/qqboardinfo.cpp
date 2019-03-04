@@ -15,11 +15,11 @@
 /// \param parent
 ///
 QQBoardInfo::QQBoardInfo(QQBouchot *board, QWidget *parent) :
-	QWidget(parent),
-	m_ui(new Ui::QQBoardInfo),
-	m_board(board)
+    QWidget(parent),
+    m_ui(new Ui::QQBoardInfo),
+    m_board(board)
 {
-	if(m_board == NULL)
+	if(m_board == nullptr)
 		return;
 
 	m_ui->setupUi(this);
@@ -29,12 +29,14 @@ QQBoardInfo::QQBoardInfo(QQBouchot *board, QWidget *parent) :
 
 	m_ui->bodyWidget->hide();
 	m_ui->showBtn->setText("+");
-	connect(m_ui->showBtn, SIGNAL(clicked()), this, SLOT(toggleExpandedView()));
+	connect(m_ui->showBtn, &QToolButton::clicked, this, &QQBoardInfo::toggleExpandedView);
 
 	m_ui->refreshPB->setTextVisible(true);
 	m_ui->refreshPB->setBoardColor(m_board->settings().color());
 	m_ui->refreshPB->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
 	m_ui->refreshPB->setBoardName(board->name());
+	connect(m_ui->refreshPB, &QQBoardInfoProgressBar::bouchotSelected,
+	        this, &QQBoardInfo::toggleBoardVisibility);
 
 	QFontInfo fi = m_ui->refreshPB->fontInfo();
 	int size = fi.pixelSize() + 2;
@@ -49,10 +51,11 @@ QQBoardInfo::QQBoardInfo(QQBouchot *board, QWidget *parent) :
 	m_pctPollAnimation.setPropertyName("value");
 
 	rearmRefreshPB();
-	connect(m_board, SIGNAL(lastPostersUpdated()), this, SLOT(updateUserList()));
-	connect(m_board, SIGNAL(refreshStarted()), this, SLOT(rearmRefreshPB()));
-	connect(m_board, SIGNAL(refreshOK()), this, SLOT(resetFromErrorState()));
-	connect(m_board, SIGNAL(refreshError(QString&)), this, SLOT(showRefreshError(QString&)));
+	connect(m_board, &QQBouchot::lastPostersUpdated, this, &QQBoardInfo::updateUserList);
+	connect(m_board, &QQBouchot::refreshStarted, this, &QQBoardInfo::rearmRefreshPB);
+	connect(m_board, &QQBouchot::refreshOK, this, &QQBoardInfo::resetFromErrorState);
+	connect(m_board, &QQBouchot::refreshError, this, &QQBoardInfo::showRefreshError);
+	connect(m_board, &QQBouchot::visibilitychanged, this, &QQBoardInfo::updateNameWithStatus);
 	board->registerForEventNotification(this, QQBouchot::StateChanged);
 }
 
@@ -124,6 +127,15 @@ void QQBoardInfo::showRefreshError(QString &errMsg)
 }
 
 //////////////////////////////////////////////////////////////
+/// \brief QQBoardInfo::toggleBoardVisibility
+///
+void QQBoardInfo::toggleBoardVisibility()
+{
+	m_board->toggleVisibility();
+	updateNameWithStatus();
+}
+
+//////////////////////////////////////////////////////////////
 /// \brief QQBoardInfo::toggleExpandedView
 ///
 void QQBoardInfo::toggleExpandedView()
@@ -168,7 +180,7 @@ void QQBoardInfo::updateUserList()
 	for(int i = 0; i < lastPosters.size(); i++)
 	{
 		QQMussel mussel = lastPosters.at(i);
-		QQMusselInfo *mi = NULL;
+		QQMusselInfo *mi = nullptr;
 		if(m_musselInfoHash.contains(mussel))
 		{
 			mi = m_musselInfoHash.take(mussel);
@@ -188,7 +200,7 @@ void QQBoardInfo::updateUserList()
 	}
 
 	QWidget *old = m_ui->usrDspSA->takeWidget();
-	if(old != NULL)
+	if(old != nullptr)
 		delete old;
 	m_ui->usrDspSA->setWidget(boardInfoWidget);
 

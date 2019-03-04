@@ -13,6 +13,7 @@
 #include "ui/qqcmdtoolbuttons.h"
 
 #include <QtDebug>
+#include <QtGlobal>
 #include <QApplication>
 #include <QCloseEvent>
 #include <QIcon>
@@ -31,9 +32,9 @@
 #define MAINWINDOW_STATE_CACHE_FILE "QuteQoin_Window_State"
 
 MainWindow::MainWindow(QWidget *parent) :
-	QMainWindow(parent),
-	m_ui(new Ui::MainWindow),
-	m_trayIcon(NULL)
+    QMainWindow(parent),
+    m_ui(new Ui::MainWindow),
+    m_trayIcon(nullptr)
 {
 	m_ui->setupUi(this);
 
@@ -49,29 +50,29 @@ MainWindow::MainWindow(QWidget *parent) :
 	m_palmi->setResizeMode(QQuickWidget::SizeRootObjectToView);
 
 	QObject::connect(m_palmi->rootObject(), SIGNAL(post(QString, QString)),
-					 this, SLOT(doPostMessage(QString, QString)));
+	                 this, SLOT(doPostMessage(QString, QString)));
 #else
 	m_palmi = new QQPalmipede(this);
-	connect(m_palmi, SIGNAL(postMessage(QString,QString)), this, SLOT(doPostMessage(QString,QString)));
+	connect(m_palmi, &QQPalmipede::postMessage, this, &MainWindow::doPostMessage);
 #endif
 
 	// Setup du dock du palmi
 	m_dockPalmi = new QQDockPalmi(this);
 	addDockWidget(Qt::BottomDockWidgetArea, m_dockPalmi, Qt::Horizontal);
-	connect(m_dockPalmi, SIGNAL(visibilityChanged(bool)), this, SLOT(doPalmiVisibilityChanged(bool)));
+	connect(m_dockPalmi, &QQDockPalmi::visibilityChanged, this, &MainWindow::doPalmiVisibilityChanged);
 
 	m_actionDockPalmi = m_dockPalmi->toggleViewAction();
 	m_actionDockPalmi->setShortcut(Qt::ControlModifier + Qt::Key_P);
-	//actionDockPalmi->setDisabled(true);
 
 	// Setup du totoz manager
 	m_totozManager = new QQTotozManager(this);
 #ifdef QML_PALMI
 	qmlRegisterType<QQTotozManager>("QuteQoin.QmlComponents", 1, 0, "TotozManager");
 	connect(m_totozManager, SIGNAL(totozClicked(QString)),
-			m_palmi->rootObject(), SIGNAL(insertReplaceText(QString)));
+	        m_palmi->rootObject(), SIGNAL(insertReplaceText(QString)));
 #else
-	connect(m_totozManager, SIGNAL(totozClicked(QString)), m_palmi, SLOT(insertReplaceText(QString)));
+	m_palmi->insertReplaceText("toto");
+	connect(m_totozManager, &QQTotozManager::totozClicked, m_palmi, QOverload<const QString &>::of(&QQPalmipede::insertReplaceText));
 #endif
 
 	addDockWidget(Qt::RightDockWidgetArea, m_totozManager, Qt::Vertical);
@@ -92,7 +93,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	cmdToolsBtn->addAction(m_actionDockPalmi);
 	cmdToolsBtn->addAction(actionTotozManager);
 
-	connect(cmdToolsBtn, SIGNAL(showOptions()), this, SLOT(displayOptions()));
+	connect(cmdToolsBtn, &QQCmdToolButtons::showOptions, this, &MainWindow::displayOptions);
 
 	// Setup du pini
 	QWidget *centralWidget = new QWidget(this);
@@ -105,15 +106,15 @@ MainWindow::MainWindow(QWidget *parent) :
 	m_pini->setTotozManager(m_totozManager);
 #ifdef QML_PALMI
 	connect(m_pini, SIGNAL(insertTextPalmi(QString, QString)),
-			m_palmi->rootObject(), SIGNAL(insertReplaceTextBoard(QString, QString)));
+	        m_palmi->rootObject(), SIGNAL(insertReplaceTextBoard(QString, QString)));
 #else
-	connect(m_pini, SIGNAL(insertTextPalmi(QString, QString)), m_palmi, SLOT(insertReplaceText(QString, QString)));
+	connect(m_pini, &QQPinipede::insertTextPalmi, m_palmi, QOverload<const QString &, const QString &>::of(&QQPalmipede::insertReplaceText));
 #endif
 	layout->addWidget(m_pini);
 
 	m_pSearchW = new QQPiniSearchWidget(this);
 	m_pSearchW->hide();
-	connect(m_pSearchW, SIGNAL(search(QString,bool)), m_pini, SLOT(searchText(QString,bool)));
+	connect(m_pSearchW, &QQPiniSearchWidget::search, m_pini, &QQPinipede::searchText);
 	layout->addWidget(m_pSearchW);
 
 	centralWidget->setLayout(layout);
@@ -123,7 +124,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	QAction *actionSearch = new QAction(tr("Search pini"), this);
 	actionSearch->setShortcut(Qt::ControlModifier + Qt::Key_F);
 	actionSearch->setCheckable(true);
-	connect(actionSearch, SIGNAL(triggered(bool)), m_pSearchW, SLOT(setVisible(bool)));
+	connect(actionSearch, &QAction::triggered, m_pSearchW, &QQPiniSearchWidget::setVisible);
 	cmdToolsBtn->addAction(actionSearch);
 
 #if(QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
@@ -156,18 +157,17 @@ MainWindow::MainWindow(QWidget *parent) :
 	//Fin TODO
 
 	doPalmiStatusChanged(settings.value(SETTINGS_PALMI_MINI, DEFAULT_PALMI_MINI).toBool(),
-						 settings.value(SETTINGS_PALMI_DOCKED, DEFAULT_PALMI_DOCKED).toBool());
+	                     settings.value(SETTINGS_PALMI_DOCKED, DEFAULT_PALMI_DOCKED).toBool());
 
 	if(settings.value(SETTINGS_GENERAL_STEALTH_MODE, DEFAULT_GENERAL_STEALTH_MODE).toBool() &&
-			QSystemTrayIcon::isSystemTrayAvailable())
+	        QSystemTrayIcon::isSystemTrayAvailable())
 	{
 		QMenu *m = new QMenu(this);
 		QAction *quit = m->addAction(tr("&Quit"));
-		connect(quit, SIGNAL(triggered(bool)), qApp, SLOT(quit()));
+		connect(quit, &QAction::triggered, qApp, &QApplication::quit);
 
 		m_trayIcon = new QSystemTrayIcon(QIcon(":/img/rubber_duck_yellow.svg"), this);
-		connect(m_trayIcon, SIGNAL(activated(QSystemTrayIcon::ActivationReason)),
-				this, SLOT(onTrayIconActivated(QSystemTrayIcon::ActivationReason)));
+		connect(m_trayIcon, &QSystemTrayIcon::activated, this, &MainWindow::onTrayIconActivated);
 
 		m_trayIcon->setContextMenu(m);
 		m_trayIcon->show();
@@ -191,11 +191,11 @@ void MainWindow::displayOptions()
 		bouchots.at(i)->stopRefresh();
 
 	QQSettingsManager settingsManager(this);
-	connect(&settingsManager, SIGNAL(bouchotCreated(QQBouchot*)), this, SLOT(initBouchot(QQBouchot*)));
-	connect(&settingsManager, SIGNAL(fullRepaint()), this, SLOT(doFullRepaint()));
-	connect(&settingsManager, SIGNAL(networkProxySettingsChanged()), this, SLOT(doNetworkSettingsChanged()));
-	connect(&settingsManager, SIGNAL(palmiStatusChanged(bool,bool)), this, SLOT(doPalmiStatusChanged(bool,bool)));
-	connect(&settingsManager, SIGNAL(totozSearchEnabledChanged(bool)), m_totozManager, SLOT(totozSearchEnabled(bool)));
+	connect(&settingsManager, &QQSettingsManager::bouchotCreated, this, &MainWindow::initBouchot);
+	connect(&settingsManager, &QQSettingsManager::fullRepaint, this, &MainWindow::doFullRepaint);
+	connect(&settingsManager, &QQSettingsManager::networkProxySettingsChanged, this, &MainWindow::doNetworkSettingsChanged);
+	connect(&settingsManager, &QQSettingsManager::palmiStatusChanged, this, &MainWindow::doPalmiStatusChanged);
+	connect(&settingsManager, &QQSettingsManager::totozSearchEnabledChanged, m_totozManager, &QQTotozManager::totozSearchEnabled);
 	settingsManager.exec();
 
 	bouchots = QQBouchot::listBouchots();
@@ -208,7 +208,7 @@ void MainWindow::doPostMessage(const QString &bouchot, const QString &message)
 	qDebug() << Q_FUNC_INFO << bouchot << message;
 	QQBouchot *bouchotDest = QQBouchot::bouchot(bouchot);
 
-	if(bouchotDest != NULL)
+	if(bouchotDest != nullptr)
 		bouchotDest->postMessage(message);
 	//else
 	// Bouchot non trouvé ???
@@ -269,7 +269,7 @@ void MainWindow::doPalmiVisibilityChanged(bool isVisible)
 void MainWindow::changeEvent(QEvent *event)
 {
 	if((event->type() == QEvent::WindowStateChange) &&
-			(m_trayIcon != NULL))
+	        (m_trayIcon != nullptr))
 	{
 		if (isMinimized() == true)
 			hide();
@@ -280,11 +280,7 @@ void MainWindow::changeEvent(QEvent *event)
 
 void MainWindow::closeEvent(QCloseEvent *event)
 {
-#if(QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
 	QDir dirData(QStandardPaths::writableLocation(QStandardPaths::DataLocation));
-#else
-	QDir dirData(QDesktopServices::storageLocation(QDesktopServices::DataLocation));
-#endif
 
 	if(!dirData.exists())
 		dirData.mkpath(dirData.path());
@@ -338,15 +334,15 @@ void MainWindow::bouchotDestroyed(QQBouchot *bouchot)
 
 #ifdef QML_PALMI
 	QMetaObject::invokeMethod(m_palmi->rootObject(), "removeBoard",
-							  Q_ARG(QVariant, bouchot->name()));
+	                          Q_ARG(QVariant, bouchot->name()));
 #else
 	m_palmi->removeBouchot(bouchot->name());
 #endif
 
 	QList<QQBouchot *> bouchots = QQBouchot::listBouchotsGroup(group);
 	(bouchots.size() == 0) ?
-				m_pini->removePiniTab(group) :
-				m_pini->purgePiniTab(group, name);
+	            m_pini->removePiniTab(group) :
+	            m_pini->purgePiniTab(group, name);
 
 	m_boardsInfo->updateBoardList();
 
@@ -359,8 +355,8 @@ void MainWindow::bouchotGroupChanged(QQBouchot *bouchot, QString oldGroupName)
 
 	QList<QQBouchot *> bouchots = QQBouchot::listBouchotsGroup(oldGroupName);
 	(bouchots.size() == 0) ?
-				m_pini->removePiniTab(oldGroupName) :
-				m_pini->purgePiniTab(oldGroupName, name);
+	            m_pini->removePiniTab(oldGroupName) :
+	            m_pini->purgePiniTab(oldGroupName, name);
 
 	m_pini->addPiniTab(bouchot->settings().group());
 	bouchot->setNewPostsFromHistory();
@@ -368,7 +364,7 @@ void MainWindow::bouchotGroupChanged(QQBouchot *bouchot, QString oldGroupName)
 
 void MainWindow::doFullRepaint()
 {
-	foreach(QString group, QQBouchot::listGroups())
+	for(QString group : QQBouchot::listGroups())
 		m_pini->repaintPiniTab(group);
 }
 
@@ -379,7 +375,7 @@ void MainWindow::doNetworkSettingsChanged()
 
 void MainWindow::initBouchot(QQBouchot *bouchot)
 {
-	if(bouchot == NULL)
+	if(bouchot == nullptr)
 		return;
 
 	bouchot->setParent(this);
@@ -387,16 +383,17 @@ void MainWindow::initBouchot(QQBouchot *bouchot)
 	m_pini->addPiniTab(bouchot->settings().group());
 #ifdef QML_PALMI
 	QMetaObject::invokeMethod(m_palmi->rootObject(), "addBoard",
-							  Q_ARG(QVariant, bouchot->name()),
-							  Q_ARG(QVariant, bouchot->settings().color()),
-							  Q_ARG(QVariant, bouchot->settings().colorLight()) );
+	                          Q_ARG(QVariant, bouchot->name()),
+	                          Q_ARG(QVariant, bouchot->settings().color()),
+	                          Q_ARG(QVariant, bouchot->settings().colorLight()) );
 #else
 	if(! bouchot->isReadOnly())
 		m_palmi->addBouchot(bouchot->name(), bouchot->settings().colorLight());
 #endif
 
-	connect(bouchot, SIGNAL(destroyed(QQBouchot*)), this, SLOT(bouchotDestroyed(QQBouchot *)));
-	connect(bouchot, SIGNAL(groupChanged(QQBouchot*,QString)), this, SLOT(bouchotGroupChanged(QQBouchot*,QString)));
+	connect(bouchot, &QQBouchot::destroyed, this, &MainWindow::bouchotDestroyed);
+	connect(bouchot, &QQBouchot::groupChanged, this, &MainWindow::bouchotGroupChanged);
+	connect(bouchot, &QQBouchot::visibilitychanged, m_pini, &QQPinipede::bouchotVisibilityChanged);
 
 	m_boardsInfo->updateBoardList();
 }
@@ -418,11 +415,11 @@ void MainWindow::initBouchots()
 	QQSettings settings;
 
 	QStringList list = settings.listBouchots();
-	QQBouchot *bouchot = NULL;
+	QQBouchot *bouchot = nullptr;
 	for(int i = 0; i < list.size(); i++)
 	{
 		bouchot = settings.loadBouchot(list.at(i));
-		if(bouchot == NULL)
+		if(bouchot == nullptr)
 			continue;
 
 		initBouchot(bouchot);

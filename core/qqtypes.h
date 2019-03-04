@@ -12,6 +12,7 @@ namespace QuteQoin
 		bool hasError : 1;
 		bool hasNewPosts : 1;
 		bool hasResponse : 1;
+		bool isHidden : 1;
 	};
 }
 

@@ -96,6 +96,7 @@ QQBouchot::QQBouchot(const QString &name, QObject *parent) :
 	m_state.hasError = false;
 	m_state.hasNewPosts = false;
 	m_state.hasResponse = false;
+	m_state.isHidden = false;
 
 	QQBouchot::s_hashBouchots.insert(m_name, this);
 
@@ -333,6 +334,7 @@ void QQBouchot::resetStatus()
 	m_state.hasNewPosts = false;
 	m_state.hasBigorno = false;
 	m_state.hasResponse = false;
+	m_state.isHidden = false;
 	sendBouchotEvents();
 }
 
@@ -381,6 +383,17 @@ void QQBouchot::registerForEventNotification(QObject *receiver, QQBouchotEvents 
 		m_listEventReceivers.append(evRcv);
 	}
 }
+
+
+//////////////////////////////////////////////////////////////
+/// \brief QQBouchot::toggleVisibility
+///
+void QQBouchot::toggleVisibility()
+{
+	m_state.isHidden = !m_state.isHidden;
+	emit visibilitychanged(m_name);
+}
+
 
 //////////////////////////////////////////////////////////////
 /// \brief QQBouchot::event
