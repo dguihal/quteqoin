@@ -71,7 +71,6 @@ MainWindow::MainWindow(QWidget *parent) :
 	connect(m_totozManager, SIGNAL(totozClicked(QString)),
 	        m_palmi->rootObject(), SIGNAL(insertReplaceText(QString)));
 #else
-	m_palmi->insertReplaceText("toto");
 	connect(m_totozManager, &QQTotozManager::totozClicked, m_palmi, QOverload<const QString &>::of(&QQPalmipede::insertReplaceText));
 #endif
 
