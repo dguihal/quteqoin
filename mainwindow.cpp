@@ -180,17 +180,15 @@ MainWindow::MainWindow(QWidget *parent) :
 
 MainWindow::~MainWindow()
 {
-	QList<QQBouchot *> bouchots = QQBouchot::listBouchots();
-	foreach(QQBouchot *b, bouchots)
+	for(QQBouchot *b: QQBouchot::listBouchots())
 		disconnect(b, &QQBouchot::destroyed, nullptr, nullptr);
 	delete m_ui;
 }
 
 void MainWindow::displayOptions()
 {
-	QList<QQBouchot *> bouchots = QQBouchot::listBouchots();
-	for(int i = 0; i < bouchots.size(); i++)
-		bouchots.at(i)->stopRefresh();
+	for(QQBouchot *b: QQBouchot::listBouchots())
+		b->stopRefresh();
 
 	QQSettingsManager settingsManager(this);
 	connect(&settingsManager, &QQSettingsManager::bouchotCreated, this, &MainWindow::initBouchot);
@@ -200,9 +198,8 @@ void MainWindow::displayOptions()
 	connect(&settingsManager, &QQSettingsManager::totozSearchEnabledChanged, m_totozManager, &QQTotozManager::totozSearchEnabled);
 	settingsManager.exec();
 
-	bouchots = QQBouchot::listBouchots();
-	for(int i = 0; i < bouchots.size(); i++)
-		bouchots.at(i)->startRefresh();
+	for(QQBouchot *b: QQBouchot::listBouchots())
+		b->startRefresh();
 }
 
 void MainWindow::doPostMessage(const QString &bouchot, const QString &message)
@@ -223,7 +220,7 @@ void MainWindow::doPalmiStatusChanged(bool isPalmiMini, bool isPalmiDocked)
 	qDebug() << Q_FUNC_INFO << s;
 	if(s == QQuickWidget::Error)
 	{
-		foreach (QQmlError e, m_palmi->errors()) {
+		for(QQmlError e: m_palmi->errors()) {
 			qDebug() << Q_FUNC_INFO << e.description();
 		}
 	}
@@ -262,10 +259,7 @@ void MainWindow::doPalmiStatusChanged(bool isPalmiMini, bool isPalmiDocked)
 
 void MainWindow::doPalmiVisibilityChanged(bool isVisible)
 {
-	if(isVisible)
-		m_palmi->setFocus();
-	else
-		m_pini->setFocus();
+	isVisible ? m_palmi->setFocus() : m_pini->setFocus();
 }
 
 void MainWindow::changeEvent(QEvent *event)
@@ -341,8 +335,7 @@ void MainWindow::bouchotDestroyed(QQBouchot *bouchot)
 	m_palmi->removeBouchot(bouchot->name());
 #endif
 
-	QList<QQBouchot *> bouchots = QQBouchot::listBouchotsGroup(group);
-	(bouchots.size() == 0) ?
+	QQBouchot::listBouchotsGroup(group).size() == 0 ?
 	            m_pini->removePiniTab(group) :
 	            m_pini->purgePiniTab(group, name);
 
@@ -366,7 +359,7 @@ void MainWindow::bouchotGroupChanged(QQBouchot *bouchot, QString oldGroupName)
 
 void MainWindow::doFullRepaint()
 {
-	for(QString group : QQBouchot::listGroups())
+	for(QString group: QQBouchot::listGroups())
 		m_pini->repaintPiniTab(group);
 }
 
@@ -416,11 +409,9 @@ void MainWindow::initBouchots()
 {
 	QQSettings settings;
 
-	QStringList list = settings.listBouchots();
-	QQBouchot *bouchot = nullptr;
-	for(int i = 0; i < list.size(); i++)
+	for(QString name: settings.listBouchots())
 	{
-		bouchot = settings.loadBouchot(list.at(i));
+		QQBouchot *bouchot = bouchot = settings.loadBouchot(name);
 		if(bouchot == nullptr)
 			continue;
 
