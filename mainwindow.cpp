@@ -180,6 +180,9 @@ MainWindow::MainWindow(QWidget *parent) :
 
 MainWindow::~MainWindow()
 {
+	QList<QQBouchot *> bouchots = QQBouchot::listBouchots();
+	foreach(QQBouchot *b, bouchots)
+		disconnect(b, &QQBouchot::destroyed, nullptr, nullptr);
 	delete m_ui;
 }
 

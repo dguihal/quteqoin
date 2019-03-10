@@ -11,10 +11,10 @@
 #define PALMIPEDE_OBJECT_NAME "QQPalmipede"
 
 QQPalmipede::QQPalmipede(QWidget *parent) :
-	QWidget(parent),
-	m_ui(new Ui::QQPalmipede),
-	m_minimal(false),
-	m_wasVisible(true)
+    QWidget(parent),
+    m_ui(new Ui::QQPalmipede),
+    m_minimal(false),
+    m_wasVisible(true)
 
 {
 	setObjectName(PALMIPEDE_OBJECT_NAME);
@@ -22,29 +22,29 @@ QQPalmipede::QQPalmipede(QWidget *parent) :
 	m_ui->setupUi(this);
 
 	connect(m_ui->boldButton, SIGNAL(clicked()),
-			m_ui->palmiEditor, SLOT(bold()));
+	        m_ui->palmiEditor, SLOT(bold()));
 	connect(m_ui->italicButton, SIGNAL(clicked()),
-			m_ui->palmiEditor, SLOT(italic()));
+	        m_ui->palmiEditor, SLOT(italic()));
 	connect(m_ui->underlineButton, SIGNAL(clicked()),
-			m_ui->palmiEditor, SLOT(underline()));
+	        m_ui->palmiEditor, SLOT(underline()));
 	connect(m_ui->strikeButton, SIGNAL(clicked()),
-			m_ui->palmiEditor, SLOT(strike()));
+	        m_ui->palmiEditor, SLOT(strike()));
 	connect(m_ui->momentButton, SIGNAL(clicked()),
-			m_ui->palmiEditor, SLOT(moment()));
+	        m_ui->palmiEditor, SLOT(moment()));
 	connect(m_ui->blamPafComboBox, SIGNAL(activated(QString)),
-			this, SLOT(blamPafActivated(QString)));
+	        this, SLOT(blamPafActivated(QString)));
 	connect(m_ui->boardSelectorComboBox, SIGNAL(activated(int)),
-			this, SLOT(bouchotSelectorActivated(int)));
+	        this, SLOT(bouchotSelectorActivated(int)));
 	connect(m_ui->boardSelectorComboBoxMin, SIGNAL(activated(int)),
-			this, SLOT(bouchotSelectorActivated(int)));
+	        this, SLOT(bouchotSelectorActivated(int)));
 	connect(m_ui->postPushButton, SIGNAL(clicked()),
-			this, SLOT(postPushButtonClicked()));
+	        this, SLOT(postPushButtonClicked()));
 	connect(m_ui->palmiEditor, SIGNAL(returnPressed()),
-			m_ui->postPushButton, SLOT(animateClick()));
+	        m_ui->postPushButton, SLOT(animateClick()));
 	connect(m_ui->palmiEditor, SIGNAL(changeBoard(bool)),
-			this, SLOT(changeBoard(bool)));
+	        this, SLOT(changeBoard(bool)));
 	connect(m_ui->attachButton, SIGNAL(clicked()),
-			m_ui->palmiEditor, SLOT(attachFile()));
+	        m_ui->palmiEditor, SLOT(attachFile()));
 
 	setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
 
@@ -131,11 +131,11 @@ void QQPalmipede::changeNorloges(const QString & bouchot)
 	QString text = m_ui->palmiEditor->text();
 	QRegExp norlogeReg = QQNorlogeRef::norlogeRegexp();
 	QRegExp bouchotRemoverReg = QRegExp(QString::fromLatin1("@").append(bouchot),
-										Qt::CaseSensitive,
-										QRegExp::RegExp);
+	                                    Qt::CaseSensitive,
+	                                    QRegExp::RegExp);
 	QRegExp bouchotAdderReg = QRegExp(QString::fromLatin1("@[A-Za-z0-9_]+"),
-									  Qt::CaseSensitive,
-									  QRegExp::RegExp);
+	                                  Qt::CaseSensitive,
+	                                  QRegExp::RegExp);
 	QString destText;
 
 	int firstIndex;
