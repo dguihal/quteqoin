@@ -54,7 +54,7 @@ static QQBouchotDef bouchotsDef[] =
       "#ffe3c9", "", "", QQBouchot::SlipTagsRaw },
     { "gabuzomeu", "http://gabuzomeu.fr/tribune.xml", "http://gabuzomeu.fr/tribune/post", "message=%m",
       "#aaffbb", "", "", QQBouchot::SlipTagsRaw },
-    { "devnewton", "https://b3.bci.im/legacy/xml?last=%i", "https://b3.bci.im/legacy/post", "message=%m",
+    { "devnewton", "https://jb3.devnewton.fr/legacy/xml?last=%i", "https://jb3.devnewton.fr/legacy/post", "message=%m",
       "#666666", "", "", QQBouchot::SlipTagsEncoded },
     { "faab", "http://ratatouille.leguyader.eu/data/backend.xml", "http://ratatouille.leguyader.eu/add.php", "message=%m",
       "#C5D068", "ratatouille", "", QQBouchot::SlipTagsRaw },
