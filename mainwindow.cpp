@@ -411,7 +411,7 @@ void MainWindow::initBouchots()
 
 	for(QString name: settings.listBouchots())
 	{
-		QQBouchot *bouchot = bouchot = settings.loadBouchot(name);
+		QQBouchot *bouchot = settings.loadBouchot(name);
 		if(bouchot == nullptr)
 			continue;
 
