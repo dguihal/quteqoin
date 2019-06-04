@@ -527,14 +527,14 @@ void QQTextBrowser::clearViewers()
 
 void QQTextBrowser::contextMenuEvent(QContextMenuEvent * ev)
 {
-	QMenu *menu = createStandardContextMenu(ev->pos());
+	auto menu = createStandardContextMenu(ev->pos());
 
-	QTextCursor cursor = cursorForPosition(ev->pos());
-	QQMessageBlockUserData * uData = static_cast<QQMessageBlockUserData *>(cursor.block().userData());
+	auto cursor = cursorForPosition(ev->pos());
+	auto uData = static_cast<QQMessageBlockUserData *>(cursor.block().userData());
 	if(uData != nullptr)
 	{
-		QString boardName = uData->post()->bouchot()->name();
-		QAction *action = menu->addAction(QString(tr("&Hide %1")).arg(boardName));
+		auto boardName = uData->post()->bouchot()->name();
+		auto action = menu->addAction(QString(tr("&Hide %1")).arg(boardName));
 		connect(action, &QAction::triggered, this, &QQTextBrowser::onHideBoardAction);
 		m_contextMenuBoardName = boardName;
 	}
@@ -542,15 +542,17 @@ void QQTextBrowser::contextMenuEvent(QContextMenuEvent * ev)
 	cursor = textCursor();
 	if(cursor.hasSelection())
 	{
-		QAction *action = menu->addAction(tr("&Search on web"));
+		auto action = menu->addAction(tr("&Search on web"));
 		connect(action, &QAction::triggered, this, &QQTextBrowser::onWebSearchAction);
 	}
 
-	QString anchor = anchorAt(ev->pos());
+	auto anchor = anchorAt(ev->pos());
 	if(anchor.size() > 0)
 	{
 		QUrl anchorUrl(anchor);
 		QString anchorUrlScheme = anchorUrl.scheme();
+
+		auto copyLinkLocationAction = menu->actions().at(1);
 		if(anchorUrlScheme == "totoz") // Un [:totoz]
 		{
 			m_contextMenuContextualString = anchorUrl.path().remove(0, 1); // Le / initial
@@ -559,7 +561,7 @@ void QQTextBrowser::contextMenuEvent(QContextMenuEvent * ev)
 			connect(action, &QAction::triggered, this, &QQTextBrowser::onAddTotozToBookmarksAction);
 
 			//Suppression du Copy Link Location
-			menu->actions().at(1)->setEnabled(false);
+			copyLinkLocationAction->setVisible(false);
 		}
 		else if((anchorUrlScheme == "msl")    || // Une moule
 		         (anchorUrlScheme == "duck")   || // Un canard
@@ -567,7 +569,7 @@ void QQTextBrowser::contextMenuEvent(QContextMenuEvent * ev)
 		         (anchorUrlScheme == "nref"))     // Une norloge
 		{
 			//Suppression du Copy Link Location
-			menu->actions().at(1)->setVisible(false);
+			copyLinkLocationAction->setVisible(false);
 
 			if(anchorUrlScheme == "msl")
 			{
@@ -598,6 +600,8 @@ void QQTextBrowser::contextMenuEvent(QContextMenuEvent * ev)
 				}
 			}
 		}
+		else
+			copyLinkLocationAction->setEnabled(true);
 	}
 
 	menu->exec(QCursor::pos());
