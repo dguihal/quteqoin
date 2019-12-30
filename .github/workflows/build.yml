@@ -21,20 +21,33 @@ jobs:
     strategy:
       matrix:
         os: [windows-latest, ubuntu-latest]
+        qt: [default, "5.12.6"]
+        exclude:
+          - os: windows-latest
+            qt: default
     steps:
       - name: Get sources
         uses: actions/checkout@v1
 
-      - name: Install Qt (windows)
+      - name: Install Qt (windows - ${{ matrix.qt }})
         if: startsWith(matrix.os, 'windows')
         uses: jurplel/install-qt-action@v2
         with:
           target: desktop
           host: windows
           arch: win64_mingw73
+          version: ${{ matrix.qt }}
 
-      - name: Install Qt (linux)
-        if: startsWith(matrix.os, 'ubuntu')
+      - name: Install Qt (linux - ${{ matrix.qt }})
+        if: startsWith(matrix.os, 'ubuntu') && ! startsWith(matrix.qt, 'default') 
+        run: |
+          sudo add-apt-repository ppa:beineri/opt-qt-${{ matrix.qt }}-bionic
+          sudo apt update
+          sudo apt install qt5-default qt5-qmake qtbase5-dev qtmultimedia5-dev
+          source /opt/qt512/bin/qt512-env.sh
+
+      - name: Install Qt (linux - default)
+        if: startsWith(matrix.os, 'ubuntu') && startsWith(matrix.qt, 'default') 
         run: |
           sudo apt update
           sudo apt install qt5-default qt5-qmake qtbase5-dev qtmultimedia5-dev
