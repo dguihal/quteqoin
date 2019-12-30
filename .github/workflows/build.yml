@@ -32,7 +32,7 @@ jobs:
           target: desktop
           host: windows
           arch: win64_mingw73
-        if: runner.os == "Windows"
+        if: startsWith(matrix.os, 'windows')
 
       - name: Install Qt
         uses: jurplel/install-qt-action@v2
@@ -40,7 +40,7 @@ jobs:
           target: desktop
           host: linux
           arch: gcc64
-        if: runner. os == "Linux"
+        if: startsWith(matrix.os, 'linux')
 
       - name: Prepare build
         run: qmake
