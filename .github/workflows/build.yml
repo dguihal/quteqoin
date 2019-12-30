@@ -34,7 +34,7 @@ jobs:
         if: startsWith(matrix.os, 'windows')
 
       - name: Install Qt (linux)
-        run: sudo apt install qt-sdk
+        run: sudo apt install qt5-qmake qtbase5-dev qtmultimedia5-dev
         if: startsWith(matrix.os, 'ubuntu')
 
       - name: Prepare build
