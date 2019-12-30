@@ -1,0 +1,27 @@
+name: Build QuteQoin
+
+on: [push, pull_request]
+
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [windows-latest]
+    steps:
+      - name: Get sources
+        uses: actions/checkout@v1
+
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v2
+        with:
+          target: desktop
+          host: windows
+          arch: win64_mingw73
+
+      - name: Prepare build
+        run: qmake
+
+      - name: Build
+        run: make
