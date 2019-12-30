@@ -16,7 +16,7 @@ include($$PWD/gitversion.pri)
 
 # A Tester
 linux-g++ {
-    QMAKE_CXXFLAGS_DEBUG += -fsanitize=address -Og -O0
+    QMAKE_CXXFLAGS_DEBUG += -fsanitize=address -Og
     debug {
         LIBS += -lasan
     }

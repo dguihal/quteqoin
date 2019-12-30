@@ -4,11 +4,24 @@ on: [push, pull_request]
 
 
 jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get sources
+        uses: actions/checkout@v1
+
+      - name: Install tools
+        run: apt install cppcheck
+
+      - name: Run check
+        run: cppcheck .
+
+
   build:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [windows-latest]
+        os: [windows-latest, ubuntu-latest]
     steps:
       - name: Get sources
         uses: actions/checkout@v1
@@ -19,6 +32,15 @@ jobs:
           target: desktop
           host: windows
           arch: win64_mingw73
+        if: os == Windows
+
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v2
+        with:
+          target: desktop
+          host: linux
+          arch: gcc64
+        if: os == Linux
 
       - name: Prepare build
         run: qmake

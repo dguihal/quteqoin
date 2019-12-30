@@ -1,6 +1,8 @@
 #ifndef QQBACKEND_H
 #define QQBACKEND_H
 
+#include <QFlags>
+
 #include "core/qqnetworkaccessor.h"
 
 class QQBackendParser;
