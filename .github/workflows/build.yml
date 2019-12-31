@@ -56,9 +56,12 @@ jobs:
         run: |
           if [[ "$OSTYPE" == "linux-gnu" ]]; then
             if [[ ${{ matrix.qt }} != "default" ]]; then
-              export QTDIR=./${{ matrix.qt }}/gcc_64
-              export PATH=./${QTDIR}/bin:$PATH
-              export QMAKESPEC=./${QTDIR}/mkspecs/
+              echo $PWD
+              ls
+              ls ${{ matrix.qt }}
+              export QTDIR=${PWD}/${{ matrix.qt }}/gcc_64
+              export PATH=${QTDIR}/bin:$PATH
+              export QMAKESPEC=${QTDIR}/mkspecs/
             fi
           fi
           qmake
