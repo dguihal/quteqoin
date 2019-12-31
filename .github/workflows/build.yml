@@ -41,12 +41,10 @@ jobs:
       - name: Install Qt (linux - ${{ matrix.qt }})
         if: startsWith(matrix.os, 'ubuntu') && ! startsWith(matrix.qt, 'default') 
         run: |
-          sudo add-apt-repository -y ppa:beineri/opt-qt-${{ matrix.qt }}-bionic
-          sudo apt update
-          sudo apt install qt512base qt512multimedia
-          set -x
-          source /opt/qt512/bin/qt512-env.sh
-          set +x
+          sudo apt install python3-requests p7zip-full wget
+          wget https://git.kaidan.im/lnj/qli-installer/raw/master/qli-installer.py
+          chmod +x qli-installer.py
+          ./qli-installer.py ${{ matrix.qt }} linux desktop
 
       - name: Install Qt (linux - default)
         if: startsWith(matrix.os, 'ubuntu') && startsWith(matrix.qt, 'default') 
