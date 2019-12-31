@@ -54,7 +54,7 @@ jobs:
 
       - name: Prepare build
         run: |
-          export PATH=./${{ matrix.qt }}/gcc_64/:$PATH
+          export PATH=./${{ matrix.qt }}/gcc_64/bin:$PATH
           qmake
 
       - name: Build
