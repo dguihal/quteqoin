@@ -54,7 +54,12 @@ jobs:
 
       - name: Prepare build
         run: |
-          export PATH=./${{ matrix.qt }}/gcc_64/bin:$PATH
+          if [[ "$OSTYPE" == "linux-gnu" ]]; then
+            if [[ ${{ matrix.qt }} != "default" ]]; then
+              export QT_INSTALL_PREFIX=./${{ matrix.qt }}/gcc_64
+              export PATH=./${QT_INSTALL_PREFIX}/bin:$PATH
+            fi
+          fi
           qmake
 
       - name: Build
