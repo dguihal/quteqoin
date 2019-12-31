@@ -56,8 +56,9 @@ jobs:
         run: |
           if [[ "$OSTYPE" == "linux-gnu" ]]; then
             if [[ ${{ matrix.qt }} != "default" ]]; then
-              export QT_INSTALL_PREFIX=./${{ matrix.qt }}/gcc_64
-              export PATH=./${QT_INSTALL_PREFIX}/bin:$PATH
+              export QTDIR=./${{ matrix.qt }}/gcc_64
+              export PATH=./${QTDIR}/bin:$PATH
+              export QMAKESPEC=./${QTDIR}/mkspecs/
             fi
           fi
           qmake
