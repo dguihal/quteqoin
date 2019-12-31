@@ -53,7 +53,9 @@ jobs:
           sudo apt install qt5-default qt5-qmake qtbase5-dev qtmultimedia5-dev
 
       - name: Prepare build
-        run: qmake
+        run: |
+          export PATH=./${{ matrix.qt }}/gcc_64/:$PATH
+          qmake
 
       - name: Build
         run: make
