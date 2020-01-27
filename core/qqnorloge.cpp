@@ -96,7 +96,6 @@ QString QQNorloge::toStringPalmi()
 		        .append(QString::fromUtf8("/"))
 		        .append(m_dateDayPart)
 		        .append(QString::fromUtf8("#"));
-		startPrint = true;
 		hasDate = true;
 	}
 	//On a TOUJOURS l'heure et les minutes
