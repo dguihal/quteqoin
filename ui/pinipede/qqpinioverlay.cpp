@@ -90,7 +90,7 @@ class VideoPlayer : public OverlayPlayer
 public:
 	explicit VideoPlayer(QGraphicsVideoItem *item, QMediaPlayer *player, QMediaPlaylist *mediaList) :
 	    m_gObj(item), m_player(player), m_media(mediaList) {}
- 
+
 	virtual ~VideoPlayer()
 	{
 		if(m_player != nullptr)
@@ -452,12 +452,12 @@ void QQPiniOverlay::showVideo(const QUrl &url)
 	QQSettings settings;
 	auto maxSize = settings.value(SETTINGS_WEB_IMAGE_PREVIEW_SIZE, DEFAULT_WEB_IMAGE_PREVIEW_SIZE).toInt();
 	QSize s(maxSize, maxSize);
-  
+
 	auto i = new QGraphicsVideoItem();
 	i->setAspectRatioMode(Qt::KeepAspectRatio);
 	i->setSize(s);
 	scene()->addItem(i);
-  
+
 	auto player = new QMediaPlayer(this, QMediaPlayer::VideoSurface);
 	player->setAudioRole(QAudio::VideoRole);
 	qInfo() << "Supported audio roles:";
