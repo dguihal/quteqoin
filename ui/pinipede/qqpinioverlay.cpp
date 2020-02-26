@@ -25,6 +25,7 @@ public:
 	virtual ~OverlayPlayer() = default;
 	enum PlayerType { GenericOverlayPlayer, TypeVideoPlayer, TypeTotozPlayer, TypeImagePlayer };
 
+	virtual PlayerType playerType() { return GenericOverlayPlayer; }
 	virtual void show() {}
 	virtual void hide() {}
 };
@@ -135,8 +136,7 @@ QQPiniOverlay::QQPiniOverlay(QWidget *parent) :
 
 	auto scene = new QGraphicsScene();
 	scene->setSceneRect(rect());
-	setScene(scene); */
-	setScene(new QGraphicsScene());
+	setScene(scene);
 
 	if(parent != nullptr)
 		resize(parent->size());
@@ -456,7 +456,6 @@ void QQPiniOverlay::showVideo(const QUrl &url)
 	auto i = new QGraphicsVideoItem();
 	i->setAspectRatioMode(Qt::KeepAspectRatio);
 	i->setSize(s);
-	player->setVideoOutput(i);
 	scene()->addItem(i);
   
 	auto player = new QMediaPlayer(this, QMediaPlayer::VideoSurface);
