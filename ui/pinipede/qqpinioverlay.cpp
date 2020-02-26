@@ -1,14 +1,8 @@
 #include "qqpinioverlay.h"
 
-#if(QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
 #include <QGraphicsVideoItem>
 #include <QMediaPlaylist>
 #include <QMediaPlayer>
-#else
-#include <phonon/AudioOutput>
-#include <phonon/VideoPlayer>
-#include <phonon/MediaObject>
-#endif
 
 #include "core/qqsettings.h"
 #include "core/qqwebdownloader.h"
@@ -55,7 +49,6 @@ public:
 	PlayerType playerType() override { return TypeImagePlayer; }
 	void show() override { m_gpw->show(); }
 	void hide() override { m_gpw->hide(); }
-
 private:
 	QGraphicsProxyWidget *m_gpw;
 	QQImageViewer *m_imgV;
@@ -144,6 +137,9 @@ QQPiniOverlay::QQPiniOverlay(QWidget *parent) :
 	auto scene = new QGraphicsScene();
 	scene->setSceneRect(rect());
 	setScene(scene);
+
+	if(parent != nullptr)
+		resize(parent->size());
 
 	connect(m_downloader, SIGNAL(ready(QUrl &)), this, SLOT(dlReady(QUrl &)));
 }
@@ -384,7 +380,10 @@ void QQPiniOverlay::showUrl(const QUrl &url, QString &contentType)
 #endif
 	{
 		m_pendingURLs.push(url);
-		m_downloader->getURL(url);
+		if(contentType.startsWith("video/"))
+			showVideo(url);
+		else
+			m_downloader->getURL(url);
 	}
 }
 

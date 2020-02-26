@@ -16,10 +16,10 @@
 /// \param parent
 ///
 QQPalmiLineEdit::QQPalmiLineEdit(QWidget *parent) :
-	QFrame(parent),
-	m_currBoardcolor(Qt::transparent),
-	m_pctUp(100),
-	m_fPoster(this)
+    QFrame(parent),
+    m_currBoardcolor(Qt::transparent),
+    m_pctUp(100),
+    m_fPoster(this)
 {
 	setFrameShape(QFrame::NoFrame);
 	m_privLineEdit = new QQPalmiLineEditInt(this);
@@ -124,7 +124,7 @@ void QQPalmiLineEdit::paintEvent(QPaintEvent *event)
 	QPainter rectPainter(this);
 
 	// Background
-	QBrush bg(palette().background());
+	QBrush bg(palette().window());
 	rectPainter.setBrush(bg);
 	rectPainter.setPen(Qt::NoPen);
 	rectPainter.setOpacity(1);
@@ -134,23 +134,23 @@ void QQPalmiLineEdit::paintEvent(QPaintEvent *event)
 	QRect rf = rect;
 #if(QT_VERSION >= QT_VERSION_CHECK(5, 2, 0))
 	int clearBtnWidth = 0;
-	if(palette().background().color().lightness() < 64 && ! m_privLineEdit->text().isEmpty())
+	if(palette().window().color().lightness() < 64 && ! m_privLineEdit->text().isEmpty())
 	{
 		QStyle *s = style();
 		clearBtnWidth = s->pixelMetric(QStyle::PM_ButtonIconSize) +
-							s->pixelMetric(QStyle::PM_LayoutLeftMargin) +
-							s->pixelMetric(QStyle::PM_LayoutRightMargin);
+		                    s->pixelMetric(QStyle::PM_LayoutLeftMargin) +
+		                    s->pixelMetric(QStyle::PM_LayoutRightMargin);
 
 		rf.setWidth(rf.width() - (clearBtnWidth - 2));
 	}
 #endif
-	rf.setWidth((rf.width() * m_pctUp) / 100);
+	rf.setWidth((static_cast<unsigned int>(rf.width()) * m_pctUp) / 100);
 
 	QLinearGradient gradient(0, 0, 0, rect.height());
 	gradient.setColorAt(0.0, m_currBoardcolor);
 	gradient.setColorAt(0.1, m_currBoardcolor);
 	gradient.setColorAt(0.3, m_currBoardcolor.lighter(105));
-	gradient.setColorAt(0.7, m_currBoardcolor.light(105));
+	gradient.setColorAt(0.7, m_currBoardcolor.lighter(105));
 	gradient.setColorAt(0.9, m_currBoardcolor);
 	gradient.setColorAt(1.0, m_currBoardcolor);
 
@@ -190,7 +190,7 @@ void QQPalmiLineEdit::attachFile(QString fileName)
 {
 	if(fileName.isEmpty())
 		fileName = QFileDialog::getOpenFileName(this, tr("Open File"),
-												"", tr("Files (*.*)"));
+		                                        "", tr("Files (*.*)"));
 	if(QFile::exists(fileName))
 		m_fPoster.postFile(fileName);
 }

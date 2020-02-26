@@ -37,7 +37,11 @@ bool QQTotoz::cacheExists()
 
 	//Invalidation systematique au bout de 60j
 	QFileInfo info(file);
+#if(QT_VERSION >= QT_VERSION_CHECK(5, 10, 0))
+	QDateTime dateFile = info.birthTime();
+#else
 	QDateTime dateFile = info.created();
+#endif
 	if(dateFile.daysTo(QDateTime::currentDateTime()) > MAX_CACHE_AGE_DAYS)
 	{
 		file.remove();

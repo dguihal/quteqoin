@@ -16,7 +16,7 @@ public:
 #include <QStack>
 #include <QUrl>
 
-class OverlayPlayer;
+class OverlayPlayer; // Internal
 
 class QQDuckPixmapItem;
 class QQImageViewer;
@@ -33,7 +33,7 @@ class QQPiniOverlay : public QGraphicsView
 {
 	Q_OBJECT
 public:
-	explicit QQPiniOverlay(QWidget *parent = 0);
+	explicit QQPiniOverlay(QWidget *parent = nullptr);
 	~QQPiniOverlay();
 
 signals:

@@ -36,11 +36,11 @@ public:
 	static QRegExp norlogeRegexp(const QString & bouchot)
 	{
 		return QRegExp(QString::fromLatin1("(((?:[0-9]+[/-])?(?:1[0-2]|0[1-9])[/-](?:3[0-1]|[1-2][0-9]|0[1-9])[#T])?" //date
-										 "((?:2[0-3]|[0-1][0-9]):(?:[0-5][0-9])(?::[0-5][0-9])?" //time
-										 "(?:[¹²³]|[:\\^][1-9]|[:\\^][1-9][0-9])?))" //subtime
-										 "(@") + bouchot + QString::fromLatin1(")?"), //tribune
-					   Qt::CaseSensitive,
-					   QRegExp::RegExp);
+		                                 "((?:2[0-3]|[0-1][0-9]):(?:[0-5][0-9])(?::[0-5][0-9])?" //time
+		                                 "(?:[¹²³]|[:\\^][1-9]|[:\\^][1-9][0-9])?))" //subtime
+		                                 "(@") + bouchot + QString::fromLatin1(")?"), //tribune
+		               Qt::CaseSensitive,
+		               QRegExp::RegExp);
 	}
 
 	QString getOrigNRef() const { return m_origNRef; }
@@ -52,6 +52,21 @@ public:
 	bool isReponse();
 
 	bool isValid() const { return m_valid; }
+
+	QQNorlogeRef& operator=(const QQNorlogeRef& other)
+	{
+		m_dstBouchot = other.m_dstBouchot;
+		m_origNRef = other.m_origNRef;
+		m_posInMessage = other.m_posInMessage;
+		m_listPostTarget = other.m_listPostTarget;
+		m_valid = other.m_valid;
+		m_hasDate = other.m_hasDate;
+		m_hasSec = other.m_hasSec;
+		m_isReponseDefined = other.m_isReponseDefined;
+		m_refId = other.m_refId;
+
+		return *this;
+	}
 
 	QString nRefId();
 
