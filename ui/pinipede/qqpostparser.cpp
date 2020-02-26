@@ -129,9 +129,9 @@ void QQPostParser::applyMessageFragmentTransformFilters(QList<QTextDocumentFragm
 		tmp.clear();
 		QTextCursor c(&tmp);
 		c.insertFragment(listMsgFragments[i]);
-		bool moveSuccess = c.movePosition(QTextCursor::Start, QTextCursor::MoveAnchor);
+		c.movePosition(QTextCursor::Start, QTextCursor::MoveAnchor);
 
-		moveSuccess = c.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor, 5);
+		auto moveSuccess = c.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor, 5);
 		QString st = c.selectedText();
 		// If it starts with "....-" pattern, it is a ISO norloge. Let's reformat it
 		if(moveSuccess && c.charFormat().anchorHref().startsWith("nref://") &&
@@ -146,7 +146,7 @@ void QQPostParser::applyMessageFragmentTransformFilters(QList<QTextDocumentFragm
 
 			// Process next "..-..T" characters
 			c.setPosition(c.anchor());
-			moveSuccess = c.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor, 6);
+			c.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor, 6);
 			st = c.selectedText();
 			if(st.left(2) == QString("%1").arg(postDate.month(), 2, 10, QChar('0')) &&
 				st.mid(3, 2) == QString("%1").arg(postDate.day(), 2, 10, QChar('0')))

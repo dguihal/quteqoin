@@ -298,6 +298,7 @@ void QQPiniUrlHelper::handleDailymotionExtendedInfo(const QByteArray &jsonInfo, 
 	}
 #endif
 
+	auto cached = false;
 	if(! thumbnailUrl.isEmpty())
 	{
 		if(! title.isEmpty())
@@ -305,11 +306,14 @@ void QQPiniUrlHelper::handleDailymotionExtendedInfo(const QByteArray &jsonInfo, 
 			info->videoThumbnailUrl = thumbnailUrl;
 			info->videoTitle = title;
 			addToCache(sourceUrl, info);
+			cached = true;
 		}
 		QUrl tUrl(thumbnailUrl);
 		QString cT = "image/";
 		emit mmDataAvailable(tUrl, cT);
 	}
+	if(!cached)
+		delete info;
 
 	if(! title.isEmpty())
 		emit videoTitleAvailable(sourceUrl, title);
@@ -413,6 +417,7 @@ void QQPiniUrlHelper::handleVimeoExtendedInfo(const QByteArray &jsonInfo, QUrl &
 	if(d.isEmpty())
 	{
 		qDebug() << Q_FUNC_INFO << "error" << error.errorString();
+		delete info;
 		return;
 	}
 	QJsonArray a = d.array();
@@ -432,10 +437,8 @@ void QQPiniUrlHelper::handleVimeoExtendedInfo(const QByteArray &jsonInfo, QUrl &
 		thumbnailUrl = r.capturedTexts().at(1);
 
 #endif
-	info->videoThumbnailUrl = thumbnailUrl;
-	info->videoTitle = title;
-	addToCache(sourceUrl, info);
 
+	auto cached = false;
 	if(! thumbnailUrl.isEmpty())
 	{
 		if(! title.isEmpty())
@@ -443,12 +446,15 @@ void QQPiniUrlHelper::handleVimeoExtendedInfo(const QByteArray &jsonInfo, QUrl &
 			info->videoThumbnailUrl = thumbnailUrl;
 			info->videoTitle = title;
 			addToCache(sourceUrl, info);
+			cached = true;
 		}
 
 		QUrl tUrl(thumbnailUrl);
 		QString cT = "image/";
 		emit mmDataAvailable(tUrl, cT);
 	}
+	if(!cached)
+		delete info;
 
 	if(! title.isEmpty())
 		emit videoTitleAvailable(sourceUrl, title);
@@ -571,6 +577,7 @@ void QQPiniUrlHelper::handleYoutubeExtendedInfo(const QByteArray &jsonInfo, QUrl
 	if(d.isEmpty())
 	{
 		qDebug() << Q_FUNC_INFO << "error" << error.errorString();
+		delete info;
 		return;
 	}
 	QJsonObject o = d.object();

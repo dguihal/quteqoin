@@ -289,11 +289,11 @@ void QQPinipede::purgePinitab(const QString &groupName, const QString &bouchotNa
 			if(!moveOK)
 			{
 				//on se positionne a la fin du block precedent
-				moveOK = cursor.movePosition(QTextCursor::PreviousBlock, QTextCursor::MoveAnchor);
-				moveOK = cursor.movePosition(QTextCursor::EndOfBlock, QTextCursor::MoveAnchor);
+				cursor.movePosition(QTextCursor::PreviousBlock, QTextCursor::MoveAnchor);
+				cursor.movePosition(QTextCursor::EndOfBlock, QTextCursor::MoveAnchor);
 				//et on selectionne le block
-				moveOK = cursor.movePosition(QTextCursor::NextBlock, QTextCursor::KeepAnchor);
-				moveOK = cursor.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
+				cursor.movePosition(QTextCursor::NextBlock, QTextCursor::KeepAnchor);
+				cursor.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
 			}
 			cursor.removeSelectedText();
 
