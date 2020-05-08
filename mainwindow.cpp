@@ -29,7 +29,7 @@
 #include <QQuickItem>
 #endif
 
-#define MAINWINDOW_STATE_CACHE_FILE "QuteQoin_Window_State"
+constexpr char MAINWINDOW_STATE_CACHE_FILE[] = "QuteQoin_Window_State";
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -87,7 +87,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	actionBoardInfo->setShortcut(Qt::ControlModifier + Qt::Key_I);
 
 	// Setup du bouton d'options
-	QQCmdToolButtons *cmdToolsBtn = new QQCmdToolButtons(this);
+	auto *cmdToolsBtn = new QQCmdToolButtons(this);
 	cmdToolsBtn->addAction(actionBoardInfo);
 	cmdToolsBtn->addAction(m_actionDockPalmi);
 	cmdToolsBtn->addAction(actionTotozManager);
@@ -95,8 +95,8 @@ MainWindow::MainWindow(QWidget *parent) :
 	connect(cmdToolsBtn, &QQCmdToolButtons::showOptions, this, &MainWindow::displayOptions);
 
 	// Setup du pini
-	QWidget *centralWidget = new QWidget(this);
-	QLayout *layout = new QVBoxLayout();
+	auto *centralWidget = new QWidget(this);
+	auto *layout = new QVBoxLayout();
 	layout->setContentsMargins(1, 1, 1, 1);
 	layout->setSpacing(1);
 
@@ -120,7 +120,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	setCentralWidget(centralWidget);
 
 	// Action complementaire
-	QAction *actionSearch = new QAction(tr("Search pini"), this);
+	auto *actionSearch = new QAction(tr("Search pini"), this);
 	actionSearch->setShortcut(Qt::ControlModifier + Qt::Key_F);
 	actionSearch->setCheckable(true);
 	connect(actionSearch, &QAction::triggered, m_pSearchW, &QQPiniSearchWidget::setVisible);
@@ -161,7 +161,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	if(settings.value(SETTINGS_GENERAL_STEALTH_MODE, DEFAULT_GENERAL_STEALTH_MODE).toBool() &&
 	        QSystemTrayIcon::isSystemTrayAvailable())
 	{
-		QMenu *m = new QMenu(this);
+		auto *m = new QMenu(this);
 		QAction *quit = m->addAction(tr("&Quit"));
 		connect(quit, &QAction::triggered, qApp, &QApplication::quit);
 
@@ -267,7 +267,7 @@ void MainWindow::changeEvent(QEvent *event)
 	if((event->type() == QEvent::WindowStateChange) &&
 	        (m_trayIcon != nullptr))
 	{
-		if (isMinimized() == true)
+		if (isMinimized())
 			hide();
 	}
 
@@ -302,10 +302,8 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
 	{
 	case Qt::Key_F5:
 	{
-		QList<QQBouchot *> bouchots = QQBouchot::listBouchots();
-		for(int i = 0; i < bouchots.size(); i++)
+		for(auto bouchot : QQBouchot::listBouchots())
 		{
-			QQBouchot *bouchot = bouchots.at(i);
 			bouchot->stopRefresh();
 			bouchot->startRefresh();
 		}
@@ -335,7 +333,7 @@ void MainWindow::bouchotDestroyed(QQBouchot *bouchot)
 	m_palmi->removeBouchot(bouchot->name());
 #endif
 
-	QQBouchot::listBouchotsGroup(group).size() == 0 ?
+	QQBouchot::listBouchotsGroup(group).isEmpty() ?
 	            m_pini->removePiniTab(group) :
 	            m_pini->purgePiniTab(group, name);
 
@@ -343,13 +341,12 @@ void MainWindow::bouchotDestroyed(QQBouchot *bouchot)
 
 }
 
-void MainWindow::bouchotGroupChanged(QQBouchot *bouchot, QString oldGroupName)
+void MainWindow::bouchotGroupChanged(QQBouchot *bouchot, const QString &oldGroupName)
 {
 	QString name = bouchot->name();
-	QString group = bouchot->settings().group();
 
 	QList<QQBouchot *> bouchots = QQBouchot::listBouchotsGroup(oldGroupName);
-	(bouchots.size() == 0) ?
+	(bouchots.isEmpty()) ?
 	            m_pini->removePiniTab(oldGroupName) :
 	            m_pini->purgePiniTab(oldGroupName, name);
 
@@ -359,7 +356,7 @@ void MainWindow::bouchotGroupChanged(QQBouchot *bouchot, QString oldGroupName)
 
 void MainWindow::doFullRepaint()
 {
-	for(QString group: QQBouchot::listGroups())
+	for(const QString &group: QQBouchot::listGroups())
 		m_pini->repaintPiniTab(group);
 }
 
@@ -409,7 +406,7 @@ void MainWindow::initBouchots()
 {
 	QQSettings settings;
 
-	for(QString name: settings.listBouchots())
+	for(const QString &name: settings.listBouchots())
 	{
 		QQBouchot *bouchot = settings.loadBouchot(name);
 		if(bouchot == nullptr)
