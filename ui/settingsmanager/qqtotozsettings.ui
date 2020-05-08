@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
-    <height>300</height>
+    <width>427</width>
+    <height>403</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -56,8 +56,15 @@
       <property name="bottomMargin">
        <number>0</number>
       </property>
-      <item row="2" column="1">
-       <widget class="QLineEdit" name="srvTotozBaseImgLineEdit"/>
+      <item row="1" column="0">
+       <widget class="QLabel" name="labelSrvTotoz">
+        <property name="text">
+         <string>Totoz server :</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QLineEdit" name="srvTotozLineEdit"/>
       </item>
       <item row="2" column="0">
        <widget class="QLabel" name="label">
@@ -66,29 +73,8 @@
         </property>
        </widget>
       </item>
-      <item row="4" column="1">
-       <widget class="QCheckBox" name="srvAllowSearch">
-        <property name="text">
-         <string/>
-        </property>
-       </widget>
-      </item>
-      <item row="4" column="0">
-       <widget class="QLabel" name="labelSrvAllowSearch">
-        <property name="text">
-         <string>Server allow search :</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="1">
-       <widget class="QLineEdit" name="srvTotozLineEdit"/>
-      </item>
-      <item row="1" column="0">
-       <widget class="QLabel" name="labelSrvTotoz">
-        <property name="text">
-         <string>Totoz server :</string>
-        </property>
-       </widget>
+      <item row="2" column="1">
+       <widget class="QLineEdit" name="srvTotozBaseImgLineEdit"/>
       </item>
       <item row="3" column="0">
        <widget class="QLabel" name="labelSrvNameSuffix">
@@ -100,6 +86,20 @@
       <item row="3" column="1">
        <widget class="QLineEdit" name="srvNameSuffixlineEdit"/>
       </item>
+      <item row="4" column="0">
+       <widget class="QLabel" name="labelSrvAllowSearch">
+        <property name="text">
+         <string>Server allow search :</string>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="1">
+       <widget class="QCheckBox" name="srvAllowSearch">
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
+      </item>
       <item row="5" column="0">
        <widget class="QLabel" name="labelSrvQueryPattern">
         <property name="text">
@@ -110,52 +110,22 @@
       <item row="5" column="1">
        <widget class="QLineEdit" name="srvTotozQueryPatternLineEdit"/>
       </item>
-     </layout>
-    </widget>
-   </item>
-   <item>
-    <widget class="Line" name="line">
-     <property name="lineWidth">
-      <number>4</number>
-     </property>
-     <property name="midLineWidth">
-      <number>0</number>
-     </property>
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="QWidget" name="widget_2" native="true">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <layout class="QFormLayout" name="formLayout_3">
-      <property name="leftMargin">
-       <number>0</number>
-      </property>
-      <property name="topMargin">
-       <number>0</number>
-      </property>
-      <property name="rightMargin">
-       <number>0</number>
-      </property>
-      <property name="bottomMargin">
-       <number>0</number>
-      </property>
-      <item row="0" column="0">
-       <widget class="QLabel" name="presetLbl">
+      <item row="7" column="0">
+       <widget class="QLabel" name="label_2">
         <property name="text">
-         <string>Use preset :</string>
+         <string>Use Preset :</string>
         </property>
        </widget>
       </item>
-      <item row="0" column="1">
+      <item row="7" column="1">
        <widget class="QComboBox" name="presetCB"/>
+      </item>
+      <item row="6" column="0" colspan="2">
+       <widget class="Line" name="line">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+       </widget>
       </item>
      </layout>
     </widget>
@@ -174,49 +144,43 @@
     </spacer>
    </item>
    <item>
-    <widget class="QGroupBox" name="groupBox_2">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
+    <widget class="QGroupBox" name="groupBox">
      <property name="title">
-      <string>Display mode</string>
+      <string>Display mode :</string>
      </property>
-     <layout class="QFormLayout" name="formLayout_2">
-      <property name="horizontalSpacing">
-       <number>6</number>
-      </property>
-      <property name="verticalSpacing">
-       <number>6</number>
-      </property>
+     <layout class="QHBoxLayout" name="horizontalLayout_2">
       <property name="leftMargin">
-       <number>0</number>
+       <number>3</number>
       </property>
       <property name="topMargin">
-       <number>0</number>
+       <number>3</number>
       </property>
       <property name="rightMargin">
-       <number>0</number>
+       <number>3</number>
       </property>
       <property name="bottomMargin">
-       <number>0</number>
+       <number>3</number>
       </property>
-      <item row="0" column="1">
-       <widget class="QComboBox" name="totozModeComboBox">
+      <item>
+       <widget class="QLabel" name="labelModeTotoz">
         <property name="sizePolicy">
-         <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+         <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
         </property>
-       </widget>
-      </item>
-      <item row="0" column="0">
-       <widget class="QLabel" name="labelModeTotoz">
         <property name="text">
          <string>Totoz visual mode :</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QComboBox" name="totozModeComboBox">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
         </property>
        </widget>
       </item>
