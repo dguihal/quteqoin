@@ -3,6 +3,7 @@
 #include <QtDebug>
 #include <QDateTime>
 #include <QStringList>
+#include <utility>
 
 #include "qqsettings.h"
 
@@ -13,8 +14,8 @@ QQNorloge::QQNorloge() :
 }
 
 //m_date = QDateTime::fromString(dateh.left(14), QString::fromUtf8("yyyyMMddHHmmss(^i)?"));
-QQNorloge::QQNorloge(QString bouchot, QString dateh) :
-    m_srcBouchot(bouchot),
+QQNorloge::QQNorloge(QString bouchot, const QString& dateh) :
+    m_srcBouchot(std::move(bouchot)),
     m_dateYearPart(dateh.left(4)),
     m_dateMonthPart(dateh.mid(4, 2)),
     m_dateDayPart(dateh.mid(6, 2)),
@@ -40,9 +41,10 @@ QQNorloge::QQNorloge(const QQNorloge& norloge) :
     m_norlogeIndex(norloge.m_norlogeIndex),
     m_uniqueMinute(norloge.m_uniqueMinute)
 {
+
 }
 
-QStringList QQNorloge::matchingNRefsId() const
+auto QQNorloge::matchingNRefsId() const -> QStringList
 {
 	QStringList rep;
 	QString baseHmStr = QString(m_dateHourPart).append("h").append(m_dateMinutePart).append("m");
@@ -76,7 +78,7 @@ QStringList QQNorloge::matchingNRefsId() const
 	return rep;
 }
 
-QString QQNorloge::toStringPalmi()
+auto QQNorloge::toStringPalmi() -> QString
 {
 	QDateTime currDateT = QDateTime::currentDateTime();
 	QString rep;
@@ -105,27 +107,27 @@ QString QQNorloge::toStringPalmi()
 
 	//Mais pas toujours les secondes
 	QQSettings settings;
-	if (m_uniqueMinute == false || hasDate ||
-	    settings.value(SETTINGS_PALMI_SHORT_NORLOGE_ENABLED, DEFAULT_PALMI_SHORT_NORLOGE_ENABLED).toBool() == false)
+	if (!m_uniqueMinute || hasDate ||
+	    !settings.value(SETTINGS_PALMI_SHORT_NORLOGE_ENABLED, DEFAULT_PALMI_SHORT_NORLOGE_ENABLED).toBool())
 	{
 		rep.append(QString::fromUtf8(":"))
 		        .append(m_dateSecondPart);
 	}
 	switch (m_norlogeIndex)
 	{
-		case 0:
-			break;
-		case 1:
-			rep.append(QString::fromUtf8("¹"));
-			break;
-		case 2:
-			rep.append(QString::fromUtf8("²"));
-			break;
-		case 3:
-			rep.append(QString::fromUtf8("³"));
-			break;
-		default:
-			rep.append(QString("^%1").arg(m_norlogeIndex));
+	    case 0:
+		    break;
+	    case 1:
+		    rep.append(QString::fromUtf8("¹"));
+		    break;
+	    case 2:
+		    rep.append(QString::fromUtf8("²"));
+		    break;
+	    case 3:
+		    rep.append(QString::fromUtf8("³"));
+		    break;
+	    default:
+		    rep.append(QString("^%1").arg(m_norlogeIndex));
 	}
 
 	rep.append(QString::fromUtf8("@")).append(m_srcBouchot);

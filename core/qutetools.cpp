@@ -3,8 +3,7 @@
 #include <QWidget>
 
 QuteTools::QuteTools()
-{
-}
+= default;
 
 //////////////////////////////////////////////////////////////
 /// \brief checkFocusRecurse
@@ -20,7 +19,7 @@ bool QuteTools::checkFocusRecurse(QWidget *parent)
 		{
 			if(child->isWidgetType())
 			{
-				focus = QuteTools::checkFocusRecurse(static_cast<QWidget *>(child));
+				focus = QuteTools::checkFocusRecurse(dynamic_cast<QWidget *>(child));
 				if(focus)
 					break;
 			}

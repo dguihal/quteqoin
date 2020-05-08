@@ -98,15 +98,15 @@ private:
 	enum IsSelfPost { False = 0, True = 1, Unknown = 2 };
 
 	QString m_norloge;
-	bool m_isNorlogeMultiple;
-	bool m_isAloneInMinute;
-	int m_norlogeIndex;
+	bool m_isNorlogeMultiple{};
+	bool m_isAloneInMinute{};
+	int m_norlogeIndex{};
 
 	QString m_login;
 	QString m_ua;
 	IsSelfPost m_isSelfPost;
 
-	bool m_unread;
+	bool m_unread{};
 
 	QString m_message;
 	QString m_id;

@@ -10,13 +10,13 @@
 ///
 bool QQBakDisplayFilter::filterMatch(const QQPost *post)
 {
-	if(post == NULL)
+	if(post == nullptr)
 		return false;
 
 	QQBouchot *b = post->bouchot();
 	QString login = post->login();
 	if(login.size() > 0)
 		return b->isBaked(login, true);
-	else
-		return b->isBaked(post->UA(), false);
+
+	return b->isBaked(post->UA(), false);
 }

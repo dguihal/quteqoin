@@ -8,8 +8,7 @@
 /// \brief QQSimplePostDisplayFilter::QQSimplePostDisplayFilter
 ///
 QQSimplePostDisplayFilter::QQSimplePostDisplayFilter()
-{
-}
+= default;
 
 //////////////////////////////////////////////////////////////
 /// \brief QQSimplePostDisplayFilter::filter
@@ -44,18 +43,16 @@ bool QQSimplePostDisplayFilter::Rule::validate(QQPost *post)
 	QString postValue = getPostValue(post);
 	switch(type)
 	{
-	case EQUALS:
-		return postValue == value;
-	case CONTAINS:
-		return postValue.contains(value);
-	case MATCHES:
-	{
-		QRegExp reg(value);
-		if(reg.isValid())
-			return postValue.contains(reg);
-		else
-			return false;
-	}
+	    case EQUALS:
+		    return postValue == value;
+	    case CONTAINS:
+		    return postValue.contains(value);
+	    case MATCHES:
+	    {
+		    QRegExp reg(value);
+			if(reg.isValid())
+				return postValue.contains(reg);
+	    }
 	}
 	return false;
 }

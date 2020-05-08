@@ -23,9 +23,9 @@
 /// \param parent
 ///
 QQBackendParser::QQBackendParser(QObject *parent) :
-	QObject(parent),
-	m_lastId(0),
-	m_maxId(0)
+    QObject(parent),
+    m_lastId(0),
+    m_maxId(0)
 {
 
 }
@@ -33,7 +33,5 @@ QQBackendParser::QQBackendParser(QObject *parent) :
 //////////////////////////////////////////////////////////////
 /// \brief QQBackendParser::~QQBackendParser
 ///
-QQBackendParser::~QQBackendParser()
-{
+QQBackendParser::~QQBackendParser() = default;
 
-}

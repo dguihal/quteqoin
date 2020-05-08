@@ -46,17 +46,17 @@ public slots:
 private:
 	void load();
 
-	static QString getPath(QString id);
+	static QString getPath(const QString& id);
 
 	QString m_id;
 
 	QByteArray m_totozData;
 	QByteArray m_totozDataContentType;
 	QStringList m_tags;
-	bool m_isNSFW;
+	bool m_isNSFW{};
 	QDateTime m_cacheExpireDate;
 
-	bool m_wasmodfied;
+	bool m_wasmodfied{};
 };
 
 #endif // QQTOTOZ_H

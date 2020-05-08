@@ -3,7 +3,8 @@
 #include <QtDebug>
 #include <QBuffer>
 
-#define CHAR_SEP '\t'
+constexpr char CHAR_SEP='\t';
+constexpr int TSV_STANDARD_FIELD_COUNT = 5;
 
 QQTsvParser::QQTsvParser(QObject *parent) : QQBackendParser(parent)
 {
@@ -24,7 +25,7 @@ bool QQTsvParser::parseBackend(const QByteArray &data)
 		QByteArray l = f.readLine();
 
 		QList<QByteArray> fields = l.split(CHAR_SEP);
-		if(fields.length() == 5)
+		if(fields.length() == TSV_STANDARD_FIELD_COUNT)
 		{
 			bool ok = true;
 			qlonglong id = fields.at(0).toLongLong(&ok);

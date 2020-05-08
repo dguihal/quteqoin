@@ -104,7 +104,7 @@ public:
 		static const char Separator = ',';
 	};
 
-	QQBouchot(const QString &name, QObject *parent = nullptr);
+	QQBouchot(QString name, QObject *parent = nullptr);
 	~QQBouchot();
 
 	QString name() const { return m_name; }

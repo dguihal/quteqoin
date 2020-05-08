@@ -10,6 +10,8 @@
 #include <QNetworkReply>
 #include <QUrl>
 
+constexpr qint64 ONE_MN_IN_S = 60;
+
 void QQTotozDownloader::fetchTotoz(QString & totozId)
 {
 	if(totozId.length() == 0)
@@ -65,7 +67,7 @@ void QQTotozDownloader::requestFinishedSlot(QNetworkReply * reply)
 		QQTotoz totoz(totozId);
 		totoz.setData(errString.toUtf8());
 		totoz.setDataContentType("Text/Plain");
-		totoz.setCacheExpireDate(QDateTime::currentDateTime().addSecs(60));
+		totoz.setCacheExpireDate(QDateTime::currentDateTime().addSecs(ONE_MN_IN_S));
 		totoz.save();
 
 		emit fetchTotozFinished(totozId, false, errString);

@@ -9,7 +9,7 @@ class QQNorloge
 {
 public:
 	QQNorloge();
-	QQNorloge(QString bouchot, QString dateh);
+	QQNorloge(QString bouchot, const QString& dateh);
 	QQNorloge(const QQNorloge& norloge);
 
 	QStringList matchingNRefsId() const;

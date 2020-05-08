@@ -20,7 +20,7 @@ public:
 	bool isPlopified() const { return m_isPlopified; }
 
 	QString fullName() const;
-	bool equals(const QQMussel mussel) const;
+	bool equals(const QQMussel& mussel) const;
 	bool operator== (const QQMussel mussel) const { return this->equals(mussel); }
 	bool operator!= (const QQMussel mussel) const { return ! this->equals(mussel); }
 
