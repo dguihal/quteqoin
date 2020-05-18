@@ -47,7 +47,7 @@ private:
 	void getVimeoExtendedInfo(QUrl &url);
 	void handleVimeoExtendedInfo(const QByteArray &jsonInfo, QUrl &sourceUrl);
 	void getYoutubeExtendedInfo(QUrl &url);
-	void handleYoutubeExtendedInfo(const QByteArray &jsonInfo, QUrl &sourceUrl);
+	void handleYoutubeExtendedInfo(const QByteArray &htmldoc, QUrl &sourceUrl, const QString &videoID);
 
 	struct CacheInfo {
 		QString contentType;
@@ -55,7 +55,7 @@ private:
 		QString videoTitle;
 	};
 
-	void addToCache(QUrl &sourceUrl, CacheInfo *info);
+	static void addToCache(QUrl &sourceUrl, CacheInfo *info);
 
 	QList<QNetworkReply *> m_contentTypeReplies;
 	static QHash<QUrl, QQPiniUrlHelper::CacheInfo *> m_cache;
