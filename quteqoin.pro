@@ -216,7 +216,10 @@ unix {
     icon.path = $$PREFIX/share/icons/hicolor/256x256/apps/
     icon.files += QuteQoin-Icon.png
 
-    INSTALLS += target desktop icon
+	metainfo.path = $$PREFIX/share/metainfo/
+	metainfo.files += eu.ototu.quteqoin.metainfo.xml
+
+    INSTALLS += target desktop icon metainfo
 
     QT += dbus
 }

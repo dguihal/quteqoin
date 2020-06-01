@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>eu.ototu.Quteqoin</id>
+  <name>Quteqoin</name>
+  <summary>Board browser</summary>
+  <summary lang="fr_FR">Application pour lire les tribunes</summary>
+  <url type="homepage">https://github.com/dguihal/quteqoin</url>
+  <launchable type="desktop-id">quteqoin.desktop</launchable>
+  <metadata_license>WTFPL</metadata_license>
+  <project_license>WTFPL</project_license>
+</component>
