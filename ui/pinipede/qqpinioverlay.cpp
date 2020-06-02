@@ -461,7 +461,9 @@ void QQPiniOverlay::showVideo(const QUrl &url)
 	auto player = new QMediaPlayer(this, QMediaPlayer::VideoSurface);
 	player->setAudioRole(QAudio::VideoRole);
 	qInfo() << "Supported audio roles:";
-	for (QAudio::Role role : player->supportedAudioRoles())
+
+	auto audioRoles = player->supportedAudioRoles();
+	for (const auto &role : qAsConst(audioRoles))
 		qInfo() << "    " << role;
 	player->setMuted(settings.value(SETTINGS_GENERAL_STEALTH_MODE, DEFAULT_GENERAL_STEALTH_MODE).toBool());
 

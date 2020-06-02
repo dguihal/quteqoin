@@ -21,7 +21,7 @@
 /// \param parent
 ///
 QQPostParser::QQPostParser(QObject *parent) :
-	QObject(parent)
+    QObject(parent)
 {
 	QQSettings settings;
 	if(settings.value(SETTINGS_FILTER_SMART_URL_TRANSFORMER, DEFAULT_FILTER_SMART_URL_TRANSFORMER).toBool())
@@ -88,8 +88,7 @@ QList<QTextDocumentFragment> QQPostParser::splitMessage(const QString &message, 
 			fmt.setFontWeight(nRef.isReponse() ? QFont::DemiBold : QFont::Normal);
 
 			QString nRefUrl = QString("nref://bouchot?board=%1&postId=%2&index=%3")
-					.arg(post->bouchot()->name())
-					.arg(post->id()).arg(index);
+			                  .arg(post->bouchot()->name(), post->id(), QString::number(index));
 			fmt.setAnchorHref(nRefUrl);
 
 			norlogeCursor.mergeCharFormat(fmt);
@@ -135,7 +134,7 @@ void QQPostParser::applyMessageFragmentTransformFilters(QList<QTextDocumentFragm
 		QString st = c.selectedText();
 		// If it starts with "....-" pattern, it is a ISO norloge. Let's reformat it
 		if(moveSuccess && c.charFormat().anchorHref().startsWith("nref://") &&
-			st.at(4) == QChar('-'))
+		    st.at(4) == QChar('-'))
 		{
 			c.beginEditBlock();
 
@@ -149,10 +148,10 @@ void QQPostParser::applyMessageFragmentTransformFilters(QList<QTextDocumentFragm
 			c.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor, 6);
 			st = c.selectedText();
 			if(st.left(2) == QString("%1").arg(postDate.month(), 2, 10, QChar('0')) &&
-				st.mid(3, 2) == QString("%1").arg(postDate.day(), 2, 10, QChar('0')))
+			    st.mid(3, 2) == QString("%1").arg(postDate.day(), 2, 10, QChar('0')))
 				c.removeSelectedText();
 			else
-				c.insertText(QString("%1/%2#").arg(st.left(2)).arg(st.mid(3, 2)));
+				c.insertText(QString("%1/%2#").arg(st.left(2), st.mid(3, 2)));
 
 			c.endEditBlock();
 			listMsgFragments[i] = QTextDocumentFragment(&tmp);
@@ -198,8 +197,8 @@ void QQPostParser::colorizeBigorno(QTextDocument &doc, QQPost *post, QQMessageBl
 	bigorno.append("moules)<");
 
 	QRegExp bigornoReg = QRegExp(bigorno,
-								   Qt::CaseInsensitive,
-								   QRegExp::RegExp);
+	                               Qt::CaseInsensitive,
+	                               QRegExp::RegExp);
 
 	QTextCursor cursor(&doc);
 	QTextCharFormat fmt = cursor.blockCharFormat();
@@ -217,7 +216,7 @@ void QQPostParser::colorizeBigorno(QTextDocument &doc, QQPost *post, QQMessageBl
 		QString name = post->bouchot()->name();
 
 		emit bigorNotify(name, callerId,
-						 (cursor.selectedText().compare("moules<", Qt::CaseInsensitive) == 0));
+		                 (cursor.selectedText().compare("moules<", Qt::CaseInsensitive) == 0));
 	}
 }
 
@@ -233,16 +232,16 @@ void QQPostParser::colorizeDuck(QTextDocument &doc, QQMessageBlockUserData *user
 
 	QList<QRegExp> regexes;
 	regexes << QRegExp(QString::fromLatin1("\\\\_").append(tete).append(QString::fromLatin1("<")),
-					   Qt::CaseSensitive,
-					   QRegExp::RegExp);
+	                   Qt::CaseSensitive,
+	                   QRegExp::RegExp);
 
 	regexes << QRegExp(QString::fromLatin1(">").append(tete).append(QString::fromLatin1("_\\/")),
-					   Qt::CaseSensitive,
-					   QRegExp::RegExp);
+	                   Qt::CaseSensitive,
+	                   QRegExp::RegExp);
 
 	regexes << QRegExp(QString::fromLatin1("coin ?! ?coin ?!"),
-					   Qt::CaseSensitive,
-					   QRegExp::RegExp);
+	                   Qt::CaseSensitive,
+	                   QRegExp::RegExp);
 
 	QTextCursor cursor(&doc);
 
@@ -258,7 +257,8 @@ void QQPostParser::colorizeDuck(QTextDocument &doc, QQMessageBlockUserData *user
 		while(! (cursor = doc.find(reg, cursor)).isNull())
 		{
 			QString duckUrl = QString("duck://bouchot?board=%1&postId=%2&self=%3")
-					.arg(post->bouchot()->name()).arg(post->id()).arg(post->isSelfPost());
+			                  .arg(post->bouchot()->name(), post->id(),
+			                       post->isSelfPost() ? "true" : "false");
 			fmt.setAnchorHref(duckUrl);
 			cursor.mergeCharFormat(fmt);
 			userData->setHasDuck();
@@ -301,8 +301,8 @@ void QQPostParser::linkNorlogeRef(QQNorlogeRef *nRef)
 void QQPostParser::colorizeTableVolante(QTextDocument &doc, QQMessageBlockUserData *userData)
 {
 	QRegExp tvReg = QRegExp(QString::fromLatin1("(?:flap ?flap)|(?:table[ _]volante)"),
-							  Qt::CaseSensitive,
-							  QRegExp::RegExp);
+	                          Qt::CaseSensitive,
+	                          QRegExp::RegExp);
 
 	QTextCursor cursor(&doc);
 	QTextCharFormat fmt = cursor.blockCharFormat();
@@ -313,7 +313,7 @@ void QQPostParser::colorizeTableVolante(QTextDocument &doc, QQMessageBlockUserDa
 	while(! (cursor = doc.find(tvReg, cursor)).isNull())
 	{
 		QString duckUrl = QString("tablev://bouchot?board=%1&postId=%2&self=%3")
-				.arg(post->bouchot()->name()).arg(post->id()).arg(post->isSelfPost());
+		                  .arg(post->bouchot()->name(), post->id(), post->isSelfPost() ? "true" : "false");
 		fmt.setAnchorHref(duckUrl);
 		cursor.mergeCharFormat(fmt);
 	}
@@ -332,8 +332,8 @@ void QQPostParser::colorizeTotoz(QTextDocument &doc, QQMessageBlockUserData *use
 	Q_UNUSED(userData);
 
 	QRegExp totozReg = QRegExp(QString::fromLatin1("(\\[\\:[^\\t\\)\\]]+\\])"), //[:[^\t\)\]]
-								 Qt::CaseSensitive,
-								 QRegExp::RegExp);
+	                             Qt::CaseSensitive,
+	                             QRegExp::RegExp);
 
 	QTextCursor cursor(&doc);
 	QTextCharFormat fmt = cursor.blockCharFormat();
@@ -374,19 +374,19 @@ void QQPostParser::detectLecon(QTextDocument &doc, QQMessageBlockUserData *userD
 {
 	Q_UNUSED(userData)
 	QRegExp totozReg = QRegExp(QString::fromUtf8("(le[cç]on\\s+\\d+)"),
-								 Qt::CaseInsensitive,
-								 QRegExp::RegExp);
+	                             Qt::CaseInsensitive,
+	                             QRegExp::RegExp);
 
 	QTextCursor cursor(&doc);
 	while(! (cursor = doc.find(totozReg, cursor)).isNull())
 	{
 		QString numLesson = cursor.selectedText().split(QRegExp("\\s")).at(1);
 		QString url = QString::fromLatin1("<a href=\"")
-					  .append(LECON_BASE_URL)
-					  .append(numLesson)
-					  .append(QString::fromLatin1("\">"))
-					  .append(cursor.selectedText())
-					  .append(QString::fromLatin1("</a>"));
+		              .append(LECON_BASE_URL)
+		              .append(numLesson)
+		              .append(QString::fromLatin1("\">"))
+		              .append(cursor.selectedText())
+		              .append(QString::fromLatin1("</a>"));
 		cursor.insertHtml(url);
 	}
 }

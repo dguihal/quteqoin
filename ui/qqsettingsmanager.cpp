@@ -473,7 +473,7 @@ void QQSettingsManager::savePalmiSettings(QQSettings &settings)
 	bool palmiDockedStatusChanged = (oldState != isPalmiDocked);
 
 	if(palmiMinimizedStatusChanged || palmiDockedStatusChanged)
-		palmiStatusChanged(isPalmiMini, isPalmiDocked);
+		emit palmiStatusChanged(isPalmiMini, isPalmiDocked);
 
 	//Palmi short norlogeds
 	bool isShortNorlogesEnabled = m_palmiSettingsW->isShortNorlogesEnabled();

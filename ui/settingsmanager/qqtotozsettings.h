@@ -10,13 +10,6 @@ class QQTotozSettings;
 class QQTotozSettings : public QWidget
 {
 	Q_OBJECT
-	Q_PROPERTY(QString m_totozServerURL READ totozServerURL WRITE setTotozServerURL)
-	Q_PROPERTY(QString m_totozBaseImgUrl READ totozBaseImgUrl WRITE setTotozBaseImgUrl)
-	Q_PROPERTY(QString m_totozNameSuffix READ totozNameSuffix WRITE setTotozNameSuffix)
-	Q_PROPERTY(bool m_totozAllowSearch READ totozAllowSearch WRITE setTotozAllowSearch)
-	Q_PROPERTY(QString m_totozQueryPattern READ totozQueryPattern WRITE setTotozQueryPattern)
-	Q_PROPERTY(QString m_totozVisualMode READ totozVisualMode WRITE setTotozVisualMode)
-
 
 public:
 	explicit QQTotozSettings(QWidget *parent = 0);

@@ -1017,7 +1017,7 @@ QList<QQBouchot *> QQBouchot::listBouchotsGroup(const QString &groupName)
 QStringList QQBouchot::listGroups()
 {
 	QStringList listGroups;
-	for (auto bouchot : s_hashBouchots)
+	for (auto bouchot : qAsConst(s_hashBouchots))
 	{
 		QString group = bouchot->settings().group();
 		if(! listGroups.contains(group))

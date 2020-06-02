@@ -6,7 +6,7 @@
 class QQDuckPixmapItem : public QQHuntPixmapItem
 {
 	Q_OBJECT
-	Q_PROPERTY(QPointF pos READ pos WRITE setPos)
+
 public:
 	explicit QQDuckPixmapItem(QString srcBouchot, QString postId, bool selfDuck, QObject *parent = 0);
 	~QQDuckPixmapItem() {}

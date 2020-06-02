@@ -10,7 +10,6 @@ class QQGeneralSettings;
 class QQGeneralSettings : public QWidget
 {
 	Q_OBJECT
-	Q_PROPERTY(QFont m_defaultFont READ defaultFont WRITE setDefaultFont)
 
 public:
 	explicit QQGeneralSettings(QWidget *parent = 0);

@@ -8,8 +8,6 @@
 class QQBoardInfoProgressBar : public QProgressBar
 {
 	Q_OBJECT
-	Q_PROPERTY(bool onError READ isOnError WRITE setOnError)
-	Q_PROPERTY(QColor color READ boardColor WRITE setBoardColor)
 
 public:
 	explicit QQBoardInfoProgressBar(QWidget *parent = nullptr);
@@ -22,6 +20,7 @@ public:
 
 	bool isOnError() const { return m_onError; }
 	void setOnError(const bool &onError);
+
 signals:
 	void bouchotSelected();
 

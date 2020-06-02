@@ -265,7 +265,8 @@ void QQNetworkAccessor::onRemoveTimer(QObject *obj)
 
 void QQNetworkAccessor::onRequestTimeout()
 {
-	for(auto reply : m_replyTimers.keys())
+	auto replyTimersKeys = m_replyTimers.keys();
+	for(auto reply : qAsConst(replyTimersKeys))
 	{
 		QTimer *timer = m_replyTimers.value(reply);
 		if(! timer->isActive())

@@ -23,9 +23,7 @@
 #include <QTextTable>
 #include <QTextTableCell>
 #include <QToolTip>
-#if(QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
 #include <QUrlQuery>
-#endif
 
 #define TIME_UA_AREA_WIDTH_CHAR 26 // 10 + 1 + 15 Chars
 #define NOTIF_AREA_WIDTH 18 //Px
@@ -343,7 +341,7 @@ void QQTextBrowser::onAnchorHighlighted(const QUrl &link)
 		if(link != m_shownUrl)
 		{
 			unHighlightNorloge();
-			hideViewers();
+			emit hideViewers();
 			m_shownUrl = link;
 		}
 		else
@@ -550,7 +548,8 @@ void QQTextBrowser::contextMenuEvent(QContextMenuEvent * ev)
 	auto menu = createStandardContextMenu();
 
 	QAction * copyLinkLocationAction = nullptr;
-	for(auto a: menu->actions())
+	auto actions = menu->actions();
+	for(auto a: qAsConst(actions))
 	{
 		if(a->objectName() == copyLinkActionObjectName)
 		{

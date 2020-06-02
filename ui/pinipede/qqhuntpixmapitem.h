@@ -16,7 +16,6 @@ typedef QGenericMatrix<2, 2, float> QQMatrix2x2;
 class QQHuntPixmapItem : public QObject, public QGraphicsPixmapItem
 {
 	Q_OBJECT
-	Q_PROPERTY(QPointF pos READ pos WRITE setPos)
 
 public:
 	explicit QQHuntPixmapItem(QString srcBouchot, QString postId, bool selfItem, QObject *parent = 0);
@@ -25,8 +24,6 @@ public:
 	QString bouchotName() const { return m_srcBouchot; }
 	QString postId() const { return m_postId; }
 	bool isSelfItem() const { return m_isSelfItem; }
-
-signals:
 
 public slots:
 	void animate();

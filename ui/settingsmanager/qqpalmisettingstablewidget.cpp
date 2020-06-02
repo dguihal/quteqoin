@@ -21,7 +21,7 @@
 /////////////////////////////////////////////////////////////////////////////////////////////
 ///
 QQKeyboardShortcutInput::QQKeyboardShortcutInput(QWidget *parent) :
-	QWidget(parent)
+    QWidget(parent)
 {
 	setupUi();
 }
@@ -105,7 +105,7 @@ void QQKeyboardShortcutDataItem::setData(int role, const QVariant &value)
 	   value.canConvert<QString>())
 	{
 		QString oldEditRoleData = m_editRoleData;
-		m_editRoleData = value.toString().left(1);
+		m_editRoleData = value.toString().at(0);
 		QString longStr = QString(SHORTCUT_PREFIX);
 		if(m_editRoleData == QString(" "))
 			longStr.append("Space");
@@ -137,7 +137,7 @@ QVariant QQKeyboardShortcutDataItem::data(int role) const
 /////////////////////////////////////////////////////////////////////////////////////////////
 
 QQPalmiSettingsTableWidget::QQPalmiSettingsTableWidget(QWidget *parent) :
-	QTableWidget(parent)
+    QTableWidget(parent)
 {
 	m_hasLastLine = false;
 	m_mmapKeys.clear();
@@ -165,9 +165,9 @@ void QQPalmiSettingsTableWidget::appendStaticRow(const QChar &key, const QString
 	kbSItem->setData(Qt::DisplayRole, QString(SHORTCUT_PREFIX).append(key));
 	kbSItem->setData(Qt::ToolTipRole, QString(SHORTCUT_PREFIX).append(key));
 	kbSItem->setFlags(
-				kbSItem->flags()
-				& ~Qt::ItemIsEnabled
-				& ~Qt::ItemIsTristate);
+	            kbSItem->flags()
+	            & ~Qt::ItemIsEnabled
+	            & ~Qt::ItemIsTristate);
 	m_mmapKeys.insert(key, kbSItem);
 	setItem(currRow, SHORTCUT_COLUMN, kbSItem);
 
@@ -176,9 +176,9 @@ void QQPalmiSettingsTableWidget::appendStaticRow(const QChar &key, const QString
 	item->setData(Qt::DisplayRole, value);
 	item->setData(Qt::ToolTipRole, value);
 	item->setFlags(
-				item->flags()
-				& ~Qt::ItemIsEnabled
-				& ~Qt::ItemIsTristate);
+	            item->flags()
+	            & ~Qt::ItemIsEnabled
+	            & ~Qt::ItemIsTristate);
 	setItem(currRow, TEXT_COLUMN, item);
 }
 
@@ -243,30 +243,30 @@ int QQPalmiSettingsTableWidget::appendEmptyUserRow()
 	// 2nd Col
 	QQKeyboardShortcutDataItem *kbSItem = new QQKeyboardShortcutDataItem();
 	kbSItem->setFlags(
-				kbSItem->flags()
-				| Qt::ItemIsDragEnabled
-				| Qt::ItemIsEditable
-				| Qt::ItemIsSelectable
-				| Qt::ItemIsEditable
-				| Qt::ItemIsEnabled);
+	            kbSItem->flags()
+	            | Qt::ItemIsDragEnabled
+	            | Qt::ItemIsEditable
+	            | Qt::ItemIsSelectable
+	            | Qt::ItemIsEditable
+	            | Qt::ItemIsEnabled);
 	kbSItem->setFlags(
-				kbSItem->flags()
-				& ~Qt::ItemIsTristate
-				& ~Qt::ItemIsUserCheckable);
+	            kbSItem->flags()
+	            & ~Qt::ItemIsTristate
+	            & ~Qt::ItemIsUserCheckable);
 	setItem(currRow, SHORTCUT_COLUMN, kbSItem);
 
 	// 3nd Col
 	QTableWidgetItem *twItem = new QTableWidgetItem("");
 	twItem->setFlags(
-				twItem->flags()
-				| Qt::ItemIsDragEnabled
-				| Qt::ItemIsSelectable
-				| Qt::ItemIsEditable
-				| Qt::ItemIsEnabled);
+	            twItem->flags()
+	            | Qt::ItemIsDragEnabled
+	            | Qt::ItemIsSelectable
+	            | Qt::ItemIsEditable
+	            | Qt::ItemIsEnabled);
 	twItem->setFlags(
-				twItem->flags()
-				& ~Qt::ItemIsTristate
-				& ~Qt::ItemIsUserCheckable);
+	            twItem->flags()
+	            & ~Qt::ItemIsTristate
+	            & ~Qt::ItemIsUserCheckable);
 	setItem(currRow, TEXT_COLUMN, twItem);
 
 	return currRow;
@@ -296,7 +296,7 @@ void QQPalmiSettingsTableWidget::handleRemoveRowClicked()
 		m_mmapKeys.remove(key, (QQKeyboardShortcutDataItem *) twItem);
 		if(m_mmapKeys.count(key) == 1) //It was a multiple occurence, but not anymore
 		{
-			QTableWidgetItem *tItem = m_mmapKeys.values(key).at(0);
+			QTableWidgetItem *tItem = m_mmapKeys.values(key).constFirst();
 			if(tItem->flags() & Qt::ItemIsEnabled)
 				tItem->setForeground(Qt::black);
 		}
@@ -310,7 +310,7 @@ void QQPalmiSettingsTableWidget::keyChanged(QChar oldKey, QChar newKey, QTableWi
 		m_mmapKeys.remove(oldKey, (QQKeyboardShortcutDataItem *) item);
 		if(m_mmapKeys.count(oldKey) == 1) //It was a multiple occurence, but not anymore
 		{
-			QTableWidgetItem *tItem = m_mmapKeys.values(oldKey).at(0);
+			QTableWidgetItem *tItem = m_mmapKeys.values(oldKey).constFirst();
 			if(tItem->flags() & Qt::ItemIsEnabled)
 				tItem->setForeground(Qt::black);
 		}

@@ -90,13 +90,13 @@ QQPinipede::~QQPinipede()
 	delete m_totozDownloader;
 
 	QList<QString> listTabs = m_listPostsTabMap.keys();
-	for(QString tab : listTabs)
+	for(const QString &tab : qAsConst(listTabs))
 	{
 		for(int i = 0; i < listTabs.size(); i++)
 			delete m_listPostsTabMap.take(tab);
 	}
 
-	for(QQPostDisplayFilter *df : m_listpostDisplayFilters)
+	for(QQPostDisplayFilter *df : qAsConst(m_listpostDisplayFilters))
 	{
 		if(df != nullptr)
 			delete df;
@@ -354,7 +354,7 @@ void QQPinipede::purgePinitabHistory(const QString & groupName)
 	}
 
 	// Purge de l'historique interne des bouchots
-	for(QString boardName : purgedBoards)
+	for(const QString &boardName : purgedBoards)
 	{
 		QQBouchot * board = QQBouchot::bouchot(boardName);
 		QApplication::postEvent(board, new QQPurgeBouchotHistoEvent());
@@ -390,7 +390,7 @@ void QQPinipede::tabEventsAcknowledged(const QString& groupName)
 	setTabText(indexOf(textBrowser), groupName);
 
 	QList<QQBouchot *> listBouchots = QQBouchot::listBouchotsGroup(groupName);
-	for(QQBouchot *b : listBouchots)
+	for(QQBouchot *b : qAsConst(listBouchots))
 		b->resetStatus();
 }
 
@@ -415,9 +415,9 @@ void QQPinipede::bigorNotify(QString &srcBouchot, QString &poster, bool global)
 	{
 		QString msg;
 		if(global)
-			msg = QString(tr("%1 called everyone on %2 board")).arg(poster).arg(srcBouchot);
+			msg = QString(tr("%1 called everyone on %2 board")).arg(poster, srcBouchot);
 		else
-			msg = QString(tr("%1 called you on %2 board")).arg(poster).arg(srcBouchot);
+			msg = QString(tr("%1 called you on %2 board")).arg(poster, srcBouchot);
 
 		QList<QVariant> argumentList;
 		argumentList << NOTIF_APP_NAME;// app_name
@@ -452,7 +452,8 @@ void QQPinipede::searchText(const QString &text, bool forward)
 	QQSettings settings;
 	QColor color(settings.value(SETTINGS_GENERAL_HIGHLIGHT_COLOR, DEFAULT_GENERAL_HIGHLIGHT_COLOR).toString());
 
-	for(QQTextBrowser *textBrowser : m_textBrowserHash.values())
+	auto textBrowsers = m_textBrowserHash.values();
+	for(QQTextBrowser *textBrowser : qAsConst(textBrowsers))
 	{
 		if(! textBrowser->isVisible())
 			continue;
@@ -559,7 +560,8 @@ void QQPinipede::duckKilled(QString board, QString postId)
 {
 	QQBouchot *bouchotDest = QQBouchot::bouchot(board);
 	QString message;
-	for(QQPost *post : bouchotDest->postsHistory())
+	auto posts = bouchotDest->postsHistory();
+	for(QQPost *post : qAsConst(posts))
 	{
 		if(post->id() == postId)
 		{
@@ -853,7 +855,8 @@ void QQPinipede::norlogeRefHovered(QQNorlogeRef norlogeRef)
 void QQPinipede::unHighlight(QQTextBrowser *tBrowser)
 {
 	m_hiddenPostViewerLabel->hide();
-	for(QTextEdit::ExtraSelection extra : tBrowser->extraSelections())
+	auto extraSelections = tBrowser->extraSelections();
+	for(QTextEdit::ExtraSelection extra : qAsConst(extraSelections))
 	{
 		if(! extra.cursor.hasSelection()) //fulll block
 		{
@@ -897,7 +900,7 @@ void QQPinipede::setTotozManager(QQTotozManager * ttManager)
 
 	if(m_totozManager != nullptr)
 	{
-		for(QQTextBrowser *tb : m_textBrowserHash.values())
+		for(QQTextBrowser *tb : qAsConst(m_textBrowserHash))
 		{
 			connect(tb, SIGNAL(totozBookmarkAct(QString,QQTotoz::TotozBookmarkAction)),
 			        m_totozManager, SLOT(totozBookmarkDo(QString,QQTotoz::TotozBookmarkAction)));
@@ -931,7 +934,7 @@ bool QQPinipede::applyPostDisplayFilters(QQPost *post)
 	if(! post->bouchot()->isVisible())
 		return false;
 
-	for(QQPostDisplayFilter *filter : m_listpostDisplayFilters)
+	for(QQPostDisplayFilter *filter : qAsConst(m_listpostDisplayFilters))
 	{
 		if(filter->filterMatch(post))
 			return false;
@@ -981,7 +984,8 @@ void QQPinipede::newPostsAvailable(QString groupName)
 	QQTextBrowser *textBrowser = m_textBrowserHash.value(groupName);
 
 	QQListPostPtr newPosts;
-	for(QQBouchot *b : QQBouchot::listBouchotsGroup(groupName))
+	auto bouchots = QQBouchot::listBouchotsGroup(groupName);
+	for(QQBouchot *b : qAsConst(bouchots))
 	{
 		QQListPostPtr newPostsBouchot = b->takeNewPosts();
 		if(newPostsBouchot.size() > 0)
@@ -1195,8 +1199,7 @@ bool QQPinipede::printPostAtCursor(QTextCursor &cursor, QQPost *post)
 	QQNorlogeRef nRef = QQNorlogeRef(*post);
 	int index = data->appendNorlogeRef(nRef);
 	QString nRefUrl = QString("nref://bouchot?board=%1&postId=%2&index=%3")
-	                  .arg(post->bouchot()->name())
-	                  .arg(post->id()).arg(index);
+	                  .arg(post->bouchot()->name(), post->id(), QString::number(index));
 	norlogeFormat.setAnchorHref(nRefUrl);
 
 	QString txt = post->norlogeFormatee();
