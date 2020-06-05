@@ -8,4 +8,5 @@
   <launchable type="desktop-id">quteqoin.desktop</launchable>
   <metadata_license>WTFPL</metadata_license>
   <project_license>WTFPL</project_license>
+  <description><p>Tool based on Qt framework to allow effective mouling on bouchots.</p></description>
 </component>
