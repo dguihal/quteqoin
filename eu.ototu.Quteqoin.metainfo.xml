@@ -15,4 +15,10 @@
   <content_rating type="oars-1.0">
       <content_attribute id="social-chat">intense</content_attribute>
   </content_rating>
+  <screenshots>
+      <screenshot type="default">
+          <caption>Quteqoin main window</caption>
+          <image type="source">https://raw.githubusercontent.com/dguihal/quteqoin/master/QuteQoin-Screenshot.png</image>
+      </screenshot>
+  </screenshots>
 </component>
