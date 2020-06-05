@@ -9,4 +9,7 @@
   <metadata_license>WTFPL</metadata_license>
   <project_license>WTFPL</project_license>
   <description><p>Tool based on Qt framework to allow effective mouling on bouchots.</p></description>
+  <releases>
+      <release version="v1.1.4" date="2018-06-21 23:32:05 +0200"/>
+  </releases>
 </component>
