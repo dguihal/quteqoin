@@ -12,4 +12,7 @@
   <releases>
       <release version="v1.1.4" date="2018-06-21 23:32:05 +0200"/>
   </releases>
+  <content_rating type="oars-1.0">
+      <content_attribute id="social-chat">intense</content_attribute>
+  </content_rating>
 </component>
