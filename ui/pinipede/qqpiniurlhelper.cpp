@@ -473,8 +473,8 @@ void QQPiniUrlHelper::handleYoutubeExtendedInfo(const QByteArray &htmldoc, QUrl 
 	QString thumbnailUrl;
 	QString title;
 
-	const QString startBlock = "ytplayer.config = ";
-	const QString endBlock = ";ytplayer.load = function()";
+	const QString startBlock = "<meta name=\"title\" content=\"";
+	const QString endBlock = "\">";
 
 	auto info = new QQPiniUrlHelper::CacheInfo;
 
@@ -491,7 +491,7 @@ void QQPiniUrlHelper::handleYoutubeExtendedInfo(const QByteArray &htmldoc, QUrl 
 			if (e >= s)
 			{
 				auto tmp = l.left(e);
-				jsonInfo = tmp.mid(s + startBlock.length());
+				title = tmp.mid(s + startBlock.length());
 				break;
 			}
 
@@ -499,34 +499,6 @@ void QQPiniUrlHelper::handleYoutubeExtendedInfo(const QByteArray &htmldoc, QUrl 
 			return;
 		}
 	}
-	if(jsonInfo.length() == 0)
-	{
-		qInfo() << "Unable to parse youtube page for Url " << sourceUrl;
-		return;
-	}
-
-	QJsonParseError error{};
-	QJsonDocument d = QJsonDocument::fromJson(jsonInfo.toUtf8(), &error);
-	if(d.isEmpty())
-	{
-		qWarning() << Q_FUNC_INFO << "error" << error.errorString();
-		delete info;
-		return;
-	}
-	QJsonObject o = d.object();
-	QJsonObject args = o["args"].toObject();
-	QString playerResponse = args["player_response"].toString();
-
-	QJsonDocument dPlayerResponse = QJsonDocument::fromJson(playerResponse.toUtf8(), &error);
-	if(dPlayerResponse.isEmpty())
-	{
-		qWarning() << Q_FUNC_INFO << "error" << error.errorString();
-		delete info;
-		return;
-	}
-	o = dPlayerResponse.object();
-	QJsonObject videoDetails = o["videoDetails"].toObject();
-	title= videoDetails["title"].toString();
 	thumbnailUrl = QString("https://i.ytimg.com/vi/%1/hqdefault.jpg").arg(videoID);
 
 	if(! videoID.isEmpty())
