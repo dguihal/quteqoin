@@ -7,14 +7,17 @@
 #include <QGraphicsScene>
 #include <QPixmap>
 #include <QPropertyAnimation>
+#if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
+#include <QRandomGenerator>
+#endif
 
 #define BASE_ANIM_PIX QString(":/anims/")
 
 QQHuntPixmapItem::QQHuntPixmapItem(QString srcBouchot, QString postId, bool selfItem, QObject *parent) :
-	QObject(parent),
-	m_srcBouchot(srcBouchot),
-	m_postId(postId),
-	m_isSelfItem(selfItem)
+    QObject(parent),
+    m_srcBouchot(srcBouchot),
+    m_postId(postId),
+    m_isSelfItem(selfItem)
 {
 	setCacheMode(ItemCoordinateCache);
 
@@ -59,7 +62,11 @@ void QQHuntPixmapItem::animate()
 	QPointF curPos = pos();
 
 	//Calcul du nouveau vecteur vitesse
+#if QT_VERSION >= QT_VERSION_CHECK(5, 10, 0)
+	float angle = QRandomGenerator::global()->generateDouble() * M_PI_2;
+#else
 	float angle = (((float) qrand()) / INT_MAX) * M_PI_2;
+#endif
 	angle -= M_PI_4;
 
 	QQMatrix2x2 rotMatrix;
@@ -82,7 +89,7 @@ void QQHuntPixmapItem::animate()
 		m_listPixmapProp.append(pixmapProp);
 
 		QQMatrix1x2 resSpeedVec = m_speedVec * ((float) SPEED_FACTOR)
-											 * (timeMs / (float) (MAX_DURATION - MIN_DURATION));
+		                                     * (timeMs / (float) (MAX_DURATION - MIN_DURATION));
 		float destPosX = curPos.x() + resSpeedVec(X_VALUE);
 		float destPosY = curPos.y() + resSpeedVec(Y_VALUE);
 
@@ -107,7 +114,7 @@ void QQHuntPixmapItem::animate()
 			{
 				realtime = timeMs * xFactor;
 				curPos = QPointF(curPos.x() + (destPosX - curPos.x()) * xFactor,
-								 curPos.y() + (destPosY - curPos.y()) * xFactor);
+				                 curPos.y() + (destPosY - curPos.y()) * xFactor);
 
 				m_speedVec(X_VALUE) = 0.0 - m_speedVec(X_VALUE);
 				if(xFactor == yFactor)
@@ -117,7 +124,7 @@ void QQHuntPixmapItem::animate()
 			{
 				realtime = timeMs * yFactor;
 				curPos = QPointF(curPos.x() + (destPosX - curPos.x()) * yFactor,
-								 curPos.y() + (destPosY - curPos.y()) * yFactor);
+				                 curPos.y() + (destPosY - curPos.y()) * yFactor);
 
 				m_speedVec(Y_VALUE) = 0.0 - m_speedVec(Y_VALUE);
 			}

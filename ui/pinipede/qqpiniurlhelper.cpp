@@ -10,6 +10,7 @@
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QTextDocumentFragment>
 
 //TODO: See http://doc.qt.io/qt-5/qurl.html#topLevelDomain
 constexpr char URL_HOST_REGEXP[] = R"((<a [^>]*href="(https?://[^/"]+)[^"]*"[^>]*>)\[(?:url|https?)\](</a>))";
@@ -198,7 +199,11 @@ void QQPiniUrlHelper::getContentType(QUrl &url)
 ///
 void QQPiniUrlHelper::handleContentTypeResponse(const QString &contentType, QUrl &sourceUrl)
 {
+#if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
+	QStringList contentTypeParts = contentType.split(";", Qt::SkipEmptyParts);
+#else
 	QStringList contentTypeParts = contentType.split(";", QString::SkipEmptyParts);
+#endif
 	QString rep = (contentTypeParts.isEmpty()) ? tr("Unknown") : contentTypeParts.at(0);
 
 	auto info = new QQPiniUrlHelper::CacheInfo;
@@ -326,7 +331,11 @@ void QQPiniUrlHelper::getVimeoExtendedInfo(QUrl &url)
 	QQPiniUrlHelper::CacheInfo *urlInfo = m_cache[url];
 	if(urlInfo == nullptr)
 	{
+#if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
+		QString vidId = url.path().split('/', Qt::SkipEmptyParts).first();
+#else
 		QString vidId = url.path().split('/', QString::SkipEmptyParts).first();
+#endif
 
 		QUrl qUrl = QUrl(QString("http://vimeo.com/api/v2/video/%1.json").arg(vidId));
 		QNetworkRequest r(qUrl);
@@ -435,7 +444,11 @@ void QQPiniUrlHelper::getYoutubeExtendedInfo(QUrl &url)
 		QString ytId;
 		if(url.host().endsWith("youtu.be"))
 		{
+#if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
+			QStringList pathExp = url.path().split(QChar('/'), Qt::SkipEmptyParts);
+#else
 			QStringList pathExp = url.path().split(QChar('/'), QString::SkipEmptyParts);
+#endif
 			if(! pathExp.isEmpty())
 				ytId = pathExp.at(0);
 		}
@@ -491,7 +504,8 @@ void QQPiniUrlHelper::handleYoutubeExtendedInfo(const QByteArray &htmldoc, QUrl 
 			if (e >= s)
 			{
 				auto tmp = l.left(e);
-				title = tmp.mid(s + startBlock.length());
+				auto htmlFragment = QTextDocumentFragment::fromHtml(tmp.mid(s + startBlock.length()));
+				title = htmlFragment.toPlainText();
 				break;
 			}
 

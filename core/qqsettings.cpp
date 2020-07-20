@@ -104,7 +104,11 @@ QList<QQEmojiCat> QQSettings::listEmojis()
 	while (!file.atEnd())
 	{
 		QString line = QString::fromUtf8(file.readLine()).trimmed();
+#if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
+		QStringList fields = line.split("\t", Qt::SkipEmptyParts);
+#else
 		QStringList fields = line.split("\t", QString::SkipEmptyParts);
+#endif
 
 		if(fields.length() == 3)
 		{
@@ -198,8 +202,13 @@ QQBouchot * QQSettings::loadBouchot(const QString &name)
 QStringList QQSettings::listBouchots()
 {
 	QString bouchots = value(SETTINGS_LIST_BOUCHOTS, "").toString();
+#if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
+	return bouchots.split(QChar::fromLatin1(BOUCHOTS_SPLIT_CHAR),
+	                      Qt::SkipEmptyParts);
+#else
 	return bouchots.split(QChar::fromLatin1(BOUCHOTS_SPLIT_CHAR),
 	                      QString::SkipEmptyParts);
+#endif
 }
 
 //////////////////////////////////////////////////////////////

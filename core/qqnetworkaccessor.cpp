@@ -129,7 +129,11 @@ QDateTime QQNetworkAccessor::parseRC822(const QString& string)
 {
 	int pos = string.indexOf(',') + 1;
 	auto minString = string.rightRef(string.length() - pos);
+#if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
+	QStringList fields = minString.string()->split(" ", Qt::SkipEmptyParts);
+#else
 	QStringList fields = minString.string()->split(" ", QString::SkipEmptyParts);
+#endif
 	QDate date(fields[2].toInt(), name_to_month(fields[1].toLatin1()), fields[0].toInt());
 	QTime time = QTime::fromString(fields[3], "hh:mm:ss");
 	if(fields[4].startsWith('+'))
