@@ -26,9 +26,9 @@ QQNorloge::QQNorloge(QString bouchot, const QString& dateh) :
     m_uniqueMinute(false)
 {
 #if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
-	QStringList indexSpit = dateh.split("^", Qt::SkipEmptyParts);
+	auto indexSpit = dateh.split("^", Qt::SkipEmptyParts);
 #else
-	QStringList indexSpit = dateh.split("^", QString::SkipEmptyParts);
+	auto indexSpit = dateh.split("^", QString::SkipEmptyParts);
 #endif
 	if(indexSpit.size() > 1)
 		m_norlogeIndex = indexSpit[1].toInt();
@@ -51,24 +51,24 @@ QQNorloge::QQNorloge(const QQNorloge& norloge) :
 auto QQNorloge::matchingNRefsId() const -> QStringList
 {
 	QStringList rep;
-	QString baseHmStr = QString(m_dateHourPart).append("h").append(m_dateMinutePart).append("m");
+	auto baseHmStr = QString(m_dateHourPart).append("h").append(m_dateMinutePart).append("m");
 	rep.append(baseHmStr);
 
-	QString baseHmsStr = QString(baseHmStr).append(m_dateSecondPart).append("s");
+	auto baseHmsStr = QString(baseHmStr).append(m_dateSecondPart).append("s");
 	rep.append(baseHmsStr);
 
-	QString baseMDhmsStr = QString(m_dateMonthPart).append("M")
+	auto baseMDhmsStr = QString(m_dateMonthPart).append("M")
 	                       .append(m_dateDayPart).append("D")
 	                       .append(baseHmsStr);
 	rep.append(baseMDhmsStr);
 
-	QString baseYMDhmsStr = QString(m_dateYearPart).append("Y")
+	auto baseYMDhmsStr = QString(m_dateYearPart).append("Y")
 	                        .append(baseMDhmsStr);
 	rep.append(baseYMDhmsStr);
 
 	if(m_norlogeIndex > 0)
 	{
-		QString norlogeIndexStr = QString::number(m_norlogeIndex);
+		auto norlogeIndexStr = QString::number(m_norlogeIndex);
 		rep.append(baseHmsStr + QString(norlogeIndexStr).append("i"));
 		rep.append(baseMDhmsStr + QString(norlogeIndexStr).append("i"));
 		rep.append(baseYMDhmsStr + QString(norlogeIndexStr).append("i"));
@@ -84,7 +84,7 @@ auto QQNorloge::matchingNRefsId() const -> QStringList
 
 auto QQNorloge::toStringPalmi() -> QString
 {
-	QDateTime currDateT = QDateTime::currentDateTime();
+	auto currDateT = QDateTime::currentDateTime();
 	QString rep;
 
 	bool startPrint = false;
