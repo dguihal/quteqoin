@@ -489,10 +489,6 @@ void QQPiniUrlHelper::handleYoutubeExtendedInfo(const QByteArray &htmldoc, QUrl 
 	const QString startBlock = "<meta name=\"title\" content=\"";
 	const QString endBlock = "\">";
 
-	auto info = new QQPiniUrlHelper::CacheInfo;
-
-	QString jsonInfo;
-
 	QTextStream in(htmldoc);
 	while (!in.atEnd())
 	{
@@ -519,6 +515,8 @@ void QQPiniUrlHelper::handleYoutubeExtendedInfo(const QByteArray &htmldoc, QUrl 
 	{
 		if(! title.isEmpty())
 		{
+			auto info = new QQPiniUrlHelper::CacheInfo;
+
 			info->videoThumbnailUrl = thumbnailUrl;
 			info->videoTitle = title;
 			addToCache(sourceUrl, info);
@@ -531,6 +529,7 @@ void QQPiniUrlHelper::handleYoutubeExtendedInfo(const QByteArray &htmldoc, QUrl 
 
 	if(! title.isEmpty())
 		emit videoTitleAvailable(sourceUrl, title);
+
 }
 
 //////////////////////////////////////////////////////////////

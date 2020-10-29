@@ -180,8 +180,6 @@ MainWindow::MainWindow(QWidget *parent) :
 
 MainWindow::~MainWindow()
 {
-	for(QQBouchot *b: QQBouchot::listBouchots())
-		disconnect(b, &QQBouchot::destroyed, nullptr, nullptr);
 	delete m_ui;
 }
 
@@ -321,8 +319,13 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
 		QMainWindow::keyPressEvent(event);
 }
 
-void MainWindow::bouchotDestroyed(QQBouchot *bouchot)
+void MainWindow::bouchotDestroyed(QObject *bouchotObject)
 {
+	QQBouchot *bouchot = qobject_cast<QQBouchot*>(bouchotObject);
+
+	if(bouchot == nullptr)
+		return;
+
 	QString name = bouchot->name();
 	QString group = bouchot->settings().group();
 
@@ -383,7 +386,7 @@ void MainWindow::initBouchot(QQBouchot *bouchot)
 		m_palmi->addBouchot(bouchot->name(), bouchot->settings().colorLight());
 #endif
 
-	connect(bouchot, &QQBouchot::destroyed, this, &MainWindow::bouchotDestroyed);
+	connect(bouchot, &QObject::destroyed, this, &MainWindow::bouchotDestroyed);
 	connect(bouchot, &QQBouchot::groupChanged, this, &MainWindow::bouchotGroupChanged);
 	connect(bouchot, &QQBouchot::visibilitychanged, m_pini, &QQPinipede::bouchotVisibilityChanged);
 

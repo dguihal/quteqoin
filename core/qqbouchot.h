@@ -161,7 +161,6 @@ public slots:
 	void unregisterForEventNotification(QObject *receiver);
 
 signals:
-	void destroyed(QQBouchot *bouchot);
 	void groupChanged(QQBouchot *bouchot, QString oldGroupName);
 	void lastPostersUpdated();
 	void refreshStarted();

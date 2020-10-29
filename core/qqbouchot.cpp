@@ -919,19 +919,18 @@ QQBouchot::QQBouchotSettings QQBouchot::getBouchotDef(const QString &bouchotName
 
 	QQBouchot::QQBouchotSettings settings;
 
-	unsigned long i = 0;
 	for(const auto& def: bouchotsDef)
 	{
 		if(QString::compare(bouchotName, QString::fromStdString(def.name)) == 0)
 		{
-			settings.setAliasesFromString(QString::fromStdString(bouchotsDef[i].alias));
-			settings.setBackendUrl(QString::fromStdString(bouchotsDef[i].getUrl));
-			settings.setColorFromString(QString::fromStdString(bouchotsDef[i].color));
-			settings.setPostData(QString::fromStdString(bouchotsDef[i].postData));
-			settings.setPostUrl(QString::fromStdString(bouchotsDef[i].postUrl));
+			settings.setAliasesFromString(QString::fromStdString(def.alias));
+			settings.setBackendUrl(QString::fromStdString(def.getUrl));
+			settings.setColorFromString(QString::fromStdString(def.color));
+			settings.setPostData(QString::fromStdString(def.postData));
+			settings.setPostUrl(QString::fromStdString(def.postUrl));
 			settings.setRefresh(DEFAULT_BOUCHOT_REFRESH);
-			settings.setSlipType(bouchotsDef[i].typeSlip);
-			settings.setCookies(QString::fromStdString(bouchotsDef[i].cookieProto));
+			settings.setSlipType(def.typeSlip);
+			settings.setCookies(QString::fromStdString(def.cookieProto));
 			break;
 		}
 	}

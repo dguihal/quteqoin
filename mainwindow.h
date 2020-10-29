@@ -43,7 +43,7 @@ protected:
 	virtual void keyPressEvent(QKeyEvent *event);
 
 protected slots:
-	void bouchotDestroyed(QQBouchot *bouchot);
+	void bouchotDestroyed(QObject *bouchotObject);
 	void bouchotGroupChanged(QQBouchot *bouchot, const QString &oldGroupName);
 	void doFullRepaint();
 	static void doNetworkSettingsChanged();
