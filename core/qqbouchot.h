@@ -112,6 +112,7 @@ public:
 
 	void parseBackend(const QByteArray &data, const QString &contentType);
 	void parseBackendTSV(const QByteArray &data);
+	void parseBackendXMLCustom(const QByteArray &data);
 	void parseBackendXML(const QByteArray &data);
 	void postMessage(const QString &message);
 
