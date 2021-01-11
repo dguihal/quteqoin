@@ -161,14 +161,16 @@ MainWindow::MainWindow(QWidget *parent) :
 	if(settings.value(SETTINGS_GENERAL_STEALTH_MODE, DEFAULT_GENERAL_STEALTH_MODE).toBool() &&
 	        QSystemTrayIcon::isSystemTrayAvailable())
 	{
-		auto *m = new QMenu(this);
-		QAction *quit = m->addAction(tr("&Quit"));
+		auto menu = new QMenu(this);
+		QAction *show = menu->addAction(tr("&Show"));
+		connect(show, &QAction::triggered, this, &MainWindow::show);
+		QAction *quit = menu->addAction(tr("&Quit"));
 		connect(quit, &QAction::triggered, qApp, &QApplication::quit);
 
 		m_trayIcon = new QSystemTrayIcon(QIcon(":/img/rubber_duck_yellow.svg"), this);
 		connect(m_trayIcon, &QSystemTrayIcon::activated, this, &MainWindow::onTrayIconActivated);
 
-		m_trayIcon->setContextMenu(m);
+		m_trayIcon->setContextMenu(menu);
 		m_trayIcon->show();
 	}
 

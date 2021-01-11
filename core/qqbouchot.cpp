@@ -7,6 +7,7 @@
 #include "core/qqpurgebouchothistoevent.h"
 #include "core/qqsettings.h"
 #include "core/parsers/qqbackendparser.h"
+#include "core/parsers/qqcustomxmlparser.h"
 #include "core/parsers/qqtsvparser.h"
 #include "core/parsers/qqxmlparser.h"
 
@@ -611,7 +612,8 @@ void QQBouchot::parseBackend(const QByteArray &data, const QString &contentType)
 {
 	if(contentType.startsWith("text/xml") ||
 	            contentType.startsWith("application/xml"))
-		parseBackendXML(data);
+		//parseBackendXML(data);
+		parseBackendXMLCustom(data);
 	else if(contentType.startsWith("text/tab-separated-values"))
 		parseBackendTSV(data);
 	else
@@ -655,7 +657,7 @@ void QQBouchot::parseBackendTSV(const QByteArray &data)
 	if(p == nullptr)
 	{
 
-		    delete m_parser;
+		delete m_parser;
 
 		p = new QQTsvParser(this);
 
@@ -665,6 +667,26 @@ void QQBouchot::parseBackendTSV(const QByteArray &data)
 		m_parser=p;
 	}
 
+	p->setLastId(m_lastId);
+	p->parseBackend(data);
+}
+
+void QQBouchot::parseBackendXMLCustom(const QByteArray &data)
+{
+	auto *p = qobject_cast<QQCustomXmlParser *>(m_parser);
+	if(p == nullptr)
+	{
+		delete m_parser;
+
+		p = new QQCustomXmlParser(this);
+
+		connect(p, &QQCustomXmlParser::newPostReady, this, &QQBouchot::insertNewPost);
+		connect(p, &QQCustomXmlParser::finished, this, &QQBouchot::parsingFinished);
+
+		m_parser=p;
+	}
+
+	p->setTypeSlip(m_bSettings.slipType());
 	p->setLastId(m_lastId);
 	p->parseBackend(data);
 }
