@@ -2,8 +2,7 @@
 <component type="desktop-application">
   <id>eu.ototu.Quteqoin</id>
   <name>Quteqoin</name>
-  <summary>Board browser</summary>
-  <summary lang="fr_FR">Application pour lire les tribunes</summary>
+  <summary>Desktop mouling agent</summary>
   <url type="homepage">https://github.com/dguihal/quteqoin</url>
   <launchable type="desktop-id">quteqoin.desktop</launchable>
   <metadata_license>CC0-1.0</metadata_license>
