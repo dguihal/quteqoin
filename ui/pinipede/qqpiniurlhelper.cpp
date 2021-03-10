@@ -496,7 +496,7 @@ void QQPiniUrlHelper::handleYoutubeExtendedInfo(const QByteArray &htmldoc, QUrl 
 		auto s = l.indexOf(startBlock);
 		if (s >= 0)
 		{
-			auto e = l.indexOf(endBlock);
+			auto e = l.indexOf(endBlock, s);
 			if (e >= s)
 			{
 				auto tmp = l.left(e);
