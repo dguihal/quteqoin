@@ -23,45 +23,23 @@ QQCustomXmlParser::QQCustomXmlParser(QObject *parent) : QQBackendParser(parent)
 
 bool QQCustomXmlParser::parseBackend(const QByteArray &data)
 {
-	QBuffer f;
-	f.setData(data);
-	f.open(QIODevice::ReadOnly);
+	if (data.isEmpty())
+		return false;
 
-	while (f.canReadLine())
+	int indexStart = 0;
+	while ((indexStart = data.indexOf(POST_ATTR_START_MARK, indexStart)) >= 0)
 	{
-		QByteArray l = f.readLine();
-
-		auto indexStartOfPost = l.indexOf(POST_ATTR_START_MARK);
-		while (indexStartOfPost >= 0)
+		auto indexEnd = data.indexOf(POST_ATTR_END_MARK, indexStart);
+		if (indexEnd >= 0)
 		{
-			QBuffer postBuffer;
-			postBuffer.open(QBuffer::ReadWrite);
-			postBuffer.write(l);
-
-			while (f.canReadLine())
-			{
-				auto indexEndOfPost = l.indexOf(POST_ATTR_END_MARK);
-				if (indexEndOfPost >= 0)
-				{
-					if(parsePost(postBuffer.data()))
-						emit newPostReady(m_currentPost);
-					postBuffer.close();
-					postBuffer.setData("");
-					postBuffer.open(QBuffer::ReadWrite);
-					break;
-				}
-
-				l = f.readLine();
-				postBuffer.write(l);
-			}
-
-			indexStartOfPost = l.indexOf(POST_ATTR_START_MARK, indexStartOfPost + strlen(POST_ATTR_START_MARK));
+			if(parsePost(data.mid(indexStart + strlen(POST_ATTR_START_MARK), indexEnd - (indexStart + strlen(POST_ATTR_START_MARK)))))
+				emit newPostReady(m_currentPost);
 		}
+		indexStart = indexEnd;
 	}
 
 	m_lastId = m_maxId;
 
-	f.close();
 	emit finished();
 
 	return true;
@@ -146,7 +124,7 @@ bool QQCustomXmlParser::parsePost(const QByteArray &data)
 	else
 		m_currentPost.setMessage(rawMessage);
 
-	qDebug() << Q_FUNC_INFO << m_currentPost.message();
+	//qDebug() << Q_FUNC_INFO << m_currentPost.message();
 
 	return true;
 }
