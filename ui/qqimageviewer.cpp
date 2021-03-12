@@ -65,9 +65,6 @@ void QQImageViewer::displayMovie()
 	setStyleSheet("QLabel { background-color : rgba(255, 255, 255, 0); color : black; }");
 	m_imgMovie.disconnect(SIGNAL(finished()));
 
-	if(m_imgMovie.frameCount() > 1)
-		connect(&m_imgMovie, SIGNAL(finished()), &m_imgMovie, SLOT(start()));
-
 	m_imgMovie.jumpToFrame(0);
 
 	setMovie(&m_imgMovie);
@@ -107,6 +104,7 @@ bool QQImageViewer::updateImg(const QByteArray &imgData, const QSize &maxSize)
 	if(maxSize.isValid())
 		imgSize.scale(imgSize.boundedTo(maxSize), Qt::KeepAspectRatio);
 
+	m_imgMovie.stop();
 	m_imgMovie.setDevice(&m_imgDataBuffer);
 	if(m_imgMovie.isValid())
 	{
