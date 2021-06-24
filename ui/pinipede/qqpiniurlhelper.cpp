@@ -396,7 +396,7 @@ void QQPiniUrlHelper::handleVimeoExtendedInfo(const QByteArray &jsonInfo, QUrl &
 	QString title;
 
 	auto info = new QQPiniUrlHelper::CacheInfo;
-	//JSON seulement supporté par Qt 5
+
 	QJsonParseError error{};
 	QJsonDocument d = QJsonDocument::fromJson(jsonInfo, &error);
 	if(d.isEmpty())
@@ -450,18 +450,17 @@ void QQPiniUrlHelper::getYoutubeExtendedInfo(QUrl &url)
 			QStringList pathExp = url.path().split(QChar('/'), QString::SkipEmptyParts);
 #endif
 			if(! pathExp.isEmpty())
-				ytId = pathExp.at(0);
+				ytId = pathExp.last();
 		}
 		else
 		{
 			QUrlQuery urlQ(url);
 			ytId = urlQ.queryItemValue("v");
 		}
-
 		if(ytId.isEmpty())
 			return;
 
-		QUrl qUrl = QUrl(QString("https://www.youtube.com/watch?v=%1")
+		QUrl qUrl = QUrl(QString("https://www.youtube.com/oembed?format=json&url=http%3A//www.youtube.com/watch?v=%1")
 		                .arg(ytId));
 
 		QNetworkRequest r(qUrl);
@@ -481,35 +480,21 @@ void QQPiniUrlHelper::getYoutubeExtendedInfo(QUrl &url)
 
 }
 
-void QQPiniUrlHelper::handleYoutubeExtendedInfo(const QByteArray &htmldoc, QUrl &sourceUrl, const QString &videoID)
+void QQPiniUrlHelper::handleYoutubeExtendedInfo(const QByteArray &jsonInfo, QUrl &sourceUrl, const QString &videoID)
 {
 	QString thumbnailUrl;
 	QString title;
 
-	const QString startBlock = "<meta name=\"title\" content=\"";
-	const QString endBlock = "\">";
-
-	QTextStream in(htmldoc);
-	while (!in.atEnd())
+	QJsonParseError error{};
+	QJsonDocument d = QJsonDocument::fromJson(jsonInfo, &error);
+	if(d.isEmpty() || ! d.isObject())
 	{
-		auto l = in.readLine();
-		auto s = l.indexOf(startBlock);
-		if (s >= 0)
-		{
-			auto e = l.indexOf(endBlock, s);
-			if (e >= s)
-			{
-				auto tmp = l.left(e);
-				auto htmlFragment = QTextDocumentFragment::fromHtml(tmp.mid(s + startBlock.length()));
-				title = htmlFragment.toPlainText();
-				break;
-			}
-
-			qInfo() << "Unable to parse youtube page for Url " << sourceUrl << "No end block found";
-			return;
-		}
+		qDebug() << Q_FUNC_INFO << "error" << error.errorString();
+		return;
 	}
-	thumbnailUrl = QString("https://i.ytimg.com/vi/%1/hqdefault.jpg").arg(videoID);
+	QJsonObject o = d.object();
+	thumbnailUrl = o["thumbnail_url"].toString();
+	title = o["title"].toString();
 
 	if(! videoID.isEmpty())
 	{
