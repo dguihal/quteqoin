@@ -517,14 +517,19 @@ void QQTotozManager::updateEmojiViewer(const QList<QQEmojiDef> &emojis)
 	QVBoxLayout *layout = new QVBoxLayout(widget);
 	layout->setContentsMargins(0, 0, 0, 0);
 
+	QQSettings settings;
+	QFont piniFont;
+	piniFont.fromString(settings.value(SETTINGS_GENERAL_DEFAULT_FONT, DEFAULT_GENERAL_DEFAULT_FONT).toString());
+
 	foreach (QQEmojiDef d, emojis)
 	{
 		QPushButton *b = new QPushButton(widget);
 		b->setFlat(true);
-		b->setStyleSheet("QPushButton {text-align: left; font-size: 12px}");
+		b->setStyleSheet("QPushButton {text-align: left}");
 		b->setProperty(EMOJI_SYMBOL, d.symbol);
 		b->setProperty(EMOJI_IS_CAT, d.type == CAT);
 		b->setText(QString(d.symbol).append(" ").append(d.name));
+		b->setFont(piniFont);
 		connect(b, SIGNAL(clicked(bool)), this, SLOT(emojiSelected()));
 		layout->addWidget(b);
 	}
