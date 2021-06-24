@@ -114,13 +114,16 @@ bool QQCustomXmlParser::parsePost(const QByteArray &data)
 	auto rawMessage = data.mid(indexStart, indexEnd - indexStart);
 
 	if (m_typeSlip == QQBouchot::SlipTagsEncoded)
+	{
 		m_currentPost.setMessage(
 		            QString(rawMessage).
 		                replace("&lt;", "<").
 		                replace("&gt;", ">").
 		                replace("&quote;", "\"").
+		                replace("&#34;", "\"").
 		                replace("&amp;", "&")
 		            );
+	}
 	else
 		m_currentPost.setMessage(rawMessage);
 
