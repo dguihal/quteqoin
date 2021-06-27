@@ -47,7 +47,7 @@ private:
 	void getVimeoExtendedInfo(QUrl &url);
 	void handleVimeoExtendedInfo(const QByteArray &jsonInfo, QUrl &sourceUrl);
 	void getYoutubeExtendedInfo(QUrl &url);
-	void handleYoutubeExtendedInfo(const QByteArray &htmldoc, QUrl &sourceUrl, const QString &videoID);
+	void handleYoutubeExtendedInfo(const QByteArray &jsonInfo, QUrl &sourceUrl, const QString &videoID);
 
 	struct CacheInfo {
 		QString contentType;
