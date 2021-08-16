@@ -54,6 +54,9 @@ void QQWebDownloader::requestFinishedSlot(QNetworkReply *reply)
 	        redirectedURL != reply->url() &&
 	        ! m_listPendingUrl.contains(redirectedURL))
 	{
+		if(redirectedURL.host().isEmpty()) // Relative redirection
+			redirectedURL=reply->request().url().resolved(redirectedURL);
+
 		QNetworkRequest rq(redirectedURL);
 		QNetworkReply *newReply = httpGet(rq);
 

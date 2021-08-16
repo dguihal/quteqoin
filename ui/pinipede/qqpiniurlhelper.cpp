@@ -130,6 +130,9 @@ void QQPiniUrlHelper::requestFinishedSlot(QNetworkReply *reply)
 		if(!redirectedURL.isEmpty() &&
 		        redirectedURL != sourceUrl)
 		{
+			if(redirectedURL.host().isEmpty()) // Relative redirection
+				redirectedURL=reply->request().url().resolved(redirectedURL);
+
 			QNetworkRequest rq(reply->request());
 			rq.setUrl(redirectedURL);
 			QNetworkReply *newReply = httpHead(rq);
