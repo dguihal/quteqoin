@@ -6,8 +6,13 @@
 
 #version check qt
 equals(QT_MAJOR_VERSION, 5):lessThan(QT_MINOR_VERSION, 4) {
-    message("Cannot build Qt Creator with Qt version $${QT_VERSION}.")
-	error("Use at least Qt 5.4 .")
+    message("Cannot build quteqoin with Qt version $${QT_VERSION}.")
+    error("Use at least Qt 5.4 .")
+}
+
+!equals(QT_MAJOR_VERSION, 5) {
+    message("Cannot build quteqoin with Qt version $${QT_VERSION}.")
+    error("Must be build with Qt >= 5.4 and < 6.0 .")
 }
 
 QT += core network xml widgets multimediawidgets
