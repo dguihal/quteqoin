@@ -187,8 +187,9 @@ MainWindow::~MainWindow()
 
 void MainWindow::displayOptions()
 {
-	for(QQBouchot *b: QQBouchot::listBouchots())
-		b->stopRefresh();
+	auto listBouchots = QQBouchot::listBouchots();
+	for(auto i = listBouchots.begin(); i != listBouchots.end(); ++i)
+		(*i)->stopRefresh();
 
 	QQSettingsManager settingsManager(this);
 	connect(&settingsManager, &QQSettingsManager::bouchotCreated, this, &MainWindow::initBouchot);
@@ -198,8 +199,9 @@ void MainWindow::displayOptions()
 	connect(&settingsManager, &QQSettingsManager::totozSearchEnabledChanged, m_totozManager, &QQTotozManager::totozSearchEnabled);
 	settingsManager.exec();
 
-	for(QQBouchot *b: QQBouchot::listBouchots())
-		b->startRefresh();
+	listBouchots = QQBouchot::listBouchots();
+	for(auto i = listBouchots.begin(); i != listBouchots.end(); ++i)
+		(*i)->startRefresh();
 }
 
 void MainWindow::doPostMessage(const QString &bouchot, const QString &message)
@@ -302,10 +304,11 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
 	{
 	case Qt::Key_F5:
 	{
-		for(auto bouchot : QQBouchot::listBouchots())
+		auto listBouchots = QQBouchot::listBouchots();
+		for(auto i = listBouchots.begin(); i != listBouchots.end(); ++i)
 		{
-			bouchot->stopRefresh();
-			bouchot->startRefresh();
+			(*i)->stopRefresh();
+			(*i)->startRefresh();
 		}
 		break;
 	}
@@ -361,8 +364,9 @@ void MainWindow::bouchotGroupChanged(QQBouchot *bouchot, const QString &oldGroup
 
 void MainWindow::doFullRepaint()
 {
-	for(const QString &group: QQBouchot::listGroups())
-		m_pini->repaintPiniTab(group);
+	auto listGroups = QQBouchot::listGroups();
+	for(auto i = listGroups.begin(); i < listGroups.end(); ++i)
+		m_pini->repaintPiniTab(*i);
 }
 
 void MainWindow::doNetworkSettingsChanged()
@@ -411,9 +415,10 @@ void MainWindow::initBouchots()
 {
 	QQSettings settings;
 
-	for(const QString &name: settings.listBouchots())
+	auto listBouchots = settings.listBouchots();
+	for(auto i = listBouchots.begin(); i != listBouchots.end(); ++i)
 	{
-		QQBouchot *bouchot = settings.loadBouchot(name);
+		QQBouchot *bouchot = settings.loadBouchot(*i);
 		if(bouchot == nullptr)
 			continue;
 

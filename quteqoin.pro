@@ -49,8 +49,7 @@ SOURCES += main.cpp\
 	core/parsers/qqbackendparser.cpp \
 	core/parsers/qqcustomxmlparser.cpp \
 	core/parsers/qqtsvparser.cpp \
-	core/parsers/qqxmlparser.cpp \
-	ui/palmipede/delimitedcompleter.cpp \
+        core/parsers/qqxmlparser.cpp \
 	ui/qqmessageblockuserdata.cpp \
 	ui/qqproxyauthdialog.cpp \
 	ui/qqtotozmanager.cpp \
@@ -117,8 +116,7 @@ HEADERS  += mainwindow.h \
 	core/parsers/qqbackendparser.h \
 	core/parsers/qqcustomxmlparser.h \
 	core/parsers/qqtsvparser.h \
-	core/parsers/qqxmlparser.h \
-	ui/palmipede/delimitedcompleter.h \
+        core/parsers/qqxmlparser.h \
 	ui/qqmessageblockuserdata.h \
 	ui/qqproxyauthdialog.h \
 	ui/qqtotozmanager.h \

@@ -127,7 +127,6 @@ void QQTextBrowser::notifAreaPaintEvent(QPaintEvent * event)
 {
 	QPainter painter(m_notifArea);
 	painter.setRenderHint(QPainter::Antialiasing, true);
-	painter.setRenderHint(QPainter::HighQualityAntialiasing, true);
 
 	// Pour les nouveaux posts
 	QColor newPostsBrushColor(0, 255, 0, 100);
@@ -727,7 +726,6 @@ void QQTextBrowser::paintEvent(QPaintEvent * event)
 	// Pour le bigorno
 	QPainter bigornoPainter(viewport());
 	bigornoPainter.setRenderHint(QPainter::Antialiasing, true);
-	bigornoPainter.setRenderHint(QPainter::HighQualityAntialiasing, true);
 	QColor bigornoBrushColor(60, 0, 0, 100);
 	bigornoPainter.setBrush(QBrush(bigornoBrushColor));
 	QColor bigornoPenColor(150, 0, 0);

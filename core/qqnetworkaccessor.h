@@ -39,6 +39,7 @@ protected:
 						   QIODevice *data);
 
 	void clearCookiesForUrl(const QUrl &url);
+	void clearNetworkBackend();
 	bool setCookiesFromUrl(const QList<QNetworkCookie> &cookieList, const QUrl &url);
 
 	void setNetCacheManager(QAbstractNetworkCache *networkCache) { m_qnam->setCache(networkCache); }

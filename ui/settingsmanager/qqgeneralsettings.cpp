@@ -16,8 +16,8 @@ QQGeneralSettings::QQGeneralSettings(QWidget *parent) :
 	QValidator *validator = new QIntValidator(1, INT_MAX, this);
 	ui->maxHistLineEdit->setValidator(validator);
 
-	connect(ui->fontFamComboB, SIGNAL(currentFontChanged(const QFont &)),
-			this, SLOT(fontChanged(const QFont &)));
+	connect(ui->fontFamComboB, SIGNAL(currentFontChanged(QFont)),
+	        this, SLOT(fontChanged(QFont)));
 	connect(ui->fontSizeComboB, SIGNAL(activated(int)),
 			this, SLOT(fontSizeChanged(int)));
 	connect(ui->colorChooserPB, SIGNAL(clicked(bool)),

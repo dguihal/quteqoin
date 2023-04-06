@@ -176,7 +176,8 @@ void QQBouchot::setSettings(const QQBouchotSettings &newSettings)
 
 	//Set new cookies
 	QList<QNetworkCookie> qlCookies;
-	QStringList cookies=newSettings.cookies().split(QRegularExpression("\\s*;\\s*"));
+	static const QRegularExpression re("\\s*;\\s*");
+	QStringList cookies=newSettings.cookies().split(re);
 	foreach (QString cookie, cookies) {
 		QStringList splittedCookie=cookie.split("=");
 		if(splittedCookie.size() >= 2)
@@ -560,6 +561,9 @@ void QQBouchot::requestFinishedSlot(QNetworkReply *reply)
 				           << "reply->request().attribute(QNetworkRequest::User).toInt() unknown :"
 				           << reply->request().attribute(QNetworkRequest::User, QQBouchot::UnknownRequest).toInt();
 		}
+
+
+		clearNetworkBackend();
 	}
 	else
 	{

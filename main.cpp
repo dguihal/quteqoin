@@ -24,12 +24,13 @@ bool removeDirRecursive(const QString &dirName)
 
 	if (dir.exists(dirName))
 	{
-		for (const auto &fi : dir.entryInfoList(QDir::NoDotAndDotDot | QDir::System | QDir::Hidden  | QDir::AllDirs | QDir::Files, QDir::DirsFirst))
+		auto entryInfoList = dir.entryInfoList(QDir::NoDotAndDotDot | QDir::System | QDir::Hidden  | QDir::AllDirs | QDir::Files, QDir::DirsFirst);
+		for(auto fi = entryInfoList.begin(); fi != entryInfoList.end(); ++fi)
 		{
-			if (fi.isDir())
-				result = removeDirRecursive(fi.absoluteFilePath());
+			if ((*fi).isDir())
+				result = removeDirRecursive((*fi).absoluteFilePath());
 			else
-				result = QFile::remove(fi.absoluteFilePath());
+				result = QFile::remove((*fi).absoluteFilePath());
 
 			if (!result)
 				return result;
