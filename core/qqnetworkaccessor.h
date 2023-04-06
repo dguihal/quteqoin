@@ -25,8 +25,8 @@ protected slots:
 	virtual void requestFinishedSlot(QNetworkReply *reply) = 0;
 
 protected:
-	int name_to_month(QByteArray month_str);
-	QDateTime parseRC822(QString string);
+	static int name_to_month(QByteArray month_str);
+	static QDateTime parseRC822(const QString& string);
 
 protected:
 	QNetworkReply *httpGet(const QNetworkRequest &request);
@@ -39,12 +39,13 @@ protected:
 						   QIODevice *data);
 
 	void clearCookiesForUrl(const QUrl &url);
+	void clearNetworkBackend();
 	bool setCookiesFromUrl(const QList<QNetworkCookie> &cookieList, const QUrl &url);
 
 	void setNetCacheManager(QAbstractNetworkCache *networkCache) { m_qnam->setCache(networkCache); }
 
 protected slots:
-	void onProxyAuthenticationRequired(const QNetworkProxy &proxy, QAuthenticator *authenticator);
+	static void onProxyAuthenticationRequired(const QNetworkProxy &proxy, QAuthenticator *authenticator);
 	void onRemoveTimer(QObject *obj);
 	void onRequestTimeout();
 

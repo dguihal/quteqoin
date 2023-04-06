@@ -8,11 +8,11 @@
 #include <QStringListModel>
 
 QQBoardsSettings::QQBoardsSettings(QWidget *parent) :
-	QWidget(parent),
-	ui(new Ui::QQBoardsSettings)
+    QWidget(parent),
+    ui(new Ui::QQBoardsSettings)
 {
 	ui->setupUi(this);
-	ui->bouchotListView->setModel(new QStringListModel());
+	ui->bouchotListView->setModel(new QStringListModel(this));
 	ui->bouchotListView->setEditTriggers(QAbstractItemView::NoEditTriggers);
 
 #ifndef Q_OS_UNIX

@@ -75,7 +75,7 @@ private:
 	QString m_dstBouchot;
 
 	QString m_origNRef;
-	int m_posInMessage;
+	int m_posInMessage{};
 
 	QList< QPointer<QQPost> > m_listPostTarget;
 

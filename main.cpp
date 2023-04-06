@@ -2,11 +2,7 @@
 #include "core/qqsettingsparams.h"
 
 #include <QApplication>
-#if(QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
 #include <QStandardPaths>
-#else
-#include <QDesktopServices>
-#endif
 #include <QDateTime>
 #include <QDir>
 #include <QSettings>
@@ -14,11 +10,9 @@
 #undef QML_PALMI
 
 #ifdef QML_PALMI
-#if(QT_VERSION >= QT_VERSION_CHECK(5, 3, 0))
 #include "qml/documenthandler.h"
 #include <QQmlApplicationEngine>
 #include <QQuickWindow>
-#endif
 #endif //QML_PALMI
 
 //#define QQ_ENABLE_QML true
@@ -30,12 +24,13 @@ bool removeDirRecursive(const QString &dirName)
 
 	if (dir.exists(dirName))
 	{
-		Q_FOREACH(QFileInfo info, dir.entryInfoList(QDir::NoDotAndDotDot | QDir::System | QDir::Hidden  | QDir::AllDirs | QDir::Files, QDir::DirsFirst))
+		auto entryInfoList = dir.entryInfoList(QDir::NoDotAndDotDot | QDir::System | QDir::Hidden  | QDir::AllDirs | QDir::Files, QDir::DirsFirst);
+		for(auto fi = entryInfoList.begin(); fi != entryInfoList.end(); ++fi)
 		{
-			if (info.isDir())
-				result = removeDirRecursive(info.absoluteFilePath());
+			if ((*fi).isDir())
+				result = removeDirRecursive((*fi).absoluteFilePath());
 			else
-				result = QFile::remove(info.absoluteFilePath());
+				result = QFile::remove((*fi).absoluteFilePath());
 
 			if (!result)
 				return result;
@@ -48,17 +43,13 @@ bool removeDirRecursive(const QString &dirName)
 
 void purgeCache()
 {
-#if(QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
 	QDir dirCache(QStandardPaths::writableLocation(QStandardPaths::CacheLocation));
-#else
-	QDir dirCache(QDesktopServices::storageLocation(QDesktopServices::CacheLocation));
-#endif
 	QDateTime now = QDateTime::currentDateTime();
 	QFileInfoList fileInfoList = dirCache.entryInfoList();
-	for (int i = 0; i < fileInfoList.size(); ++i)
+	for (const auto &fi : fileInfoList)
 	{
-		if(fileInfoList.at(i).lastModified().daysTo(now) >  MAX_CACHE_AGE_DAYS)
-			QFile(fileInfoList.at(i).filePath()).remove();
+		if(fi.lastModified().daysTo(now) >  MAX_CACHE_AGE_DAYS)
+			QFile(fi.filePath()).remove();
 	}
 
 	//Nettoyage du cache reseau au demarrage : QTBUG-34498
@@ -66,7 +57,6 @@ void purgeCache()
 }
 
 #ifdef QML_PALMI
-#if(QT_VERSION >= QT_VERSION_CHECK(5, 3, 0))
 void dumpRecurse(QQuickItem *rootItem)
 {
 	foreach (QQuickItem *item, rootItem->childItems())
@@ -75,15 +65,14 @@ void dumpRecurse(QQuickItem *rootItem)
 		dumpRecurse(item);
 	}
 }
-#endif //QT_VERSION
 #endif //QML_PALMI
 
 int main(int argc, char *argv[])
 {
 	QApplication a(argc, argv);
-	a.setOrganizationName("Moules Corp");
-	a.setApplicationName(APP_NAME);
-	a.setApplicationVersion(GIT_VERSION);
+	QApplication::setOrganizationName("Moules Corp");
+	QApplication::setApplicationName(APP_NAME);
+	QApplication::setApplicationVersion(GIT_VERSION);
 	QSettings::setDefaultFormat(QSettings::IniFormat);
 
 	purgeCache();
@@ -93,7 +82,6 @@ int main(int argc, char *argv[])
 
 #ifdef ENABLE_QML
 #ifdef QT_DEBUG
-#if(QT_VERSION >= QT_VERSION_CHECK(5, 3, 0))
 	qmlRegisterType<DocumentHandler>("org.moules.quteqoin", 1, 0, "DocumentHandler");
 	QQmlApplicationEngine engine(QUrl("qrc:///qml/QQmlMain.qml"));
 	QQuickWindow *qmlRoot = qobject_cast<QQuickWindow *>(engine.rootObjects().at(0));
@@ -112,9 +100,8 @@ int main(int argc, char *argv[])
 		qDebug() << Q_FUNC_INFO << "textArea found";
 	}
 	*/
-#endif //QT_VERSION
 #endif //QT_DEBUG
 #endif //QQ_ENABLE_QML
 
-	return a.exec();
+	return QApplication::exec();
 }

@@ -3,24 +3,23 @@
 #include <QtDebug>
 
 QQMessageBlockUserData::QQMessageBlockUserData() :
-	QTextBlockUserData(),
-	m_wasParsed(false),
-	m_hasDuck(false),
-	m_hasTableV(false),
-	m_post(QPointer<QQPost>())
+    QTextBlockUserData(),
+    m_wasParsed(false),
+    m_hasDuck(false),
+    m_hasTableV(false),
+    m_post(QPointer<QQPost>())
 {
 }
 
 QQMessageBlockUserData::QQMessageBlockUserData(const QQMessageBlockUserData & userData) :
-	QTextBlockUserData((QTextBlockUserData) userData),
-	m_listNRef(userData.m_listNRef),
-	m_listBigorno(userData.m_listBigorno),
-	m_mapTableV(userData.m_mapTableV),
-	m_wasParsed(userData.m_wasParsed),
-	m_hasDuck(userData.m_hasDuck),
-	m_hasTableV(userData.m_hasTableV),
-	m_ranges(userData.m_ranges),
-	m_post(userData.m_post)
+    QTextBlockUserData((QTextBlockUserData) userData),
+    m_listNRef(userData.m_listNRef),
+    m_listBigorno(userData.m_listBigorno),
+    m_wasParsed(userData.m_wasParsed),
+    m_hasDuck(userData.m_hasDuck),
+    m_hasTableV(userData.m_hasTableV),
+    m_ranges(userData.m_ranges),
+    m_post(userData.m_post)
 {
 }
 
@@ -41,24 +40,4 @@ bool QQMessageBlockUserData::hasNRefToSelfPost() const
 			return true;
 	}
 	return false;
-}
-
-QPair<int, QString> QQMessageBlockUserData::stringForIndex(int index, const QMap<int, QString> & map) const
-{
-	QList<int> startIndexes = map.uniqueKeys();
-	int i = 0;
-	while(i < startIndexes.size())
-	{
-		int startIndex = startIndexes[i];
-		if(isIndexInString(index, startIndex, map[startIndex]))
-			return qMakePair(startIndex, map[startIndex]);
-
-		i++;
-	}
-	return qMakePair(-1, QString::fromLatin1(""));
-}
-
-bool QQMessageBlockUserData::isIndexInString(int index, int stringIndexStart, const QString & string) const
-{
-	return (index >= stringIndexStart && index < stringIndexStart + string.length());
 }

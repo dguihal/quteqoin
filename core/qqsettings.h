@@ -50,23 +50,23 @@ public:
 	QQBouchot * loadBouchot(const QString &name);
 	void removeBouchot(const QString &name);
 
-	QStringList listTotozSrvPresets();
-	QQTotozSrvPreset getTotozSrvPreset(QString totozSrvPreset, bool labelOnly = false);
+	static QStringList listTotozSrvPresets();
+	static QQTotozSrvPreset getTotozSrvPreset(const QString& totozSrvPreset, bool labelOnly = false);
 
-	QList<QQEmojiCat> listEmojis();
+	static QList<QQEmojiCat> listEmojis();
 
 	QStringList listBouchots();
 
 	QList< QPair<QChar, QString> > palmiShorcuts() const { return m_staticPalmiShortcuts + m_userPalmiShortcuts; }
 	QList< QPair<QChar, QString> > staticPalmiShorcuts() const { return m_staticPalmiShortcuts; }
-	void setUserPalmiShorcuts(QList< QPair<QChar, QString> > userPalmiShortcuts);
+	void setUserPalmiShorcuts(const QList< QPair<QChar, QString> >& userPalmiShortcuts);
 	QList< QPair<QChar, QString> > userPalmiShorcuts() const { return m_userPalmiShortcuts; }
 
 	bool setValueWithDefault(const QString &key, const QVariant &newValue, const QVariant &defaultValue);
 
 private:
 	void fillStaticPalmiShortcuts();
-	QList< QPair<QChar, QString> > defaultUserPalmiShortcuts() const;
+	static QList< QPair<QChar, QString> > defaultUserPalmiShortcuts() ;
 	QList< QPair<QChar, QString> > savedUserPalmiShortcuts() const;
 
 	QList< QPair<QChar, QString> > m_staticPalmiShortcuts;

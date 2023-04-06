@@ -1,11 +1,13 @@
 #include "qqboardstatechangeevent.h"
 
+#include <utility>
+
 const QEvent::Type QQBoardStateChangeEvent::BOARD_STATE_CHANGED =
  (QEvent::Type)QEvent::registerEventType();
 
-QQBoardStateChangeEvent::QQBoardStateChangeEvent(const QString &boardName) :
+QQBoardStateChangeEvent::QQBoardStateChangeEvent(QString boardName) :
 	QEvent(BOARD_STATE_CHANGED),
-	m_boardName(boardName)
+	m_boardName(std::move(boardName))
 {
 }
 

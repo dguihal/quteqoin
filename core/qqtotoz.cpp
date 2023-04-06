@@ -6,7 +6,7 @@
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
 
-QQTotoz::QQTotoz() {}
+QQTotoz::QQTotoz() = default;
 
 QQTotoz::QQTotoz(const QString & totozId)
 {
@@ -32,7 +32,7 @@ QQTotoz::~QQTotoz()
 bool QQTotoz::cacheExists()
 {
 	QFile file(QQTotoz::getPath(m_id));
-	if(!file.exists(QQTotoz::getPath(m_id)))
+	if(!QFile::exists(QQTotoz::getPath(m_id)))
 		return false;
 
 	//Invalidation systematique au bout de 60j
@@ -63,7 +63,7 @@ bool QQTotoz::isCacheExpired()
 	return cacheExpired;
 }
 
-QString QQTotoz::getPath(QString id)
+QString QQTotoz::getPath(const QString& id)
 {
 #if(QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
 	QDir dirCache(QStandardPaths::writableLocation(QStandardPaths::CacheLocation));

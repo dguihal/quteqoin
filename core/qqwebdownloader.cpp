@@ -5,19 +5,17 @@
 #include <QDesktopServices>
 #include <QNetworkDiskCache>
 
-#define INITIAL_URL_PROPERTY "INITIAL_URL"
+constexpr char INITIAL_URL_PROPERTY[] = "INITIAL_URL";
+constexpr unsigned long MAX_CACHE_SIZE_MB = 100;
+constexpr unsigned long MEGABYTE = 1024 * 1024;
 
 //////////////////////////////////////////////////////////////
 QQWebDownloader::QQWebDownloader(QObject *parent) :
-	QQNetworkAccessor(parent)
+    QQNetworkAccessor(parent)
 {
-	QNetworkDiskCache *diskCache = new QNetworkDiskCache(this);
-	diskCache->setMaximumCacheSize(100 * 1024 * 1024); // 100 Mo
-#if(QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
+	auto *diskCache = new QNetworkDiskCache(this);
+	diskCache->setMaximumCacheSize(MAX_CACHE_SIZE_MB * MEGABYTE); // 100 Mo
 	QDir dirCache(QStandardPaths::writableLocation(QStandardPaths::CacheLocation));
-#else
-	QDir dirCache(QDesktopServices::storageLocation(QDesktopServices::CacheLocation));
-#endif
 	diskCache->setCacheDirectory(dirCache.absoluteFilePath("networkCache"));
 	setNetCacheManager(diskCache);
 }
@@ -34,7 +32,7 @@ void QQWebDownloader::getURL(const QUrl &url)
 
 		QNetworkRequest request(url);
 		request.setAttribute(QNetworkRequest::CacheLoadControlAttribute,
-							 QNetworkRequest::PreferCache);
+		                     QNetworkRequest::PreferCache);
 		httpGet(request);
 	}
 	else
@@ -53,9 +51,12 @@ void QQWebDownloader::requestFinishedSlot(QNetworkReply *reply)
 	QUrl redirectedURL = reply->attribute(QNetworkRequest::RedirectionTargetAttribute).toUrl();
 
 	if(!redirectedURL.isEmpty() &&
-			redirectedURL != reply->url() &&
-			! m_listPendingUrl.contains(redirectedURL))
+	        redirectedURL != reply->url() &&
+	        ! m_listPendingUrl.contains(redirectedURL))
 	{
+		if(redirectedURL.host().isEmpty()) // Relative redirection
+			redirectedURL=reply->request().url().resolved(redirectedURL);
+
 		QNetworkRequest rq(redirectedURL);
 		QNetworkReply *newReply = httpGet(rq);
 

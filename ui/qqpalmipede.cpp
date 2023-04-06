@@ -143,14 +143,14 @@ void QQPalmipede::changeNorloges(const QString & bouchot)
 	{
 		if(firstIndex > 0)
 		{
-			destText.append(text.left(firstIndex));
+			destText.append(text.leftRef(firstIndex));
 			text.remove(0, firstIndex);
 		}
 
 		QString norloge = text.left(norlogeReg.matchedLength());
 
 		if(norloge.contains(bouchotRemoverReg))
-			destText.append(norloge.left(norloge.length() - bouchotRemoverReg.matchedLength()));
+			destText.append(norloge.leftRef(norloge.length() - bouchotRemoverReg.matchedLength()));
 		else if(! norloge.contains(bouchotAdderReg) && bouchot != m_oldBouchot)
 			destText.append(norloge).append(QString::fromLatin1("@")).append(m_oldBouchot);
 		else

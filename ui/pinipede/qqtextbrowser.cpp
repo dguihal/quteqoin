@@ -9,6 +9,7 @@
 #include <QtDebug>
 #include <QApplication>
 #include <QCursor>
+#include <QClipboard>
 #include <QFontMetrics>
 #include <QLabel>
 #include <QMenu>
@@ -22,13 +23,15 @@
 #include <QTextTable>
 #include <QTextTableCell>
 #include <QToolTip>
-#if(QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
 #include <QUrlQuery>
-#endif
 
 #define TIME_UA_AREA_WIDTH_CHAR 26 // 10 + 1 + 15 Chars
 #define NOTIF_AREA_WIDTH 18 //Px
 #define ITEM_AREA_WIDTH 6 //Px
+
+constexpr char copyLinkActionObjectName[] = "link-copy";
+constexpr char searchOnWebActionObjectName[] = "search-on-web";
+constexpr char totozAddToBookmarksActionName[] = "totoz-add-to-bookmarks";
 
 QQTextBrowser::QQTextBrowser(QString groupName, QQPinipede *parent) :
     QTextBrowser(parent),
@@ -124,7 +127,6 @@ void QQTextBrowser::notifAreaPaintEvent(QPaintEvent * event)
 {
 	QPainter painter(m_notifArea);
 	painter.setRenderHint(QPainter::Antialiasing, true);
-	painter.setRenderHint(QPainter::HighQualityAntialiasing, true);
 
 	// Pour les nouveaux posts
 	QColor newPostsBrushColor(0, 255, 0, 100);
@@ -338,7 +340,7 @@ void QQTextBrowser::onAnchorHighlighted(const QUrl &link)
 		if(link != m_shownUrl)
 		{
 			unHighlightNorloge();
-			hideViewers();
+			emit hideViewers();
 			m_shownUrl = link;
 		}
 		else
@@ -415,6 +417,21 @@ void QQTextBrowser::onBakUserAction()
 			login = QUrl::fromPercentEncoding(userUrlQuery.queryItemValue("ua").toUtf8());
 
 		b->addToBak(login, isAuth);
+	}
+}
+
+/**
+ * @brief QQTextBrowser::onCopyLinkLocationAction
+ */
+void QQTextBrowser::onCopyLinkLocationAction()
+{
+	auto link = QUrl::fromUserInput(m_contextMenuContextualString);
+	m_contextMenuContextualString.clear();
+
+	if(link.isValid())
+	{
+		auto clipBoard = QApplication::clipboard();
+		clipBoard->setText(link.toString());
 	}
 }
 
@@ -527,7 +544,19 @@ void QQTextBrowser::clearViewers()
 
 void QQTextBrowser::contextMenuEvent(QContextMenuEvent * ev)
 {
-	auto menu = createStandardContextMenu(ev->pos());
+	auto menu = createStandardContextMenu();
+
+	QAction * copyLinkLocationAction = nullptr;
+	auto actions = menu->actions();
+	for(auto a: qAsConst(actions))
+	{
+		if(a->objectName() == copyLinkActionObjectName)
+		{
+			copyLinkLocationAction = a;
+			copyLinkLocationAction->setEnabled(false);
+			break;
+		}
+	}
 
 	auto cursor = cursorForPosition(ev->pos());
 	auto uData = static_cast<QQMessageBlockUserData *>(cursor.block().userData());
@@ -543,6 +572,7 @@ void QQTextBrowser::contextMenuEvent(QContextMenuEvent * ev)
 	if(cursor.hasSelection())
 	{
 		auto action = menu->addAction(tr("&Search on web"));
+		action->setObjectName(searchOnWebActionObjectName);
 		connect(action, &QAction::triggered, this, &QQTextBrowser::onWebSearchAction);
 	}
 
@@ -550,27 +580,21 @@ void QQTextBrowser::contextMenuEvent(QContextMenuEvent * ev)
 	if(anchor.size() > 0)
 	{
 		QUrl anchorUrl(anchor);
-		QString anchorUrlScheme = anchorUrl.scheme();
 
-		auto copyLinkLocationAction = menu->actions().at(1);
+		auto anchorUrlScheme = anchorUrl.scheme();
 		if(anchorUrlScheme == "totoz") // Un [:totoz]
 		{
 			m_contextMenuContextualString = anchorUrl.path().remove(0, 1); // Le / initial
 
-			QAction *action = menu->addAction(tr("Add to &bookmarks"));
+			QAction *action = menu->addAction(tr("&Bookmark totoz"));
+			action->setObjectName(totozAddToBookmarksActionName);
 			connect(action, &QAction::triggered, this, &QQTextBrowser::onAddTotozToBookmarksAction);
-
-			//Suppression du Copy Link Location
-			copyLinkLocationAction->setVisible(false);
 		}
 		else if((anchorUrlScheme == "msl")    || // Une moule
 		         (anchorUrlScheme == "duck")   || // Un canard
 		         (anchorUrlScheme == "tablev") || // Une table volante
 		         (anchorUrlScheme == "nref"))     // Une norloge
 		{
-			//Suppression du Copy Link Location
-			copyLinkLocationAction->setVisible(false);
-
 			if(anchorUrlScheme == "msl")
 			{
 				QUrlQuery anchorUrlQuery(anchorUrl);
@@ -601,7 +625,14 @@ void QQTextBrowser::contextMenuEvent(QContextMenuEvent * ev)
 			}
 		}
 		else
-			copyLinkLocationAction->setEnabled(true);
+		{
+			if(copyLinkLocationAction != nullptr)
+			{
+				m_contextMenuContextualString = anchorUrl.toString();
+				connect(copyLinkLocationAction, &QAction::triggered, this, &QQTextBrowser::onCopyLinkLocationAction);
+				copyLinkLocationAction->setEnabled(true);
+			}
+		}
 	}
 
 	menu->exec(QCursor::pos());
@@ -695,7 +726,6 @@ void QQTextBrowser::paintEvent(QPaintEvent * event)
 	// Pour le bigorno
 	QPainter bigornoPainter(viewport());
 	bigornoPainter.setRenderHint(QPainter::Antialiasing, true);
-	bigornoPainter.setRenderHint(QPainter::HighQualityAntialiasing, true);
 	QColor bigornoBrushColor(60, 0, 0, 100);
 	bigornoPainter.setBrush(QBrush(bigornoBrushColor));
 	QColor bigornoPenColor(150, 0, 0);

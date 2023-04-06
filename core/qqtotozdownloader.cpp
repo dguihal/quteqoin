@@ -10,6 +10,8 @@
 #include <QNetworkReply>
 #include <QUrl>
 
+constexpr qint64 ONE_MN_IN_S = 60;
+
 void QQTotozDownloader::fetchTotoz(QString & totozId)
 {
 	if(totozId.length() == 0)
@@ -24,13 +26,11 @@ void QQTotozDownloader::fetchTotoz(QString & totozId)
 		queryUrl.append("/")
 		        .append(settings.value(SETTINGS_TOTOZ_SERVER_BASE_IMG, DEFAULT_TOTOZ_SERVER_BASE_IMG).toString())
 		        .append("/")
-		        .append(totozId)
+		        .append(QUrl::toPercentEncoding(totozId))
 		        .append(totozIdSuffix);
 		QUrl url(queryUrl);
 
 		QNetworkRequest request(url);
-		request.setAttribute(QNetworkRequest::CacheLoadControlAttribute,
-		                     QNetworkRequest::PreferCache);
 
 		QNetworkReply * reply = httpGet(request);
 		m_totozIdReplyHash.insert(reply, totozId);
@@ -49,10 +49,10 @@ void QQTotozDownloader::requestFinishedSlot(QNetworkReply * reply)
 	if(!redirectedURL.isEmpty() &&
 	   redirectedURL != reply->url())
 	{
+		if(redirectedURL.host().isEmpty()) // Relative redirection
+			redirectedURL=reply->request().url().resolved(redirectedURL);
 		qDebug() << Q_FUNC_INFO << "Redirected to " << redirectedURL.toString();
 		QNetworkRequest request(redirectedURL);
-		request.setAttribute(QNetworkRequest::CacheLoadControlAttribute,
-		                     QNetworkRequest::PreferCache);
 
 		QNetworkReply * reply = httpGet(request);
 		m_totozIdReplyHash.insert(reply, totozId);
@@ -65,7 +65,7 @@ void QQTotozDownloader::requestFinishedSlot(QNetworkReply * reply)
 		QQTotoz totoz(totozId);
 		totoz.setData(errString.toUtf8());
 		totoz.setDataContentType("Text/Plain");
-		totoz.setCacheExpireDate(QDateTime::currentDateTime().addSecs(60));
+		totoz.setCacheExpireDate(QDateTime::currentDateTime().addSecs(ONE_MN_IN_S));
 		totoz.save();
 
 		emit fetchTotozFinished(totozId, false, errString);

@@ -21,7 +21,7 @@
 
 //
 QQXmlParser::QQXmlParser(QObject *parent)
-    : QQBackendParser(parent), QXmlDefaultHandler()
+    : QQBackendParser(parent)
 {
 	m_currentPost.reset();
 	m_typeSlip = QQBouchot::SlipTagsEncoded;
@@ -30,9 +30,7 @@ QQXmlParser::QQXmlParser(QObject *parent)
 }
 
 //
-QQXmlParser::~QQXmlParser()
-{
-}
+QQXmlParser::~QQXmlParser() = default;
 
 QString QQXmlParser::errorString () const
 {
@@ -162,7 +160,7 @@ bool QQXmlParser::startElement(const QString &namespaceURI, const QString &local
 		}
 	}
 
-	if (m_elementNames.size() > 0 &&
+	if ((! m_elementNames.isEmpty()) &&
 	    ((m_elementNames.top() == "info") ||
 	     (m_elementNames.top() == "message") ||
 	     (m_elementNames.top() == "login"))

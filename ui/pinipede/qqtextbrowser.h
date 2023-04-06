@@ -59,6 +59,7 @@ protected slots:
 	void onAnchorClicked(const QUrl &link);
 	void onAnchorHighlighted(const QUrl &link);
 	void onBakUserAction();
+	void onCopyLinkLocationAction();
 	void onHideBoardAction();
 	void onExtendedInfoAvailable(QUrl &url, QString &contentType);
 	void onPlopifyUserAction();

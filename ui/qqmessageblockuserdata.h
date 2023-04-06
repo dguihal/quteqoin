@@ -6,7 +6,6 @@
 #include <core/qqpost.h>
 #include <core/qqtotoz.h>
 
-#include <QList>
 #include <QPair>
 #include <QPointer>
 #include <QString>
@@ -56,12 +55,8 @@ public:
 	bool isValid() const { return m_ranges.size() > 0; }
 
 private:
-	QPair<int, QString> stringForIndex(int index, const QMap<int, QString> &map) const;
-	bool isIndexInString(int index, int stringIndex, const QString &string) const;
-
 	QList<QQNorlogeRef> m_listNRef;
 	QList<QQBigornoItem> m_listBigorno;
-	QMap<int, QString> m_mapTableV;
 
 	bool m_wasParsed;
 	bool m_hasDuck;

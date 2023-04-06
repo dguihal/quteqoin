@@ -1,10 +1,12 @@
 #include "qutetools.h"
 
 #include <QWidget>
+#if QT_VERSION >= QT_VERSION_CHECK(5, 10, 0)
+#include <QRandomGenerator>
+#endif
 
 QuteTools::QuteTools()
-{
-}
+= default;
 
 //////////////////////////////////////////////////////////////
 /// \brief checkFocusRecurse
@@ -20,7 +22,7 @@ bool QuteTools::checkFocusRecurse(QWidget *parent)
 		{
 			if(child->isWidgetType())
 			{
-				focus = QuteTools::checkFocusRecurse(static_cast<QWidget *>(child));
+				focus = QuteTools::checkFocusRecurse(dynamic_cast<QWidget *>(child));
 				if(focus)
 					break;
 			}
@@ -37,7 +39,11 @@ bool QuteTools::checkFocusRecurse(QWidget *parent)
 ///
 int QuteTools::randInt(int low, int high)
 {
+#if QT_VERSION >= QT_VERSION_CHECK(5, 10, 0)
+	return QRandomGenerator::global()->bounded(low, high);
+#else
 	return qrand() % ((high + 1) - low) + low;
+#endif
 }
 
 //////////////////////////////////////////////////////////////

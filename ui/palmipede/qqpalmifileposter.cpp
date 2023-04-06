@@ -132,7 +132,7 @@ void QQPalmiFilePoster::parseUpload3TerOrg(const QString &data)
 {
 	QStringList strL = data.split(QChar('\n'));
 	if(strL.size() > 0)
-		emit finished(QString("https://%1/f.php?h=%2&p=1").arg(FILE_SHARING_SERVICE_JIRAFEAU_EUROMUSSELS_EU).arg(strL.first()));
+		emit finished(QString("https://%1/f.php?h=%2&p=1").arg(FILE_SHARING_SERVICE_JIRAFEAU_EUROMUSSELS_EU, strL.first()));
 }
 
 ///////////

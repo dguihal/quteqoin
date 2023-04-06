@@ -9,7 +9,7 @@ class QQBoardStateChangeEvent : public QEvent
 public:
 	static const QEvent::Type BOARD_STATE_CHANGED;
 
-	QQBoardStateChangeEvent(const QString &boardName);
+	QQBoardStateChangeEvent(QString boardName);
 	QString boardName();
 
 private:

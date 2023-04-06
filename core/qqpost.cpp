@@ -49,7 +49,7 @@ QQPost::QQPost(const QQPost& post) :
 /// \return
 ///
 QQBouchot * QQPost::bouchot() const {
-	return static_cast<QQBouchot *>(parent());
+	return dynamic_cast<QQBouchot *>(parent());
 }
 
 //
@@ -127,9 +127,9 @@ QString QQPost::norlogeFormatee() const
 {
 	QString tmp("");
 	tmp.append("[")
-	        .append(m_norloge.mid(8,2)).append(":")
-	        .append(m_norloge.mid(10,2)).append(":")
-	        .append(m_norloge.mid(12,2)).append("]");
+	        .append(m_norloge.midRef(8,2)).append(":")
+	        .append(m_norloge.midRef(10,2)).append(":")
+	        .append(m_norloge.midRef(12,2)).append("]");
 	return tmp;
 }
 

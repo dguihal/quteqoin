@@ -8,7 +8,6 @@
 class QQImageViewer : public QLabel
 {
 	Q_OBJECT
-	Q_PROPERTY(bool showAtMousePos READ showAtMousePos WRITE setShowAtMousePos)
 public:
 	explicit QQImageViewer(QWidget *parent = 0);
 

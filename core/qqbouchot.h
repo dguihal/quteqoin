@@ -104,7 +104,7 @@ public:
 		static const char Separator = ',';
 	};
 
-	QQBouchot(const QString &name, QObject *parent = nullptr);
+	QQBouchot(QString name, QObject *parent = nullptr);
 	~QQBouchot();
 
 	QString name() const { return m_name; }
@@ -112,6 +112,7 @@ public:
 
 	void parseBackend(const QByteArray &data, const QString &contentType);
 	void parseBackendTSV(const QByteArray &data);
+	void parseBackendXMLCustom(const QByteArray &data);
 	void parseBackendXML(const QByteArray &data);
 	void postMessage(const QString &message);
 
@@ -161,7 +162,6 @@ public slots:
 	void unregisterForEventNotification(QObject *receiver);
 
 signals:
-	void destroyed(QQBouchot *bouchot);
 	void groupChanged(QQBouchot *bouchot, QString oldGroupName);
 	void lastPostersUpdated();
 	void refreshStarted();

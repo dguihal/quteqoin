@@ -3,8 +3,9 @@
 #include "core/qqbouchot.h"
 
 #include <QHash>
+#include <utility>
 
-#define SEP_CHAR '@'
+const char SEP_CHAR = '@';
 
 //////////////////////////////////////////////////////////////
 /// \brief QQMussel::QQMussel
@@ -13,11 +14,11 @@
 /// \param isAuth
 ///
 QQMussel::QQMussel(QString name, QString board, bool isAuth) :
-	m_name(name),
-	m_board(board),
-	m_isAuth(isAuth),
-	m_isBaked(false),
-	m_isPlopified(false)
+    m_name(std::move(name)),
+    m_board(std::move(board)),
+    m_isAuth(isAuth),
+    m_isBaked(false),
+    m_isPlopified(false)
 {
 }
 
@@ -30,8 +31,8 @@ bool QQMussel::isMe() const
 	QQBouchot *b = QQBouchot::bouchot(m_board);
 	if(m_isAuth)
 		return b->settings().login() == m_name;
-	else
-		return (b->settings().login().size() == 0 && b->settings().ua() == m_name);
+
+	return (b->settings().login().size() == 0 && b->settings().ua() == m_name);
 }
 
 //////////////////////////////////////////////////////////////
@@ -78,11 +79,11 @@ QString QQMussel::fullName() const
 /// \param mussel
 /// \return
 ///
-bool QQMussel::equals(const QQMussel mussel) const
+bool QQMussel::equals(const QQMussel& mussel) const
 {
 	return (m_name == mussel.m_name) &&
-			(m_board == mussel.m_board) &&
-			(m_isAuth == mussel.m_isAuth);
+	        (m_board == mussel.m_board) &&
+	        (m_isAuth == mussel.m_isAuth);
 }
 
 //////////////////////////////////////////////////////////////
@@ -93,6 +94,6 @@ uint QQMussel::hash() const
 {
 	QString s(m_name);
 	s.append("#").append(board())
-			.append("#").append(m_isAuth ? "true" : "false");
+	        .append("#").append(m_isAuth ? "true" : "false");
 	return qHash(s);
 }

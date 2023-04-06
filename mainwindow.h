@@ -18,7 +18,7 @@ class QQuickWidget;
 #endif
 
 namespace Ui {
-	class MainWindow;
+    class MainWindow;
 }
 
 class MainWindow : public QMainWindow
@@ -33,7 +33,7 @@ public:
 
 public slots:
 	void displayOptions();
-	void doPostMessage(const QString &bouchot, const QString &message);
+	static void doPostMessage(const QString &bouchot, const QString &message);
 	void doPalmiStatusChanged(bool isPalmiMini, bool isPalmiDocked);
 	void doPalmiVisibilityChanged(bool isVisible);
 
@@ -43,10 +43,10 @@ protected:
 	virtual void keyPressEvent(QKeyEvent *event);
 
 protected slots:
-	void bouchotDestroyed(QQBouchot *bouchot);
-	void bouchotGroupChanged(QQBouchot *bouchot, QString oldGroupName);
+	void bouchotDestroyed(QObject *bouchotObject);
+	void bouchotGroupChanged(QQBouchot *bouchot, const QString &oldGroupName);
 	void doFullRepaint();
-	void doNetworkSettingsChanged();
+	static void doNetworkSettingsChanged();
 	void initBouchot(QQBouchot *bouchot);
 	void onTrayIconActivated(QSystemTrayIcon::ActivationReason reason);
 

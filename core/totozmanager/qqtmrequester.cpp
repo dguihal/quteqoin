@@ -12,7 +12,7 @@ QQTMRequester::QQTMRequester(QObject * parent) :
 	QQNetworkAccessor(parent)
 {
 	m_currKey.clear();
-	m_netReply = NULL;
+	m_netReply = nullptr;
 
 	m_xmlParser = new QQTMXmlParser(this);
 	connect(m_xmlParser, SIGNAL(finished()), this, SLOT(parsingFinished()));
@@ -20,7 +20,7 @@ QQTMRequester::QQTMRequester(QObject * parent) :
 
 QQTMRequester::~QQTMRequester()
 {
-	if(m_netReply != NULL)
+	if(m_netReply != nullptr)
 		m_netReply->abort();
 	delete m_xmlParser;
 }
@@ -45,7 +45,7 @@ void QQTMRequester::requestFinishedSlot(QNetworkReply * reply)
 		emit requestFinished();
 	}
 
-	m_netReply = NULL;
+	m_netReply = nullptr;
 	reply->deleteLater();
 }
 
@@ -59,7 +59,7 @@ void QQTMRequester::searchTotoz(const QString & key)
 
 void QQTMRequester::cancel()
 {
-	if(m_netReply != NULL)
+	if(m_netReply != nullptr)
 		m_netReply->abort();
 }
 

@@ -6,20 +6,19 @@
 #include <QtDebug>
 #include <QStringList>
 
-#if(QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
 #include <QUrlQuery>
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
-#endif
+#include <QTextDocumentFragment>
 
 //TODO: See http://doc.qt.io/qt-5/qurl.html#topLevelDomain
-#define URL_HOST_REGEXP "(<a [^>]*href=\"(https?://[^/\"]+)[^\"]*\"[^>]*>)\\[(?:url|https?)\\](</a>)"
+constexpr char URL_HOST_REGEXP[] = R"((<a [^>]*href="(https?://[^/"]+)[^"]*"[^>]*>)\[(?:url|https?)\](</a>))";
 
-#define CONTENT_TYPE_CACHE_SIZE 500
+constexpr int CONTENT_TYPE_CACHE_SIZE = 500;
 
-#define YT_KEY_ID "AIzaSyBCLhoklblj8GXwl1S8i6b2yRR9tbnvPbU"
-#define INITIAL_URL_PROPERTY "INITIAL_URL"
+constexpr char INITIAL_URL_PROPERTY[] = "INITIAL_URL";
+constexpr char VIDEO_ID[] = "VIDEO_ID";
 
 QHash<QUrl, QQPiniUrlHelper::CacheInfo *> QQPiniUrlHelper::m_cache;
 QList<QUrl> QQPiniUrlHelper::m_cacheUrls;
@@ -29,7 +28,7 @@ QList<QUrl> QQPiniUrlHelper::m_cacheUrls;
 /// \param parent
 ///
 QQPiniUrlHelper::QQPiniUrlHelper(QObject *parent) :
-	QQNetworkAccessor(parent), QQMessageTransformFilter()
+    QQNetworkAccessor(parent)
 {
 	m_contentTypeReplies.clear();
 }
@@ -54,7 +53,7 @@ void QQPiniUrlHelper::getUrlInfo(QUrl &url)
 {
 	// Sans doute a ameliorer si la liste grandit
 	if(url.host().endsWith("youtube.com") ||
-			url.host().endsWith("youtu.be"))
+	        url.host().endsWith("youtu.be"))
 		getYoutubeExtendedInfo(url);
 	else if(url.host().endsWith("dailymotion.com"))
 		getDailymotionExtendedInfo(url);
@@ -77,9 +76,9 @@ void QQPiniUrlHelper::transformMessage(const QString &bouchot, QString &message)
 
 	QQSettings settings;
 	QuteQoin::QQSmartUrlFilerTransformType trType =
-				(QuteQoin::QQSmartUrlFilerTransformType) settings.value(SETTINGS_FILTER_SMART_URL_TRANSFORM_TYPE, DEFAULT_FILTER_SMART_URL_TRANSFORM_TYPE).toInt();
+	            (QuteQoin::QQSmartUrlFilerTransformType) settings.value(SETTINGS_FILTER_SMART_URL_TRANSFORM_TYPE, DEFAULT_FILTER_SMART_URL_TRANSFORM_TYPE).toInt();
 
-	QRegExp reg(URL_HOST_REGEXP, Qt::CaseInsensitive, QRegExp::RegExp2);
+	QRegExp reg(QString::fromUtf8(static_cast<const char *>(URL_HOST_REGEXP)), Qt::CaseInsensitive, QRegExp::RegExp2);
 
 	int index = 0;
 	while((index = message.indexOf(reg, index)) >= 0)
@@ -129,16 +128,19 @@ void QQPiniUrlHelper::requestFinishedSlot(QNetworkReply *reply)
 		QUrl redirectedURL = reply->attribute(QNetworkRequest::RedirectionTargetAttribute).toUrl();
 
 		if(!redirectedURL.isEmpty() &&
-				redirectedURL != sourceUrl)
+		        redirectedURL != sourceUrl)
 		{
+			if(redirectedURL.host().isEmpty()) // Relative redirection
+				redirectedURL=reply->request().url().resolved(redirectedURL);
+
 			QNetworkRequest rq(reply->request());
 			rq.setUrl(redirectedURL);
 			QNetworkReply *newReply = httpHead(rq);
 
-			if(reply->property(INITIAL_URL_PROPERTY).isValid())
-				newReply->setProperty(INITIAL_URL_PROPERTY, reply->property(INITIAL_URL_PROPERTY));
+			if(reply->property(static_cast<const char *>(INITIAL_URL_PROPERTY)).isValid())
+				newReply->setProperty(static_cast<const char *>(INITIAL_URL_PROPERTY), reply->property(static_cast<const char *>(INITIAL_URL_PROPERTY)));
 			else
-				newReply->setProperty(INITIAL_URL_PROPERTY, sourceUrl);
+				newReply->setProperty(static_cast<const char *>(INITIAL_URL_PROPERTY), sourceUrl);
 
 			m_contentTypeReplies.append(newReply);
 		} // Une erreur HTTP est survenue
@@ -151,8 +153,8 @@ void QQPiniUrlHelper::requestFinishedSlot(QNetworkReply *reply)
 		else
 		{
 			QNetworkRequest rq = reply->request();
-			if(reply->property(INITIAL_URL_PROPERTY).isValid())
-				sourceUrl = reply->property(INITIAL_URL_PROPERTY).toUrl();
+			if(reply->property(static_cast<const char *>(INITIAL_URL_PROPERTY)).isValid())
+				sourceUrl = reply->property(static_cast<const char *>(INITIAL_URL_PROPERTY)).toUrl();
 
 			if(rq.attribute((QNetworkRequest::Attribute) RequestContentType, false).toBool())
 				handleContentTypeResponse(reply->header(QNetworkRequest::ContentTypeHeader).toString(), sourceUrl);
@@ -161,7 +163,7 @@ void QQPiniUrlHelper::requestFinishedSlot(QNetworkReply *reply)
 			else if(rq.attribute((QNetworkRequest::Attribute) RequestVimeoInfo, false).toBool())
 				handleVimeoExtendedInfo(reply->readAll(), sourceUrl);
 			else if(rq.attribute((QNetworkRequest::Attribute) RequestYoutubeInfo, false).toBool())
-				handleYoutubeExtendedInfo(reply->readAll(), sourceUrl);
+				handleYoutubeExtendedInfo(reply->readAll(), sourceUrl, reply->property(static_cast<const char *>(VIDEO_ID)).toString());
 		}
 	}
 	reply->deleteLater();
@@ -174,7 +176,7 @@ void QQPiniUrlHelper::requestFinishedSlot(QNetworkReply *reply)
 void QQPiniUrlHelper::getContentType(QUrl &url)
 {
 	QQPiniUrlHelper::CacheInfo *urlInfo = m_cache[url];
-	if(urlInfo == NULL)
+	if(urlInfo == nullptr)
 	{
 		QNetworkRequest r(url);
 		r.setAttribute((QNetworkRequest::Attribute) RequestContentType, true);
@@ -188,7 +190,7 @@ void QQPiniUrlHelper::getContentType(QUrl &url)
 		emit contentTypeAvailable(reqUrl, urlInfo->contentType);
 
 		if(urlInfo->contentType.startsWith("image/") ||
-				urlInfo->contentType.startsWith("video/"))
+		        urlInfo->contentType.startsWith("video/"))
 			emit mmDataAvailable(url, urlInfo->contentType);
 	}
 }
@@ -200,16 +202,20 @@ void QQPiniUrlHelper::getContentType(QUrl &url)
 ///
 void QQPiniUrlHelper::handleContentTypeResponse(const QString &contentType, QUrl &sourceUrl)
 {
+#if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
+	QStringList contentTypeParts = contentType.split(";", Qt::SkipEmptyParts);
+#else
 	QStringList contentTypeParts = contentType.split(";", QString::SkipEmptyParts);
-	QString rep = (contentTypeParts.size() > 0) ? contentTypeParts.at(0) : tr("Unknown");
+#endif
+	QString rep = (contentTypeParts.isEmpty()) ? tr("Unknown") : contentTypeParts.at(0);
 
-	QQPiniUrlHelper::CacheInfo *info = new QQPiniUrlHelper::CacheInfo;
+	auto info = new QQPiniUrlHelper::CacheInfo;
 	info->contentType = rep;
 	addToCache(sourceUrl, info);
 
 	QString cT = contentType;
 	if(contentType.startsWith("image/") ||
-			contentType.startsWith("video/"))
+	        contentType.startsWith("video/"))
 		emit mmDataAvailable(sourceUrl, cT);
 
 	emit contentTypeAvailable(sourceUrl, rep);
@@ -222,7 +228,7 @@ void QQPiniUrlHelper::handleContentTypeResponse(const QString &contentType, QUrl
 void QQPiniUrlHelper::getDailymotionExtendedInfo(QUrl &url)
 {
 	QQPiniUrlHelper::CacheInfo *urlInfo = m_cache[url];
-	if(urlInfo == NULL)
+	if(urlInfo == nullptr)
 	{
 		QStringList tmpList = url.path().split('/');
 		if(tmpList.isEmpty())
@@ -235,14 +241,15 @@ void QQPiniUrlHelper::getDailymotionExtendedInfo(QUrl &url)
 		QString vidId = tmpList.first();
 
 		QUrl qUrl = QUrl("https://api.dailymotion.com");
-		QString postData(QString("{\"call\": \"GET /video/%1\",\"args\": {\"fields\": [\"title\",\"thumbnail_url\"]}}").arg(vidId));
+		QString postData(QString(R"({"call": "GET /video/%1","args": {"fields": ["title","thumbnail_url"]}})").arg(vidId));
 
 		QNetworkRequest r(qUrl);
 		r.setHeader(QNetworkRequest::ContentTypeHeader, "Application/json");
 
 		r.setAttribute((QNetworkRequest::Attribute) RequestDailyMotionInfo, true);
 		QNetworkReply *reply = httpPost(r, postData.toLatin1());
-		reply->setProperty(INITIAL_URL_PROPERTY, url);
+		reply->setProperty(static_cast<const char *>(INITIAL_URL_PROPERTY), url);
+		reply->setProperty(static_cast<const char *>(VIDEO_ID), vidId);
 
 		m_contentTypeReplies.append(reply);
 	}
@@ -262,41 +269,17 @@ void QQPiniUrlHelper::getDailymotionExtendedInfo(QUrl &url)
 ///
 void QQPiniUrlHelper::handleDailymotionExtendedInfo(const QByteArray &jsonInfo, QUrl &sourceUrl)
 {
-	QString thumbnailUrl, title;
-	QQPiniUrlHelper::CacheInfo *info = new QQPiniUrlHelper::CacheInfo;
+	QString thumbnailUrl;
+	QString title;
+
+	auto info = new QQPiniUrlHelper::CacheInfo;
 	//JSON seulement supporté par Qt 5
-#if(QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
 	QJsonDocument d = QJsonDocument::fromJson(jsonInfo);
 	QJsonObject o = d.object();
 	QJsonObject o2 = o["result"].toObject();
 
 	thumbnailUrl = o2["thumbnail_url"].toString();
 	title = o2["title"].toString();
-#else
-
-	QString str = QString::fromLatin1(jsonInfo);
-	QRegExp r("\"thumbnail_url\":\"([^\"]*)");
-	if(r.indexIn(str) > 0)
-	{
-		thumbnailUrl = r.capturedTexts().at(1);
-
-		thumbnailUrl.replace("\\/", "/");
-	}
-
-	r = QRegExp("\"title\":\"([^\"]*)");
-
-	if(r.indexIn(str) > 0)
-	{
-		title = r.capturedTexts().at(1);
-
-		int idx = -1;
-		while(( idx = title.indexOf("\\u") ) != -1 )
-		{
-			int nHex = title.mid(idx + 2, 4).toInt(0, 16);
-			title.replace(idx, 6, QChar(nHex));
-		}
-	}
-#endif
 
 	auto cached = false;
 	if(! thumbnailUrl.isEmpty())
@@ -349,15 +332,20 @@ void QQPiniUrlHelper::getSaufCaExtendedInfo(QUrl &url)
 void QQPiniUrlHelper::getVimeoExtendedInfo(QUrl &url)
 {
 	QQPiniUrlHelper::CacheInfo *urlInfo = m_cache[url];
-	if(urlInfo == NULL)
+	if(urlInfo == nullptr)
 	{
+#if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
+		QString vidId = url.path().split('/', Qt::SkipEmptyParts).first();
+#else
 		QString vidId = url.path().split('/', QString::SkipEmptyParts).first();
+#endif
 
 		QUrl qUrl = QUrl(QString("http://vimeo.com/api/v2/video/%1.json").arg(vidId));
 		QNetworkRequest r(qUrl);
 		r.setAttribute((QNetworkRequest::Attribute) RequestVimeoInfo, true);
 		QNetworkReply *reply = httpGet(r);
-		reply->setProperty(INITIAL_URL_PROPERTY, url);
+		reply->setProperty(static_cast<const char *>(INITIAL_URL_PROPERTY), url);
+		reply->setProperty(static_cast<const char *>(VIDEO_ID), vidId);
 
 		m_contentTypeReplies.append(reply);
 	}
@@ -407,12 +395,12 @@ void QQPiniUrlHelper::getVimeoExtendedInfo(QUrl &url)
 */
 void QQPiniUrlHelper::handleVimeoExtendedInfo(const QByteArray &jsonInfo, QUrl &sourceUrl)
 {
-	QString thumbnailUrl, title;
+	QString thumbnailUrl;
+	QString title;
 
-	QQPiniUrlHelper::CacheInfo *info = new QQPiniUrlHelper::CacheInfo;
-	//JSON seulement supporté par Qt 5
-#if(QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
-	QJsonParseError error;
+	auto info = new QQPiniUrlHelper::CacheInfo;
+
+	QJsonParseError error{};
 	QJsonDocument d = QJsonDocument::fromJson(jsonInfo, &error);
 	if(d.isEmpty())
 	{
@@ -424,19 +412,6 @@ void QQPiniUrlHelper::handleVimeoExtendedInfo(const QByteArray &jsonInfo, QUrl &
 	QJsonObject o = a[0].toObject();
 	thumbnailUrl = o["thumbnail_medium"].toString();
 	title = o["title"].toString();
-#else
-
-	QString str = QString::fromUtf8(jsonInfo);
-	QRegExp r("\"title\": *\"([^\"]*)");
-
-	if(r.indexIn(str) > 0)
-		title = r.capturedTexts().at(1);
-
-	r = QRegExp("\"thumbnail_medium\": *\"([^\"]*)");
-	if(r.indexIn(str) > 0)
-		thumbnailUrl = r.capturedTexts().at(1);
-
-#endif
 
 	auto cached = false;
 	if(! thumbnailUrl.isEmpty())
@@ -467,36 +442,35 @@ void QQPiniUrlHelper::handleVimeoExtendedInfo(const QByteArray &jsonInfo, QUrl &
 void QQPiniUrlHelper::getYoutubeExtendedInfo(QUrl &url)
 {
 	QQPiniUrlHelper::CacheInfo *urlInfo = m_cache[url];
-	if(urlInfo == NULL)
+	if(urlInfo == nullptr)
 	{
 		QString ytId;
 		if(url.host().endsWith("youtu.be"))
 		{
+#if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
+			QStringList pathExp = url.path().split(QChar('/'), Qt::SkipEmptyParts);
+#else
 			QStringList pathExp = url.path().split(QChar('/'), QString::SkipEmptyParts);
-			if(pathExp.size() > 0)
-				ytId = pathExp.at(0);
+#endif
+			if(! pathExp.isEmpty())
+				ytId = pathExp.last();
 		}
 		else
 		{
-#if(QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
 			QUrlQuery urlQ(url);
 			ytId = urlQ.queryItemValue("v");
-#else
-			ytId = url.queryItemValue("v");
-#endif
 		}
-
 		if(ytId.isEmpty())
 			return;
 
-		QUrl qUrl = QUrl(QString("https://www.googleapis.com/youtube/v3/videos?id=%1&part=snippet&key=%2")
-						.arg(ytId)
-						.arg(YT_KEY_ID));
+		QUrl qUrl = QUrl(QString("https://www.youtube.com/oembed?format=json&url=http%3A//www.youtube.com/watch?v=%1")
+		                .arg(ytId));
 
 		QNetworkRequest r(qUrl);
 		r.setAttribute((QNetworkRequest::Attribute) RequestYoutubeInfo, true);
 		QNetworkReply *reply = httpGet(r);
-		reply->setProperty(INITIAL_URL_PROPERTY, url);
+		reply->setProperty(static_cast<const char *>(INITIAL_URL_PROPERTY), url);
+		reply->setProperty(static_cast<const char *>(VIDEO_ID), ytId);
 
 		m_contentTypeReplies.append(reply);
 	}
@@ -509,107 +483,28 @@ void QQPiniUrlHelper::getYoutubeExtendedInfo(QUrl &url)
 
 }
 
-//////////////////////////////////////////////////////////////
-/// \brief QQPiniUrlHelper::handleYoutubeExtendedInfo
-///
-/*
+void QQPiniUrlHelper::handleYoutubeExtendedInfo(const QByteArray &jsonInfo, QUrl &sourceUrl, const QString &videoID)
 {
- "kind": "youtube#videoListResponse",
- "etag": "\"PSjn-HSKiX6orvNhGZvglLI2lvk/jYMo11ttS70ElzF5RMZCCrXlWp8\"",
- "pageInfo": {
-  "totalResults": 1,
-  "resultsPerPage": 1
- },
- "items": [
-  {
-   "kind": "youtube#video",
-   "etag": "\"PSjn-HSKiX6orvNhGZvglLI2lvk/sco2Z98R6fUE9GmzFdnNuWVxhFo\"",
-   "id": "VPKniLU6vII",
-   "snippet": {
-	"publishedAt": "2013-08-15T07:59:09.000Z",
-	"channelId": "UCvGag7MyHR8H9oRm9iL9Ifw",
-	"title": "Glace chaude instantanée ! - [Science 2.0]",
-	"description": "L'expérience de la surfusion d'Acétate de Sodium, à refaire chez soi, pour une fois ! :D\n\nFabriquer de l'acétate de Sodium:\nhttp://www.chimie.ch/nuls/index.php/saison-4/48-4x09\n\n\nTwitter:\nhttp://www.twitter.com/experimentboy\nhttp://www.twitter.com/Wagique\n\nFacebook: http://www.facebook.com/ExperimentboyTV",
-	"thumbnails": {
-	 "default": {
-	  "url": "https://i.ytimg.com/vi/VPKniLU6vII/default.jpg",
-	  "width": 120,
-	  "height": 90
-	 },
-	 "medium": {
-	  "url": "https://i.ytimg.com/vi/VPKniLU6vII/mqdefault.jpg",
-	  "width": 320,
-	  "height": 180
-	 },
-	 "high": {
-	  "url": "https://i.ytimg.com/vi/VPKniLU6vII/hqdefault.jpg",
-	  "width": 480,
-	  "height": 360
-	 },
-	 "standard": {
-	  "url": "https://i.ytimg.com/vi/VPKniLU6vII/sddefault.jpg",
-	  "width": 640,
-	  "height": 480
-	 },
-	 "maxres": {
-	  "url": "https://i.ytimg.com/vi/VPKniLU6vII/maxresdefault.jpg",
-	  "width": 1280,
-	  "height": 720
-	 }
-	},
-	"channelTitle": "Experimentboy",
-	"categoryId": "28",
-	"liveBroadcastContent": "none"
-   }
-  }
- ]
-}
-*/
-void QQPiniUrlHelper::handleYoutubeExtendedInfo(const QByteArray &jsonInfo, QUrl &sourceUrl)
-{
-	QString thumbnailUrl, title;
+	QString thumbnailUrl;
+	QString title;
 
-	QQPiniUrlHelper::CacheInfo *info = new QQPiniUrlHelper::CacheInfo;
-	//JSON seulement supporté par Qt 5
-#if(QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
-	QJsonParseError error;
+	QJsonParseError error{};
 	QJsonDocument d = QJsonDocument::fromJson(jsonInfo, &error);
-	if(d.isEmpty())
+	if(d.isEmpty() || ! d.isObject())
 	{
 		qDebug() << Q_FUNC_INFO << "error" << error.errorString();
-		delete info;
 		return;
 	}
 	QJsonObject o = d.object();
-	QJsonObject items = o["items"].toArray().at(0).toObject();
-	QJsonObject snippet = items["snippet"].toObject();
-	title= snippet["title"].toString();
-	QJsonObject thumbnails = snippet["thumbnails"].toObject();
-	QJsonObject defaultThumbnail = thumbnails["default"].toObject();
-	thumbnailUrl = defaultThumbnail["url"].toString();
-#else
+	thumbnailUrl = o["thumbnail_url"].toString();
+	title = o["title"].toString();
 
-	QString str = QString::fromUtf8(jsonInfo);
-	QRegExp r("\"title\": \"([^\"]*)");
-
-	if(r.indexIn(str) > 0)
-		title = r.capturedTexts().at(1);
-
-	int offset = str.indexOf("\"thumbnails\": {");
-	offset = str.indexOf("\"default\": {", offset);
-	r = QRegExp("\"url\": \"([^\"]*)");
-	if(r.indexIn(str, offset) > 0)
-		thumbnailUrl = r.capturedTexts().at(1);
-
-#endif
-	info->videoThumbnailUrl = thumbnailUrl;
-	info->videoTitle = title;
-	addToCache(sourceUrl, info);
-
-	if(! thumbnailUrl.isEmpty())
+	if(! videoID.isEmpty())
 	{
 		if(! title.isEmpty())
 		{
+			auto info = new QQPiniUrlHelper::CacheInfo;
+
 			info->videoThumbnailUrl = thumbnailUrl;
 			info->videoTitle = title;
 			addToCache(sourceUrl, info);
@@ -622,6 +517,7 @@ void QQPiniUrlHelper::handleYoutubeExtendedInfo(const QByteArray &jsonInfo, QUrl
 
 	if(! title.isEmpty())
 		emit videoTitleAvailable(sourceUrl, title);
+
 }
 
 //////////////////////////////////////////////////////////////
@@ -636,7 +532,6 @@ void QQPiniUrlHelper::addToCache(QUrl &sourceUrl, CacheInfo *info)
 	while(QQPiniUrlHelper::m_cacheUrls.size() > CONTENT_TYPE_CACHE_SIZE)
 	{
 		QQPiniUrlHelper::CacheInfo *oldInfo = QQPiniUrlHelper::m_cache.take(QQPiniUrlHelper::m_cacheUrls.takeFirst());
-		if(oldInfo != NULL)
-			delete oldInfo;
+		delete oldInfo;
 	}
 }

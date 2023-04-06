@@ -16,11 +16,6 @@ public:
 	QString errorString () const;
 
 	bool parseBackend(const QByteArray &data);
-
-signals:
-	void newPostReady(QQPost & newPost);
-	void finished();
-
 };
 
 #endif // QQTSVPARSER_H

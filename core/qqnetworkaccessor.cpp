@@ -11,25 +11,25 @@
 #include <QNetworkProxyFactory>
 #include <QTimer>
 
-#define NETWORK_REQUEST_TIMEOUT_MS 60000
+constexpr int NETWORK_REQUEST_TIMEOUT_MS = 60000;
 
 QQNetworkAccessor::QQNetworkAccessor(QObject *parent) :
-	QObject(parent)
+    QObject(parent)
 {
 	m_qnam = new QNetworkAccessManager(this);
 
-	connect(m_qnam, SIGNAL(finished(QNetworkReply *)),
-			this, SLOT(requestFinishedSlot(QNetworkReply *)));
+	connect(m_qnam, SIGNAL(finished(QNetworkReply*)),
+	        this, SLOT(requestFinishedSlot(QNetworkReply*)));
 
-	connect(m_qnam, SIGNAL(proxyAuthenticationRequired(QNetworkProxy, QAuthenticator *)),
-			this, SLOT(onProxyAuthenticationRequired(QNetworkProxy, QAuthenticator *)));
+	connect(m_qnam, SIGNAL(proxyAuthenticationRequired(QNetworkProxy,QAuthenticator*)),
+	        this, SLOT(onProxyAuthenticationRequired(QNetworkProxy,QAuthenticator*)));
 }
 
 void QQNetworkAccessor::updateProxySettings()
 {
 	QQSettings settings;
 
-	QString nMode = settings.value(SETTINGS_NETWORK_MODE, DEFAULT_NETWORK_MODE).toString();
+	auto nMode = settings.value(SETTINGS_NETWORK_MODE, DEFAULT_NETWORK_MODE).toString();
 	if(! SETTINGS_NETWORK_MODES.contains(nMode))
 	{
 		nMode = DEFAULT_NETWORK_MODE;
@@ -50,9 +50,9 @@ void QQNetworkAccessor::updateProxySettings()
 		}
 		else //if(Mode == SETTINGS_NETWORK_MODE_MANUAL)
 		{
-			QString host = settings.value(SETTINGS_NETWORK_PROXY_HOST, DEFAULT_NETWORK_PROXY_HOST).toString();
-			quint16 port = settings.value(SETTINGS_NETWORK_PROXY_PORT, DEFAULT_NETWORK_PROXY_PORT).toUInt();
-			bool isHttp = settings.value(SETTINGS_NETWORK_PROXY_IS_HTTP, DEFAULT_NETWORK_PROXY_IS_HTTP).toUInt();
+			auto host = settings.value(SETTINGS_NETWORK_PROXY_HOST, DEFAULT_NETWORK_PROXY_HOST).toString();
+			auto port = settings.value(SETTINGS_NETWORK_PROXY_PORT, DEFAULT_NETWORK_PROXY_PORT).toUInt();
+			auto isHttp = settings.value(SETTINGS_NETWORK_PROXY_IS_HTTP, DEFAULT_NETWORK_PROXY_IS_HTTP).toBool();
 
 			p.setType(isHttp ? QNetworkProxy::HttpProxy : QNetworkProxy::Socks5Proxy);
 			p.setHostName(host);
@@ -125,21 +125,25 @@ int QQNetworkAccessor::name_to_month(QByteArray month_str)
 }
 
 // Parse : "Tue, 09 Apr 2013 11:22:22 +0200"
-QDateTime QQNetworkAccessor::parseRC822(QString string)
+QDateTime QQNetworkAccessor::parseRC822(const QString& string)
 {
-	int pos = string.indexOf(',') + 1;
-	QString minString = string.right(string.length() - pos);
-	QStringList fields = minString.split(" ", QString::SkipEmptyParts);
+	auto pos = string.indexOf(',') + 1;
+	auto minString = string.rightRef(string.length() - pos);
+#if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
+	auto fields = minString.string()->split(" ", Qt::SkipEmptyParts);
+#else
+	auto fields = minString.string()->split(" ", QString::SkipEmptyParts);
+#endif
 	QDate date(fields[2].toInt(), name_to_month(fields[1].toLatin1()), fields[0].toInt());
-	QTime time = QTime::fromString(fields[3], "hh:mm:ss");
+	auto time = QTime::fromString(fields[3], "hh:mm:ss");
 	if(fields[4].startsWith('+'))
 	{
-		QString offset = fields[4].right(4);
+		auto offset = fields[4].rightRef(4);
 		time = time.addSecs(offset.left(2).toInt() * 3600 + offset.right(2).toInt() * 60);
 	}
 	else if(fields[4].startsWith('-'))
 	{
-		QString offset = fields[4].right(4);
+		auto offset = fields[4].rightRef(4);
 		time = time.addSecs(0 - (offset.left(2).toInt() * 3600 + offset.right(2).toInt() * 60));
 	}
 	QDateTime datetime(date, time, Qt::UTC);
@@ -148,10 +152,10 @@ QDateTime QQNetworkAccessor::parseRC822(QString string)
 
 QNetworkReply * QQNetworkAccessor::httpGet(const QNetworkRequest &request)
 {
-	QTimer *replyTimer = new QTimer(this);
+	auto replyTimer = new QTimer(this);
 	replyTimer->setSingleShot(true);
 
-	QNetworkReply *reply = m_qnam->get(request);
+	auto reply = m_qnam->get(request);
 	connect(replyTimer, SIGNAL(timeout()), this, SLOT(onRequestTimeout()));
 	connect(reply, SIGNAL(finished()), replyTimer, SLOT(stop()));
 	connect(reply, SIGNAL(downloadProgress(qint64,qint64)), replyTimer, SLOT(start()));
@@ -191,13 +195,29 @@ QNetworkReply * QQNetworkAccessor::httpPut(const QNetworkRequest &request, QIODe
  */
 void QQNetworkAccessor::clearCookiesForUrl(const QUrl &url)
 {
-	QNetworkCookieJar *cj =  m_qnam->cookieJar();
-	if(cj == NULL)
+	auto cj = m_qnam->cookieJar();
+	if(cj == nullptr)
 		return;
 
 	foreach (QNetworkCookie c, cj->cookiesForUrl(url)) {
 		cj->deleteCookie(c);
 	}
+}
+
+/**
+ * @brief clearNetworkBackend
+ */
+void QQNetworkAccessor::clearNetworkBackend()
+{
+	m_qnam->deleteLater();
+
+	m_qnam = new QNetworkAccessManager(this);
+
+	connect(m_qnam, SIGNAL(finished(QNetworkReply*)),
+	        this, SLOT(requestFinishedSlot(QNetworkReply*)));
+
+	connect(m_qnam, SIGNAL(proxyAuthenticationRequired(QNetworkProxy,QAuthenticator*)),
+	        this, SLOT(onProxyAuthenticationRequired(QNetworkProxy,QAuthenticator*)));
 }
 
 /**
@@ -208,8 +228,8 @@ void QQNetworkAccessor::clearCookiesForUrl(const QUrl &url)
  */
 bool QQNetworkAccessor::setCookiesFromUrl(const QList<QNetworkCookie> &cookieList, const QUrl &url)
 {
-	QNetworkCookieJar *cj =  m_qnam->cookieJar();
-	if(cj == NULL)
+	auto cj = m_qnam->cookieJar();
+	if(cj == nullptr)
 		return false;
 
 	return cj->setCookiesFromUrl(cookieList, url);
@@ -226,7 +246,7 @@ void QQNetworkAccessor::onProxyAuthenticationRequired(const QNetworkProxy &proxy
 
 	//Premier echec
 	if(QQNetworkAccessor::m_proxyUser.size() != 0 &&
-			authenticator->user() != QQNetworkAccessor::m_proxyUser)
+	        authenticator->user() != QQNetworkAccessor::m_proxyUser)
 	{
 		authenticator->setUser(QQNetworkAccessor::m_proxyUser);
 		authenticator->setPassword(QQNetworkAccessor::m_proxyPasswd);
@@ -235,7 +255,7 @@ void QQNetworkAccessor::onProxyAuthenticationRequired(const QNetworkProxy &proxy
 	{
 		if(QQNetworkAccessor::m_proxyPopupMutex.tryLock())
 		{
-			QQProxyAuthDialog* proxyDialog = new QQProxyAuthDialog();
+			auto proxyDialog = new QQProxyAuthDialog();
 			proxyDialog->setLogin(QQNetworkAccessor::m_proxyUser);
 			proxyDialog->setPasswd(QQNetworkAccessor::m_proxyPasswd);
 			if(proxyDialog->exec() == QDialog::Accepted)
@@ -258,16 +278,17 @@ void QQNetworkAccessor::onProxyAuthenticationRequired(const QNetworkProxy &proxy
 
 void QQNetworkAccessor::onRemoveTimer(QObject *obj)
 {
-	QTimer *timer = m_replyTimers.take((QNetworkReply *) obj);
-	if(timer != NULL)
-		delete timer;
+	auto timer = m_replyTimers.take(static_cast<QNetworkReply *>(obj));
+
+	delete timer;
 }
 
 void QQNetworkAccessor::onRequestTimeout()
 {
-	foreach(QNetworkReply *reply, m_replyTimers.keys())
+	auto replyTimersKeys = m_replyTimers.keys();
+	for(auto reply : qAsConst(replyTimersKeys))
 	{
-		QTimer *timer = m_replyTimers.value(reply);
+		auto timer = m_replyTimers.value(reply);
 		if(! timer->isActive())
 		{
 			reply->abort();

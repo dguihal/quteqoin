@@ -9,10 +9,10 @@
 #include <QPair>
 #include <QMessageBox>
 
-#define DEFAULT_TOTOZ_MODE QQSettings::Bald_Mode
+//constexpr int DEFAULT_TOTOZ_MODE = QQSettings::Bald_Mode;
 
 QQSettings::QQSettings(QObject * parent) :
-	QSettings(parent)
+    QSettings(parent)
 {
 	fillStaticPalmiShortcuts();
 	if(! contains(SETTINGS_PALMI_SHORCUTS))
@@ -21,9 +21,7 @@ QQSettings::QQSettings(QObject * parent) :
 		m_userPalmiShortcuts = savedUserPalmiShortcuts();
 }
 
-QQSettings::~QQSettings()
-{
-}
+QQSettings::~QQSettings() = default;
 
 void QQSettings::removeBouchot(const QString &name)
 {
@@ -56,7 +54,7 @@ QStringList QQSettings::listTotozSrvPresets()
 	return dir.entryList();
 }
 
-QQTotozSrvPreset QQSettings::getTotozSrvPreset(QString totozSrvPreset, bool labelOnly)
+QQTotozSrvPreset QQSettings::getTotozSrvPreset(const QString& totozSrvPreset, bool labelOnly)
 {
 	QFile file(QString::fromLatin1(SETTINGS_TOTOZ_PRESETS_PATH) + "/" + totozSrvPreset);
 	QQTotozSrvPreset preset;
@@ -106,7 +104,11 @@ QList<QQEmojiCat> QQSettings::listEmojis()
 	while (!file.atEnd())
 	{
 		QString line = QString::fromUtf8(file.readLine()).trimmed();
+#if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
+		QStringList fields = line.split("\t", Qt::SkipEmptyParts);
+#else
 		QStringList fields = line.split("\t", QString::SkipEmptyParts);
+#endif
 
 		if(fields.length() == 3)
 		{
@@ -172,7 +174,7 @@ QQBouchot * QQSettings::loadBouchot(const QString &name)
 
 	// Pas d'url de backend , pas de bouchot
 	if(! contains(SETTINGS_BOUCHOT_BACKENDURL))
-		return NULL;
+		return nullptr;
 
 	newBouchotSettings.setColorFromString(value(SETTINGS_BOUCHOT_COLOR, "").toString());
 	newBouchotSettings.setAliasesFromString(value(SETTINGS_BOUCHOT_ALIASES, "").toString());
@@ -191,7 +193,7 @@ QQBouchot * QQSettings::loadBouchot(const QString &name)
 	endGroup(); //beginGroup(QString::fromLatin1("bouchot"));
 
 
-	QQBouchot *newBouchot = new QQBouchot(name, NULL);
+	auto newBouchot = new QQBouchot(name, nullptr);
 	newBouchot->setSettings(newBouchotSettings);
 
 	return newBouchot;
@@ -200,8 +202,13 @@ QQBouchot * QQSettings::loadBouchot(const QString &name)
 QStringList QQSettings::listBouchots()
 {
 	QString bouchots = value(SETTINGS_LIST_BOUCHOTS, "").toString();
+#if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
 	return bouchots.split(QChar::fromLatin1(BOUCHOTS_SPLIT_CHAR),
-						  QString::SkipEmptyParts);
+	                      Qt::SkipEmptyParts);
+#else
+	return bouchots.split(QChar::fromLatin1(BOUCHOTS_SPLIT_CHAR),
+	                      QString::SkipEmptyParts);
+#endif
 }
 
 //////////////////////////////////////////////////////////////
@@ -223,17 +230,15 @@ bool QQSettings::setValueWithDefault(const QString &key, const QVariant &newValu
 	return (oldValue != newValue);
 }
 
-void QQSettings::setUserPalmiShorcuts(QList< QPair<QChar, QString> > userPalmiShortcuts)
+void QQSettings::setUserPalmiShorcuts(const QList< QPair<QChar, QString> >& userPalmiShortcuts)
 {
 	m_userPalmiShortcuts = userPalmiShortcuts;
 	if(userPalmiShortcuts != defaultUserPalmiShortcuts())
 	{
 		QStringList listShortcuts;
-		for(int i = 0; i < m_userPalmiShortcuts.size(); i++)
-		{
-			QPair<QChar, QString> shortcut = m_userPalmiShortcuts.at(i);
+		for(const auto &shortcut : qAsConst(m_userPalmiShortcuts))
 			listShortcuts.append(QString(shortcut.first).append(shortcut.second));
-		}
+
 		setValue(SETTINGS_PALMI_SHORCUTS, listShortcuts);
 	}
 	else
@@ -251,7 +256,7 @@ void QQSettings::fillStaticPalmiShortcuts()
 	m_staticPalmiShortcuts.append(qMakePair(QChar('u'), QString("<u>%s</u>")));
 }
 
-QList< QPair<QChar, QString> > QQSettings::defaultUserPalmiShortcuts() const
+QList< QPair<QChar, QString> > QQSettings::defaultUserPalmiShortcuts()
 {
 	QList< QPair<QChar, QString> > shortcuts;
 	shortcuts.append(qMakePair(QChar('j'), QString("\\o/")));
