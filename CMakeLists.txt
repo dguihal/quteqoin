@@ -13,7 +13,17 @@ find_package(Qt6 REQUIRED COMPONENTS MultimediaWidgets)
 find_package(Qt6 REQUIRED COMPONENTS Network)
 find_package(Qt6 REQUIRED COMPONENTS Widgets)
 
+set(CMAKE_VERBOSE_MAKEFILE ON)
+
 qt_standard_project_setup()
+
+execute_process(
+    COMMAND git describe --always --tags
+    WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
+    OUTPUT_VARIABLE GIT_VERSION
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+    )
+add_compile_definitions(GIT_VERSION="${GIT_VERSION}")
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
