@@ -37,12 +37,12 @@ public slots:
 	void strike();
 	void underline();
 
-	void attachFile(QString fileName = QString(""));
+
+	void attachFile();
 
 protected:
 	virtual void dragEnterEvent(QDragEnterEvent *event);
 	virtual void dropEvent(QDropEvent *event);
-
 	virtual void paintEvent(QPaintEvent *event);
 
 protected slots:
@@ -50,6 +50,7 @@ protected slots:
 	void updateUploadProgress(quint32 pctProgress);
 
 private:
+	void attachFileWithName(QString fileName);
 
 	QColor m_currBoardcolor;
 	quint32 m_pctUp;

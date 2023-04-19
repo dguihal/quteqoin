@@ -20,7 +20,7 @@
    <set>Qt::LeftDockWidgetArea|Qt::RightDockWidgetArea</set>
   </property>
   <property name="windowTitle">
-   <string>&amp;Totoz Manager</string>
+   <string>TotozManager</string>
   </property>
   <widget class="QWidget" name="dockWidgetContents">
    <property name="sizePolicy">
@@ -86,8 +86,8 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>252</width>
-             <height>470</height>
+             <width>262</width>
+             <height>495</height>
             </rect>
            </property>
           </widget>
@@ -131,8 +131,8 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>256</width>
-             <height>474</height>
+             <width>264</width>
+             <height>497</height>
             </rect>
            </property>
           </widget>

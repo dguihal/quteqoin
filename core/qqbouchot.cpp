@@ -2,14 +2,13 @@
 
 #include <cmath>
 
-#include "core/qqbackendupdatedevent.h"
-#include "core/qqboardstatechangeevent.h"
-#include "core/qqpurgebouchothistoevent.h"
-#include "core/qqsettings.h"
-#include "core/parsers/qqbackendparser.h"
-#include "core/parsers/qqcustomxmlparser.h"
-#include "core/parsers/qqtsvparser.h"
-#include "core/parsers/qqxmlparser.h"
+#include "qqbackendupdatedevent.h"
+#include "qqboardstatechangeevent.h"
+#include "qqpurgebouchothistoevent.h"
+#include "qqsettings.h"
+#include "parsers/qqbackendparser.h"
+#include "parsers/qqcustomxmlparser.h"
+#include "parsers/qqtsvparser.h"
 
 #include <QApplication>
 #include <QBuffer>
@@ -20,11 +19,8 @@
 #include <QNetworkProxyFactory>
 #include <QNetworkReply>
 #include <QNetworkRequest>
-#include <QRegExp>
 #include <QRegularExpression>
 #include <QSslError>
-#include <QXmlSimpleReader>
-#include <QXmlInputSource>
 #include <utility>
 
 constexpr char X_POST_ID_HEADER[] = "X-Post-Id";
@@ -445,15 +441,11 @@ void QQBouchot::fetchBackend()
 	if(m_lastId < 0)
 	{
 		//1° appel au backend, on supprime le last/last_id/... de l'url
-		QRegExp reg;
-		reg.setCaseSensitivity(Qt::CaseSensitive);
-		reg.setPatternSyntax(QRegExp::RegExp2);
-		reg.setPattern("&?\\w+=%i");
+		QRegularExpression reg("&?\\w+=%i", QRegularExpression::NoPatternOption);
 		url.replace(reg, "");
 		//Nettoyage de l'url finale
 		reg.setPattern("\\?$");
 		url.replace(reg, "");
-		reg.setPatternSyntax(QRegExp::FixedString);
 		reg.setPattern("?&");
 		url.replace(reg, "?");
 	}
@@ -616,8 +608,7 @@ void QQBouchot::parseBackend(const QByteArray &data, const QString &contentType)
 {
 	if(contentType.startsWith("text/xml") ||
 	            contentType.startsWith("application/xml"))
-		//parseBackendXML(data);
-		parseBackendXMLCustom(data);
+		parseBackendXML(data);
 	else if(contentType.startsWith("text/tab-separated-values"))
 		parseBackendTSV(data);
 	else
@@ -632,13 +623,13 @@ void QQBouchot::parseBackend(const QByteArray &data, const QString &contentType)
 			QString l = b.readLine();
 			qDebug() << Q_FUNC_INFO << l;
 			if(l.startsWith("<?xml ") ||
-			        l.contains(QRegExp("^<\\w+ ")))
+			        l.contains(QRegularExpression("^<\\w+ ")))
 			{
 				qDebug() << Q_FUNC_INFO << "XML found";
 				parseBackendXML(data);
 				parserFound = true;
 			}
-			else if(l.contains(QRegExp("^\\d+\t")))
+			else if(l.contains(QRegularExpression("^\\d+\t")))
 			{
 				qDebug() << Q_FUNC_INFO << "TSV found";
 				parseBackendTSV(data);
@@ -675,7 +666,7 @@ void QQBouchot::parseBackendTSV(const QByteArray &data)
 	p->parseBackend(data);
 }
 
-void QQBouchot::parseBackendXMLCustom(const QByteArray &data)
+void QQBouchot::parseBackendXML(const QByteArray &data)
 {
 	auto *p = qobject_cast<QQCustomXmlParser *>(m_parser);
 	if(p == nullptr)
@@ -693,34 +684,6 @@ void QQBouchot::parseBackendXMLCustom(const QByteArray &data)
 	p->setTypeSlip(m_bSettings.slipType());
 	p->setLastId(m_lastId);
 	p->parseBackend(data);
-}
-
-void QQBouchot::parseBackendXML(const QByteArray &data)
-{
-	auto *p = qobject_cast<QQXmlParser *>(m_parser);
-	if(p == nullptr)
-	{
-
-		    delete m_parser;
-
-		p = new QQXmlParser(this);
-
-		connect(p, &QQXmlParser::newPostReady, this, &QQBouchot::insertNewPost);
-		connect(p, &QQXmlParser::finished, this, &QQBouchot::parsingFinished);
-
-		m_parser=p;
-	}
-
-	QXmlSimpleReader xmlReader;
-	QXmlInputSource xmlSource;
-
-	p->setTypeSlip(m_bSettings.slipType());
-	p->setLastId(m_lastId);
-
-	xmlSource.setData(data);
-	xmlReader.setContentHandler(p);
-	xmlReader.setErrorHandler(p);
-	xmlReader.parse(&xmlSource);
 }
 
 //////////////////////////////////////////////////////////////

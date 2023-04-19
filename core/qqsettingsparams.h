@@ -1,7 +1,7 @@
 #ifndef QQSETTINGSPARAMS_H
 #define QQSETTINGSPARAMS_H
 
-#include "core/qqtypes.h"
+//#include "qqtypes.h"
 
 #include <QtGlobal>
 
@@ -9,7 +9,7 @@
 #define NOTIF_APP_NAME "QuteQoin"
 
 #ifndef GIT_VERSION
-GIT_VERSION "undefined"
+#define GIT_VERSION "undefined"
 #endif
 
 #define MAX_CACHE_AGE_DAYS 60

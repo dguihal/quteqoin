@@ -50,7 +50,7 @@ void QQKeyboardShortcutInput::setupUi()
 	setAutoFillBackground(true);
 
 	QLayout *hLayout = new QHBoxLayout(this);
-	hLayout->setMargin(0);
+	hLayout->setContentsMargins(0, 0, 0, 0);
 	hLayout->setSpacing(0);
 
 	m_altLabel = new QLabel(SHORTCUT_PREFIX);
@@ -63,7 +63,7 @@ void QQKeyboardShortcutInput::setupUi()
 	m_lineEdit = new QLineEdit();
 	m_lineEdit->setMaxLength(1);
 	m_lineEdit->setFont(font());
-	QRegExpValidator *reVal = new QRegExpValidator(QRegExp("[^A-Z]"), this);
+	auto *reVal = new QRegularExpressionValidator(QRegularExpression("[^A-Z]"), this);
 	m_lineEdit->setValidator(reVal);
 	connect(m_lineEdit, SIGNAL(textEdited(QString)), this, SLOT(handleEditorTextEdited(QString)));
 
@@ -167,7 +167,7 @@ void QQPalmiSettingsTableWidget::appendStaticRow(const QChar &key, const QString
 	kbSItem->setFlags(
 	            kbSItem->flags()
 	            & ~Qt::ItemIsEnabled
-	            & ~Qt::ItemIsTristate);
+	            & ~Qt::ItemIsUserTristate);
 	m_mmapKeys.insert(key, kbSItem);
 	setItem(currRow, SHORTCUT_COLUMN, kbSItem);
 
@@ -178,7 +178,7 @@ void QQPalmiSettingsTableWidget::appendStaticRow(const QChar &key, const QString
 	item->setFlags(
 	            item->flags()
 	            & ~Qt::ItemIsEnabled
-	            & ~Qt::ItemIsTristate);
+	            & ~Qt::ItemIsUserTristate);
 	setItem(currRow, TEXT_COLUMN, item);
 }
 
@@ -251,7 +251,7 @@ int QQPalmiSettingsTableWidget::appendEmptyUserRow()
 	            | Qt::ItemIsEnabled);
 	kbSItem->setFlags(
 	            kbSItem->flags()
-	            & ~Qt::ItemIsTristate
+	            & ~Qt::ItemIsUserTristate
 	            & ~Qt::ItemIsUserCheckable);
 	setItem(currRow, SHORTCUT_COLUMN, kbSItem);
 
@@ -265,7 +265,7 @@ int QQPalmiSettingsTableWidget::appendEmptyUserRow()
 	            | Qt::ItemIsEnabled);
 	twItem->setFlags(
 	            twItem->flags()
-	            & ~Qt::ItemIsTristate
+	            & ~Qt::ItemIsUserTristate
 	            & ~Qt::ItemIsUserCheckable);
 	setItem(currRow, TEXT_COLUMN, twItem);
 

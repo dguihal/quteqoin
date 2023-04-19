@@ -1,8 +1,9 @@
 #include "qqtotoz.h"
-#include "core/qqsettingsparams.h"
+#include "qqsettingsparams.h"
 
 #include <QtDebug>
 #include <QBuffer>
+#include <QStandardPaths>
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
 

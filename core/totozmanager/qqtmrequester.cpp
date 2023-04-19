@@ -1,28 +1,23 @@
 #include "qqtmrequester.h"
 
 #include "core/qqsettings.h"
-#include "ui/totozmanager/qqtmxmlparser.h"
 
 #include <QtDebug>
 #include <QNetworkReply>
-#include <QXmlSimpleReader>
-#include <QXmlInputSource>
+#include <QXmlStreamReader>
+#include <QXmlStreamAttributes>
 
 QQTMRequester::QQTMRequester(QObject * parent) :
 	QQNetworkAccessor(parent)
 {
 	m_currKey.clear();
 	m_netReply = nullptr;
-
-	m_xmlParser = new QQTMXmlParser(this);
-	connect(m_xmlParser, SIGNAL(finished()), this, SLOT(parsingFinished()));
 }
 
 QQTMRequester::~QQTMRequester()
 {
 	if(m_netReply != nullptr)
 		m_netReply->abort();
-	delete m_xmlParser;
 }
 
 void QQTMRequester::requestFinishedSlot(QNetworkReply * reply)
@@ -31,17 +26,48 @@ void QQTMRequester::requestFinishedSlot(QNetworkReply * reply)
 	{
 		QByteArray data = reply->readAll();
 
-		QXmlSimpleReader xmlReader;
-		QXmlInputSource xmlSource;
+		QXmlStreamReader xmlReader(data);
 
-		xmlSource.setData(data);
-		xmlReader.setContentHandler(m_xmlParser);
-		xmlReader.setErrorHandler(m_xmlParser);
-		xmlReader.parse(xmlSource);
+		int numResults = 0;
+		QStringList totozes;
+		while (xmlReader.readNextStartElement())
+		{
+			if(xmlReader.name().compare("totozes") == 0)
+			{
+				auto attributes = xmlReader.attributes();
+				if (attributes.hasAttribute("results"))
+				{
+					bool ok = false;
+					numResults = attributes.value("results").toInt(&ok, 10);
+					if (!ok)
+						numResults = 0;
+				}
+			}
+
+			if(xmlReader.name().compare("name") == 0)
+			{
+				totozes.append(xmlReader.readElementText(QXmlStreamReader::SkipChildElements));
+				xmlReader.skipCurrentElement(); // next <totoz>....</totoz>
+			}
+		}
+		if (xmlReader.hasError()) {
+			qDebug() << Q_FUNC_INFO << "xmlReader.hasError() : " << xmlReader.error() << ", "  << xmlReader.errorString();
+		}
+		else
+		{
+			if(numResults > 0 &&
+			        totozes.size() < numResults) //Paging
+				searchTotoz(m_currKey, m_totozes.size());
+			else
+			{
+				m_totozes = totozes;
+				emit requestFinished();
+			}
+		}
 	}
 	else
 	{
-		qDebug() << Q_FUNC_INFO << "reply->error() =" << reply->error() << ", " << reply->errorString();
+		qDebug() << Q_FUNC_INFO << "reply->error() : " << reply->error() << ", " << reply->errorString();
 		emit requestFinished();
 	}
 
@@ -83,15 +109,4 @@ void QQTMRequester::searchTotoz(const QString & key, int offset)
 						 QNetworkRequest::PreferCache);
 
 	m_netReply = httpGet(request);
-}
-
-void QQTMRequester::parsingFinished()
-{
-	m_totozes.append(m_xmlParser->totozes());
-
-	if(m_xmlParser->numResults() > 0 &&
-			m_totozes.size() < m_xmlParser->numResults())
-		searchTotoz(m_currKey, m_totozes.size());
-	else
-		emit requestFinished();
 }

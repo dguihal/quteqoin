@@ -46,7 +46,7 @@ signals:
 
 protected:
 	virtual void contextMenuEvent(QContextMenuEvent *ev);
-	virtual void enterEvent(QEvent *event);
+	virtual void enterEvent(QEnterEvent *event);
 	virtual void leaveEvent(QEvent *event);
 	virtual void mousePressEvent(QMouseEvent *event);
 	virtual void mouseReleaseEvent(QMouseEvent *event);

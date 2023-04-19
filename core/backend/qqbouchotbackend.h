@@ -4,7 +4,7 @@
 #include "core/qqpost.h"
 #include "core/qqtypes.h"
 #include "core/qqmussel.h"
-#include "core/backend/qqbackend.h"
+#include "qqbackend.h"
 
 #include <QColor>
 #include <QHash>

@@ -8,6 +8,7 @@
 *.so
 *.dll
 *.dylib
+.qt/
 # Qt-es
 /.qmake.cache
 /.qmake.stash
@@ -31,3 +32,5 @@ Makefile*
 quteqoin
 quteqoin.kdev4
 build/
+.qtc_clangd/
+CMakeLists.txt.user

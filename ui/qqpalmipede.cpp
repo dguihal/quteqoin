@@ -5,7 +5,7 @@
 
 #include <QtDebug>
 #include <QFocusEvent>
-#include <QRegExp>
+#include <QRegularExpression>
 #include <QShortcut>
 
 #define PALMIPEDE_OBJECT_NAME "QQPalmipede"
@@ -21,30 +21,30 @@ QQPalmipede::QQPalmipede(QWidget *parent) :
 
 	m_ui->setupUi(this);
 
-	connect(m_ui->boldButton, SIGNAL(clicked()),
-	        m_ui->palmiEditor, SLOT(bold()));
-	connect(m_ui->italicButton, SIGNAL(clicked()),
-	        m_ui->palmiEditor, SLOT(italic()));
-	connect(m_ui->underlineButton, SIGNAL(clicked()),
-	        m_ui->palmiEditor, SLOT(underline()));
-	connect(m_ui->strikeButton, SIGNAL(clicked()),
-	        m_ui->palmiEditor, SLOT(strike()));
-	connect(m_ui->momentButton, SIGNAL(clicked()),
-	        m_ui->palmiEditor, SLOT(moment()));
-	connect(m_ui->blamPafComboBox, SIGNAL(activated(QString)),
-	        this, SLOT(blamPafActivated(QString)));
-	connect(m_ui->boardSelectorComboBox, SIGNAL(activated(int)),
-	        this, SLOT(bouchotSelectorActivated(int)));
-	connect(m_ui->boardSelectorComboBoxMin, SIGNAL(activated(int)),
-	        this, SLOT(bouchotSelectorActivated(int)));
-	connect(m_ui->postPushButton, SIGNAL(clicked()),
-	        this, SLOT(postPushButtonClicked()));
-	connect(m_ui->palmiEditor, SIGNAL(returnPressed()),
-	        m_ui->postPushButton, SLOT(animateClick()));
-	connect(m_ui->palmiEditor, SIGNAL(changeBoard(bool)),
-	        this, SLOT(changeBoard(bool)));
-	connect(m_ui->attachButton, SIGNAL(clicked()),
-	        m_ui->palmiEditor, SLOT(attachFile()));
+	connect(m_ui->boldButton, &QPushButton::clicked,
+	        m_ui->palmiEditor, &QQPalmiLineEdit::bold);
+	connect(m_ui->italicButton, &QPushButton::clicked,
+	        m_ui->palmiEditor, &QQPalmiLineEdit::italic);
+	connect(m_ui->underlineButton, &QPushButton::clicked,
+	        m_ui->palmiEditor, &QQPalmiLineEdit::underline);
+	connect(m_ui->strikeButton, &QPushButton::clicked,
+	        m_ui->palmiEditor, &QQPalmiLineEdit::strike);
+	connect(m_ui->momentButton, &QPushButton::clicked,
+	        m_ui->palmiEditor, &QQPalmiLineEdit::moment);
+	connect(m_ui->blamPafComboBox, &QComboBox::activated,
+	        this, &QQPalmipede::blamPafActivated);
+	connect(m_ui->boardSelectorComboBox, &QComboBox::activated,
+	        this, &QQPalmipede::bouchotSelectorActivated);
+	connect(m_ui->boardSelectorComboBoxMin, &QComboBox::activated,
+	        this, &QQPalmipede::bouchotSelectorActivated);
+	connect(m_ui->postPushButton, &QPushButton::clicked,
+	        this, &QQPalmipede::postPushButtonClicked);
+	connect(m_ui->palmiEditor, &QQPalmiLineEdit::returnPressed,
+	        m_ui->postPushButton, &QPushButton::animateClick);
+	connect(m_ui->palmiEditor, &QQPalmiLineEdit::changeBoard,
+	        this, &QQPalmipede::changeBoard);
+	connect(m_ui->attachButton, &QPushButton::clicked,
+	        m_ui->palmiEditor, &QQPalmiLineEdit::attachFile);
 
 	setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
 
@@ -129,34 +129,32 @@ void QQPalmipede::focusInEvent(QFocusEvent * event)
 void QQPalmipede::changeNorloges(const QString & bouchot)
 {
 	QString text = m_ui->palmiEditor->text();
-	QRegExp norlogeReg = QQNorlogeRef::norlogeRegexp();
-	QRegExp bouchotRemoverReg = QRegExp(QString::fromLatin1("@").append(bouchot),
-	                                    Qt::CaseSensitive,
-	                                    QRegExp::RegExp);
-	QRegExp bouchotAdderReg = QRegExp(QString::fromLatin1("@[A-Za-z0-9_]+"),
-	                                  Qt::CaseSensitive,
-	                                  QRegExp::RegExp);
+	auto norlogeReg = QQNorlogeRef::norlogeRegexp();
+	auto bouchotRemoverReg = QRegularExpression(QString::fromLatin1("@").append(bouchot),
+	                                    QRegularExpression::NoPatternOption);
+	auto bouchotAdderReg = QRegularExpression(QString::fromLatin1("@[A-Za-z0-9_]+"),
+	                                  QRegularExpression::NoPatternOption);
 	QString destText;
 
-	int firstIndex;
-	while((firstIndex = norlogeReg.indexIn(text)) != -1)
+	QRegularExpressionMatch firstMatch;
+	while((firstMatch = norlogeReg.match(text)).hasMatch())
 	{
-		if(firstIndex > 0)
+		if(firstMatch.capturedStart() > 0)
 		{
-			destText.append(text.leftRef(firstIndex));
-			text.remove(0, firstIndex);
+			destText.append(text.first(firstMatch.capturedStart()));
+			text.remove(0, firstMatch.capturedStart());
 		}
 
-		QString norloge = text.left(norlogeReg.matchedLength());
+		QString norloge = text.left(firstMatch.capturedLength());
 
-		if(norloge.contains(bouchotRemoverReg))
-			destText.append(norloge.leftRef(norloge.length() - bouchotRemoverReg.matchedLength()));
-		else if(! norloge.contains(bouchotAdderReg) && bouchot != m_oldBouchot)
+		if(norloge.indexOf(bouchotRemoverReg) >= 0)
+			destText.append(norloge.remove(bouchotRemoverReg));
+		else if(norloge.indexOf(bouchotAdderReg) < 0 && bouchot != m_oldBouchot)
 			destText.append(norloge).append(QString::fromLatin1("@")).append(m_oldBouchot);
 		else
 			destText.append(norloge);
 
-		text.remove(0, norlogeReg.matchedLength());
+		text.remove(0, firstMatch.capturedLength());
 	}
 
 	if(text.length() > 0)
@@ -207,8 +205,9 @@ void QQPalmipede::changeBoard(bool next)
 	qDebug() << Q_FUNC_INFO << QApplication::focusWidget();
 }
 
-void QQPalmipede::blamPafActivated(const QString & text)
+void QQPalmipede::blamPafActivated(int index)
 {
+	auto text = m_ui->blamPafComboBox->itemText(index);
 	if(text.contains(QString::fromLatin1("paf"), Qt::CaseInsensitive))
 		m_ui->palmiEditor->paf();
 	else if(text.contains(QString::fromLatin1("BLAM"), Qt::CaseInsensitive))
@@ -237,10 +236,11 @@ void QQPalmipede::bouchotSelectorActivated(int index)
 	m_oldBouchot = bouchot;
 }
 
+static QRegularExpression re_space("\\s", QRegularExpression::NoPatternOption); // clazy:exclude=use-static-qregularexpression
 void QQPalmipede::postPushButtonClicked()
 {
 	QString message = m_ui->palmiEditor->text();
-	message.replace(QRegExp("\\s", Qt::CaseInsensitive, QRegExp::RegExp2), " ");
+	message.replace(re_space, " ");
 	QString bouchotDest = m_ui->boardSelectorComboBox->currentText();
 
 	m_ui->palmiEditor->pushCurrentToHistory();

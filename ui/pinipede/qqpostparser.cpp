@@ -6,7 +6,7 @@
 #include "ui/pinipede/qqpiniurlhelper.h"
 
 #include <QtDebug>
-#include <QRegExp>
+#include <QRegularExpression>
 #include <QString>
 #include <QTextCursor>
 #include <QTextDocument>
@@ -77,7 +77,7 @@ QList<QTextDocumentFragment> QQPostParser::splitMessage(const QString &message, 
 		fmt.setUnderlineStyle(QTextCharFormat::NoUnderline);
 		fmt.setAnchor(true);
 
-		QRegExp norlogeReg = QQNorlogeRef::norlogeRegexp();
+		QRegularExpression norlogeReg = QQNorlogeRef::norlogeRegexp();
 		while(! (norlogeCursor = doc.find(norlogeReg, norlogeCursor)).isNull())
 		{
 			QQNorlogeRef nRef = QQNorlogeRef(*post, norlogeCursor.selectedText());
@@ -196,9 +196,7 @@ void QQPostParser::colorizeBigorno(QTextDocument &doc, QQPost *post, QQMessageBl
 		bigorno.append(id).append("|");
 	bigorno.append("moules)<");
 
-	QRegExp bigornoReg = QRegExp(bigorno,
-	                               Qt::CaseInsensitive,
-	                               QRegExp::RegExp);
+	QRegularExpression bigornoReg = QRegularExpression(bigorno, QRegularExpression::CaseInsensitiveOption);
 
 	QTextCursor cursor(&doc);
 	QTextCharFormat fmt = cursor.blockCharFormat();
@@ -230,18 +228,12 @@ void QQPostParser::colorizeDuck(QTextDocument &doc, QQMessageBlockUserData *user
 {
 	QString tete = QString::fromLatin1("(?:[o0ô°øòó@]|(?:&ocirc;)|(?:&deg;)|(?:&oslash;)|(?:&ograve;)|(?:&oacute;))");
 
-	QList<QRegExp> regexes;
-	regexes << QRegExp(QString::fromLatin1("\\\\_").append(tete).append(QString::fromLatin1("<")),
-	                   Qt::CaseSensitive,
-	                   QRegExp::RegExp);
+	QList<QRegularExpression> regexes;
+	regexes << QRegularExpression(QString::fromLatin1("\\\\_").append(tete).append(QString::fromLatin1("<")), QRegularExpression::NoPatternOption);
 
-	regexes << QRegExp(QString::fromLatin1(">").append(tete).append(QString::fromLatin1("_\\/")),
-	                   Qt::CaseSensitive,
-	                   QRegExp::RegExp);
+	regexes << QRegularExpression(QString::fromLatin1(">").append(tete).append(QString::fromLatin1("_\\/")), QRegularExpression::NoPatternOption);
 
-	regexes << QRegExp(QString::fromLatin1("coin ?! ?coin ?!"),
-	                   Qt::CaseSensitive,
-	                   QRegExp::RegExp);
+	regexes << QRegularExpression(QString::fromLatin1("coin ?! ?coin ?!"), QRegularExpression::NoPatternOption);
 
 	QTextCursor cursor(&doc);
 
@@ -250,7 +242,7 @@ void QQPostParser::colorizeDuck(QTextDocument &doc, QQMessageBlockUserData *user
 
 	QQPost *post = userData->post();
 
-	foreach(QRegExp reg, regexes)
+	foreach(QRegularExpression reg, regexes)
 	{
 		cursor.movePosition(QTextCursor::Start, QTextCursor::MoveAnchor);
 
@@ -300,9 +292,7 @@ void QQPostParser::linkNorlogeRef(QQNorlogeRef *nRef)
 ///
 void QQPostParser::colorizeTableVolante(QTextDocument &doc, QQMessageBlockUserData *userData)
 {
-	QRegExp tvReg = QRegExp(QString::fromLatin1("(?:flap ?flap)|(?:table[ _]volante)"),
-	                          Qt::CaseSensitive,
-	                          QRegExp::RegExp);
+	QRegularExpression tvReg = QRegularExpression(QString::fromLatin1("(?:flap ?flap)|(?:table[ _]volante)"), QRegularExpression::NoPatternOption);
 
 	QTextCursor cursor(&doc);
 	QTextCharFormat fmt = cursor.blockCharFormat();
@@ -331,9 +321,8 @@ void QQPostParser::colorizeTotoz(QTextDocument &doc, QQMessageBlockUserData *use
 {
 	Q_UNUSED(userData);
 
-	QRegExp totozReg = QRegExp(QString::fromLatin1("(\\[\\:[^\\t\\)\\]]+\\])"), //[:[^\t\)\]]
-	                             Qt::CaseSensitive,
-	                             QRegExp::RegExp);
+	QRegularExpression totozReg = QRegularExpression(QString::fromLatin1("(\\[\\:[^\\t\\)\\]]+\\])"), QRegularExpression::NoPatternOption); //[:[^\t\)\]]
+
 
 	QTextCursor cursor(&doc);
 	QTextCharFormat fmt = cursor.blockCharFormat();
@@ -373,14 +362,12 @@ void QQPostParser::colorizeTotoz(QTextDocument &doc, QQMessageBlockUserData *use
 void QQPostParser::detectLecon(QTextDocument &doc, QQMessageBlockUserData *userData)
 {
 	Q_UNUSED(userData)
-	QRegExp totozReg = QRegExp(QString::fromUtf8("(le[cç]on\\s+\\d+)"),
-	                             Qt::CaseInsensitive,
-	                             QRegExp::RegExp);
+	QRegularExpression totozReg = QRegularExpression(QString::fromUtf8("(le[cç]on\\s+\\d+)"), QRegularExpression::CaseInsensitiveOption);
 
 	QTextCursor cursor(&doc);
 	while(! (cursor = doc.find(totozReg, cursor)).isNull())
 	{
-		QString numLesson = cursor.selectedText().split(QRegExp("\\s")).at(1);
+		QString numLesson = cursor.selectedText().split(QRegularExpression("\\s")).at(1);
 		QString url = QString::fromLatin1("<a href=\"")
 		              .append(LECON_BASE_URL)
 		              .append(numLesson)

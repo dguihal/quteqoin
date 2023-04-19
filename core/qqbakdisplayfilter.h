@@ -1,7 +1,7 @@
 #ifndef QQBAKDISPLAYFILTER_H
 #define QQBAKDISPLAYFILTER_H
 
-#include "core/qqpostdisplayfilter.h"
+#include "qqpostdisplayfilter.h"
 
 class QQBakDisplayFilter : public QQPostDisplayFilter
 {

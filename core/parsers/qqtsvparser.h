@@ -4,7 +4,7 @@
 #include <QObject>
 #include <QString>
 
-#include "core/parsers/qqbackendparser.h"
+#include "qqbackendparser.h"
 
 class QQTsvParser : public QQBackendParser
 {

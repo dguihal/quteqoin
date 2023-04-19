@@ -1,8 +1,6 @@
 #ifndef QQDOCKPALMI_H
 #define QQDOCKPALMI_H
 
-#include "ui/qqpalmipede.h"
-
 #include <QDockWidget>
 
 class QQDockPalmi : public QDockWidget

@@ -10,10 +10,10 @@
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QRegularExpression>
 #include <QTextDocumentFragment>
 
-//TODO: See http://doc.qt.io/qt-5/qurl.html#topLevelDomain
-constexpr char URL_HOST_REGEXP[] = R"((<a [^>]*href="(https?://[^/"]+)[^"]*"[^>]*>)\[(?:url|https?)\](</a>))";
+constexpr char URL_HOST_REGEXP[] = R"((<a [^>]*href="(https?://[^/"]+)[^"]*"[^>]*>)\[(?:url|https?)\]</a>)"; //Raw string
 
 constexpr int CONTENT_TYPE_CACHE_SIZE = 500;
 
@@ -78,26 +78,26 @@ void QQPiniUrlHelper::transformMessage(const QString &bouchot, QString &message)
 	QuteQoin::QQSmartUrlFilerTransformType trType =
 	            (QuteQoin::QQSmartUrlFilerTransformType) settings.value(SETTINGS_FILTER_SMART_URL_TRANSFORM_TYPE, DEFAULT_FILTER_SMART_URL_TRANSFORM_TYPE).toInt();
 
-	QRegExp reg(QString::fromUtf8(static_cast<const char *>(URL_HOST_REGEXP)), Qt::CaseInsensitive, QRegExp::RegExp2);
+	QRegularExpression reg(QString::fromUtf8(static_cast<const char *>(URL_HOST_REGEXP)), QRegularExpression::NoPatternOption);
 
-	int index = 0;
-	while((index = message.indexOf(reg, index)) >= 0)
+	QRegularExpressionMatch match;
+	auto index=0;
+	while((match = reg.match(message, index)).hasMatch())
 	{
-		QUrl url(reg.capturedTexts().at(2));
+		QUrl url(match.captured(2));
 		QString host = url.host();
 
-		QString s(reg.capturedTexts().at(1));
+		QString s(match.captured(1));
 		s.append("[");
 
 		if (trType == QuteQoin::Full)
 			s.append(host);
 		else
 		{
-			QString tld = url.topLevelDomain();
-			QString fullDomain = host.left(host.length() - tld.length());
+			QString tld = host.right( host.lastIndexOf('.'));
+			QString fullDomain = host.left(host.length() - host.lastIndexOf('.'));
 
-			int dotPos = fullDomain.lastIndexOf(".");
-			QString baseDomain = fullDomain.right(fullDomain.length() - (dotPos + 1));
+			QString baseDomain = fullDomain.right(fullDomain.length() - (fullDomain.lastIndexOf(".") + 1));
 
 			//trType == QuteQoin::Shorter
 			s.append(baseDomain);
@@ -106,10 +106,10 @@ void QQPiniUrlHelper::transformMessage(const QString &bouchot, QString &message)
 				s.append(tld);
 		}
 
-		s.append("]").append(reg.capturedTexts().at(3)); //End of "a" tag
+		s.append("]</a>");
 
-		message.replace(index, reg.capturedTexts().at(0).length(), s);
-		index += reg.matchedLength();
+		message.replace(match.capturedStart(), match.captured(0).length(), s);
+		index += match.capturedEnd();
 	}
 }
 

@@ -14,10 +14,11 @@
  * 02110-1301, USA.
  */
 
-#include "core/qqbouchot.h"
-#include "core/qqnorloge.h"
-#include "core/qqpost.h"
-#include "core/qqsettings.h"
+#include "qqpost.h"
+
+#include "qqbouchot.h"
+#include "qqnorloge.h"
+#include "qqsettings.h"
 
 #include <QtDebug>
 
@@ -127,9 +128,9 @@ QString QQPost::norlogeFormatee() const
 {
 	QString tmp("");
 	tmp.append("[")
-	        .append(m_norloge.midRef(8,2)).append(":")
-	        .append(m_norloge.midRef(10,2)).append(":")
-	        .append(m_norloge.midRef(12,2)).append("]");
+	        .append(QStringView{m_norloge}.sliced(8,2)).append(":")
+	        .append(QStringView{m_norloge}.sliced(10,2)).append(":")
+	        .append(QStringView{m_norloge}.sliced(12,2)).append("]");
 	return tmp;
 }
 

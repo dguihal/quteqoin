@@ -88,7 +88,7 @@ void QQTotozViewer::contextMenuEvent(QContextMenuEvent *ev)
 	displayContextMenu(pos);
 }
 
-void QQTotozViewer::enterEvent(QEvent *event)
+void QQTotozViewer::enterEvent(QEnterEvent *event)
 {
 	QQImageViewer::enterEvent(event);
 	m_mousePressOK = false;

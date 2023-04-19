@@ -15,6 +15,7 @@
 #include <QGraphicsGridLayout>
 #include <QGraphicsView>
 #include <QGraphicsWidget>
+#include <QStandardPaths>
 #include <QVBoxLayout>
 #include <QWidget>
 
@@ -188,11 +189,7 @@ QStringList QQTotozManager::bookmarkedTotozIds()
 
 	if(m_tTZBookmarkListCache.isEmpty())
 	{
-#if(QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
-		QDir dirData(QStandardPaths::writableLocation(QStandardPaths::DataLocation));
-#else
-		QDir dirData(QDesktopServices::storageLocation(QDesktopServices::DataLocation));
-#endif
+		QDir dirData(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation));
 		if(!dirData.exists())
 			dirData.mkpath(dirData.path());
 
@@ -217,11 +214,7 @@ void QQTotozManager::setBookmarkedTotozIds(QStringList newList)
 {
 	m_tTZBookmarkListCache = newList;
 
-#if(QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
-	QDir dirData(QStandardPaths::writableLocation(QStandardPaths::DataLocation));
-#else
-	QDir dirData(QDesktopServices::storageLocation(QDesktopServices::DataLocation));
-#endif
+	QDir dirData(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation));
 
 	if(!dirData.exists())
 		dirData.mkpath(dirData.path());

@@ -1,7 +1,7 @@
 #include "qqnetworkaccessor.h"
 #include "ui/qqproxyauthdialog.h"
 
-#include <core/qqsettings.h>
+#include "qqsettings.h"
 
 #include <QtDebug>
 #include <QApplication>
@@ -128,23 +128,19 @@ int QQNetworkAccessor::name_to_month(QByteArray month_str)
 QDateTime QQNetworkAccessor::parseRC822(const QString& string)
 {
 	auto pos = string.indexOf(',') + 1;
-	auto minString = string.rightRef(string.length() - pos);
-#if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
-	auto fields = minString.string()->split(" ", Qt::SkipEmptyParts);
-#else
-	auto fields = minString.string()->split(" ", QString::SkipEmptyParts);
-#endif
+	auto minString = string.right(string.length() - pos);
+	auto fields = minString.split(" ", Qt::SkipEmptyParts);
 	QDate date(fields[2].toInt(), name_to_month(fields[1].toLatin1()), fields[0].toInt());
 	auto time = QTime::fromString(fields[3], "hh:mm:ss");
 	if(fields[4].startsWith('+'))
 	{
-		auto offset = fields[4].rightRef(4);
-		time = time.addSecs(offset.left(2).toInt() * 3600 + offset.right(2).toInt() * 60);
+		auto offset = QStringView{fields[4]}.right(4);
+	    time = time.addSecs(offset.first(2).toInt() * 3600 + offset.right(2).toInt() * 60);
 	}
 	else if(fields[4].startsWith('-'))
 	{
-		auto offset = fields[4].rightRef(4);
-		time = time.addSecs(0 - (offset.left(2).toInt() * 3600 + offset.right(2).toInt() * 60));
+	    auto offset = QStringView{fields[4]}.right(4);
+        time = time.addSecs(0 - (offset.first(2).toInt() * 3600 + offset.right(2).toInt() * 60));
 	}
 	QDateTime datetime(date, time, Qt::UTC);
 	return datetime;

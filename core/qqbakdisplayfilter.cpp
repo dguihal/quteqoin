@@ -1,7 +1,7 @@
 #include "qqbakdisplayfilter.h"
 
-#include "core/qqbouchot.h"
-#include "core/qqpost.h"
+#include "qqbouchot.h"
+#include "qqpost.h"
 
 //////////////////////////////////////////////////////////////
 /// \brief QQBakDisplayFilter::filterMatch

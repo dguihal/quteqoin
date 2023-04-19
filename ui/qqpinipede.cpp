@@ -1250,7 +1250,7 @@ bool QQPinipede::printPostAtCursor(QTextCursor &cursor, QQPost *post)
 	}
 	else
 	{
-		loginUaFormat.setFontFamily("Monospace");
+		loginUaFormat.setFontFamilies(QStringList("Monospace"));
 		loginUaFormat.setForeground(QColor(UNKNOWN_POSTER_COLOR));
 		loginUaFormat.setAnchorHref(QString());
 		loginUaFormat.setAnchor(false);
@@ -1264,7 +1264,7 @@ bool QQPinipede::printPostAtCursor(QTextCursor &cursor, QQPost *post)
 
 	//Replace non printable ascii characters by '-', multiple matches are replaced by a single '-'
 	if (asciiLogin)
-		txt = txt.replace(QRegExp("[^\\x20-\\x7e]+"), "-");
+		txt = txt.replace(QRegularExpression("[^\\x20-\\x7e]+"), "-");
 
 	cursor.insertText(txt, loginUaFormat);
 

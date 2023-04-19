@@ -1,11 +1,11 @@
 #ifndef QQBOUCHOT_H
 #define QQBOUCHOT_H
 
-#include "core/qqnetworkaccessor.h"
-#include "core/qqpost.h"
-#include "core/qqsettingsparams.h"
-#include "core/qqtypes.h"
-#include "core/qqmussel.h"
+#include "qqnetworkaccessor.h"
+#include "qqpost.h"
+#include "qqsettingsparams.h"
+#include "qqtypes.h"
+#include "qqmussel.h"
 
 #include <QColor>
 #include <QHash>
@@ -112,7 +112,6 @@ public:
 
 	void parseBackend(const QByteArray &data, const QString &contentType);
 	void parseBackendTSV(const QByteArray &data);
-	void parseBackendXMLCustom(const QByteArray &data);
 	void parseBackendXML(const QByteArray &data);
 	void postMessage(const QString &message);
 

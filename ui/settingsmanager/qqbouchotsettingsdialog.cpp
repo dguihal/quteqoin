@@ -6,7 +6,7 @@
 #include <QtDebug>
 #include <QColorDialog>
 #include <QMessageBox>
-#include <QRegExp>
+#include <QRegularExpression>
 
 QQBouchotSettingsDialog::QQBouchotSettingsDialog(QWidget *parent) :
 	QDialog(parent),
@@ -18,8 +18,8 @@ QQBouchotSettingsDialog::QQBouchotSettingsDialog(QWidget *parent) :
 	connect(ui->colorLineEdit, SIGNAL(textChanged(QString)), this, SLOT(colorChanged(QString)));
 	connect(ui->nameLineEdit, SIGNAL(textChanged(QString)), this, SLOT(nameChanged(QString)));
 
-	QRegExp reg("^#[0-9a-fA-F]{0,6}$");
-	ui->colorLineEdit->setValidator(new QRegExpValidator(reg, this));
+	QRegularExpression reg("^#[0-9a-fA-F]{0,6}$");
+	ui->colorLineEdit->setValidator(new QRegularExpressionValidator(reg, this));
 	ui->presetComboBox->addItems(QQBouchot::getBouchotDefNameList());
 
 }
@@ -36,8 +36,8 @@ QQBouchotSettingsDialog::QQBouchotSettingsDialog(QString bouchotName, QQBouchot:
 	connect(ui->colorLineEdit, SIGNAL(textChanged(QString)), this, SLOT(colorChanged(QString)));
 	connect(ui->nameLineEdit, SIGNAL(textChanged(QString)), this, SLOT(nameChanged(QString)));
 
-	QRegExp reg("^#[0-9a-fA-F]{0,6}$");
-	ui->colorLineEdit->setValidator(new QRegExpValidator(reg, this));
+	QRegularExpression reg("^#[0-9a-fA-F]{0,6}$");
+	ui->colorLineEdit->setValidator(new QRegularExpressionValidator(reg, this));
 	ui->presetComboBox->addItems(QQBouchot::getBouchotDefNameList());
 
 	setBouchot();

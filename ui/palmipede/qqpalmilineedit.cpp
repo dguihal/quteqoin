@@ -100,7 +100,7 @@ void QQPalmiLineEdit::dropEvent(QDropEvent *event)
 	{
 		QUrl url = event->mimeData()->urls().at(0);
 		if (url.isLocalFile())
-			attachFile(url.toLocalFile());
+			attachFileWithName(url.toLocalFile());
 		else
 			m_privLineEdit->insertText(url.toString());
 		event->accept();
@@ -186,11 +186,18 @@ void QQPalmiLineEdit::paintEvent(QPaintEvent *event)
 //////////////////////////////////////////////////////////////
 /// \brief QQPalmiLineEdit::attachFile
 ///
-void QQPalmiLineEdit::attachFile(QString fileName)
+void QQPalmiLineEdit::attachFile()
 {
-	if(fileName.isEmpty())
-		fileName = QFileDialog::getOpenFileName(this, tr("Open File"),
-		                                        "", tr("Files (*.*)"));
+	auto fileName = QFileDialog::getOpenFileName(this, tr("Open File"),
+	                                        "", tr("Files (*.*)"));
+	attachFileWithName(fileName);
+}
+
+//////////////////////////////////////////////////////////////
+/// \brief QQPalmiLineEdit::attachFile
+///
+void QQPalmiLineEdit::attachFileWithName(QString fileName)
+{
 	if(QFile::exists(fileName))
 		m_fPoster.postFile(fileName);
 }

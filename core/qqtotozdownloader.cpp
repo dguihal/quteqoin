@@ -1,6 +1,7 @@
 #include "qqtotozdownloader.h"
 
-#include "core/qqtotoz.h"
+#include "qqsettings.h"
+#include "qqtotoz.h"
 
 #include <QtDebug>
 #include <QDateTime>

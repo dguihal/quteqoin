@@ -189,7 +189,7 @@ void QQBoardInfo::updateUserList()
 		else
 		{
 			mi = new QQMusselInfo(mussel, boardInfoWidget);
-			connect(mi, SIGNAL(selected(QQMussel)), this, SLOT(musselSelected(QQMussel)));
+			QObject::connect(mi, &QQMusselInfo::musselSelected, this, &QQBoardInfo::musselSelected);
 			mi->setSizePolicy(policy);
 		}
 

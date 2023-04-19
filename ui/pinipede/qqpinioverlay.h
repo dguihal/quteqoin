@@ -2,17 +2,8 @@
 #define QQPINIOVERLAY_H
 
 #include <QGraphicsView>
-#if(QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
 #include <QMimeType>
 #include <QMediaPlayer>
-#else
-class QMediaPlayer
-{
-public:
-	enum State { VOID_S };
-	enum Error { VOID_E };
-};
-#endif
 #include <QStack>
 #include <QUrl>
 
@@ -53,7 +44,7 @@ protected:
 
 protected slots:
 	void dlReady(QUrl &url);
-	void doVideoStateChanged(QMediaPlayer::State newState);
+	void doVideoStateChanged(QMediaPlayer::PlaybackState newState);
 	void handleVideoError(QMediaPlayer::Error error);
 
 private:

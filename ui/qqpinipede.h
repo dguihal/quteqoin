@@ -9,7 +9,6 @@
 #include <QHash>
 #include <QMutex>
 #include <QPointer>
-#include <QRegExp>
 #include <QString>
 #include <QTabWidget>
 #include <QTextFormat>

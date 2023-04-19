@@ -2,7 +2,7 @@
 #define QQTMLABEL_H
 
 #include "core/qqtotoz.h"
-#include "ui/qqimageviewer.h"
+#include "qqimageviewer.h"
 
 #include <QString>
 
@@ -34,7 +34,7 @@ signals:
 protected:
 	void updateTotoz();
 	virtual void contextMenuEvent(QContextMenuEvent *ev);
-	virtual void enterEvent(QEvent *event);
+	virtual void enterEvent(QEnterEvent *event);
 	virtual void leaveEvent(QEvent *event);
 	virtual void mousePressEvent(QMouseEvent *ev);
 	virtual void mouseReleaseEvent(QMouseEvent *ev);

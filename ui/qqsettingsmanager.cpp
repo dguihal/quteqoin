@@ -34,7 +34,7 @@ QQSettingsManager::QQSettingsManager(QWidget *parent) :
 	QQSettings settings;
 
 	QLayout *layout = new QVBoxLayout();
-	layout->setMargin(0);
+	layout->setContentsMargins(0, 0, 0, 0);
 	listSettingsTheme->setSortingEnabled(false);
 	listSettingsTheme->setIconSize(QSize(32, 32));
 

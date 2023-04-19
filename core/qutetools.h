@@ -1,7 +1,7 @@
 #ifndef QUTETOOLS_H
 #define QUTETOOLS_H
 
-#include "core/qqtypes.h"
+#include "qqtypes.h"
 
 #include <QString>
 

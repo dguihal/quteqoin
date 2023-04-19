@@ -6,7 +6,7 @@
 #include "core/qqsettings.h"
 #include "core/parsers/qqbackendparser.h"
 #include "core/parsers/qqtsvparser.h"
-#include "core/parsers/qqxmlparser.h"
+#include "core/parsers/qqcustomxmlparser.h"
 
 #include <QApplication>
 #include <QBuffer>
@@ -16,10 +16,8 @@
 #include <QNetworkProxyFactory>
 #include <QNetworkReply>
 #include <QNetworkRequest>
-#include <QRegExp>
+#include <QRegularExpression>
 #include <QSslError>
-#include <QXmlSimpleReader>
-#include <QXmlInputSource>
 
 #define X_POST_ID_HEADER "X-Post-Id"
 
@@ -87,7 +85,7 @@ QQBouchotBackend::QQBouchotBackend(const QString &name, QObject *parent) :
 	m_lastId(-1),
 	m_deltaTimeH(-1) // unknown
 {
-	m_bSettings.setRefreshFromString(DEFAULT_BOUCHOT_REFRESH);
+	m_bSettings.setRefresh(DEFAULT_BOUCHOT_REFRESH);
 
 	m_state.hasBigorno = false;
 	m_state.hasError = false;
@@ -402,17 +400,14 @@ void QQBouchotBackend::fetchBackend()
 	if(m_lastId < 0)
 	{
 		//1° appel au backend, on supprime le last/last_id/... de l'url
-		QRegExp reg;
-		reg.setCaseSensitivity(Qt::CaseSensitive);
-		reg.setPatternSyntax(QRegExp::RegExp2);
-		reg.setPattern("&?\\w+=%i");
+		QRegularExpression reg("&?\\w+=%i", QRegularExpression::NoPatternOption);
 		url.replace(reg, "");
+
 		//Nettoyage de l'url finale
 		reg.setPattern("\\?$");
 		url.replace(reg, "");
-		reg.setPatternSyntax(QRegExp::FixedString);
-		reg.setPattern("?&");
-		url.replace(reg, "?");
+
+		url.replace("?&", "?");
 	}
 	else
 	{
@@ -561,6 +556,8 @@ void QQBouchotBackend::requestFinishedSlot(QNetworkReply *reply)
 /// \brief QQBouchot::parseBackend
 /// \param data
 ///
+static QRegularExpression xmlReg("^<\\w+ ");
+static QRegularExpression tsvReg("^\\d+\t");
 void QQBouchotBackend::parseBackend(const QByteArray &data, const QString &contentType)
 {
 	if(contentType.startsWith("text/xml") ||
@@ -580,13 +577,13 @@ void QQBouchotBackend::parseBackend(const QByteArray &data, const QString &conte
 			QString l = b.readLine();
 			qDebug() << Q_FUNC_INFO << l;
 			if(l.startsWith("<?xml ") ||
-					l.contains(QRegExp("^<\\w+ ")))
+			        l.contains(xmlReg))
 			{
 				qDebug() << Q_FUNC_INFO << "XML found";
 				parseBackendXML(data);
 				parserFound = true;
 			}
-			else if(l.contains(QRegExp("^\\d+\t")))
+			else if(l.contains(tsvReg))
 			{
 				qDebug() << Q_FUNC_INFO << "TSV found";
 				parseBackendTSV(data);
@@ -624,10 +621,10 @@ void QQBouchotBackend::parseBackendTSV(const QByteArray &data)
 
 void QQBouchotBackend::parseBackendXML(const QByteArray &data)
 {
-	QQXmlParser *p = NULL;
+	QQCustomXmlParser *p = NULL;
 	if(m_parser == NULL)
 	{
-		p = new QQXmlParser(this);
+		p = new QQCustomXmlParser(this);
 
 		connect(p, SIGNAL(newPostReady(QQPost&)), this, SLOT(insertNewPost(QQPost&)));
 		connect(p, SIGNAL(finished()), this, SLOT(parsingFinished()));
@@ -635,18 +632,10 @@ void QQBouchotBackend::parseBackendXML(const QByteArray &data)
 		m_parser=p;
 	}
 	else
-		p = qobject_cast<QQXmlParser *>(m_parser);
+		p = qobject_cast<QQCustomXmlParser *>(m_parser);
 
-	QXmlSimpleReader xmlReader;
-	QXmlInputSource xmlSource;
-
-	p->setTypeSlip(m_bSettings.slipType());
 	p->setLastId(m_lastId);
-
-	xmlSource.setData(data);
-	xmlReader.setContentHandler(p);
-	xmlReader.setErrorHandler(p);
-	xmlReader.parse(&xmlSource);
+	p->parseBackend(data);
 }
 
 //////////////////////////////////////////////////////////////
@@ -750,7 +739,7 @@ void QQBouchotBackend::updateLastUsers()
 		deltaTimeH = 0;
 
 	QDateTime currentDateTime = QDateTime::currentDateTime();
-	currentDateTime.addSecs( deltaTimeH * 3600 ); // on se met sur le meme TZ que le bouchot
+	currentDateTime = currentDateTime.addSecs( deltaTimeH * 3600 ); // on se met sur le meme TZ que le bouchot
 	for(int i = m_history.size() - 1; i >= 0; i--)
 	{
 		QQPost *post = m_history.at(i);
@@ -848,7 +837,7 @@ QQBouchotBackend::QQBouchotSettings QQBouchotBackend::getBouchotDef(const QStrin
 		settings.setColorFromString(bouchotsDef[i].color);
 		settings.setPostData(bouchotsDef[i].postData);
 		settings.setPostUrl(bouchotsDef[i].postUrl);
-		settings.setRefreshFromString(DEFAULT_BOUCHOT_REFRESH);
+		settings.setRefresh(DEFAULT_BOUCHOT_REFRESH);
 		settings.setSlipType(bouchotsDef[i].typeSlip);
 		settings.setCookie(bouchotsDef[i].cookieProto);
 	}

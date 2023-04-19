@@ -1,6 +1,6 @@
 #include "qqmussel.h"
 
-#include "core/qqbouchot.h"
+#include "qqbouchot.h"
 
 #include <QHash>
 #include <utility>

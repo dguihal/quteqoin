@@ -1,6 +1,6 @@
 #include "qqsettings.h"
 
-#include "core/qqbouchot.h"
+#include "qqbouchot.h"
 #include "ui/qqpinipede.h"
 
 #include <QtDebug>

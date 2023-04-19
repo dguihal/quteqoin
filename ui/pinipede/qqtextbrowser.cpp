@@ -18,7 +18,6 @@
 #include <QPainter>
 #include <QScrollBar>
 #include <QTextBlock>
-#include <QTextCodec>
 #include <QTextLayout>
 #include <QTextTable>
 #include <QTextTableCell>
@@ -643,7 +642,7 @@ void QQTextBrowser::contextMenuEvent(QContextMenuEvent * ev)
 /// \brief enterEvent
 /// \param event
 ///
-void QQTextBrowser::enterEvent(QEvent *event)
+void QQTextBrowser::enterEvent(QEnterEvent *event)
 {
 	QTextBrowser::enterEvent(event);
 
