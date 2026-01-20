@@ -54,10 +54,8 @@ QQPinipede::QQPinipede(QWidget * parent) :
     m_maxHistorySize(100),
     m_stealthModeEnabled(false)
 {
-	connect(m_postparser, SIGNAL(totozRequired(QString &)),
-	        m_totozDownloader, SLOT(fetchTotoz(QString &)));
-	connect(m_postparser, SIGNAL(bigorNotify(QString &, QString &, bool)),
-	        this, SLOT(bigorNotify(QString &, QString &, bool)));
+	connect(m_postparser, &QQPostParser::totozRequired, m_totozDownloader, &QQTotozDownloader::fetchTotoz);
+	connect(m_postparser, &QQPostParser::bigorNotify, this, &QQPinipede::bigorNotify);
 
 	m_hiddenPostViewerLabelSSheet = QString::fromLatin1("border: 2px solid black; border-radius: 4px;");
 	m_hiddenPostViewerLabel = new QLabel(this);
@@ -69,8 +67,7 @@ QQPinipede::QQPinipede(QWidget * parent) :
 	m_hiddenPostViewerLabel->setScaledContents(true);
 	m_hiddenPostViewerLabel->hide();
 
-	connect(m_overlay, SIGNAL(duckKilled(QString,QString)),
-	        this, SLOT(duckKilled(QString,QString)));
+	connect(m_overlay, &QQPiniOverlay::duckKilled, this, &QQPinipede::duckKilled);
 
 	addTab(new QWidget(), "(void)");
 
@@ -131,20 +128,20 @@ void QQPinipede::addPiniTab(const QString &groupName)
 
 	m_textBrowserHash.insert(groupName, textBrowser);
 
-	connect(textBrowser, SIGNAL(duckClicked(QString,QString,bool)), m_overlay, SLOT(launchDuck(QString,QString,bool)));
-	connect(textBrowser, SIGNAL(shotDuck(bool)), m_overlay, SLOT(killDuck(bool)));
-	connect(textBrowser, SIGNAL(norlogeClicked(QString, QQNorloge)), this, SLOT(norlogeClicked(QString, QQNorloge)));
-	connect(textBrowser, SIGNAL(norlogeRefClicked(QString, QQNorlogeRef)), this, SLOT(norlogeRefClicked(QString, QQNorlogeRef)));
-	connect(textBrowser, SIGNAL(loginClicked(QString, QString)), this, SLOT(loginClicked(QString, QString)));
-	connect(textBrowser, SIGNAL(norlogeRefHovered(QQNorlogeRef)), this, SLOT(norlogeRefHovered(QQNorlogeRef)));
-	connect(textBrowser, SIGNAL(unHighlight(QQTextBrowser *)), this, SLOT(unHighlight(QQTextBrowser *)));
-	connect(textBrowser, SIGNAL(displayTotoz(const QString &)), m_overlay, SLOT(showTotoz(const QString &)));
-	connect(textBrowser, SIGNAL(displayMmdaData(const QUrl &, QString &)), m_overlay, SLOT(showUrl(const QUrl &, QString &)));
-	connect(textBrowser, SIGNAL(hideViewers()), m_overlay, SLOT(clearOverview()));
-	connect(textBrowser, SIGNAL(newPostsAcknowledged(QString)), this, SLOT(tabEventsAcknowledged(QString)));
+	connect(textBrowser, &QQTextBrowser::duckClicked, m_overlay, &QQPiniOverlay::launchDuck);
+	connect(textBrowser, &QQTextBrowser::shotDuck, m_overlay, &QQPiniOverlay::killDuck);
+	connect(textBrowser, &QQTextBrowser::norlogeClicked, this, &QQPinipede::norlogeClicked);
+	connect(textBrowser, &QQTextBrowser::norlogeRefClicked, this, &QQPinipede::norlogeRefClicked);
+	connect(textBrowser, &QQTextBrowser::loginClicked, this, &QQPinipede::loginClicked);
+	connect(textBrowser, &QQTextBrowser::norlogeRefHovered, this, &QQPinipede::norlogeRefHovered);
+	connect(textBrowser, &QQTextBrowser::unHighlight, this, &QQPinipede::unHighlight);
+	connect(textBrowser, &QQTextBrowser::displayTotoz, m_overlay, &QQPiniOverlay::showTotoz);
+	connect(textBrowser, &QQTextBrowser::displayMmdaData, m_overlay, &QQPiniOverlay::showUrl);
+	connect(textBrowser, &QQTextBrowser::hideViewers, m_overlay, &QQPiniOverlay::clearOverview);
+	connect(textBrowser, &QQTextBrowser::newPostsAcknowledged, this, &QQPinipede::tabEventsAcknowledged);
 	if(m_totozManager != nullptr)
-		connect(textBrowser, SIGNAL(totozBookmarkAct(QString,QQTotoz::TotozBookmarkAction)),
-		        m_totozManager, SLOT(totozBookmarkDo(QString,QQTotoz::TotozBookmarkAction)));
+		connect(textBrowser, &QQTextBrowser::totozBookmarkAct,
+				m_totozManager, &QQTotozManager::totozBookmarkDo);
 }
 
 //////////////////////////////////////////////////////////////
@@ -891,8 +888,8 @@ void QQPinipede::setTotozManager(QQTotozManager * ttManager)
 
 	if (m_totozManager != nullptr) {
 		for (QQTextBrowser *tb : std::as_const(m_textBrowserHash)) {
-			connect(tb, SIGNAL(totozBookmarkAct(QString,QQTotoz::TotozBookmarkAction)),
-			        m_totozManager, SLOT(totozBookmarkDo(QString,QQTotoz::TotozBookmarkAction)));
+			connect(tb, &QQTextBrowser::totozBookmarkAct,
+					m_totozManager, &QQTotozManager::totozBookmarkDo);
 		}
 	}
 }

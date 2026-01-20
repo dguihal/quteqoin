@@ -93,19 +93,19 @@ void QQMusselInfo::contextMenuEvent(QContextMenuEvent *event)
 			}
 		}
 	}
-	connect(&assocMenu, SIGNAL(triggered(QAction*)), this, SLOT(onMenuSelection(QAction*)));
+	connect(&assocMenu, &QMenu::triggered, this, &QQMusselInfo::onMenuSelection);
 	menu.addMenu(&assocMenu);
 
 	if(! m_mussel.isMe()) {
 		QAction *a = menu.addAction(tr("Bak"));
 		a->setCheckable(true);
 		a->setChecked(m_mussel.isBaked());
-		connect(a, SIGNAL(toggled(bool)), this, SLOT(toggleBak(bool)));
+		connect(a, &QAction::toggled, this, &QQMusselInfo::toggleBak);
 
 		a = menu.addAction(tr("Plopify"));
 		a->setCheckable(true);
 		a->setChecked(m_mussel.isPlopified());
-		connect(a, SIGNAL(toggled(bool)), this, SLOT(togglePlopify(bool)));
+		connect(a, &QAction::toggled, this, &QQMusselInfo::togglePlopify);
 	}
 
 	menu.exec(event->globalPos());

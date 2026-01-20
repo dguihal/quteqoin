@@ -102,8 +102,8 @@ QQSettingsManager::QQSettingsManager(QWidget *parent) :
 	layout->addWidget(m_networkSettingsW);
 
 	listSettingsTheme->setMaximumWidth(listSettingsTheme->sizeHintForColumn(0) + 15);
-	connect(listSettingsTheme, SIGNAL(itemSelectionChanged()),
-	        this, SLOT(configItemChanged()));
+	connect(listSettingsTheme, &QListWidget::itemSelectionChanged,
+	        this, &QQSettingsManager::configItemChanged);
 
 	ui->settingsSelWidget->setLayout(layout);
 	listSettingsTheme->setCurrentRow(0);

@@ -20,7 +20,7 @@ QQHuntPixmapItem::QQHuntPixmapItem(QString srcBouchot, QString postId, bool self
 	setCacheMode(ItemCoordinateCache);
 
 	m_animation = new QSequentialAnimationGroup(this);
-	connect(m_animation, SIGNAL(finished()), this, SLOT(animate()));
+	connect(m_animation, &QSequentialAnimationGroup::finished, this, &QQHuntPixmapItem::animate);
 
 	m_speedVec(X_VALUE) = 1.0;
 	m_speedVec(Y_VALUE) = 0.0;
@@ -33,7 +33,7 @@ QQHuntPixmapItem::QQHuntPixmapItem(QString srcBouchot, QString postId, bool self
 	m_animPixmapTimerEnabled = true;
 	m_animPixmapTimer.setInterval(200);
 	m_animPixmapTimer.setSingleShot(false);
-	connect(&m_animPixmapTimer, SIGNAL(timeout()), this, SLOT(animateMove()));
+	connect(&m_animPixmapTimer, &QTimer::timeout, this, &QQHuntPixmapItem::animateMove);
 }
 
 QQHuntPixmapItem::~QQHuntPixmapItem()
@@ -76,7 +76,7 @@ void QQHuntPixmapItem::animate()
 	{
 		QPropertyAnimation *pAnimation = new QPropertyAnimation(this, "pos");
 		pAnimation->setStartValue(curPos);
-		connect(pAnimation, SIGNAL(finished()), this, SLOT(loadNextPixMap()));
+		connect(pAnimation, &QPropertyAnimation::finished, this, &QQHuntPixmapItem::loadNextPixMap);
 
 		float angle = std::acos(m_speedVec(X_VALUE)); // 0 <= angle <= Pi
 		QQPixmapProp pixmapProp = animPixmapProp(angle);
@@ -153,7 +153,7 @@ void QQHuntPixmapItem::animateKill()
 
 	QPropertyAnimation *pAnimation = new QPropertyAnimation(this, "pos");
 	pAnimation->setStartValue(curPos);
-	connect(pAnimation, SIGNAL(finished()), this, SLOT(loadNextPixMap()));
+	connect(pAnimation, &QPropertyAnimation::finished, this, &QQHuntPixmapItem::loadNextPixMap);
 	pAnimation->setDuration(1000);
 	pAnimation->setEndValue(curPos);
 	m_animation->addAnimation(pAnimation);
@@ -163,7 +163,7 @@ void QQHuntPixmapItem::animateKill()
 
 	pAnimation = new QPropertyAnimation(this, "pos");
 	pAnimation->setStartValue(curPos);
-	connect(pAnimation, SIGNAL(finished()), this, SLOT(deleteLater()));
+	connect(pAnimation, &QPropertyAnimation::finished, this, &QObject::deleteLater);
 	QPointF endPos = curPos;
 	endPos.setY(maxY);
 	pAnimation->setDuration((maxY - curPos.y()) * FALL_SPEED_FACTOR);

@@ -32,14 +32,16 @@ QQPalmiLineEdit::QQPalmiLineEdit(QWidget *parent) :
 	l->setSpacing(0);
 	l->addWidget(m_privLineEdit);
 
-	connect(m_privLineEdit, SIGNAL(returnPressed()), this, SIGNAL(returnPressed()));
-	connect(m_privLineEdit, SIGNAL(textChanged(QString)), this, SLOT(update()));
-	connect(m_privLineEdit, SIGNAL(changeBoard(bool)), this, SIGNAL(changeBoard(bool)));
+	connect(m_privLineEdit, &QQPalmiLineEditInt::returnPressed, this, &QQPalmiLineEdit::returnPressed);
+	connect(m_privLineEdit, &QLineEdit::textChanged, this, qOverload<>(&QQPalmiLineEdit::update));
+	connect(m_privLineEdit, &QQPalmiLineEditInt::changeBoard, this, &QQPalmiLineEdit::changeBoard);
 
-	connect(&m_fPoster, SIGNAL(finished(QString)), m_privLineEdit, SLOT(insertText(QString)));
-	connect(&m_fPoster, SIGNAL(postErr(QString)), this, SLOT(joinFileErr(QString)));
-	connect(&m_fPoster, SIGNAL(uploadProgress(quint32)), this, SLOT(updateUploadProgress(quint32)));
-
+	connect(&m_fPoster, &QQPalmiFilePoster::finished, m_privLineEdit, &QQPalmiLineEditInt::insertText);
+	connect(&m_fPoster, &QQPalmiFilePoster::postErr, this, &QQPalmiLineEdit::joinFileErr);
+	connect(&m_fPoster,
+	        &QQPalmiFilePoster::uploadProgress,
+	        this,
+	        &QQPalmiLineEdit::updateUploadProgress);
 }
 
 //////////////////////////////////////////////////////////////

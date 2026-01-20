@@ -151,10 +151,10 @@ QNetworkReply * QQNetworkAccessor::httpGet(const QNetworkRequest &request)
 	replyTimer->setSingleShot(true);
 
 	auto reply = m_qnam->get(request);
-	connect(replyTimer, SIGNAL(timeout()), this, SLOT(onRequestTimeout()));
-	connect(reply, SIGNAL(finished()), replyTimer, SLOT(stop()));
-	connect(reply, SIGNAL(downloadProgress(qint64,qint64)), replyTimer, SLOT(start()));
-	connect(reply, SIGNAL(destroyed(QObject*)), this, SLOT(onRemoveTimer(QObject*)));
+	connect(replyTimer, &QTimer::timeout, this, &QQNetworkAccessor::onRequestTimeout);
+	connect(reply, &QNetworkReply::finished, replyTimer, &QTimer::stop);
+	connect(reply, &QNetworkReply::downloadProgress, replyTimer, qOverload<>(&QTimer::start));
+	connect(reply, &QObject::destroyed, this, &QQNetworkAccessor::onRemoveTimer);
 	replyTimer->start(NETWORK_REQUEST_TIMEOUT_MS);
 	m_replyTimers.insert(reply, replyTimer);
 

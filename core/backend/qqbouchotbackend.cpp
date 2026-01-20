@@ -173,7 +173,7 @@ void QQBouchotBackend::startRefresh()
         return;
 
     //Connection du signal
-    connect(&m_timer, SIGNAL(timeout()), this, SLOT(fetchBackend()));
+	connect(&m_timer, &QTimer::timeout, this, &QQBouchotBackend::fetchBackend);
 
     //Première récuperation
     fetchBackend();
@@ -352,8 +352,8 @@ void QQBouchotBackend::registerForEventNotification(QObject *receiver, QQBouchot
 {
     if(receiver)
     {
-        connect(receiver, SIGNAL(destroyed(QObject *)),
-                this, SLOT(unregisterForEventNotification(QObject*)));
+		connect(receiver, &QObject::destroyed,
+				this, &QQBouchotBackend::unregisterForEventNotification);
         unregisterForEventNotification(receiver);
         QQBouchotBackend::EventReceiver evRcv;
         evRcv.acceptedEvents = events;
@@ -427,7 +427,7 @@ void QQBouchotBackend::fetchBackend()
         request.setRawHeader(QString::fromLatin1("Cookie").toLatin1(), m_bSettings.cookie().toLatin1());
 
     QNetworkReply *reply = httpGet(request);
-    connect(reply, SIGNAL(sslErrors(const QList<QSslError>&)), this, SLOT(slotSslErrors(const QList<QSslError>&)));
+	connect(reply, &QNetworkReply::sslErrors, this, &QQBouchotBackend::slotSslErrors);
 
     emit refreshStarted();
     m_timer.setInterval(currentRefreshInterval());
@@ -479,8 +479,8 @@ void QQBouchotBackend::unregisterForEventNotification(QObject *receiver)
         {
             if(i.next().receiver == receiver)
             {
-                disconnect(receiver, SIGNAL(destroyed(QObject *)),
-                           this, SLOT(unregisterForEventNotification(QObject*)));
+				disconnect(receiver, &QObject::destroyed,
+						   this, &QQBouchotBackend::unregisterForEventNotification);
                 i.remove();
             }
         }
@@ -606,9 +606,8 @@ void QQBouchotBackend::parseBackendTSV(const QByteArray &data)
     if(m_parser == NULL)
     {
         p = new QQTsvParser(this);
-
-        connect(p, SIGNAL(newPostReady(QQPost&)), this, SLOT(insertNewPost(QQPost&)));
-        connect(p, SIGNAL(finished()), this, SLOT(parsingFinished()));
+		connect(p, &QQTsvParser::newPostReady, this, &QQBouchotBackend::insertNewPost);
+		connect(p, &QQTsvParser::finished, this, &QQBouchotBackend::parsingFinished);
 
         m_parser=p;
     }
@@ -625,9 +624,8 @@ void QQBouchotBackend::parseBackendXML(const QByteArray &data)
     if(m_parser == NULL)
     {
         p = new QQCustomXmlParser(this);
-
-        connect(p, SIGNAL(newPostReady(QQPost&)), this, SLOT(insertNewPost(QQPost&)));
-        connect(p, SIGNAL(finished()), this, SLOT(parsingFinished()));
+		connect(p, &QQCustomXmlParser::newPostReady, this, &QQBouchotBackend::insertNewPost);
+		connect(p, &QQCustomXmlParser::finished, this, &QQBouchotBackend::parsingFinished);
 
         m_parser=p;
     }
@@ -876,7 +874,7 @@ QQBouchotBackend * QQBouchotBackend::bouchot(const QString &bouchotName)
         ret = s_hashBouchots.value(bouchotName);
     else
     {
-        foreach (QQBouchotBackend *bouchot, listBouchots())
+        for (QQBouchotBackend *bouchot : listBouchots())
         {
             if(bouchot->settings().aliases().contains(bouchotName))
             {

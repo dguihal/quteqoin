@@ -126,8 +126,8 @@ void QQTotozViewer::handleInvalidTotozData()
 	{
 		m_hasfailed = true; // to prevent infinite loops
 
-		connect(m_downloader, SIGNAL(fetchTotozFinished(QString&,bool,QString&)),
-		        this, SLOT(totozAvailable(QString&,bool,QString&)));
+		connect(m_downloader, &QQTotozDownloader::fetchTotozFinished,
+		        this, &QQTotozViewer::totozAvailable);
 		m_downloader->fetchTotoz(m_totozId);
 	}
 	else

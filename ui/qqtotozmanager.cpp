@@ -46,13 +46,12 @@ QQTotozManager::QQTotozManager(QWidget *parent) :
 
 	m_searchQueryTemperer->setSingleShot(true);
 	m_searchQueryTemperer->setInterval(REMOTE_SEARCH_LATENCY_MS);
-	connect(m_searchQueryTemperer, SIGNAL(timeout()),
-	        this, SLOT(searchTotoz()));
+	connect(m_searchQueryTemperer, &QTimer::timeout, this, &QQTotozManager::searchTotoz);
 
 	QQSettings settings;
 
 	m_requester = new QQTMRequester(this);
-	connect(m_requester, SIGNAL(requestFinished()), this, SLOT(totozSearchFinished()));
+	connect(m_requester, &QQTMRequester::requestFinished, this, &QQTotozManager::totozSearchFinished);
 
 	m_totozDownloader = new QQTotozDownloader(this);
 
@@ -66,13 +65,13 @@ QQTotozManager::QQTotozManager(QWidget *parent) :
 
 	m_ui->cancelSearchButton->hide();
 	m_ui->cancelSearchButton->setIcon(style()->standardIcon(QStyle::SP_DialogCancelButton));
-	connect(m_ui->cancelSearchButton, SIGNAL(clicked()), this, SLOT(totozSearchCanceled()));
+	connect(m_ui->cancelSearchButton, &QPushButton::clicked, this, &QQTotozManager::totozSearchCanceled);
 
 	m_ui->searchLineEdit->setClearButtonEnabled(true);
 
-	connect(m_ui->qqTMTabWidget, SIGNAL(currentChanged(int)), this, SLOT(tabChanged(int)));
-	connect(m_ui->searchLineEdit, SIGNAL(returnPressed()), this, SLOT(searchTotoz()));
-	connect(m_ui->searchLineEdit, SIGNAL(textChanged(QString)), this, SLOT(handleSearchTextChanged(QString)));
+	connect(m_ui->qqTMTabWidget, &QTabWidget::currentChanged, this, &QQTotozManager::tabChanged);
+	connect(m_ui->searchLineEdit, &QLineEdit::returnPressed, this, &QQTotozManager::searchTotoz);
+	connect(m_ui->searchLineEdit, &QLineEdit::textChanged, this, &QQTotozManager::handleSearchTextChanged);
 
 	m_ui->dockWidgetContents->setMaximumWidth(m_ui->qqTMTabWidget->width());
 
@@ -402,9 +401,8 @@ void QQTotozManager::updateTotozViewer()
 		viewer->setShowAtMousePos(false);
 		viewer->setTotozId(id);
 
-		connect(viewer, SIGNAL(totozBookmarkAct(QString,QQTotoz::TotozBookmarkAction)),
-		        this, SLOT(totozBookmarkDo(QString,QQTotoz::TotozBookmarkAction)));
-		connect(viewer, SIGNAL(totozClicked(QString)), this, SIGNAL(totozClicked(QString)));
+		connect(viewer, &QQTotozViewer::totozBookmarkAct, this, &QQTotozManager::totozBookmarkDo);
+		connect(viewer, &QQTotozViewer::totozClicked, this, &QQTotozManager::totozClicked);
 		l->addWidget(viewer);
 	}
 	QLayout *oldL = m_bookmarkW->layout();
@@ -434,9 +432,8 @@ void QQTotozManager::updateTotozViewer()
 		viewer->setShowAtMousePos(false);
 		viewer->setTotozId(id);
 
-		connect(viewer, SIGNAL(totozBookmarkAct(QString,QQTotoz::TotozBookmarkAction)),
-		        this, SLOT(totozBookmarkDo(QString,QQTotoz::TotozBookmarkAction)));
-		connect(viewer, SIGNAL(totozClicked(QString)), this, SIGNAL(totozClicked(QString)));
+		connect(viewer, &QQTotozViewer::totozBookmarkAct, this, &QQTotozManager::totozBookmarkDo);
+		connect(viewer, &QQTotozViewer::totozClicked, this, &QQTotozManager::totozClicked);
 		l->addWidget(viewer);
 	}
 
@@ -524,7 +521,7 @@ void QQTotozManager::updateEmojiViewer(const QList<QQEmojiDef> &emojis)
 		b->setProperty(EMOJI_IS_CAT, d.type == CAT);
 		b->setText(QString(d.symbol).append(" ").append(d.name));
 		b->setFont(piniFont);
-		connect(b, SIGNAL(clicked(bool)), this, SLOT(emojiSelected()));
+		connect(b, &QPushButton::clicked, this, &QQTotozManager::emojiSelected);
 		layout->addWidget(b);
 	}
 

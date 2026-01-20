@@ -30,11 +30,11 @@ QQPiniSearchWidget::QQPiniSearchWidget(QWidget *parent) :
 	ui->fwdSearchPB->setIcon(currentStyle->standardIcon(QStyle::SP_ArrowRight));
 	ui->stopSearchPB->setIcon(currentStyle->standardIcon(QStyle::SP_DialogCancelButton));
 
-	connect(ui->stopSearchPB, SIGNAL(clicked()), this, SLOT(hide()));
-	connect(ui->searchLineEdit, SIGNAL(textChanged(QString)), this, SLOT(searchTextChanged(QString)));
-	connect(ui->searchLineEdit, SIGNAL(returnPressed()), this, SLOT(searchTextNextFwd()));
-	connect(ui->fwdSearchPB, SIGNAL(clicked()), this, SLOT(searchTextNextFwd()));
-	connect(ui->revSearchPB, SIGNAL(clicked()), this, SLOT(searchTextNextBwd()));
+	connect(ui->stopSearchPB, &QPushButton::clicked, this, &QQPiniSearchWidget::hide);
+	connect(ui->searchLineEdit, &QLineEdit::textChanged, this, &QQPiniSearchWidget::searchTextChanged);
+	connect(ui->searchLineEdit, &QLineEdit::returnPressed, this, &QQPiniSearchWidget::searchTextNextFwd);
+	connect(ui->fwdSearchPB, &QPushButton::clicked, this, &QQPiniSearchWidget::searchTextNextFwd);
+	connect(ui->revSearchPB, &QPushButton::clicked, this, &QQPiniSearchWidget::searchTextNextBwd);
 }
 
 //////////////////////////////////////////////////////////////

@@ -91,7 +91,7 @@ void QQBoardInfo::musselSelected(QQMussel /*mussel*/)
 ///
 void QQBoardInfo::rearmRefreshPB()
 {
-	disconnect(m_board, SIGNAL(refreshOK()), this, SLOT(rearmRefreshPB()));
+	disconnect(m_board, &QQBouchot::refreshOK, this, &QQBoardInfo::rearmRefreshPB);
 
 	m_pctPollAnimation.stop();
 	m_ui->refreshPB->setValue(0);
@@ -120,7 +120,7 @@ void QQBoardInfo::showRefreshError(QString &errMsg)
 	m_ui->refreshPB->setOnError(true);
 	m_ui->refreshPB->setToolTip(errMsg);
 
-	connect(m_board, SIGNAL(refreshOK()), this, SLOT(rearmRefreshPB()));
+	connect(m_board, &QQBouchot::refreshOK, this, &QQBoardInfo::rearmRefreshPB);
 
 	updateNameWithStatus();
 }
