@@ -2,14 +2,12 @@
 
 #include "core/qutetools.h"
 
-#include <qmath.h>
+#include <cmath>
 
 #include <QGraphicsScene>
 #include <QPixmap>
 #include <QPropertyAnimation>
-#if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
 #include <QRandomGenerator>
-#endif
 
 #define BASE_ANIM_PIX QString(":/anims/")
 
@@ -62,16 +60,12 @@ void QQHuntPixmapItem::animate()
 	QPointF curPos = pos();
 
 	//Calcul du nouveau vecteur vitesse
-#if QT_VERSION >= QT_VERSION_CHECK(5, 10, 0)
 	float angle = QRandomGenerator::global()->generateDouble() * M_PI_2;
-#else
-	float angle = (((float) qrand()) / INT_MAX) * M_PI_2;
-#endif
 	angle -= M_PI_4;
 
 	QQMatrix2x2 rotMatrix;
-	rotMatrix(0, 0) = qCos(angle);
-	rotMatrix(0, 1) = qSin(angle);
+	rotMatrix(0, 0) = std::cos(angle);
+	rotMatrix(0, 1) = std::sin(angle);
 	rotMatrix(1, 0) = 0.0 - rotMatrix(0,1);
 	rotMatrix(1, 1) = rotMatrix(0,0);
 
@@ -84,7 +78,7 @@ void QQHuntPixmapItem::animate()
 		pAnimation->setStartValue(curPos);
 		connect(pAnimation, SIGNAL(finished()), this, SLOT(loadNextPixMap()));
 
-		float angle = qAcos(m_speedVec(X_VALUE)); // 0 <= angle <= Pi
+		float angle = std::acos(m_speedVec(X_VALUE)); // 0 <= angle <= Pi
 		QQPixmapProp pixmapProp = animPixmapProp(angle);
 		m_listPixmapProp.append(pixmapProp);
 

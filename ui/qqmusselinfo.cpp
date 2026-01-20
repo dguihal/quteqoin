@@ -5,6 +5,7 @@
 #include <QtDebug>
 #include <QContextMenuEvent>
 #include <QMenu>
+#include <utility>
 
 //////////////////////////////////////////////////////////////
 /// \brief QQMusselInfo::QQMusselInfo
@@ -63,7 +64,7 @@ void QQMusselInfo::contextMenuEvent(QContextMenuEvent *event)
 	QMenu assocMenu(tr("Associate"));
 
 	QList<QMenu *> bMenus;
-	foreach (QQBouchot *b, QQBouchot::listBouchots())
+	for (QQBouchot *b : QQBouchot::listBouchots())
 	{
 		QList<QQMussel> lPosters = b->lastPosters();
 		if(lPosters.size() > 0)
@@ -71,7 +72,7 @@ void QQMusselInfo::contextMenuEvent(QContextMenuEvent *event)
 			QMenu *bMenu = new QMenu(b->name());
 			assocMenu.addMenu(bMenu);
 			bMenus.append(bMenu);
-			foreach (QQMussel m, lPosters)
+			for (const QQMussel &m : std::as_const(lPosters))
 			{
 				if(m != m_mussel)
 				{
@@ -109,7 +110,7 @@ void QQMusselInfo::contextMenuEvent(QContextMenuEvent *event)
 
 	menu.exec(event->globalPos());
 
-	foreach (QMenu *m, bMenus)
+	for (QMenu *m : std::as_const(bMenus))
 		delete m;
 }
 

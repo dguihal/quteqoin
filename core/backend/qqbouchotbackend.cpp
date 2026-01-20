@@ -18,10 +18,11 @@
 #include <QNetworkRequest>
 #include <QRegularExpression>
 #include <QSslError>
+#include <utility>
 
 #define X_POST_ID_HEADER "X-Post-Id"
 
-typedef struct QQBouchotDef
+struct QQBouchotDef
 {
     char name[16];
     char getUrl[64];
@@ -31,7 +32,7 @@ typedef struct QQBouchotDef
     char alias[64];
     char cookieProto[64];
     QQBouchotBackend::TypeSlip typeSlip;
-} QQBouchotDef;
+};
 
 //Définition des bouchots préconfigurés
 // tiré d'olcc by Chrisix
@@ -441,7 +442,7 @@ void QQBouchotBackend::fetchBackend()
 void QQBouchotBackend::slotSslErrors(const QList<QSslError> &errors)
 {
     QString msgs;
-    foreach(QSslError err, errors)
+    for (const QSslError &err : errors)
     {
         switch (err.error()) {
             case QSslError::SelfSignedCertificate:
@@ -520,7 +521,7 @@ void QQBouchotBackend::requestFinishedSlot(QNetworkReply *reply)
         if(cookieVar.isValid())
         {
             QList<QNetworkCookie> listCookies = cookieVar.value<QList<QNetworkCookie> >();
-            foreach (QNetworkCookie c, listCookies)
+            for (const QNetworkCookie &c : std::as_const(listCookies))
             {
                 QString s = QString("%1=%2")
                         .arg(QString::fromLatin1(c.name()), QString::fromLatin1(c.value()));
@@ -773,7 +774,7 @@ void QQBouchotBackend::updateLastUsers()
 ///
 void QQBouchotBackend::sendBouchotEvents()
 {
-    foreach (EventReceiver evRcv, m_listEventReceivers)
+    for (const EventReceiver &evRcv : std::as_const(m_listEventReceivers))
     {
         if(evRcv.acceptedEvents.testFlag(NewPostsAvailable) && m_state.hasNewPosts)
         {
@@ -924,7 +925,7 @@ QStringList QQBouchotBackend::listGroups()
 {
     QStringList listGroups;
     auto bouchots = s_hashBouchots.values();
-    foreach (auto bouchot, bouchots)
+    for (auto bouchot : std::as_const(bouchots))
     {
         QString group = bouchot->settings().group();
         if(! listGroups.contains(group))

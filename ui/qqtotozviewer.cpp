@@ -41,8 +41,8 @@ void QQTotozViewer::displayContextMenu(QPoint &pos)
 	QString actSendPalmiStr("Send to palmi");
 	menu.addAction(actSendPalmiStr);
 
-	QAction *actionTriggered = NULL;
-	if( (actionTriggered = menu.exec(pos)) != NULL )
+	QAction *actionTriggered = nullptr;
+	if( (actionTriggered = menu.exec(pos)) != nullptr )
 	{
 		QString text = actionTriggered->text();
 		if(text == actBookmAddStr)
@@ -122,7 +122,7 @@ QString QQTotozViewer::getAnchor()
 void QQTotozViewer::handleInvalidTotozData()
 {
 	QQTotoz::invalidateCache(m_totozId);
-	if(m_downloader != NULL && ! m_hasfailed)
+	if(m_downloader != nullptr && ! m_hasfailed)
 	{
 		m_hasfailed = true; // to prevent infinite loops
 
@@ -139,7 +139,7 @@ void QQTotozViewer::init(const QString &totozId)
 	m_mousePressOK = false;
 	m_bookmarkAddEnabled = false;
 	m_bookmarkRemEnabled = false;
-	m_downloader = NULL;
+	m_downloader = nullptr;
 
 	setTotozId(totozId);
 }

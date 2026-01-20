@@ -693,7 +693,7 @@ void QQTextBrowser::mouseReleaseEvent(QMouseEvent *event)
 
 	// Marquage des posts comme lus
 	bool needUpdate = false;
-	foreach(QQBouchot *b, QQBouchot::listBouchotsGroup(m_groupName))
+	for (QQBouchot *b : QQBouchot::listBouchotsGroup(m_groupName))
 	{
 		QListIterator<QQPostPtr> pI(b->postsHistory());
 		pI.toBack();

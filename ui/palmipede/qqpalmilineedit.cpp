@@ -132,7 +132,6 @@ void QQPalmiLineEdit::paintEvent(QPaintEvent *event)
 
 	// Foreground
 	QRect rf = rect;
-#if(QT_VERSION >= QT_VERSION_CHECK(5, 2, 0))
 	int clearBtnWidth = 0;
 	if(palette().window().color().lightness() < 64 && ! m_privLineEdit->text().isEmpty())
 	{
@@ -143,7 +142,6 @@ void QQPalmiLineEdit::paintEvent(QPaintEvent *event)
 
 		rf.setWidth(rf.width() - (clearBtnWidth - 2));
 	}
-#endif
 	rf.setWidth((static_cast<unsigned int>(rf.width()) * m_pctUp) / 100);
 
 	QLinearGradient gradient(0, 0, 0, rect.height());
@@ -161,7 +159,6 @@ void QQPalmiLineEdit::paintEvent(QPaintEvent *event)
 	rectPainter.setOpacity(1);
 	rectPainter.drawRoundedRect(rf, 2, 2);
 
-#if(QT_VERSION >= QT_VERSION_CHECK(5, 2, 0))
 	if(clearBtnWidth > 0)
 	{
 		QRect rf2 = rect;
@@ -174,7 +171,6 @@ void QQPalmiLineEdit::paintEvent(QPaintEvent *event)
 		rectPainter.setOpacity(1);
 		rectPainter.drawRoundedRect(rf2, 2, 2);
 	}
-#endif
 
 	rectPainter.setBrush(Qt::NoBrush);
 	rectPainter.setPen(QPen(m_currBoardcolor.darker(120)));

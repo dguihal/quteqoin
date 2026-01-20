@@ -455,11 +455,7 @@ void QQPinipede::searchText(const QString &text, bool forward)
 		QTextDocument *doc = textBrowser->document();
 		QTextCursor cursor = textBrowser->textCursor();
 
-#if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
 		QTextDocument::FindFlags flags;
-#else
-		QTextDocument::FindFlags flags = nullptr;
-#endif
 		flags.setFlag(QTextDocument::FindBackward, ! forward);
 
 		QTextCursor findCursor = doc->find(text, cursor, flags);
@@ -647,7 +643,7 @@ void QQPinipede::norlogeRefHovered(QQNorlogeRef norlogeRef)
 {
 	// Src
 	QQBouchot *sBouchot = QQBouchot::bouchot(norlogeRef.srcBouchot());
-	Q_ASSERT(sBouchot != NULL);
+	Q_ASSERT(sBouchot != nullptr);
 
 	bool highlightSuccess = false;
 	QQSettings settings;

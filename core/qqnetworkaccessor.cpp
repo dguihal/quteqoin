@@ -194,7 +194,7 @@ void QQNetworkAccessor::clearCookiesForUrl(const QUrl &url)
 	if(cj == nullptr)
 		return;
 
-	foreach (QNetworkCookie c, cj->cookiesForUrl(url)) {
+	for (const QNetworkCookie &c : cj->cookiesForUrl(url)) {
 		cj->deleteCookie(c);
 	}
 }
@@ -239,10 +239,8 @@ QMutex QQNetworkAccessor::m_proxyPopupMutex;
 QString QQNetworkAccessor::m_proxyUser;
 QString QQNetworkAccessor::m_proxyPasswd;
 
-void QQNetworkAccessor::onProxyAuthenticationRequired(const QNetworkProxy &proxy, QAuthenticator *authenticator)
+void QQNetworkAccessor::onProxyAuthenticationRequired(const QNetworkProxy &/*proxy*/, QAuthenticator *authenticator)
 {
-	Q_UNUSED(proxy)
-
 	//Premier echec
 	if(QQNetworkAccessor::m_proxyUser.size() != 0 &&
 	        authenticator->user() != QQNetworkAccessor::m_proxyUser)
@@ -297,5 +295,3 @@ void QQNetworkAccessor::onRequestTimeout()
 		}
 	}
 }
-
-

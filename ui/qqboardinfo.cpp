@@ -82,9 +82,8 @@ QSize QQBoardInfo::sizeHint() const
 /// \brief QQBoardInfo::musselSelected
 /// \param mussel
 ///
-void QQBoardInfo::musselSelected(QQMussel mussel)
+void QQBoardInfo::musselSelected(QQMussel /*mussel*/)
 {
-	Q_UNUSED(mussel)
 }
 
 //////////////////////////////////////////////////////////////

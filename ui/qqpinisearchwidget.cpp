@@ -20,7 +20,7 @@ QQPiniSearchWidget::QQPiniSearchWidget(QWidget *parent) :
 {
 	ui->setupUi(this);
 
-	m_oldFocusWidget = NULL;
+	m_oldFocusWidget = nullptr;
 
 	setAutoFillBackground(true);
 
@@ -56,7 +56,7 @@ void QQPiniSearchWidget::setVisible(bool visible)
 		ui->searchLineEdit->clear();
 
 		if(QuteTools::checkFocusRecurse(this) &&
-		   m_oldFocusWidget != NULL &&
+		   m_oldFocusWidget != nullptr &&
 		   m_oldFocusWidget->isVisible())
 			m_oldFocusWidget->setFocus();
 	}

@@ -38,11 +38,7 @@ bool QQTotoz::cacheExists()
 
 	//Invalidation systematique au bout de 60j
 	QFileInfo info(file);
-#if(QT_VERSION >= QT_VERSION_CHECK(5, 10, 0))
 	QDateTime dateFile = info.birthTime();
-#else
-	QDateTime dateFile = info.created();
-#endif
 	if(dateFile.daysTo(QDateTime::currentDateTime()) > MAX_CACHE_AGE_DAYS)
 	{
 		file.remove();
@@ -66,11 +62,7 @@ bool QQTotoz::isCacheExpired()
 
 QString QQTotoz::getPath(const QString& id)
 {
-#if(QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
 	QDir dirCache(QStandardPaths::writableLocation(QStandardPaths::CacheLocation));
-#else
-	QDir dirCache(QDesktopServices::storageLocation(QDesktopServices::CacheLocation));
-#endif
 
 	if(! dirCache.exists())
 		dirCache.mkpath(dirCache.path());
