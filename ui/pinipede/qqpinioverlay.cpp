@@ -291,7 +291,7 @@ void QQPiniOverlay::killDuck(bool forceSilent)
 	auto shotPoint = mapFromGlobal(QCursor::pos());
 	auto shotPointF(shotPoint);
 
-	foreach(QQDuckPixmapItem *duck, m_duckList)
+	for(QQDuckPixmapItem *duck : m_duckList)
 	{
 		auto itemPos = duck->pos();
 		auto itemRect = duck->boundingRect();
