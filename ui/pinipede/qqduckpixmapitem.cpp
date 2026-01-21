@@ -1,6 +1,6 @@
 #include "qqduckpixmapitem.h"
 
-#include <qmath.h>
+#include <cmath>
 
 QQDuckPixmapItem::QQDuckPixmapItem(QString srcBouchot, QString postId, bool selfDuck, QObject *parent)
 	: QQHuntPixmapItem(srcBouchot, postId, selfDuck, parent)

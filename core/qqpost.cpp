@@ -50,7 +50,7 @@ QQPost::QQPost(const QQPost& post) :
 /// \return
 ///
 QQBouchot * QQPost::bouchot() const {
-	return dynamic_cast<QQBouchot *>(parent());
+	return qobject_cast<QQBouchot *>(parent());
 }
 
 //

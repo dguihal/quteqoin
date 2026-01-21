@@ -8,7 +8,7 @@
 #include <QRegularExpression>
 #include <QShortcut>
 
-#define PALMIPEDE_OBJECT_NAME "QQPalmipede"
+constexpr char PALMIPEDE_OBJECT_NAME[] = "QQPalmipede";
 
 QQPalmipede::QQPalmipede(QWidget *parent) :
     QWidget(parent),
@@ -130,9 +130,9 @@ void QQPalmipede::changeNorloges(const QString & bouchot)
 {
 	QString text = m_ui->palmiEditor->text();
 	auto norlogeReg = QQNorlogeRef::norlogeRegexp();
-	auto bouchotRemoverReg = QRegularExpression(QString::fromLatin1("@").append(bouchot),
+	auto bouchotRemoverReg = QRegularExpression(QStringLiteral("@") + bouchot,
 	                                    QRegularExpression::NoPatternOption);
-	auto bouchotAdderReg = QRegularExpression(QString::fromLatin1("@[A-Za-z0-9_]+"),
+	auto bouchotAdderReg = QRegularExpression(QStringLiteral("@[A-Za-z0-9_]+"),
 	                                  QRegularExpression::NoPatternOption);
 	QString destText;
 
@@ -150,7 +150,7 @@ void QQPalmipede::changeNorloges(const QString & bouchot)
 		if(norloge.indexOf(bouchotRemoverReg) >= 0)
 			destText.append(norloge.remove(bouchotRemoverReg));
 		else if(norloge.indexOf(bouchotAdderReg) < 0 && bouchot != m_oldBouchot)
-			destText.append(norloge).append(QString::fromLatin1("@")).append(m_oldBouchot);
+			destText.append(norloge).append(QStringLiteral("@")).append(m_oldBouchot);
 		else
 			destText.append(norloge);
 

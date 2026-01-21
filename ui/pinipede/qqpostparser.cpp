@@ -11,10 +11,10 @@
 #include <QTextCursor>
 #include <QTextDocument>
 
-#define NORLOGE_COLOR "#0000DD"
-#define NORLOGE_REP_COLOR "#DD0000"
-#define DUCK_COLOR "#9933cc"
-#define TOTOZ_COLOR "#00AA11"
+constexpr auto NORLOGE_COLOR = "#0000DD";
+constexpr auto NORLOGE_REP_COLOR = "#DD0000";
+constexpr auto DUCK_COLOR = "#9933cc";
+constexpr auto TOTOZ_COLOR = "#00AA11";
 
 //////////////////////////////////////////////////////////////
 /// \brief QQPostParser::QQPostParser
@@ -226,14 +226,14 @@ void QQPostParser::colorizeBigorno(QTextDocument &doc, QQPost *post, QQMessageBl
 ///
 void QQPostParser::colorizeDuck(QTextDocument &doc, QQMessageBlockUserData *userData)
 {
-	QString tete = QString::fromLatin1("(?:[o0ô°øòó@]|(?:&ocirc;)|(?:&deg;)|(?:&oslash;)|(?:&ograve;)|(?:&oacute;))");
-
-	QList<QRegularExpression> regexes;
-	regexes << QRegularExpression(QString::fromLatin1("\\\\_").append(tete).append(QString::fromLatin1("<")), QRegularExpression::NoPatternOption);
-
-	regexes << QRegularExpression(QString::fromLatin1(">").append(tete).append(QString::fromLatin1("_\\/")), QRegularExpression::NoPatternOption);
-
-	regexes << QRegularExpression(QString::fromLatin1("coin ?! ?coin ?!"), QRegularExpression::NoPatternOption);
+	static const QList<QRegularExpression> regexes = []{
+		QString tete = QStringLiteral("(?:[o0ô°øòó@]|(?:&ocirc;)|(?:&deg;)|(?:&oslash;)|(?:&ograve;)|(?:&oacute;))");
+		QList<QRegularExpression> l;
+		l << QRegularExpression(QStringLiteral("\\\\_") + tete + QStringLiteral("<"), QRegularExpression::NoPatternOption);
+		l << QRegularExpression(QStringLiteral(">") + tete + QStringLiteral("_\\/"), QRegularExpression::NoPatternOption);
+		l << QRegularExpression(QStringLiteral("coin ?! ?coin ?!"), QRegularExpression::NoPatternOption);
+		return l;
+	}();
 
 	QTextCursor cursor(&doc);
 
@@ -242,7 +242,7 @@ void QQPostParser::colorizeDuck(QTextDocument &doc, QQMessageBlockUserData *user
 
 	QQPost *post = userData->post();
 
-	foreach(QRegularExpression reg, regexes)
+	for(const auto &reg : regexes)
 	{
 		cursor.movePosition(QTextCursor::Start, QTextCursor::MoveAnchor);
 
@@ -292,7 +292,7 @@ void QQPostParser::linkNorlogeRef(QQNorlogeRef *nRef)
 ///
 void QQPostParser::colorizeTableVolante(QTextDocument &doc, QQMessageBlockUserData *userData)
 {
-	QRegularExpression tvReg = QRegularExpression(QString::fromLatin1("(?:flap ?flap)|(?:table[ _]volante)"), QRegularExpression::NoPatternOption);
+	static const QRegularExpression tvReg(QStringLiteral("(?:flap ?flap)|(?:table[ _]volante)"), QRegularExpression::NoPatternOption);
 
 	QTextCursor cursor(&doc);
 	QTextCharFormat fmt = cursor.blockCharFormat();
@@ -321,8 +321,7 @@ void QQPostParser::colorizeTotoz(QTextDocument &doc, QQMessageBlockUserData *use
 {
 	Q_UNUSED(userData);
 
-	QRegularExpression totozReg = QRegularExpression(QString::fromLatin1("(\\[\\:[^\\t\\)\\]]+\\])"), QRegularExpression::NoPatternOption); //[:[^\t\)\]]
-
+	static const QRegularExpression totozReg(QStringLiteral("(\\[\\:[^\\t\\)\\]]+\\])"), QRegularExpression::NoPatternOption); //[:[^\t\)\]]
 
 	QTextCursor cursor(&doc);
 	QTextCharFormat fmt = cursor.blockCharFormat();
@@ -362,7 +361,7 @@ void QQPostParser::colorizeTotoz(QTextDocument &doc, QQMessageBlockUserData *use
 void QQPostParser::detectLecon(QTextDocument &doc, QQMessageBlockUserData *userData)
 {
 	Q_UNUSED(userData)
-	QRegularExpression totozReg = QRegularExpression(QString::fromUtf8("(le[cç]on\\s+\\d+)"), QRegularExpression::CaseInsensitiveOption);
+	static const QRegularExpression totozReg(QStringLiteral("(le[cç]on\\s+\\d+)"), QRegularExpression::CaseInsensitiveOption);
 
 	QTextCursor cursor(&doc);
 	while(! (cursor = doc.find(totozReg, cursor)).isNull())

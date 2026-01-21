@@ -167,7 +167,7 @@ void QQBouchot::setSettings(const QQBouchotSettings &newSettings)
 	QList<QNetworkCookie> qlCookies;
 	static const QRegularExpression re("\\s*;\\s*");
 	QStringList cookies=newSettings.cookies().split(re);
-	foreach (QString cookie, cookies) {
+	for (const QString &cookie : std::as_const(cookies)) {
 		QStringList splittedCookie=cookie.split("=");
 		if(splittedCookie.size() >= 2)
 		{
@@ -477,7 +477,7 @@ void QQBouchot::fetchBackend()
 void QQBouchot::slotSslErrors(const QList<QSslError> &errors)
 {
 	QString msgs;
-	foreach(QSslError err, errors)
+	for (const auto &err : errors)
 	{
 		switch (err.error()) {
 		    case QSslError::SelfSignedCertificate:
@@ -754,7 +754,7 @@ void QQBouchot::parsingFinished()
 			}
 			prevPost = m_history.last();
 		}
-		foreach(auto curPost, m_newPostHistory)
+		for(const auto &curPost : std::as_const(m_newPostHistory))
 		{
 			if(prevPost->norlogeMinute() == curPost->norlogeMinute())
 			{
@@ -851,7 +851,7 @@ void QQBouchot::updateLastUsers()
 ///
 void QQBouchot::sendBouchotEvents()
 {
-	foreach (EventReceiver evRcv, m_listEventReceivers)
+	for (const auto &evRcv : std::as_const(m_listEventReceivers))
 	{
 		if(evRcv.acceptedEvents.testFlag(NewPostsAvailable) && !m_newPostHistory.empty())
 		{
@@ -947,7 +947,7 @@ QQBouchot * QQBouchot::bouchot(const QString &bouchotName)
 		ret = s_hashBouchots.value(bouchotName);
 	else
 	{
-		foreach (QQBouchot *bouchot, listBouchots())
+		for (QQBouchot *bouchot : listBouchots())
 		{
 			if(bouchot->settings().aliases().contains(bouchotName))
 			{

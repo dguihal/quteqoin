@@ -169,7 +169,12 @@ void QQTotoz::save()
 {
 	//qDebug() << "QQTotoz::save id: " << m_id << ", path:" << getPath(m_id);
 	QFile file(getPath(m_id));
-	file.open(QIODevice::WriteOnly);
+	if (!file.open(QIODevice::WriteOnly)) {
+		qCritical() << "Error opening file " << file.fileName()
+								<< "for writing : " << file.errorString();
+		file.close();
+		return;
+	}
 
 	QBuffer buffer;
 	buffer.open(QIODevice::WriteOnly);

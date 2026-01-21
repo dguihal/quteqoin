@@ -5,6 +5,10 @@ project(quteqoin VERSION 2.0.0 LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+set(CMAKE_AUTOMOC ON)
+set(CMAKE_AUTORCC ON)
+set(CMAKE_AUTOUIC ON)
+
 find_package(Qt6 6.5 REQUIRED COMPONENTS Core)
 find_package(Qt6 REQUIRED COMPONENTS Gui)
 find_package(Qt6 REQUIRED COMPONENTS DBus)
@@ -118,7 +122,7 @@ set(SOURCES
 	"ui/qqtotozviewer.cpp"
 	"ui/qqtotozviewer.h"
 	"ui/boardinfo/qqboardinfoprogressbar.cpp"
-        "ui/boardinfo/qqboardinfoprogressbar.h"
+	"ui/boardinfo/qqboardinfoprogressbar.h"
 	"ui/palmipede/qqdockpalmi.cpp"
 	"ui/palmipede/qqdockpalmi.h"
 	"ui/palmipede/qqpalmifileposter.cpp"
@@ -218,4 +222,3 @@ set_target_properties(quteqoin PROPERTIES
 INSTALL(PROGRAMS quteqoin DESTINATION bin)
 INSTALL(FILES quteqoin.desktop DESTINATION share/applications/)
 INSTALL(FILES rc/QuteQoin-Icon.ico DESTINATION share/icons/)
-

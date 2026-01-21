@@ -20,18 +20,18 @@
 #include <QWidget>
 #include <utility>
 
-#define TAB_TOTOZ_INDEX 0
-#define TAB_EMOJI_INDEX 1
+constexpr int TAB_TOTOZ_INDEX = 0;
+constexpr int TAB_EMOJI_INDEX = 1;
 
-#define MIN_TOTOZ_SEARCH_LEN 3
-#define REMOTE_SEARCH_LATENCY_MS 500
+constexpr int MIN_TOTOZ_SEARCH_LEN = 3;
+constexpr int REMOTE_SEARCH_LATENCY_MS = 500;
 
-#define TOTOZMANAGER_OBJECT_NAME "QQTotozManager"
+constexpr char TOTOZMANAGER_OBJECT_NAME[] = "QQTotozManager";
 
-#define TOTOZMANAGER_TITLE	"Totoz Manager"
+constexpr char TOTOZMANAGER_TITLE[] = "Totoz Manager";
 
-#define EMOJI_SYMBOL "SYMBOL"
-#define EMOJI_IS_CAT "IS_CAT"
+constexpr char EMOJI_SYMBOL[] = "SYMBOL";
+constexpr char EMOJI_IS_CAT[] = "IS_CAT";
 
 QQTotozManager::QQTotozManager(QWidget *parent) :
     QDockWidget(TOTOZMANAGER_TITLE, parent),
