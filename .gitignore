@@ -34,4 +34,9 @@ quteqoin
 quteqoin.kdev4
 build/
 .qtc_clangd/
+
+# CMake related
+CMakeCache.txt
+cmake_install.cmake
+CMakeFiles/
 CMakeLists.txt.user
