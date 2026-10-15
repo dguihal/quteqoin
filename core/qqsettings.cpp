@@ -170,11 +170,15 @@ QQBouchot * QQSettings::loadBouchot(const QString &name)
 
 	// Pas d'url de backend , pas de bouchot
 	if(! contains(SETTINGS_BOUCHOT_BACKENDURL))
+	{
+		endGroup(); //beginGroup(name);
+		endGroup(); //beginGroup(QString::fromLatin1("bouchot"));
 		return nullptr;
+	}
 
 	newBouchotSettings.setColorFromString(value(SETTINGS_BOUCHOT_COLOR, "").toString());
 	newBouchotSettings.setAliasesFromString(value(SETTINGS_BOUCHOT_ALIASES, "").toString());
-	newBouchotSettings.setRefresh(value(SETTINGS_BOUCHOT_REFRESH, "").toInt());
+	newBouchotSettings.setRefreshFromString(value(SETTINGS_BOUCHOT_REFRESH, DEFAULT_BOUCHOT_REFRESH).toString());
 	newBouchotSettings.setLogin(value(SETTINGS_BOUCHOT_LOGIN, "").toString());
 	newBouchotSettings.setCookies(value(SETTINGS_BOUCHOT_COOKIES, "").toString());
 	newBouchotSettings.setUa(value(SETTINGS_BOUCHOT_UA, "").toString());
@@ -182,7 +186,8 @@ QQBouchot * QQSettings::loadBouchot(const QString &name)
 	newBouchotSettings.setPostUrl(value(SETTINGS_BOUCHOT_POSTURL, "").toString());
 	newBouchotSettings.setPostData(value(SETTINGS_BOUCHOT_POSTDATA, "").toString());
 	newBouchotSettings.setGroup(value(SETTINGS_BOUCHOT_GROUP, "").toString());
-	newBouchotSettings.setSlipType((QQBouchot::TypeSlip) value(SETTINGS_BOUCHOT_SLIPTYPE, "").toInt());
+	const int slipType = value(SETTINGS_BOUCHOT_SLIPTYPE, QQBouchot::SlipTagsEncoded).toInt();
+	newBouchotSettings.setSlipType(slipType == QQBouchot::SlipTagsRaw ? QQBouchot::SlipTagsRaw : QQBouchot::SlipTagsEncoded);
 	newBouchotSettings.setStrictHttpsCertif(value(SETTINGS_BOUCHOT_STRICTHTTPSCERTIF, true).toBool());
 
 	endGroup(); //beginGroup(name);

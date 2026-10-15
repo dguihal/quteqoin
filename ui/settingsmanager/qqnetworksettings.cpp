@@ -11,10 +11,10 @@ QQNetworkSettings::QQNetworkSettings(QWidget *parent) :
 	ui->proxyHostLE->setClearButtonEnabled(true);
 #endif
 
-	connect(ui->noProxyRB, SIGNAL(toggled(bool)), this, SLOT(onNetworkModeChanged()));
-	connect(ui->systProxyRB, SIGNAL(toggled(bool)), this, SLOT(onNetworkModeChanged()));
-	connect(ui->customProxyRB, SIGNAL(toggled(bool)), this, SLOT(onNetworkModeChanged()));
-	connect(ui->proxyPortLE, SIGNAL(textChanged(QString)), this, SLOT(onProxyPortValuechanged(QString)));
+	connect(ui->noProxyRB, &QRadioButton::toggled, this, &QQNetworkSettings::onNetworkModeChanged);
+	connect(ui->systProxyRB, &QRadioButton::toggled, this, &QQNetworkSettings::onNetworkModeChanged);
+	connect(ui->customProxyRB, &QRadioButton::toggled, this, &QQNetworkSettings::onNetworkModeChanged);
+	connect(ui->proxyPortLE, &QLineEdit::textChanged, this, &QQNetworkSettings::onProxyPortValuechanged);
 }
 
 QQNetworkSettings::~QQNetworkSettings()

@@ -9,7 +9,6 @@
 #include <QNetworkCookieJar>
 #include <QNetworkProxyFactory>
 #include <QTimeZone>
-#include <QTimer>
 #include <QtDebug>
 
 constexpr int NETWORK_REQUEST_TIMEOUT_MS = 60000;
@@ -147,18 +146,7 @@ QDateTime QQNetworkAccessor::parseRC822(const QString& string)
 
 QNetworkReply * QQNetworkAccessor::httpGet(const QNetworkRequest &request)
 {
-	auto replyTimer = new QTimer(this);
-	replyTimer->setSingleShot(true);
-
-	auto reply = m_qnam->get(request);
-	connect(replyTimer, &QTimer::timeout, this, &QQNetworkAccessor::onRequestTimeout);
-	connect(reply, &QNetworkReply::finished, replyTimer, &QTimer::stop);
-	connect(reply, &QNetworkReply::downloadProgress, replyTimer, qOverload<>(&QTimer::start));
-	connect(reply, &QObject::destroyed, this, &QQNetworkAccessor::onRemoveTimer);
-	replyTimer->start(NETWORK_REQUEST_TIMEOUT_MS);
-	m_replyTimers.insert(reply, replyTimer);
-
-	return reply;
+	return m_qnam->get(request);
 }
 
 QNetworkReply * QQNetworkAccessor::httpHead(const QNetworkRequest &request)
@@ -209,6 +197,7 @@ void QQNetworkAccessor::clearNetworkBackend()
 
 	m_qnam = new QNetworkAccessManager(this);
 
+	m_qnam->setTransferTimeout(NETWORK_REQUEST_TIMEOUT_MS);
 	m_qnam->setRedirectPolicy(QNetworkRequest::ManualRedirectPolicy);
 
 	connect(m_qnam, &QNetworkAccessManager::finished, this, &QQNetworkAccessor::requestFinishedSlot);
@@ -252,46 +241,19 @@ void QQNetworkAccessor::onProxyAuthenticationRequired(const QNetworkProxy &/*pro
 	{
 		if(QQNetworkAccessor::m_proxyPopupMutex.tryLock())
 		{
-			auto proxyDialog = new QQProxyAuthDialog();
-			proxyDialog->setLogin(QQNetworkAccessor::m_proxyUser);
-			proxyDialog->setPasswd(QQNetworkAccessor::m_proxyPasswd);
-			if(proxyDialog->exec() == QDialog::Accepted)
+			QQProxyAuthDialog proxyDialog;
+			proxyDialog.setLogin(QQNetworkAccessor::m_proxyUser);
+			proxyDialog.setPasswd(QQNetworkAccessor::m_proxyPasswd);
+			if(proxyDialog.exec() == QDialog::Accepted)
 			{
-				QQNetworkAccessor::m_proxyUser = proxyDialog->login();
-				QQNetworkAccessor::m_proxyPasswd = proxyDialog->passwd();
+				QQNetworkAccessor::m_proxyUser = proxyDialog.login();
+				QQNetworkAccessor::m_proxyPasswd = proxyDialog.passwd();
 
 				authenticator->setUser(QQNetworkAccessor::m_proxyUser);
 				authenticator->setPassword(QQNetworkAccessor::m_proxyPasswd);
 			}
 			QQNetworkAccessor::m_proxyPopupMutex.unlock();
 			//startBouchots();
-		}
-		else
-		{
-			QApplication::processEvents();
-		}
-	}
-}
-
-void QQNetworkAccessor::onRemoveTimer(QObject *obj)
-{
-	auto timer = m_replyTimers.take(static_cast<QNetworkReply *>(obj));
-
-	delete timer;
-}
-
-void QQNetworkAccessor::onRequestTimeout()
-{
-	auto replyTimersKeys = m_replyTimers.keys();
-	for (auto reply : std::as_const(replyTimersKeys)) {
-		auto timer = m_replyTimers.value(reply);
-		if(! timer->isActive())
-		{
-			reply->abort();
-			qDebug() << Q_FUNC_INFO << reply->url() << "aborted";
-			m_replyTimers.remove(reply);
-			reply->deleteLater();
-			timer->deleteLater();
 		}
 	}
 }

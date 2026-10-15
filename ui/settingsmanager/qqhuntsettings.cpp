@@ -7,14 +7,14 @@ QQHuntSettings::QQHuntSettings(QWidget *parent) :
 {
 	ui->setupUi(this);
 
-	connect(ui->silentModeCB, SIGNAL(toggled(bool)), this, SLOT(setSilentHunt(bool)));
-	connect(ui->maxObjSB, SIGNAL(valueChanged(int)), this, SLOT(setMaxHuntableItems(int)));
-	connect(ui->HuntAutoRB, SIGNAL(clicked()), this, SLOT(huntModeChanged()));
-	connect(ui->huntDisabledRB, SIGNAL(clicked()), this, SLOT(huntModeChanged()));
-	connect(ui->huntManualRB, SIGNAL(clicked()), this, SLOT(huntModeChanged()));
+	connect(ui->silentModeCB, &QCheckBox::toggled, this, &QQHuntSettings::setSilentHunt);
+	connect(ui->maxObjSB, &QSpinBox::valueChanged, this, &QQHuntSettings::setMaxHuntableItems);
+	connect(ui->HuntAutoRB, &QRadioButton::clicked, this, &QQHuntSettings::huntModeChanged);
+	connect(ui->huntDisabledRB, &QRadioButton::clicked, this, &QQHuntSettings::huntModeChanged);
+	connect(ui->huntManualRB, &QRadioButton::clicked, this, &QQHuntSettings::huntModeChanged);
 
-	connect(ui->slHuntHiddenRB, SIGNAL(clicked()), this, SLOT(slHuntModeChanged()));
-	connect(ui->slHuntSilentRB, SIGNAL(clicked()), this, SLOT(slHuntModeChanged()));
+	connect(ui->slHuntHiddenRB, &QRadioButton::clicked, this, &QQHuntSettings::slHuntModeChanged);
+	connect(ui->slHuntSilentRB, &QRadioButton::clicked, this, &QQHuntSettings::slHuntModeChanged);
 }
 
 QQHuntSettings::~QQHuntSettings()

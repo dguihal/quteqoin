@@ -219,6 +219,58 @@ set_target_properties(quteqoin PROPERTIES
 	MACOSX_BUNDLE ON
 )
 
+include(CTest)
+if(BUILD_TESTING)
+	find_package(Qt6 REQUIRED COMPONENTS Test)
+	qt_add_executable(quteqoin_behavior_tests
+		"tests/tst_qqbouchot.cpp"
+		"core/qqbouchot.cpp"
+		"core/qqnetworkaccessor.cpp"
+		"core/qqpost.cpp"
+		"core/qqnorloge.cpp"
+		"core/qqmussel.cpp"
+		"core/qqsettings.cpp"
+		"core/qqmessagetransformfilter.cpp"
+		"ui/pinipede/qqpiniurlhelper.cpp"
+		"ui/pinipede/qqtextbrowser.cpp"
+		"ui/pinipede/qqpinioverlay.cpp"
+		"ui/pinipede/qqduckpixmapitem.cpp"
+		"ui/pinipede/qqhuntpixmapitem.cpp"
+		"ui/qqmessageblockuserdata.cpp"
+		"ui/qqimageviewer.cpp"
+		"ui/qqtotozviewer.cpp"
+		"core/qqnorlogeref.cpp"
+		"core/qqbigornoitem.cpp"
+		"core/qqwebdownloader.cpp"
+		"core/qqtotoz.cpp"
+		"core/qqtotozdownloader.cpp"
+		"core/qutetools.cpp"
+		"rc/quteqoin_anims.qrc"
+		"ui/settingsmanager/qqtotozsettings.cpp"
+		"ui/settingsmanager/qqtotozsettings.ui"
+		"core/qqbackendupdatedevent.cpp"
+		"core/qqboardstatechangeevent.cpp"
+		"core/qqpurgebouchothistoevent.cpp"
+		"core/parsers/qqbackendparser.cpp"
+		"core/parsers/qqcustomxmlparser.cpp"
+		"core/parsers/qqtsvparser.cpp"
+		"ui/qqproxyauthdialog.cpp"
+		"ui/qqproxyauthdialog.ui"
+	)
+	target_link_libraries(quteqoin_behavior_tests PRIVATE Qt6::Test Qt6::Widgets Qt6::Network Qt6::MultimediaWidgets)
+	add_test(NAME quteqoin_behaviors COMMAND quteqoin_behavior_tests)
+	set_tests_properties(quteqoin_behaviors PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen")
+	set(SHUTDOWN_SOURCES ${SOURCES})
+	list(REMOVE_ITEM SHUTDOWN_SOURCES "main.cpp")
+	qt_add_executable(quteqoin_shutdown_tests "tests/tst_shutdown.cpp" ${SHUTDOWN_SOURCES})
+	get_target_property(QUTEQOIN_LIBRARIES quteqoin LINK_LIBRARIES)
+	target_link_libraries(quteqoin_shutdown_tests PRIVATE ${QUTEQOIN_LIBRARIES})
+	foreach(PREVIEW_TYPE none image video)
+		add_test(NAME quteqoin_shutdown_${PREVIEW_TYPE} COMMAND quteqoin_shutdown_tests ${PREVIEW_TYPE})
+		set_tests_properties(quteqoin_shutdown_${PREVIEW_TYPE} PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen" TIMEOUT 30)
+	endforeach()
+endif()
+
 INSTALL(PROGRAMS quteqoin DESTINATION bin)
 INSTALL(FILES quteqoin.desktop DESTINATION share/applications/)
 INSTALL(FILES rc/QuteQoin-Icon.ico DESTINATION share/icons/)

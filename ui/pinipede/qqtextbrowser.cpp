@@ -338,7 +338,7 @@ void QQTextBrowser::onAnchorHighlighted(const QUrl &link)
 		if(link != m_shownUrl)
 		{
 			unHighlightNorloge();
-			emit hideViewers();
+			clearViewers();
 			m_shownUrl = link;
 		}
 		else
@@ -507,8 +507,7 @@ void QQTextBrowser::onScrollValueChanged(int value)
 
 void QQTextBrowser::onThumbnailUrlAvailable(QUrl &url, QString &contentType)
 {
-	Q_UNUSED(url)
-	if(url.isValid())
+	if(!m_shownUrl.isEmpty() && url.isValid())
 		emit displayMmdaData(url, contentType);
 
 }
@@ -529,15 +528,10 @@ void QQTextBrowser::onWebSearchAction()
 
 void QQTextBrowser::clearViewers()
 {
-	m_urlHelper->cancel();
-	if(m_displayedTotozId.length() > 0)
-		emit hideViewers();
-
-	if(QToolTip::isVisible())
-		emit hideViewers();
-
 	m_shownUrl.clear();
 	m_displayedTotozId.clear();
+	m_urlHelper->cancel();
+	emit hideViewers();
 }
 
 void QQTextBrowser::contextMenuEvent(QContextMenuEvent * ev)

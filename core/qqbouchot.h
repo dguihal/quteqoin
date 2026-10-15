@@ -11,6 +11,7 @@
 #include <QHash>
 #include <QObject>
 #include <QList>
+#include <QPointer>
 #include <QString>
 #include <QStringList>
 #include <QTimer>
@@ -100,11 +101,11 @@ public:
 		QString m_login;
 		QString m_postData;
 		QString m_postUrl;
-		uint m_refresh;
-		TypeSlip m_slipType;
+		uint m_refresh = DEFAULT_BOUCHOT_REFRESH;
+		TypeSlip m_slipType = SlipTagsEncoded;
 		QString m_ua;
 		QString m_group;
-		bool m_strictHttpsCertif;
+		bool m_strictHttpsCertif = true;
 		bool m_short_norloge = true; // si vrai, les posts seuls seuls dans la minutes seront affichés sans secondes dans le palmi
 
 		static const char Separator = ',';
@@ -198,6 +199,9 @@ private:
 	QQListPostPtr m_newPostHistory;
 	QQBouchotSettings m_bSettings;
 	QTimer m_timer;
+	QPointer<QNetworkReply> m_backendReply;
+	bool m_refreshEnabled = false;
+	bool m_refreshPending = false;
 
 	QQBackendParser *m_parser;
 
@@ -211,7 +215,7 @@ private:
 
 	struct EventReceiver {
 		QQBouchotEvents acceptedEvents;
-		QObject * receiver;
+		QPointer<QObject> receiver;
 	};
 	QList<EventReceiver> m_listEventReceivers;
 

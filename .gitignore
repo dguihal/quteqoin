@@ -40,3 +40,6 @@ CMakeCache.txt
 cmake_install.cmake
 CMakeFiles/
 CMakeLists.txt.user
+
+# VSCode
+.vscode/

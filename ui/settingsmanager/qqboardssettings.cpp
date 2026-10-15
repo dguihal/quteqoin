@@ -20,12 +20,12 @@ QQBoardsSettings::QQBoardsSettings(QWidget *parent) :
 	ui->bigornotifCB->hide();
 #endif
 
-	connect(ui->addBouchotButton, SIGNAL(clicked()), this, SLOT(addBouchot()));
-	connect(ui->deleteBouchotButton, SIGNAL(clicked()), this, SLOT(deleteBouchot()));
-	connect(ui->editBouchotButton, SIGNAL(clicked()), this, SLOT(editBouchot()));
-	connect(ui->linkedImgPreviewCB, SIGNAL(clicked(bool)), this, SLOT(onWebUrlPreviewEnable(bool)));
-	connect(ui->linkedImgMaxSizeSB, SIGNAL(valueChanged(int)), this, SLOT(onWebUrlPreviewMaxSizeChanged(int)));
-	connect(ui->olccsAddButton, SIGNAL(clicked()), this, SLOT(olccsAddBouchot()));
+	connect(ui->addBouchotButton, &QPushButton::clicked, this, &QQBoardsSettings::addBouchot);
+	connect(ui->deleteBouchotButton, &QPushButton::clicked, this, &QQBoardsSettings::deleteBouchot);
+	connect(ui->editBouchotButton, &QPushButton::clicked, this, &QQBoardsSettings::editBouchot);
+	connect(ui->linkedImgPreviewCB, &QCheckBox::clicked, this, &QQBoardsSettings::onWebUrlPreviewEnable);
+	connect(ui->linkedImgMaxSizeSB, &QSpinBox::valueChanged, this, &QQBoardsSettings::onWebUrlPreviewMaxSizeChanged);
+	connect(ui->olccsAddButton, &QPushButton::clicked, this, &QQBoardsSettings::olccsAddBouchot);
 }
 
 QQBoardsSettings::~QQBoardsSettings()
