@@ -219,6 +219,33 @@ set_target_properties(quteqoin PROPERTIES
 	MACOSX_BUNDLE ON
 )
 
+include(CTest)
+if(BUILD_TESTING)
+	find_package(Qt6 REQUIRED COMPONENTS Test)
+	qt_add_executable(quteqoin_behavior_tests
+		"tests/tst_qqbouchot.cpp"
+		"core/qqbouchot.cpp"
+		"core/qqnetworkaccessor.cpp"
+		"core/qqpost.cpp"
+		"core/qqnorloge.cpp"
+		"core/qqmussel.cpp"
+		"core/qqsettings.cpp"
+		"core/qqmessagetransformfilter.cpp"
+		"ui/pinipede/qqpiniurlhelper.cpp"
+		"core/qqbackendupdatedevent.cpp"
+		"core/qqboardstatechangeevent.cpp"
+		"core/qqpurgebouchothistoevent.cpp"
+		"core/parsers/qqbackendparser.cpp"
+		"core/parsers/qqcustomxmlparser.cpp"
+		"core/parsers/qqtsvparser.cpp"
+		"ui/qqproxyauthdialog.cpp"
+		"ui/qqproxyauthdialog.ui"
+	)
+	target_link_libraries(quteqoin_behavior_tests PRIVATE Qt6::Test Qt6::Widgets Qt6::Network)
+	add_test(NAME quteqoin_behaviors COMMAND quteqoin_behavior_tests)
+	set_tests_properties(quteqoin_behaviors PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen")
+endif()
+
 INSTALL(PROGRAMS quteqoin DESTINATION bin)
 INSTALL(FILES quteqoin.desktop DESTINATION share/applications/)
 INSTALL(FILES rc/QuteQoin-Icon.ico DESTINATION share/icons/)

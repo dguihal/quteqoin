@@ -6,6 +6,7 @@
 #include <QtDebug>
 #include <QStringList>
 
+#include <QHostAddress>
 #include <QUrlQuery>
 #include <QJsonArray>
 #include <QJsonDocument>
@@ -90,14 +91,14 @@ void QQPiniUrlHelper::transformMessage(const QString &bouchot, QString &message)
         QString s(match.captured(1));
         s.append("[");
 
-        if (trType == QuteQoin::Full)
+        const auto lastDot = host.lastIndexOf('.');
+        if (trType == QuteQoin::Full || lastDot < 0 || !QHostAddress(host).isNull())
             s.append(host);
         else
         {
-            QString tld = host.right( host.lastIndexOf('.'));
-            QString fullDomain = host.left(host.length() - host.lastIndexOf('.'));
-
-            QString baseDomain = fullDomain.right(fullDomain.length() - (fullDomain.lastIndexOf(".") + 1));
+            QString tld = host.mid(lastDot);
+            QString fullDomain = host.left(lastDot);
+            QString baseDomain = fullDomain.section('.', -1);
 
             //trType == QuteQoin::Shorter
             s.append(baseDomain);
@@ -109,7 +110,7 @@ void QQPiniUrlHelper::transformMessage(const QString &bouchot, QString &message)
         s.append("]</a>");
 
         message.replace(match.capturedStart(), match.captured(0).length(), s);
-        index += match.capturedEnd();
+        index = match.capturedStart() + s.length();
     }
 }
 

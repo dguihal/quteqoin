@@ -2,13 +2,11 @@
 #define QQNETWORKACCESSOR_H
 
 #include <QDateTime>
-#include <QMap>
 #include <QMutex>
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
 #include <QObject>
 #include <QPointer>
-#include <QTimer>
 
 class QAbstractNetworkCache;
 
@@ -46,12 +44,9 @@ protected:
 
 protected slots:
 	static void onProxyAuthenticationRequired(const QNetworkProxy &proxy, QAuthenticator *authenticator);
-	void onRemoveTimer(QObject *obj);
-	void onRequestTimeout();
 
 private:
 	QPointer<QNetworkAccessManager> m_qnam;
-	QMap<QNetworkReply *, QTimer *> m_replyTimers;
 
 	// Gestion du proxy
 	static QMutex m_proxyPopupMutex;

@@ -1,6 +1,7 @@
 #include "qqbouchot.h"
 
 #include <cmath>
+#include <limits>
 
 #include "qqbackendupdatedevent.h"
 #include "qqboardstatechangeevent.h"
@@ -99,6 +100,8 @@ QQBouchot::QQBouchot(QString name, QObject *parent) :
 	QQBouchot::s_hashBouchots.insert(m_name, this);
 
 	m_refreshRatioIndex = REFRESH_RATIOS_MID;
+	m_timer.setSingleShot(true);
+	connect(&m_timer, &QTimer::timeout, this, &QQBouchot::fetchBackend);
 }
 
 //////////////////////////////////////////////////////////////
@@ -189,13 +192,10 @@ void QQBouchot::setSettings(const QQBouchotSettings &newSettings)
 ///
 void QQBouchot::startRefresh()
 {
-	if(m_bSettings.refresh() <= 0)
+	if(m_bSettings.refresh() == 0 || m_refreshEnabled)
 		return;
 
-	//Connection du signal
-	connect(&m_timer, &QTimer::timeout, this, &QQBouchot::fetchBackend);
-
-	//Première récuperation
+	m_refreshEnabled = true;
 	fetchBackend();
 }
 
@@ -204,7 +204,8 @@ void QQBouchot::startRefresh()
 ///
 void QQBouchot::stopRefresh()
 {
-	m_timer.disconnect();
+	m_refreshEnabled = false;
+	m_refreshPending = false;
 	m_timer.stop();
 
 	m_refreshRatioIndex = REFRESH_RATIOS_MID;
@@ -216,8 +217,9 @@ void QQBouchot::stopRefresh()
 ///
 int QQBouchot::currentRefreshInterval()
 {
-	return qMax(static_cast<unsigned int>(m_bSettings.refresh() * QQ_UINT_SEC_TO_MSEC * std::lroundf(currentRefreshRatio())),
-	            QQ_MIN_REFRESH_DELAY_S);
+	const double interval = m_bSettings.refresh() * static_cast<double>(QQ_UINT_SEC_TO_MSEC) * currentRefreshRatio();
+	return qRound(qBound(static_cast<double>(QQ_MIN_REFRESH_DELAY_S * QQ_UINT_SEC_TO_MSEC),
+	                    interval, static_cast<double>(std::numeric_limits<int>::max())));
 }
 
 //////////////////////////////////////////////////////////////
@@ -374,9 +376,9 @@ void QQBouchot::registerForEventNotification(QObject *receiver, QQBouchotEvents 
 {
 	if(receiver)
 	{
+		unregisterForEventNotification(receiver);
 		connect(receiver, &QObject::destroyed,
 		        this, &QQBouchot::unregisterForEventNotification);
-		unregisterForEventNotification(receiver);
 		QQBouchot::EventReceiver evRcv;
 		evRcv.acceptedEvents = events;
 		evRcv.receiver = receiver;
@@ -429,6 +431,12 @@ static QRegularExpression fetchBackendRE3("\\?&", QRegularExpression::NoPatternO
 
 void QQBouchot::fetchBackend()
 {
+	if(!m_backendReply.isNull())
+	{
+		m_refreshPending = true;
+		return;
+	}
+
 	QString url = m_bSettings.backendUrl();
 	QString lastId;
 
@@ -462,12 +470,12 @@ void QQBouchot::fetchBackend()
 		request.setRawHeader(QString::fromLatin1("Cookie").toLatin1(), m_bSettings.cookies().toLatin1());
 
 	QNetworkReply *reply = httpGet(request);
+	m_backendReply = reply;
 	connect(reply, &QNetworkReply::sslErrors, this, &QQBouchot::slotSslErrors);
 
 	emit refreshStarted();
 	m_timer.setInterval(currentRefreshInterval());
 	qDebug() << Q_FUNC_INFO << m_name << currentRefreshRatio() << currentRefreshInterval();
-	m_timer.start();
 }
 
 //////////////////////////////////////////////////////////////
@@ -512,7 +520,8 @@ void QQBouchot::unregisterForEventNotification(QObject *receiver)
 		QMutableListIterator<EventReceiver> i(m_listEventReceivers);
 		while(i.hasNext())
 		{
-			if(i.next().receiver == receiver)
+			const auto &evRcv = i.next();
+			if(evRcv.receiver.isNull() || evRcv.receiver == receiver)
 			{
 				disconnect(receiver, &QObject::destroyed,
 				           this, &QQBouchot::unregisterForEventNotification);
@@ -528,6 +537,10 @@ void QQBouchot::unregisterForEventNotification(QObject *receiver)
 ///
 void QQBouchot::requestFinishedSlot(QNetworkReply *reply)
 {
+	const bool isBackendReply = reply->request().attribute(QNetworkRequest::User).toInt() == QQBouchot::BackendRequest;
+	if(isBackendReply && m_backendReply == reply)
+		m_backendReply.clear();
+
 	if(reply->error() != QNetworkReply::NoError)
 	{
 		auto errMsg = reply->errorString();
@@ -547,26 +560,11 @@ void QQBouchot::requestFinishedSlot(QNetworkReply *reply)
 				           << "reply->request().attribute(QNetworkRequest::User).toInt() unknown :"
 				           << reply->request().attribute(QNetworkRequest::User, QQBouchot::UnknownRequest).toInt();
 		}
-
-		clearNetworkBackend();
 	} else {
 		m_state.hasError = false;
 
 		switch (reply->request().attribute(QNetworkRequest::User, QQBouchot::UnknownRequest).toInt()) {
 		case QQBouchot::PostRequest: {
-#ifndef QT_NO_DEBUG
-			qDebug() << Q_FUNC_INFO << "Req URL headers" << reply->request().url();
-
-			qDebug() << Q_FUNC_INFO << "Reply Status Code"
-							 << reply->attribute(QNetworkRequest::HttpStatusCodeAttribute);
-
-			for (QByteArray ba : reply->rawHeaderList()) {
-				qDebug() << Q_FUNC_INFO << "Reply headers" << ba << QString(reply->rawHeader(ba));
-			}
-
-			qDebug() << Q_FUNC_INFO << "Reply data" << reply->readAll().toStdString();
-#endif
-
 			auto xPostId = reply->rawHeader(QByteArray::fromStdString(X_POST_ID_HEADER)).toLower();
 			if (xPostId.length() > 0) {
 				m_hasXPostId = true;
@@ -577,9 +575,8 @@ void QQBouchot::requestFinishedSlot(QNetworkReply *reply)
 			    break;
 		}
 		case QQBouchot::BackendRequest:
-			auto lastModified = reply->header(QNetworkRequest::LastModifiedHeader);
-			if (lastModified.isValid())
-				m_lastModifiedBackend = lastModified.toString();
+			if(reply->hasRawHeader("Last-Modified"))
+				m_lastModifiedBackend = QString::fromLatin1(reply->rawHeader("Last-Modified"));
 
 			if (reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toUInt() == HTTP_OK) {
 				QString contentType = reply->header(QNetworkRequest::ContentTypeHeader).toString();
@@ -590,6 +587,16 @@ void QQBouchot::requestFinishedSlot(QNetworkReply *reply)
 		}
 	}
 	reply->deleteLater();
+	if(isBackendReply)
+	{
+		if(m_refreshPending)
+		{
+			m_refreshPending = false;
+			fetchBackend();
+		}
+		else if(m_refreshEnabled)
+			m_timer.start(currentRefreshInterval());
+	}
 }
 
 //////////////////////////////////////////////////////////////
@@ -617,7 +624,6 @@ void QQBouchot::parseBackend(const QByteArray &data, const QString &contentType)
 		if(b.canReadLine())
 		{
 			QString l = b.readLine();
-			qDebug() << Q_FUNC_INFO << l;
 			if (l.startsWith("<?xml ") || l.contains(parseBackendRE1)) {
 				qDebug() << Q_FUNC_INFO << "XML found";
 				parseBackendXML(data);
@@ -853,6 +859,9 @@ void QQBouchot::sendBouchotEvents()
 {
 	for (const auto &evRcv : std::as_const(m_listEventReceivers))
 	{
+		if(evRcv.receiver.isNull())
+			continue;
+
 		if(evRcv.acceptedEvents.testFlag(NewPostsAvailable) && !m_newPostHistory.empty())
 		{
 			QApplication::postEvent(evRcv.receiver,
