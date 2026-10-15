@@ -16,12 +16,12 @@ QQGeneralSettings::QQGeneralSettings(QWidget *parent) :
 	QValidator *validator = new QIntValidator(1, INT_MAX, this);
 	ui->maxHistLineEdit->setValidator(validator);
 
-	connect(ui->fontFamComboB, SIGNAL(currentFontChanged(QFont)),
-	        this, SLOT(fontChanged(QFont)));
-	connect(ui->fontSizeComboB, SIGNAL(activated(int)),
-			this, SLOT(fontSizeChanged(int)));
-	connect(ui->colorChooserPB, SIGNAL(clicked(bool)),
-			this, SLOT(showColorDialog()));
+	connect(ui->fontFamComboB, &QFontComboBox::currentFontChanged,
+	        this, &QQGeneralSettings::fontChanged);
+	connect(ui->fontSizeComboB, &QComboBox::activated,
+			this, &QQGeneralSettings::fontSizeChanged);
+	connect(ui->colorChooserPB, &QPushButton::clicked,
+			this, &QQGeneralSettings::showColorDialog);
 
 	m_defaultFont = QFont();
 	ui->fontFamComboB->setCurrentFont(m_defaultFont);

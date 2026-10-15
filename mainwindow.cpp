@@ -203,6 +203,9 @@ void MainWindow::displayOptions()
 
 void MainWindow::doPostMessage(const QString &bouchot, const QString &message)
 {
+#ifdef QT_DEBUG
+	qDebug() << Q_FUNC_INFO << bouchot << message;
+#endif
 	QQBouchot *bouchotDest = QQBouchot::bouchot(bouchot);
 
 	if(bouchotDest != nullptr)

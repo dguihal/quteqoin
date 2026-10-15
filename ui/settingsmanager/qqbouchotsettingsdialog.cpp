@@ -13,10 +13,10 @@ QQBouchotSettingsDialog::QQBouchotSettingsDialog(QWidget *parent) :
 	ui(new Ui::QQBouchotSettingsDialog)
 {
 	ui->setupUi(this);
-	connect(ui->presetPushButton, SIGNAL(clicked()), this, SLOT(usePresetPressed()));
-	connect(ui->colorSelPushButton, SIGNAL(clicked()), this, SLOT(showColorDialog()));
-	connect(ui->colorLineEdit, SIGNAL(textChanged(QString)), this, SLOT(colorChanged(QString)));
-	connect(ui->nameLineEdit, SIGNAL(textChanged(QString)), this, SLOT(nameChanged(QString)));
+	connect(ui->presetPushButton, &QPushButton::clicked, this, &QQBouchotSettingsDialog::usePresetPressed);
+	connect(ui->colorSelPushButton, &QPushButton::clicked, this, &QQBouchotSettingsDialog::showColorDialog);
+	connect(ui->colorLineEdit, &QLineEdit::textChanged, this, &QQBouchotSettingsDialog::colorChanged);
+	connect(ui->nameLineEdit, &QLineEdit::textChanged, this, &QQBouchotSettingsDialog::nameChanged);
 
 	QRegularExpression reg("^#[0-9a-fA-F]{0,6}$");
 	ui->colorLineEdit->setValidator(new QRegularExpressionValidator(reg, this));
@@ -31,10 +31,10 @@ QQBouchotSettingsDialog::QQBouchotSettingsDialog(QString bouchotName, QQBouchot:
 	m_bouchotSettings(bouchotSettings)
 {
 	ui->setupUi(this);
-	connect(ui->presetPushButton, SIGNAL(clicked()), this, SLOT(usePresetPressed()));
-	connect(ui->colorSelPushButton, SIGNAL(clicked()), this, SLOT(showColorDialog()));
-	connect(ui->colorLineEdit, SIGNAL(textChanged(QString)), this, SLOT(colorChanged(QString)));
-	connect(ui->nameLineEdit, SIGNAL(textChanged(QString)), this, SLOT(nameChanged(QString)));
+	connect(ui->presetPushButton, &QPushButton::clicked, this, &QQBouchotSettingsDialog::usePresetPressed);
+	connect(ui->colorSelPushButton, &QPushButton::clicked, this, &QQBouchotSettingsDialog::showColorDialog);
+	connect(ui->colorLineEdit, &QLineEdit::textChanged, this, &QQBouchotSettingsDialog::colorChanged);
+	connect(ui->nameLineEdit, &QLineEdit::textChanged, this, &QQBouchotSettingsDialog::nameChanged);
 
 	QRegularExpression reg("^#[0-9a-fA-F]{0,6}$");
 	ui->colorLineEdit->setValidator(new QRegularExpressionValidator(reg, this));

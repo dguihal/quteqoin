@@ -171,8 +171,8 @@ QQBouchot * QQSettings::loadBouchot(const QString &name)
 	// Pas d'url de backend , pas de bouchot
 	if(! contains(SETTINGS_BOUCHOT_BACKENDURL))
 	{
-		endGroup();
-		endGroup();
+		endGroup(); //beginGroup(name);
+		endGroup(); //beginGroup(QString::fromLatin1("bouchot"));
 		return nullptr;
 	}
 

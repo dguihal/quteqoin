@@ -232,6 +232,8 @@ if(BUILD_TESTING)
 		"core/qqsettings.cpp"
 		"core/qqmessagetransformfilter.cpp"
 		"ui/pinipede/qqpiniurlhelper.cpp"
+		"ui/settingsmanager/qqtotozsettings.cpp"
+		"ui/settingsmanager/qqtotozsettings.ui"
 		"core/qqbackendupdatedevent.cpp"
 		"core/qqboardstatechangeevent.cpp"
 		"core/qqpurgebouchothistoevent.cpp"

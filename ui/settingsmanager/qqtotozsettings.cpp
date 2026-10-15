@@ -27,20 +27,20 @@ QQTotozSettings::QQTotozSettings(QWidget *parent) :
 		ui->presetCB->insertItem(INT_MAX, label, preset);
 	}
 
-	connect(ui->srvTotozLineEdit, SIGNAL(textChanged(QString)),
-			this, SLOT(totozServerURLChanged(QString)));
-	connect(ui->srvTotozBaseImgLineEdit, SIGNAL(textChanged(QString)),
-			this, SLOT(totozBaseImgUrlChanged(QString)));
-	connect(ui->srvNameSuffixlineEdit, SIGNAL(textChanged(QString)),
-			this, SLOT(totozNameSuffixChanged(QString)));
-	connect(ui->srvAllowSearch, SIGNAL(stateChanged(int)),
-			this, SLOT(totozAllowSearchChanged(int)));
-	connect(ui->srvTotozQueryPatternLineEdit, SIGNAL(textChanged(QString)),
-			this, SLOT(totozQueryPatternChanged(QString)));
-	connect(ui->presetCB, SIGNAL(activated(int)),
-			this, SLOT(loadTotozSrvPreset(int)));
-	connect(ui->totozModeComboBox, SIGNAL(currentIndexChanged(QString)),
-			this, SLOT(totozVisualModeChanged(QString)));
+	connect(ui->srvTotozLineEdit, &QLineEdit::textChanged,
+			this, &QQTotozSettings::totozServerURLChanged);
+	connect(ui->srvTotozBaseImgLineEdit, &QLineEdit::textChanged,
+			this, &QQTotozSettings::totozBaseImgUrlChanged);
+	connect(ui->srvNameSuffixlineEdit, &QLineEdit::textChanged,
+			this, &QQTotozSettings::totozNameSuffixChanged);
+	connect(ui->srvAllowSearch, &QCheckBox::stateChanged,
+			this, &QQTotozSettings::totozAllowSearchChanged);
+	connect(ui->srvTotozQueryPatternLineEdit, &QLineEdit::textChanged,
+			this, &QQTotozSettings::totozQueryPatternChanged);
+	connect(ui->presetCB, &QComboBox::activated,
+			this, &QQTotozSettings::loadTotozSrvPreset);
+	connect(ui->totozModeComboBox, &QComboBox::currentTextChanged,
+			this, &QQTotozSettings::totozVisualModeChanged);
 }
 
 QQTotozSettings::~QQTotozSettings()

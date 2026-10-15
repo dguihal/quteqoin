@@ -48,7 +48,7 @@ QQBoardWizardNative::QQBoardWizardNative(QWidget *parent) :
 
 	m_colorLE = new QLineEdit(this);
 	m_colorLE->setPlaceholderText("exemple : #fec4c4");
-	connect(m_colorLE, SIGNAL(textChanged(QString)), this, SLOT(colorChanged()));
+	connect(m_colorLE, &QLineEdit::textChanged, this, &QQBoardWizardNative::colorChanged);
 	l2->addRow(new QLabel(tr("color :")), m_colorLE);
 
 	QLineEdit *cookieLE = new QLineEdit(this);
@@ -70,7 +70,7 @@ QQBoardWizardNative::QQBoardWizardNative(QWidget *parent) :
 	if(hasNewItems)
 	{
 		m_boardSelectorCB->setEditable(false);
-		connect(m_boardSelectorCB, SIGNAL(currentIndexChanged(int)), this, SLOT(nameSelectionChanged(int)));
+		connect(m_boardSelectorCB, &QComboBox::currentIndexChanged, this, &QQBoardWizardNative::nameSelectionChanged);
 		m_boardSelectorCB->addItems(boardsTpl);
 		m_boardSelectorCB->setCurrentIndex(0);
 		m_emptyListLabel = NULL;

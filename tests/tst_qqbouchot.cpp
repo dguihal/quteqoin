@@ -2,9 +2,11 @@
 #include "core/qqboardstatechangeevent.h"
 #include "core/qqsettings.h"
 #include "ui/pinipede/qqpiniurlhelper.h"
+#include "ui/settingsmanager/qqtotozsettings.h"
 
 #include <QDateTime>
 #include <QNetworkProxy>
+#include <QScopeGuard>
 #include <QSignalSpy>
 #include <QTcpServer>
 #include <QTcpSocket>
@@ -110,6 +112,30 @@ private slots:
 		QVERIFY(settings.isStrictHttpsCertif());
 		QVERIFY(settings.isShortNorlogeEnabled());
 		QVERIFY(QQBouchot::getBouchotDef("dlfp").isStrictHttpsCertif());
+	}
+
+	void totozSettingsConnectionsUpdateProperties()
+	{
+		QQTotozSettings widget;
+		widget.setTotozServerURL("https://example.com");
+		QCOMPARE(widget.totozServerURL(), QString("https://example.com"));
+		widget.setTotozBaseImgUrl("images");
+		QCOMPARE(widget.totozBaseImgUrl(), QString("images"));
+		widget.setTotozNameSuffix(".gif");
+		QCOMPARE(widget.totozNameSuffix(), QString(".gif"));
+		widget.setTotozAllowSearch(true);
+		QVERIFY(widget.totozAllowSearch());
+		widget.setTotozQueryPattern("search?q=%t");
+		QCOMPARE(widget.totozQueryPattern(), QString("search?q=%t"));
+		widget.setTotozAllowSearch(false);
+		QVERIFY(!widget.totozAllowSearch());
+		QVERIFY(widget.totozQueryPattern().isEmpty());
+		widget.setTotozVisualModes({TOTOZ_VISUAL_MODE_DISABLED, TOTOZ_VISUAL_MODE_ON_HOVER});
+		QCOMPARE(widget.totozVisualMode(), QString(TOTOZ_VISUAL_MODE_DISABLED));
+		widget.setTotozVisualMode(TOTOZ_VISUAL_MODE_ON_HOVER);
+		QCOMPARE(widget.totozVisualMode(), QString(TOTOZ_VISUAL_MODE_ON_HOVER));
+		widget.setTotozVisualMode(TOTOZ_VISUAL_MODE_DISABLED);
+		QCOMPARE(widget.totozVisualMode(), QString(TOTOZ_VISUAL_MODE_DISABLED));
 	}
 
 	void shortenedUrlLabels_data()
@@ -280,6 +306,49 @@ private slots:
 		QTest::qWait(3100);
 		QCOMPARE(started.count(), 1);
 		QCOMPARE(server.requests.size(), 1);
+	}
+
+	void debugContentMatchesBuildMode()
+	{
+		LocalHttpServer server;
+		QVERIFY(server.server.listen(QHostAddress::LocalHost));
+		TestBouchot board;
+		auto settings = board.settings();
+		settings.setBackendUrl(server.url());
+		settings.setPostUrl(server.url());
+		settings.setPostData("message=%m");
+		board.setSettings(settings);
+		QSignalSpy finished(&board, &QQBouchot::refreshOK);
+
+		static QStringList messages;
+		messages.clear();
+		const auto previousHandler = qInstallMessageHandler([](QtMsgType type, const QMessageLogContext &, const QString &message) {
+			if(type == QtDebugMsg)
+				messages.append(message);
+		});
+		const auto restoreHandler = qScopeGuard([previousHandler] { qInstallMessageHandler(previousHandler); });
+
+		board.postMessage("message");
+		QTRY_COMPARE(server.requests.size(), 1);
+		const QByteArray postBody = "debug-response-body";
+		server.respond(0, "HTTP/1.1 200 OK\r\nSet-Cookie: session=debug-cookie-value; Path=/\r\nContent-Length: "
+		                  + QByteArray::number(postBody.size()) + "\r\nConnection: close\r\n\r\n" + postBody);
+		QTRY_COMPARE(server.requests.size(), 2);
+		const QByteArray backendBody = "1\t" + QDateTime::currentDateTime().toString("yyyyMMddHHmmss").toUtf8()
+		                               + "\ttest-agent\ttest-user\tdebug-backend-content\n";
+		server.respond(1, "HTTP/1.1 200 OK\r\nContent-Type: application/octet-stream\r\nContent-Length: "
+		                  + QByteArray::number(backendBody.size()) + "\r\nConnection: close\r\n\r\n" + backendBody);
+		QTRY_COMPARE(finished.count(), 1);
+		const QString logs = messages.join('\n');
+#ifdef QT_DEBUG
+		QVERIFY(logs.contains("debug-response-body"));
+		QVERIFY(logs.contains("debug-cookie-value"));
+		QVERIFY(logs.contains("debug-backend-content"));
+#else
+		QVERIFY(!logs.contains("debug-response-body"));
+		QVERIFY(!logs.contains("debug-cookie-value"));
+		QVERIFY(!logs.contains("debug-backend-content"));
+#endif
 	}
 
 	void networkErrorPreservesSessionCookies()

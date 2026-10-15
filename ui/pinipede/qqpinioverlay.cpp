@@ -138,7 +138,7 @@ QQPiniOverlay::QQPiniOverlay(QWidget *parent) :
 	if(parent != nullptr)
 		resize(parent->size());
 
-	connect(m_downloader, SIGNAL(ready(QUrl&)), this, SLOT(dlReady(QUrl&)));
+	connect(m_downloader, &QQWebDownloader::ready, this, &QQPiniOverlay::dlReady);
 }
 
 //////////////////////////////////////////////////////////////

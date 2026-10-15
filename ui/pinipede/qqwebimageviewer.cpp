@@ -10,7 +10,7 @@ QQWebImageViewer::QQWebImageViewer(QWidget *parent) :
 	QQImageViewer(parent)
 {
 	m_downloader = new QQWebDownloader(this);
-	connect(m_downloader, SIGNAL(ready()), this, SLOT(imgReady()));
+	connect(m_downloader, &QQWebDownloader::ready, this, &QQWebImageViewer::imgReady);
 }
 
 //////////////////////////////////////////////////////////////

@@ -65,7 +65,7 @@ void QQKeyboardShortcutInput::setupUi()
 	m_lineEdit->setFont(font());
 	auto *reVal = new QRegularExpressionValidator(QRegularExpression("[^A-Z]"), this);
 	m_lineEdit->setValidator(reVal);
-	connect(m_lineEdit, SIGNAL(textEdited(QString)), this, SLOT(handleEditorTextEdited(QString)));
+	connect(m_lineEdit, &QLineEdit::textEdited, this, &QQKeyboardShortcutInput::handleEditorTextEdited);
 
 	hLayout->addWidget(m_lineEdit);
 }
@@ -237,7 +237,7 @@ int QQPalmiSettingsTableWidget::appendEmptyUserRow()
 	// 1st Col
 	rowDelBtn = new QPushButton(QIcon(delPixmap), "", this);
 	rowDelBtn->setMaximumWidth(BTN_PIXMAP_MAX_WIDTH);
-	connect(rowDelBtn, SIGNAL(clicked()), this, SLOT(handleRemoveRowClicked()));
+	connect(rowDelBtn, &QPushButton::clicked, this, &QQPalmiSettingsTableWidget::handleRemoveRowClicked);
 	setCellWidget(currRow, BTN_COLUMN, rowDelBtn);
 
 	// 2nd Col
@@ -345,7 +345,7 @@ void QQPalmiSettingsTableWidget::createLastLine()
 	insertRow(currRow);
 
 	QPushButton *rowAddBtn = new QPushButton(QIcon(scaledAddPixmap), "", this);
-	connect(rowAddBtn, SIGNAL(clicked()), this, SLOT(appendEmptyUserRow()));
+	connect(rowAddBtn, &QPushButton::clicked, this, &QQPalmiSettingsTableWidget::appendEmptyUserRow);
 	rowAddBtn->setMaximumWidth(BTN_PIXMAP_MAX_WIDTH);
 	setCellWidget(currRow, BTN_COLUMN, rowAddBtn);
 	setCellWidget(currRow, SHORTCUT_COLUMN, new QWidget(this));

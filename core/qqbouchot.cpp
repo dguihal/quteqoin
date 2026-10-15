@@ -565,6 +565,15 @@ void QQBouchot::requestFinishedSlot(QNetworkReply *reply)
 
 		switch (reply->request().attribute(QNetworkRequest::User, QQBouchot::UnknownRequest).toInt()) {
 		case QQBouchot::PostRequest: {
+#ifdef QT_DEBUG
+			qDebug() << Q_FUNC_INFO << "Req URL headers" << reply->request().url();
+			qDebug() << Q_FUNC_INFO << "Reply Status Code"
+			         << reply->attribute(QNetworkRequest::HttpStatusCodeAttribute);
+			for (const QByteArray &header : reply->rawHeaderList())
+				qDebug() << Q_FUNC_INFO << "Reply headers" << header << QString(reply->rawHeader(header));
+			qDebug() << Q_FUNC_INFO << "Reply data" << QString::fromUtf8(reply->readAll());
+#endif
+
 			auto xPostId = reply->rawHeader(QByteArray::fromStdString(X_POST_ID_HEADER)).toLower();
 			if (xPostId.length() > 0) {
 				m_hasXPostId = true;
@@ -624,6 +633,9 @@ void QQBouchot::parseBackend(const QByteArray &data, const QString &contentType)
 		if(b.canReadLine())
 		{
 			QString l = b.readLine();
+#ifdef QT_DEBUG
+			qDebug() << Q_FUNC_INFO << l;
+#endif
 			if (l.startsWith("<?xml ") || l.contains(parseBackendRE1)) {
 				qDebug() << Q_FUNC_INFO << "XML found";
 				parseBackendXML(data);

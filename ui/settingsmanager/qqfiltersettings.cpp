@@ -7,10 +7,10 @@ QQFilterSettings::QQFilterSettings(QWidget *parent) :
 {
 	ui->setupUi(this);
 
-	connect(ui->smartUrlCB, SIGNAL(clicked(bool)), this, SLOT(setSmartUrlEnabled(bool)));
-	connect(ui->fullHostUrlRB, SIGNAL(clicked()), this, SLOT(smartUrlMethodChanged()));
-	connect(ui->shortHostUrlRB, SIGNAL(clicked()), this, SLOT(smartUrlMethodChanged()));
-	connect(ui->shorterHostUrlRB, SIGNAL(clicked()), this, SLOT(smartUrlMethodChanged()));
+	connect(ui->smartUrlCB, &QCheckBox::clicked, this, &QQFilterSettings::setSmartUrlEnabled);
+	connect(ui->fullHostUrlRB, &QRadioButton::clicked, this, &QQFilterSettings::smartUrlMethodChanged);
+	connect(ui->shortHostUrlRB, &QRadioButton::clicked, this, &QQFilterSettings::smartUrlMethodChanged);
+	connect(ui->shorterHostUrlRB, &QRadioButton::clicked, this, &QQFilterSettings::smartUrlMethodChanged);
 }
 
 QQFilterSettings::~QQFilterSettings()
