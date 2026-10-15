@@ -407,6 +407,37 @@ private slots:
 		QCoreApplication::sendPostedEvents(nullptr, QEvent::DeferredDelete);
 	}
 
+	void closingWindowWithActivePreview_data()
+	{
+		QTest::addColumn<QString>("contentType");
+		QTest::newRow("image") << QString("image/png");
+		QTest::newRow("video") << QString("video/mp4");
+	}
+
+	void closingWindowWithActivePreview()
+	{
+		QFETCH(QString, contentType);
+		LocalHttpServer server;
+		QVERIFY(server.server.listen(QHostAddress::LocalHost));
+		for(int iteration = 0; iteration < 3; ++iteration)
+		{
+			auto window = std::make_unique<QWidget>();
+			window->resize(400, 300);
+			auto *browser = new TestTextBrowser;
+			browser->setParent(window.get());
+			browser->resize(window->size());
+			auto *overlay = new QQPiniOverlay(window.get());
+			connect(browser, &QQTextBrowser::hideViewers, overlay, &QQPiniOverlay::clearOverview);
+			window->show();
+			browser->onAnchorHighlighted(QUrl("duck://test"));
+			overlay->showUrl(QUrl(server.url() + QString("?close=%1").arg(iteration)), contentType);
+			QTest::qWait(20);
+			window->close();
+			window.reset();
+			QCoreApplication::sendPostedEvents(nullptr, QEvent::DeferredDelete);
+		}
+	}
+
 	void lateImageDownloadDoesNotReopenOverlay()
 	{
 		LocalHttpServer server;

@@ -179,6 +179,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
 MainWindow::~MainWindow()
 {
+	for(auto *bouchot : findChildren<QQBouchot *>())
+		disconnect(bouchot, nullptr, this, nullptr);
 	delete m_ui;
 }
 
