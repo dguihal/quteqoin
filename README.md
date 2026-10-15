@@ -45,10 +45,10 @@ protection rules. Use `-DBUILD_TESTING=OFF` to build without Qt Test.
 
 Current features includes :
 
- * Multi tabbed / multi threaded pinni
- * Full norloge support including shorten, with date (year support), indices, ....
- * Feature complete palmi
- * Totoz manager
- * Graphical configuration tool for easily managing your quteqoin
- * Duck hunting
- * Support for X-Post-Id, tsv & xml backends, url prettifer
+* Multi tabbed / multi threaded pinni
+* Full norloge support including shorten, with date (year support), indices, ....
+* Feature complete palmi
+* Totoz manager
+* Graphical configuration tool for easily managing your quteqoin
+* Duck hunting
+* Support for X-Post-Id, tsv & xml backends, url prettifer
