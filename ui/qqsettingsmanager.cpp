@@ -34,7 +34,7 @@ QQSettingsManager::QQSettingsManager(QWidget *parent) :
 	QQSettings settings;
 
 	QLayout *layout = new QVBoxLayout();
-	layout->setMargin(0);
+	layout->setContentsMargins(0, 0, 0, 0);
 	listSettingsTheme->setSortingEnabled(false);
 	listSettingsTheme->setIconSize(QSize(32, 32));
 
@@ -102,8 +102,8 @@ QQSettingsManager::QQSettingsManager(QWidget *parent) :
 	layout->addWidget(m_networkSettingsW);
 
 	listSettingsTheme->setMaximumWidth(listSettingsTheme->sizeHintForColumn(0) + 15);
-	connect(listSettingsTheme, SIGNAL(itemSelectionChanged()),
-	        this, SLOT(configItemChanged()));
+	connect(listSettingsTheme, &QListWidget::itemSelectionChanged,
+	        this, &QQSettingsManager::configItemChanged);
 
 	ui->settingsSelWidget->setLayout(layout);
 	listSettingsTheme->setCurrentRow(0);
@@ -255,7 +255,7 @@ void QQSettingsManager::initFilterSettings(const QQSettings &settings)
 	bool enableUrlTransformer = settings.value(SETTINGS_FILTER_SMART_URL_TRANSFORMER,  DEFAULT_FILTER_SMART_URL_TRANSFORMER).toBool();
 	m_filterSettingsW->setSmartUrlEnabled(enableUrlTransformer);
 
-	QuteQoin::QQSmartUrlFilerTransformType smartUrlTransformerType = static_cast<QuteQoin::QQSmartUrlFilerTransformType>(settings.value(SETTINGS_FILTER_SMART_URL_TRANSFORM_TYPE,  DEFAULT_FILTER_SMART_URL_TRANSFORM_TYPE).toInt());
+	auto smartUrlTransformerType = static_cast<QuteQoin::QQSmartUrlFilerTransformType>(settings.value(SETTINGS_FILTER_SMART_URL_TRANSFORM_TYPE,  DEFAULT_FILTER_SMART_URL_TRANSFORM_TYPE).toInt());
 	m_filterSettingsW->setSmartUrlTransformerType(smartUrlTransformerType);
 }
 
@@ -334,10 +334,10 @@ void QQSettingsManager::initHuntSettings(const QQSettings &settings)
 {
 	//QQSettings settings;
 
-	QuteQoin::QQHuntMode huntMode = static_cast<QuteQoin::QQHuntMode>(settings.value(SETTINGS_HUNT_MODE, DEFAULT_HUNT_MODE).toInt());
+	auto huntMode = static_cast<QuteQoin::QQHuntMode>(settings.value(SETTINGS_HUNT_MODE, DEFAULT_HUNT_MODE).toInt());
 	m_huntSettingsW->setHuntMode(huntMode);
 
-	QuteQoin::QQSLHuntMode slHuntMode = static_cast<QuteQoin::QQSLHuntMode>(settings.value(SETTINGS_SL_HUNT_MODE, DEFAULT_SL_HUNT_MODE).toInt());
+	auto slHuntMode = static_cast<QuteQoin::QQSLHuntMode>(settings.value(SETTINGS_SL_HUNT_MODE, DEFAULT_SL_HUNT_MODE).toInt());
 	m_huntSettingsW->setSlHuntMode(slHuntMode);
 
 	bool silentHuntEnable = settings.value(SETTINGS_HUNT_SILENT_ENABLED, DEFAULT_HUNT_SILENT_ENABLED).toBool();

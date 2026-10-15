@@ -9,7 +9,7 @@ QQDockPalmi::QQDockPalmi(QWidget *parent) :
 	QDockWidget(parent),
 	m_wasVisible(true),
 	m_centralW(new QWidget(this)),
-	m_palmiW(NULL)
+	m_palmiW(nullptr)
 {
 	setObjectName(DOCKPALMI_WINDOW_NAME);
 	setWindowTitle(tr(DOCKPALMI_WINDOW_NAME));
@@ -30,10 +30,10 @@ QQDockPalmi::~QQDockPalmi()
 
 void QQDockPalmi::takePalmiWidget(QWidget *p)
 {
-	if(p == NULL)
+	if(p == nullptr)
 		return;
 
-	setWidget(NULL);
+	setWidget(nullptr);
 
 	setWidget(p);
 	p->show();
@@ -42,7 +42,7 @@ void QQDockPalmi::takePalmiWidget(QWidget *p)
 
 void QQDockPalmi::releasePalmiWidget()
 {
-	setWidget(NULL);
+	setWidget(nullptr);
 }
 
 

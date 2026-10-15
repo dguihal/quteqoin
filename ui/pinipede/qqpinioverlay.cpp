@@ -1,15 +1,14 @@
 #include "qqpinioverlay.h"
 
 #include <QGraphicsVideoItem>
-#include <QMediaPlaylist>
 #include <QMediaPlayer>
 
 #include "core/qqsettings.h"
 #include "core/qqwebdownloader.h"
-#include "ui/qqtotozviewer.h"
 #include "ui/pinipede/qqduckpixmapitem.h"
-#include "ui/pinipede/qqwebimageviewer.h"
+#include "ui/qqtotozviewer.h"
 
+#include <QAudioOutput>
 #include <QCoreApplication>
 #include <QGraphicsProxyWidget>
 #include <QResizeEvent>
@@ -88,15 +87,13 @@ private:
 class VideoPlayer : public OverlayPlayer
 {
 public:
-	explicit VideoPlayer(QGraphicsVideoItem *item, QMediaPlayer *player, QMediaPlaylist *mediaList) :
-	    m_gObj(item), m_player(player), m_media(mediaList) {}
+	explicit VideoPlayer(QGraphicsVideoItem *item, QMediaPlayer *player) :
+	    m_gObj(item), m_player(player) {}
 
 	virtual ~VideoPlayer()
 	{
 		if(m_player != nullptr)
 			m_player->deleteLater();
-		if(m_media != nullptr)
-			m_media->deleteLater();
 		if(m_gObj != nullptr)
 		{
 			m_gObj->hide();
@@ -109,7 +106,7 @@ public:
 	void hide() override { m_gObj->hide(); }
 	void stop() { m_player->stop(); }
 
-	QString errorString() { return m_media->errorString(); }
+	QString errorString() { return m_player->errorString(); }
 
 private:
 	QGraphicsVideoItem *m_gObj;
@@ -219,7 +216,7 @@ void QQPiniOverlay::dlReady(QUrl &url)
 /// \brief QQPiniOverlay::doVideoStateChanged
 /// \param newState
 ///
-void QQPiniOverlay::doVideoStateChanged(QMediaPlayer::State newState)
+void QQPiniOverlay::doVideoStateChanged(QMediaPlayer::PlaybackState newState)
 {
 	if(newState == QMediaPlayer::PlayingState)
 	{
@@ -237,53 +234,24 @@ void QQPiniOverlay::doVideoStateChanged(QMediaPlayer::State newState)
 /// \brief QQPiniOverlay::handleVideoError
 /// \param error
 ///
-void QQPiniOverlay::handleVideoError(QMediaPlayer::Error error)
+void QQPiniOverlay::handleVideoError(QMediaPlayer::Error error, const QString &errorString)
 {
 	if(error != QMediaPlayer::NoError)
 	{
 		qWarning() << Q_FUNC_INFO << error;
 
-		QString errString;
-		if(m_pendingPlayer != nullptr && m_pendingPlayer->playerType() == OverlayPlayer::TypeVideoPlayer)
-		{
-			errString = (dynamic_cast<VideoPlayer *>(m_pendingPlayer))->errorString();
+		if (m_pendingPlayer != nullptr
+			&& m_pendingPlayer->playerType() == OverlayPlayer::TypeVideoPlayer) {
 			dynamic_cast<VideoPlayer *>(m_pendingPlayer)->stop();
 			delete m_pendingPlayer;
-		}
-		else if(m_currentPlayer != nullptr && m_currentPlayer->playerType() == OverlayPlayer::TypeVideoPlayer)
-		{
-			errString = (dynamic_cast<VideoPlayer *>(m_currentPlayer))->errorString();
+		} else if (m_currentPlayer != nullptr
+				   && m_currentPlayer->playerType() == OverlayPlayer::TypeVideoPlayer) {
 			dynamic_cast<VideoPlayer *>(m_currentPlayer)->stop();
 			delete m_currentPlayer;
 		}
 
-		if(errString.length() == 0)
-			switch(error)
-			{
-			case QMediaPlayer::ResourceError:
-				errString = "Resource Error";
-				break;
-			case QMediaPlayer::FormatError:
-				errString = "Format Error";
-				break;
-			case QMediaPlayer::NetworkError:
-				errString = "Network Error";
-				break;
-			case QMediaPlayer::AccessDeniedError:
-				errString = "Access Denied Error";
-				break;
-			case QMediaPlayer::ServiceMissingError:
-				errString = "Service Missing Error";
-				break;
-			case QMediaPlayer::MediaIsPlaylist:
-				errString = "Media Is Playlist Error";
-				break;
-			default:
-				errString = QString("Unknown Error %1").arg(error);
-			}
-
 		auto v = new QQImageViewer();
-		v->setText(QString("Error playing media : %1").arg(errString));
+		v->setText(QString("Error playing media : %1").arg(errorString));
 		auto gpw = scene()->addWidget(v, Qt::Widget);
 		moveToMousePos(gpw, v->size());
 
@@ -323,7 +291,7 @@ void QQPiniOverlay::killDuck(bool forceSilent)
 	auto shotPoint = mapFromGlobal(QCursor::pos());
 	auto shotPointF(shotPoint);
 
-	foreach(QQDuckPixmapItem *duck, m_duckList)
+	for(QQDuckPixmapItem *duck : m_duckList)
 	{
 		auto itemPos = duck->pos();
 		auto itemRect = duck->boundingRect();
@@ -458,34 +426,27 @@ void QQPiniOverlay::showVideo(const QUrl &url)
 	i->setSize(s);
 	scene()->addItem(i);
 
-	auto player = new QMediaPlayer(this, QMediaPlayer::VideoSurface);
-	player->setAudioRole(QAudio::VideoRole);
-	qInfo() << "Supported audio roles:";
+	auto player = new QMediaPlayer(this);
 
-	auto audioRoles = player->supportedAudioRoles();
-	for (const auto &role : qAsConst(audioRoles))
-		qInfo() << "    " << role;
-	player->setMuted(settings.value(SETTINGS_GENERAL_STEALTH_MODE, DEFAULT_GENERAL_STEALTH_MODE).toBool());
+	auto audioOutput = new QAudioOutput(player);
+	audioOutput->setMuted(settings.value(SETTINGS_GENERAL_STEALTH_MODE, DEFAULT_GENERAL_STEALTH_MODE).toBool());
+	player->setAudioOutput(audioOutput);
 
-	auto l = new QMediaPlaylist();
-	l->addMedia(url);
-	l->setPlaybackMode(QMediaPlaylist::Loop);
-
-	player->setVideoOutput(i);
+	player->setLoops(QMediaPlayer::Infinite);
 
 	moveToMousePos(i, s);
 
-	m_pendingPlayer = new VideoPlayer(i, player, l);
+	player->setVideoOutput(i);
+	player->setSource(url);
+
+	m_pendingPlayer = new VideoPlayer(i, player);
 	if(m_currentPlayer != nullptr)
 		m_currentPlayer->hide();
 
-	connect(player, SIGNAL(stateChanged(QMediaPlayer::State)),
-	        this, SLOT(doVideoStateChanged(QMediaPlayer::State)));
+	connect(player, &QMediaPlayer::playbackStateChanged, this, &QQPiniOverlay::doVideoStateChanged);
 
-	connect(player, SIGNAL(error(QMediaPlayer::Error)),
-	        this, SLOT(handleVideoError(QMediaPlayer::Error)));
+	connect(player, &QMediaPlayer::errorOccurred, this, &QQPiniOverlay::handleVideoError);
 
-	player->setPlaylist(l);
 	player->play();
 }
 

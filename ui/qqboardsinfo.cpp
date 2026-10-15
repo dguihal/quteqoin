@@ -8,6 +8,7 @@
 #include <QScrollArea>
 #include <QSizePolicy>
 #include <QSpacerItem>
+#include <utility>
 
 #define BOARDSINFO_OBJECT_NAME "QQBoardInfo"
 
@@ -51,12 +52,12 @@ void QQBoardsInfo::updateBoardList()
 	policy.setHorizontalStretch(0);
 	policy.setVerticalStretch(0);
 
-	QFrame *line = NULL;
+	QFrame *line = nullptr;
 	QHash<QString, QPointer<QQBoardInfo> > newhashbInfo;
 	bool first = true;
-	foreach(QQBouchot *board, listBouchots)
+	for (QQBouchot *board : std::as_const(listBouchots))
 	{
-		QQBoardInfo *boardInfo = NULL;
+		QQBoardInfo *boardInfo = nullptr;
 		QPointer<QQBoardInfo> bInfoPtr = m_hashbInfo.value(board->name());
 		if(! bInfoPtr.isNull())
 		{
@@ -88,7 +89,7 @@ void QQBoardsInfo::updateBoardList()
 	boardsInfoWidget->setLayout(boardsInfoWidgetLayout);
 
 	QWidget *oldWidget = m_ui->scrollArea->takeWidget();
-	if(oldWidget != NULL)
+	if(oldWidget != nullptr)
 		delete oldWidget;
 
 	m_hashbInfo = newhashbInfo;

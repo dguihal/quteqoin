@@ -2,7 +2,6 @@
 #define QQNORLOGE_H
 
 #include <QDate>
-#include <QRegExp>
 #include <QString>
 
 class QQNorloge

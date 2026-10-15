@@ -1,9 +1,9 @@
 #ifndef QQTOTOZDOWNLOADER_H
 #define QQTOTOZDOWNLOADER_H
 
-#include "core/qqnetworkaccessor.h"
-#include "core/qqtotoz.h"
-#include "core/qqsettings.h"
+#include "qqnetworkaccessor.h"
+//#include "qqtotoz.h"
+//#include "qqsettings.h"
 
 #include <QHash>
 #include <QObject>

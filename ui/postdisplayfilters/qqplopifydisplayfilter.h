@@ -1,7 +1,7 @@
 #ifndef QQPLOPIFYDISPLAYFILTER_H
 #define QQPLOPIFYDISPLAYFILTER_H
 
-#include "ui/qqpostdisplayfilter.h"
+#include "core/qqpostdisplayfilter.h"
 
 class QQPlopifyDisplayFilter : public QQPostDisplayFilter
 {

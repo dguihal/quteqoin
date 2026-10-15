@@ -8,6 +8,7 @@
 *.so
 *.dll
 *.dylib
+.qt/
 # Qt-es
 /.qmake.cache
 /.qmake.stash
@@ -26,8 +27,16 @@ Makefile*
 #QtCtreator Qml
 *.qmlproject.user
 *.qmlproject.user.*
+.qtc_clangd/
 .vscode/
 .kde4/
 quteqoin
 quteqoin.kdev4
 build/
+.qtc_clangd/
+
+# CMake related
+CMakeCache.txt
+cmake_install.cmake
+CMakeFiles/
+CMakeLists.txt.user

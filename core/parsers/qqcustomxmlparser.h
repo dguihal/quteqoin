@@ -3,7 +3,7 @@
 
 #include <QStack>
 
-#include "core/parsers/qqbackendparser.h"
+#include "qqbackendparser.h"
 #include "core/qqbouchot.h"
 
 class QQCustomXmlParser : public QQBackendParser

@@ -7,7 +7,9 @@
 #include <QtDebug>
 #include <QList>
 #include <QPointer>
+#include <QRegularExpression>
 #include <QString>
+#include <QStringBuilder>
 
 class QQNorlogeRef : public QQNorloge
 {
@@ -22,7 +24,7 @@ public:
 	// 2 - Date
 	// 3 - Time + Subtime
 	// 4 - Tribune
-	static QRegExp norlogeRegexp()
+	static QRegularExpression norlogeRegexp()
 	{
 		return norlogeRegexp(QString::fromLatin1("[A-Za-z0-9_]+"));
 	}
@@ -33,14 +35,18 @@ public:
 	// 2 - Date
 	// 3 - Time + Subtime
 	// 4 - Tribune
-	static QRegExp norlogeRegexp(const QString & bouchot)
+	static QRegularExpression norlogeRegexp(const QString & bouchot)
 	{
-		return QRegExp(QString::fromLatin1("(((?:[0-9]+[/-])?(?:1[0-2]|0[1-9])[/-](?:3[0-1]|[1-2][0-9]|0[1-9])[#T])?" //date
-		                                 "((?:2[0-3]|[0-1][0-9]):(?:[0-5][0-9])(?::[0-5][0-9])?" //time
-		                                 "(?:[¹²³]|[:\\^][1-9]|[:\\^][1-9][0-9])?))" //subtime
-		                                 "(@") + bouchot + QString::fromLatin1(")?"), //tribune
-		               Qt::CaseSensitive,
-		               QRegExp::RegExp);
+		return QRegularExpression(QString::fromLatin1("("
+		                                               "("
+		                                                "(?:[0-9]+[\\/-])?" /*Y*/ "(?:1[0-2]|0[1-9])[\\/-]" /*M*/ "(?:3[0-1]|[1-2][0-9]|0[1-9])" /*D*/ "[#T]"
+		                                               ")?" // End date capture group #2
+		                                               "("
+		                                                 "(?:2[0-3]|[0-1][0-9]):" /*h*/ "(?:[0-5][0-9])" /*m*/ "(?::[0-5][0-9])?" /*s*/ "(?:[¹²³]|[:\\^][1-9]|[:\\^][1-9][0-9])?" //subtime
+		                                               ")" // End time capture group #3
+		                                              ")" // End datetime capture group #1
+		                                              "(@") % bouchot % QString::fromLatin1(")?"), //tribune  #4
+		               QRegularExpression::NoPatternOption);
 	}
 
 	QString getOrigNRef() const { return m_origNRef; }

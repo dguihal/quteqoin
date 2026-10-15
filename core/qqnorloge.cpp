@@ -25,11 +25,7 @@ QQNorloge::QQNorloge(QString bouchot, const QString& dateh) :
     m_norlogeIndex(0),
     m_uniqueMinute(false)
 {
-#if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
 	auto indexSpit = dateh.split("^", Qt::SkipEmptyParts);
-#else
-	auto indexSpit = dateh.split("^", QString::SkipEmptyParts);
-#endif
 	if(indexSpit.size() > 1)
 		m_norlogeIndex = indexSpit[1].toInt();
 }

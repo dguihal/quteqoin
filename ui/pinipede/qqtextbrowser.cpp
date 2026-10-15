@@ -18,7 +18,6 @@
 #include <QPainter>
 #include <QScrollBar>
 #include <QTextBlock>
-#include <QTextCodec>
 #include <QTextLayout>
 #include <QTextTable>
 #include <QTextTableCell>
@@ -79,7 +78,6 @@ QQTextBrowser::QQTextBrowser(QString groupName, QQPinipede *parent) :
 	verticalScrollBar()->triggerAction(QAbstractSlider::SliderToMaximum);
 
 	setStyleSheet(QString("QTextBrowser { color : black; }"));
-
 }
 
 QQTextBrowser::~QQTextBrowser()
@@ -548,8 +546,7 @@ void QQTextBrowser::contextMenuEvent(QContextMenuEvent * ev)
 
 	QAction * copyLinkLocationAction = nullptr;
 	auto actions = menu->actions();
-	for(auto a: qAsConst(actions))
-	{
+	for (auto a : std::as_const(actions)) {
 		if(a->objectName() == copyLinkActionObjectName)
 		{
 			copyLinkLocationAction = a;
@@ -643,7 +640,7 @@ void QQTextBrowser::contextMenuEvent(QContextMenuEvent * ev)
 /// \brief enterEvent
 /// \param event
 ///
-void QQTextBrowser::enterEvent(QEvent *event)
+void QQTextBrowser::enterEvent(QEnterEvent *event)
 {
 	QTextBrowser::enterEvent(event);
 
@@ -696,7 +693,7 @@ void QQTextBrowser::mouseReleaseEvent(QMouseEvent *event)
 
 	// Marquage des posts comme lus
 	bool needUpdate = false;
-	foreach(QQBouchot *b, QQBouchot::listBouchotsGroup(m_groupName))
+	for (QQBouchot *b : QQBouchot::listBouchotsGroup(m_groupName))
 	{
 		QListIterator<QQPostPtr> pI(b->postsHistory());
 		pI.toBack();

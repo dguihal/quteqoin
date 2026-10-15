@@ -2,7 +2,7 @@
 #define QQSETTINGS_H
 
 #include "qqsettingsparams.h"
-#include "core/qqbouchot.h"
+#include "qqbouchot.h"
 
 #include <QSettings>
 #include <QString>

@@ -1,7 +1,8 @@
 #include "qqnorlogeref.h"
 
-#include "core/qqbouchot.h"
+#include "qqbouchot.h"
 
+#include <QRegularExpression>
 #include <QString>
 #include <QStringList>
 
@@ -27,6 +28,7 @@ QQNorlogeRef::QQNorlogeRef() :
 /// \param post
 /// \param norlogeRef
 ///
+static QRegularExpression nrefDateSplitter(QString::fromLatin1("[/-]")); // clazy:exclude=non-pod-global-static
 QQNorlogeRef::QQNorlogeRef(const QQPost& post, const QString& norlogeRef) :
 	QQNorloge(post.bouchot()->name(), post.norlogeComplete()),
 	m_dstBouchot(QString()),
@@ -39,26 +41,26 @@ QQNorlogeRef::QQNorlogeRef(const QQPost& post, const QString& norlogeRef) :
 	m_isResponse(false),
 	m_refId(QString())
 {
-	QRegExp reg = norlogeRegexp();
 	m_norlogeIndex = 0; //tous les correspondants par défaut
 
-	if(reg.exactMatch(norlogeRef))
-	{
+	auto re = norlogeRegexp();
+	auto match = re.match(norlogeRef);
 
-		QStringList capturedTexts = reg.capturedTexts();
-		QString date = capturedTexts[2];
+	if(match.hasMatch() && match.capturedStart(0) == 0 && match.capturedLength(0) == norlogeRef.length()) // Exact Match
+	{
+		auto date = match.captured(2);
 		if(date.size() > 0)
 		{
-			QStringList dateSplit = date.split(QRegExp(QString::fromLatin1("[/-]")));
+			QStringList dateSplit = date.split(nrefDateSplitter);
 			if(dateSplit.size() > 2)
 				m_dateYearPart = dateSplit.takeFirst();
 
 			m_dateMonthPart = dateSplit.takeFirst();
-			m_dateDayPart = dateSplit.takeFirst().left(2);
+			m_dateDayPart = dateSplit.takeFirst().first(2);
 			m_hasDate = true;
 		}
 
-		QString time = capturedTexts[3];
+		auto time = match.captured(3);
 		QStringList timeSplit = time.split(QChar::fromLatin1(':'));
 		m_dateHourPart = timeSplit.takeFirst();
 		m_dateMinutePart = timeSplit.takeFirst();
@@ -89,7 +91,7 @@ QQNorlogeRef::QQNorlogeRef(const QQPost& post, const QString& norlogeRef) :
 		if(timeSplit.size() > 0)
 			m_norlogeIndex = timeSplit.takeFirst().toInt();
 
-		m_dstBouchot = capturedTexts[4];
+		m_dstBouchot = match.captured(4);;
 		//supression du @ initial
 		m_dstBouchot.remove(QChar::fromLatin1('@'));
 	}

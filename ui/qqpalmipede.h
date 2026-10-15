@@ -54,7 +54,7 @@ private:
 	QString m_windowTitle;
 
 private slots:
-	void blamPafActivated(const QString & text);
+	void blamPafActivated(int index);
 	void bouchotSelectorActivated(int index);
 	void postPushButtonClicked();
 };

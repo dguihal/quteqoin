@@ -35,6 +35,7 @@ public slots:
 	void totozSearchFinished();
 	void totozSearchCanceled();
 	void totozSearchEnabled(bool enabled);
+	void totozBookmarkDo(QString anchor, QQTotoz::TotozBookmarkAction action);
 
 	static QStringList bookmarkedTotozIds();
 	static void setBookmarkedTotozIds(QStringList newList);
@@ -50,9 +51,8 @@ protected slots:
 	void emojiSelected();
 	void handleSearchTextChanged(QString text);
 	void searchTotoz();
-	void totozBookmarkDo(QString anchor, QQTotoz::TotozBookmarkAction action);
 
-private:
+	private:
 	void updateTotozViewer();
 	void updateEmojiViewer(const QList<QQEmojiDef> &emojis);
 	void updateEmojiViewer(const QList<QQEmojiCat> &emojis);

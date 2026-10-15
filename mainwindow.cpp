@@ -22,6 +22,7 @@
 #include <QMenu>
 #include <QSizePolicy>
 #include <QSpacerItem>
+#include <QStandardPaths>
 #include <QToolButton>
 
 #ifdef QML_PALMI
@@ -62,7 +63,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	connect(m_dockPalmi, &QQDockPalmi::visibilityChanged, this, &MainWindow::doPalmiVisibilityChanged);
 
 	m_actionDockPalmi = m_dockPalmi->toggleViewAction();
-	m_actionDockPalmi->setShortcut(Qt::ControlModifier + Qt::Key_P);
+	m_actionDockPalmi->setShortcut(Qt::ControlModifier | Qt::Key_P);
 
 	// Setup du totoz manager
 	m_totozManager = new QQTotozManager(this);
@@ -77,14 +78,14 @@ MainWindow::MainWindow(QWidget *parent) :
 	addDockWidget(Qt::RightDockWidgetArea, m_totozManager, Qt::Vertical);
 
 	QAction *actionTotozManager = m_totozManager->toggleViewAction();
-	actionTotozManager->setShortcut(Qt::ControlModifier + Qt::Key_T);
+	actionTotozManager->setShortcut(Qt::ControlModifier | Qt::Key_T);
 
 	// Setup du board info
 	m_boardsInfo = new QQBoardsInfo(this);
 	addDockWidget(Qt::LeftDockWidgetArea, m_boardsInfo, Qt::Vertical);
 
 	QAction *actionBoardInfo = m_boardsInfo->toggleViewAction();
-	actionBoardInfo->setShortcut(Qt::ControlModifier + Qt::Key_I);
+	actionBoardInfo->setShortcut(Qt::ControlModifier | Qt::Key_I);
 
 	// Setup du bouton d'options
 	auto *cmdToolsBtn = new QQCmdToolButtons(this);
@@ -121,16 +122,12 @@ MainWindow::MainWindow(QWidget *parent) :
 
 	// Action complementaire
 	auto *actionSearch = new QAction(tr("Search pini"), this);
-	actionSearch->setShortcut(Qt::ControlModifier + Qt::Key_F);
+	actionSearch->setShortcut(Qt::ControlModifier | Qt::Key_F);
 	actionSearch->setCheckable(true);
 	connect(actionSearch, &QAction::triggered, m_pSearchW, &QQPiniSearchWidget::setVisible);
 	cmdToolsBtn->addAction(actionSearch);
 
-#if(QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
-	QDir dirData(QStandardPaths::writableLocation(QStandardPaths::DataLocation));
-#else
-	QDir dirData(QDesktopServices::storageLocation(QDesktopServices::DataLocation));
-#endif
+	QDir dirData(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation));
 
 	if(!dirData.exists())
 		dirData.mkpath(dirData.path());
@@ -278,7 +275,7 @@ void MainWindow::changeEvent(QEvent *event)
 
 void MainWindow::closeEvent(QCloseEvent *event)
 {
-	QDir dirData(QStandardPaths::writableLocation(QStandardPaths::DataLocation));
+	QDir dirData(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation));
 
 	if(!dirData.exists())
 		dirData.mkpath(dirData.path());

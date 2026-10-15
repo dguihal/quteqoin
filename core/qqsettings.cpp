@@ -1,6 +1,6 @@
 #include "qqsettings.h"
 
-#include "core/qqbouchot.h"
+#include "qqbouchot.h"
 #include "ui/qqpinipede.h"
 
 #include <QtDebug>
@@ -104,11 +104,7 @@ QList<QQEmojiCat> QQSettings::listEmojis()
 	while (!file.atEnd())
 	{
 		QString line = QString::fromUtf8(file.readLine()).trimmed();
-#if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
 		QStringList fields = line.split("\t", Qt::SkipEmptyParts);
-#else
-		QStringList fields = line.split("\t", QString::SkipEmptyParts);
-#endif
 
 		if(fields.length() == 3)
 		{
@@ -202,13 +198,8 @@ QQBouchot * QQSettings::loadBouchot(const QString &name)
 QStringList QQSettings::listBouchots()
 {
 	QString bouchots = value(SETTINGS_LIST_BOUCHOTS, "").toString();
-#if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
 	return bouchots.split(QChar::fromLatin1(BOUCHOTS_SPLIT_CHAR),
 	                      Qt::SkipEmptyParts);
-#else
-	return bouchots.split(QChar::fromLatin1(BOUCHOTS_SPLIT_CHAR),
-	                      QString::SkipEmptyParts);
-#endif
 }
 
 //////////////////////////////////////////////////////////////
@@ -236,7 +227,7 @@ void QQSettings::setUserPalmiShorcuts(const QList< QPair<QChar, QString> >& user
 	if(userPalmiShortcuts != defaultUserPalmiShortcuts())
 	{
 		QStringList listShortcuts;
-		for(const auto &shortcut : qAsConst(m_userPalmiShortcuts))
+		for (const auto &shortcut : std::as_const(m_userPalmiShortcuts))
 			listShortcuts.append(QString(shortcut.first).append(shortcut.second));
 
 		setValue(SETTINGS_PALMI_SHORCUTS, listShortcuts);

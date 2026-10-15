@@ -1,7 +1,7 @@
 #ifndef QQSETTINGSPARAMS_H
 #define QQSETTINGSPARAMS_H
 
-#include "core/qqtypes.h"
+//#include "qqtypes.h"
 
 #include <QtGlobal>
 
@@ -9,7 +9,7 @@
 #define NOTIF_APP_NAME "QuteQoin"
 
 #ifndef GIT_VERSION
-GIT_VERSION "undefined"
+#define GIT_VERSION "undefined"
 #endif
 
 #define MAX_CACHE_AGE_DAYS 60
@@ -113,10 +113,9 @@ GIT_VERSION "undefined"
 #define SETTINGS_PALMI_DOCKED "palmi_docked"
 #define DEFAULT_PALMI_DOCKED false
 #define SETTINGS_FILE_SHARING_SERVICE "file_sharing_service"
-#define FILE_SHARING_SERVICE_UP_Y_FR (QString::fromUtf8("up.ÿ.fr"))
-#define FILE_SHARING_SERVICE_JIRAFEAU_EUROMUSSELS_EU (QString::fromUtf8("uploads.euromussels.eu"))
-#define DEFAULT_FILE_SHARING_SERVICES (QStringList() << FILE_SHARING_SERVICE_UP_Y_FR << FILE_SHARING_SERVICE_JIRAFEAU_EUROMUSSELS_EU)
-#define DEFAULT_FILE_SHARING_SERVICE FILE_SHARING_SERVICE_JIRAFEAU_EUROMUSSELS_EU
+#define FILE_SHARING_SERVICE_FILE_IO (QString::fromUtf8("file.io"))
+#define DEFAULT_FILE_SHARING_SERVICES (QStringList() << FILE_SHARING_SERVICE_FILE_IO)
+#define DEFAULT_FILE_SHARING_SERVICE FILE_SHARING_SERVICE_FILE_IO
 #define SETTINGS_PALMI_SHORCUTS "palmi_shortcuts"
 #define SETTINGS_PALMI_SHORTCUTS_MIN_KEY Qt::Key_Space
 #define SETTINGS_PALMI_SHORTCUTS_MAX_KEY Qt::Key_AsciiTilde

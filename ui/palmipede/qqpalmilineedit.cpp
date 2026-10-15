@@ -32,14 +32,16 @@ QQPalmiLineEdit::QQPalmiLineEdit(QWidget *parent) :
 	l->setSpacing(0);
 	l->addWidget(m_privLineEdit);
 
-	connect(m_privLineEdit, SIGNAL(returnPressed()), this, SIGNAL(returnPressed()));
-	connect(m_privLineEdit, SIGNAL(textChanged(QString)), this, SLOT(update()));
-	connect(m_privLineEdit, SIGNAL(changeBoard(bool)), this, SIGNAL(changeBoard(bool)));
+	connect(m_privLineEdit, &QQPalmiLineEditInt::returnPressed, this, &QQPalmiLineEdit::returnPressed);
+	connect(m_privLineEdit, &QLineEdit::textChanged, this, qOverload<>(&QQPalmiLineEdit::update));
+	connect(m_privLineEdit, &QQPalmiLineEditInt::changeBoard, this, &QQPalmiLineEdit::changeBoard);
 
-	connect(&m_fPoster, SIGNAL(finished(QString)), m_privLineEdit, SLOT(insertText(QString)));
-	connect(&m_fPoster, SIGNAL(postErr(QString)), this, SLOT(joinFileErr(QString)));
-	connect(&m_fPoster, SIGNAL(uploadProgress(quint32)), this, SLOT(updateUploadProgress(quint32)));
-
+	connect(&m_fPoster, &QQPalmiFilePoster::finished, m_privLineEdit, &QQPalmiLineEditInt::insertText);
+	connect(&m_fPoster, &QQPalmiFilePoster::postErr, this, &QQPalmiLineEdit::joinFileErr);
+	connect(&m_fPoster,
+	        &QQPalmiFilePoster::uploadProgress,
+	        this,
+	        &QQPalmiLineEdit::updateUploadProgress);
 }
 
 //////////////////////////////////////////////////////////////
@@ -100,7 +102,7 @@ void QQPalmiLineEdit::dropEvent(QDropEvent *event)
 	{
 		QUrl url = event->mimeData()->urls().at(0);
 		if (url.isLocalFile())
-			attachFile(url.toLocalFile());
+			attachFileWithName(url.toLocalFile());
 		else
 			m_privLineEdit->insertText(url.toString());
 		event->accept();
@@ -132,7 +134,6 @@ void QQPalmiLineEdit::paintEvent(QPaintEvent *event)
 
 	// Foreground
 	QRect rf = rect;
-#if(QT_VERSION >= QT_VERSION_CHECK(5, 2, 0))
 	int clearBtnWidth = 0;
 	if(palette().window().color().lightness() < 64 && ! m_privLineEdit->text().isEmpty())
 	{
@@ -143,7 +144,6 @@ void QQPalmiLineEdit::paintEvent(QPaintEvent *event)
 
 		rf.setWidth(rf.width() - (clearBtnWidth - 2));
 	}
-#endif
 	rf.setWidth((static_cast<unsigned int>(rf.width()) * m_pctUp) / 100);
 
 	QLinearGradient gradient(0, 0, 0, rect.height());
@@ -161,7 +161,6 @@ void QQPalmiLineEdit::paintEvent(QPaintEvent *event)
 	rectPainter.setOpacity(1);
 	rectPainter.drawRoundedRect(rf, 2, 2);
 
-#if(QT_VERSION >= QT_VERSION_CHECK(5, 2, 0))
 	if(clearBtnWidth > 0)
 	{
 		QRect rf2 = rect;
@@ -174,7 +173,6 @@ void QQPalmiLineEdit::paintEvent(QPaintEvent *event)
 		rectPainter.setOpacity(1);
 		rectPainter.drawRoundedRect(rf2, 2, 2);
 	}
-#endif
 
 	rectPainter.setBrush(Qt::NoBrush);
 	rectPainter.setPen(QPen(m_currBoardcolor.darker(120)));
@@ -186,11 +184,18 @@ void QQPalmiLineEdit::paintEvent(QPaintEvent *event)
 //////////////////////////////////////////////////////////////
 /// \brief QQPalmiLineEdit::attachFile
 ///
-void QQPalmiLineEdit::attachFile(QString fileName)
+void QQPalmiLineEdit::attachFile()
 {
-	if(fileName.isEmpty())
-		fileName = QFileDialog::getOpenFileName(this, tr("Open File"),
-		                                        "", tr("Files (*.*)"));
+	auto fileName = QFileDialog::getOpenFileName(this, tr("Open File"),
+	                                        "", tr("Files (*.*)"));
+	attachFileWithName(fileName);
+}
+
+//////////////////////////////////////////////////////////////
+/// \brief QQPalmiLineEdit::attachFile
+///
+void QQPalmiLineEdit::attachFileWithName(QString fileName)
+{
 	if(QFile::exists(fileName))
 		m_fPoster.postFile(fileName);
 }

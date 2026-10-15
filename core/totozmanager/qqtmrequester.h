@@ -1,7 +1,7 @@
 #ifndef QQTMREQUESTER_H
 #define QQTMREQUESTER_H
 
-#include "core/qqnetworkaccessor.h"
+#include "../qqnetworkaccessor.h"
 
 class QNetworkReply;
 class QQSettings;
@@ -30,9 +30,6 @@ signals:
 
 protected:
 	void searchTotoz(const QString & key, int offset);
-
-protected slots:
-	void parsingFinished();
 
 private:
 	QQTMXmlParser * m_xmlParser;

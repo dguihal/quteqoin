@@ -1,8 +1,9 @@
 #include "qqtotoz.h"
-#include "core/qqsettingsparams.h"
+#include "qqsettingsparams.h"
 
 #include <QtDebug>
 #include <QBuffer>
+#include <QStandardPaths>
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
 
@@ -37,11 +38,7 @@ bool QQTotoz::cacheExists()
 
 	//Invalidation systematique au bout de 60j
 	QFileInfo info(file);
-#if(QT_VERSION >= QT_VERSION_CHECK(5, 10, 0))
 	QDateTime dateFile = info.birthTime();
-#else
-	QDateTime dateFile = info.created();
-#endif
 	if(dateFile.daysTo(QDateTime::currentDateTime()) > MAX_CACHE_AGE_DAYS)
 	{
 		file.remove();
@@ -65,11 +62,7 @@ bool QQTotoz::isCacheExpired()
 
 QString QQTotoz::getPath(const QString& id)
 {
-#if(QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
 	QDir dirCache(QStandardPaths::writableLocation(QStandardPaths::CacheLocation));
-#else
-	QDir dirCache(QDesktopServices::storageLocation(QDesktopServices::CacheLocation));
-#endif
 
 	if(! dirCache.exists())
 		dirCache.mkpath(dirCache.path());
@@ -176,7 +169,12 @@ void QQTotoz::save()
 {
 	//qDebug() << "QQTotoz::save id: " << m_id << ", path:" << getPath(m_id);
 	QFile file(getPath(m_id));
-	file.open(QIODevice::WriteOnly);
+	if (!file.open(QIODevice::WriteOnly)) {
+		qCritical() << "Error opening file " << file.fileName()
+								<< "for writing : " << file.errorString();
+		file.close();
+		return;
+	}
 
 	QBuffer buffer;
 	buffer.open(QIODevice::WriteOnly);

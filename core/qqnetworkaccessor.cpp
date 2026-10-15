@@ -1,28 +1,23 @@
 #include "qqnetworkaccessor.h"
 #include "ui/qqproxyauthdialog.h"
 
-#include <core/qqsettings.h>
+#include "qqsettings.h"
 
-#include <QtDebug>
 #include <QApplication>
 #include <QAuthenticator>
 #include <QNetworkCookie>
 #include <QNetworkCookieJar>
 #include <QNetworkProxyFactory>
+#include <QTimeZone>
 #include <QTimer>
+#include <QtDebug>
 
 constexpr int NETWORK_REQUEST_TIMEOUT_MS = 60000;
 
 QQNetworkAccessor::QQNetworkAccessor(QObject *parent) :
     QObject(parent)
 {
-	m_qnam = new QNetworkAccessManager(this);
-
-	connect(m_qnam, SIGNAL(finished(QNetworkReply*)),
-	        this, SLOT(requestFinishedSlot(QNetworkReply*)));
-
-	connect(m_qnam, SIGNAL(proxyAuthenticationRequired(QNetworkProxy,QAuthenticator*)),
-	        this, SLOT(onProxyAuthenticationRequired(QNetworkProxy,QAuthenticator*)));
+    clearNetworkBackend();
 }
 
 void QQNetworkAccessor::updateProxySettings()
@@ -128,25 +123,25 @@ int QQNetworkAccessor::name_to_month(QByteArray month_str)
 QDateTime QQNetworkAccessor::parseRC822(const QString& string)
 {
 	auto pos = string.indexOf(',') + 1;
-	auto minString = string.rightRef(string.length() - pos);
-#if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
-	auto fields = minString.string()->split(" ", Qt::SkipEmptyParts);
-#else
-	auto fields = minString.string()->split(" ", QString::SkipEmptyParts);
-#endif
+	auto minString = string.right(string.length() - pos);
+	auto fields = minString.split(" ", Qt::SkipEmptyParts);
 	QDate date(fields[2].toInt(), name_to_month(fields[1].toLatin1()), fields[0].toInt());
 	auto time = QTime::fromString(fields[3], "hh:mm:ss");
 	if(fields[4].startsWith('+'))
 	{
-		auto offset = fields[4].rightRef(4);
-		time = time.addSecs(offset.left(2).toInt() * 3600 + offset.right(2).toInt() * 60);
+		auto offset = QStringView{fields[4]}.right(4);
+	    time = time.addSecs(offset.first(2).toInt() * 3600 + offset.right(2).toInt() * 60);
 	}
 	else if(fields[4].startsWith('-'))
 	{
-		auto offset = fields[4].rightRef(4);
-		time = time.addSecs(0 - (offset.left(2).toInt() * 3600 + offset.right(2).toInt() * 60));
+	    auto offset = QStringView{fields[4]}.right(4);
+        time = time.addSecs(0 - (offset.first(2).toInt() * 3600 + offset.right(2).toInt() * 60));
 	}
+#if QT_VERSION < QT_VERSION_CHECK(6, 8, 0)
 	QDateTime datetime(date, time, Qt::UTC);
+#else
+	QDateTime datetime(date, time, QTimeZone(QTimeZone::UTC));
+#endif
 	return datetime;
 }
 
@@ -156,10 +151,10 @@ QNetworkReply * QQNetworkAccessor::httpGet(const QNetworkRequest &request)
 	replyTimer->setSingleShot(true);
 
 	auto reply = m_qnam->get(request);
-	connect(replyTimer, SIGNAL(timeout()), this, SLOT(onRequestTimeout()));
-	connect(reply, SIGNAL(finished()), replyTimer, SLOT(stop()));
-	connect(reply, SIGNAL(downloadProgress(qint64,qint64)), replyTimer, SLOT(start()));
-	connect(reply, SIGNAL(destroyed(QObject*)), this, SLOT(onRemoveTimer(QObject*)));
+	connect(replyTimer, &QTimer::timeout, this, &QQNetworkAccessor::onRequestTimeout);
+	connect(reply, &QNetworkReply::finished, replyTimer, &QTimer::stop);
+	connect(reply, &QNetworkReply::downloadProgress, replyTimer, qOverload<>(&QTimer::start));
+	connect(reply, &QObject::destroyed, this, &QQNetworkAccessor::onRemoveTimer);
 	replyTimer->start(NETWORK_REQUEST_TIMEOUT_MS);
 	m_replyTimers.insert(reply, replyTimer);
 
@@ -199,7 +194,7 @@ void QQNetworkAccessor::clearCookiesForUrl(const QUrl &url)
 	if(cj == nullptr)
 		return;
 
-	foreach (QNetworkCookie c, cj->cookiesForUrl(url)) {
+	for (const QNetworkCookie &c : cj->cookiesForUrl(url)) {
 		cj->deleteCookie(c);
 	}
 }
@@ -209,15 +204,19 @@ void QQNetworkAccessor::clearCookiesForUrl(const QUrl &url)
  */
 void QQNetworkAccessor::clearNetworkBackend()
 {
-	m_qnam->deleteLater();
+    if (! m_qnam.isNull())
+        m_qnam->deleteLater();
 
 	m_qnam = new QNetworkAccessManager(this);
 
-	connect(m_qnam, SIGNAL(finished(QNetworkReply*)),
-	        this, SLOT(requestFinishedSlot(QNetworkReply*)));
+	m_qnam->setRedirectPolicy(QNetworkRequest::ManualRedirectPolicy);
 
-	connect(m_qnam, SIGNAL(proxyAuthenticationRequired(QNetworkProxy,QAuthenticator*)),
-	        this, SLOT(onProxyAuthenticationRequired(QNetworkProxy,QAuthenticator*)));
+	connect(m_qnam, &QNetworkAccessManager::finished, this, &QQNetworkAccessor::requestFinishedSlot);
+
+	connect(m_qnam,
+	        &QNetworkAccessManager::proxyAuthenticationRequired,
+	        this,
+	        &QQNetworkAccessor::onProxyAuthenticationRequired);
 }
 
 /**
@@ -240,10 +239,8 @@ QMutex QQNetworkAccessor::m_proxyPopupMutex;
 QString QQNetworkAccessor::m_proxyUser;
 QString QQNetworkAccessor::m_proxyPasswd;
 
-void QQNetworkAccessor::onProxyAuthenticationRequired(const QNetworkProxy &proxy, QAuthenticator *authenticator)
+void QQNetworkAccessor::onProxyAuthenticationRequired(const QNetworkProxy &/*proxy*/, QAuthenticator *authenticator)
 {
-	Q_UNUSED(proxy)
-
 	//Premier echec
 	if(QQNetworkAccessor::m_proxyUser.size() != 0 &&
 	        authenticator->user() != QQNetworkAccessor::m_proxyUser)
@@ -286,8 +283,7 @@ void QQNetworkAccessor::onRemoveTimer(QObject *obj)
 void QQNetworkAccessor::onRequestTimeout()
 {
 	auto replyTimersKeys = m_replyTimers.keys();
-	for(auto reply : qAsConst(replyTimersKeys))
-	{
+	for (auto reply : std::as_const(replyTimersKeys)) {
 		auto timer = m_replyTimers.value(reply);
 		if(! timer->isActive())
 		{
@@ -299,5 +295,3 @@ void QQNetworkAccessor::onRequestTimeout()
 		}
 	}
 }
-
-

@@ -41,8 +41,8 @@ void QQTotozViewer::displayContextMenu(QPoint &pos)
 	QString actSendPalmiStr("Send to palmi");
 	menu.addAction(actSendPalmiStr);
 
-	QAction *actionTriggered = NULL;
-	if( (actionTriggered = menu.exec(pos)) != NULL )
+	QAction *actionTriggered = nullptr;
+	if( (actionTriggered = menu.exec(pos)) != nullptr )
 	{
 		QString text = actionTriggered->text();
 		if(text == actBookmAddStr)
@@ -88,7 +88,7 @@ void QQTotozViewer::contextMenuEvent(QContextMenuEvent *ev)
 	displayContextMenu(pos);
 }
 
-void QQTotozViewer::enterEvent(QEvent *event)
+void QQTotozViewer::enterEvent(QEnterEvent *event)
 {
 	QQImageViewer::enterEvent(event);
 	m_mousePressOK = false;
@@ -122,12 +122,12 @@ QString QQTotozViewer::getAnchor()
 void QQTotozViewer::handleInvalidTotozData()
 {
 	QQTotoz::invalidateCache(m_totozId);
-	if(m_downloader != NULL && ! m_hasfailed)
+	if(m_downloader != nullptr && ! m_hasfailed)
 	{
 		m_hasfailed = true; // to prevent infinite loops
 
-		connect(m_downloader, SIGNAL(fetchTotozFinished(QString&,bool,QString&)),
-		        this, SLOT(totozAvailable(QString&,bool,QString&)));
+		connect(m_downloader, &QQTotozDownloader::fetchTotozFinished,
+		        this, &QQTotozViewer::totozAvailable);
 		m_downloader->fetchTotoz(m_totozId);
 	}
 	else
@@ -139,7 +139,7 @@ void QQTotozViewer::init(const QString &totozId)
 	m_mousePressOK = false;
 	m_bookmarkAddEnabled = false;
 	m_bookmarkRemEnabled = false;
-	m_downloader = NULL;
+	m_downloader = nullptr;
 
 	setTotozId(totozId);
 }

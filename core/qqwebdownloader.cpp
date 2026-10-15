@@ -4,6 +4,7 @@
 #include <QDir>
 #include <QDesktopServices>
 #include <QNetworkDiskCache>
+#include <QStandardPaths>
 
 constexpr char INITIAL_URL_PROPERTY[] = "INITIAL_URL";
 constexpr unsigned long MAX_CACHE_SIZE_MB = 100;

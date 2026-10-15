@@ -1,7 +1,7 @@
 #ifndef QQWEBDOWNLOADER_H
 #define QQWEBDOWNLOADER_H
 
-#include "core/qqnetworkaccessor.h"
+#include "qqnetworkaccessor.h"
 
 #include <QUrl>
 

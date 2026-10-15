@@ -15,21 +15,23 @@
 #include <QGraphicsGridLayout>
 #include <QGraphicsView>
 #include <QGraphicsWidget>
+#include <QStandardPaths>
 #include <QVBoxLayout>
 #include <QWidget>
+#include <utility>
 
-#define TAB_TOTOZ_INDEX 0
-#define TAB_EMOJI_INDEX 1
+constexpr int TAB_TOTOZ_INDEX = 0;
+constexpr int TAB_EMOJI_INDEX = 1;
 
-#define MIN_TOTOZ_SEARCH_LEN 3
-#define REMOTE_SEARCH_LATENCY_MS 500
+constexpr int MIN_TOTOZ_SEARCH_LEN = 3;
+constexpr int REMOTE_SEARCH_LATENCY_MS = 500;
 
-#define TOTOZMANAGER_OBJECT_NAME "QQTotozManager"
+constexpr char TOTOZMANAGER_OBJECT_NAME[] = "QQTotozManager";
 
-#define TOTOZMANAGER_TITLE	"Totoz Manager"
+constexpr char TOTOZMANAGER_TITLE[] = "Totoz Manager";
 
-#define EMOJI_SYMBOL "SYMBOL"
-#define EMOJI_IS_CAT "IS_CAT"
+constexpr char EMOJI_SYMBOL[] = "SYMBOL";
+constexpr char EMOJI_IS_CAT[] = "IS_CAT";
 
 QQTotozManager::QQTotozManager(QWidget *parent) :
     QDockWidget(TOTOZMANAGER_TITLE, parent),
@@ -44,13 +46,12 @@ QQTotozManager::QQTotozManager(QWidget *parent) :
 
 	m_searchQueryTemperer->setSingleShot(true);
 	m_searchQueryTemperer->setInterval(REMOTE_SEARCH_LATENCY_MS);
-	connect(m_searchQueryTemperer, SIGNAL(timeout()),
-	        this, SLOT(searchTotoz()));
+	connect(m_searchQueryTemperer, &QTimer::timeout, this, &QQTotozManager::searchTotoz);
 
 	QQSettings settings;
 
 	m_requester = new QQTMRequester(this);
-	connect(m_requester, SIGNAL(requestFinished()), this, SLOT(totozSearchFinished()));
+	connect(m_requester, &QQTMRequester::requestFinished, this, &QQTotozManager::totozSearchFinished);
 
 	m_totozDownloader = new QQTotozDownloader(this);
 
@@ -64,15 +65,13 @@ QQTotozManager::QQTotozManager(QWidget *parent) :
 
 	m_ui->cancelSearchButton->hide();
 	m_ui->cancelSearchButton->setIcon(style()->standardIcon(QStyle::SP_DialogCancelButton));
-	connect(m_ui->cancelSearchButton, SIGNAL(clicked()), this, SLOT(totozSearchCanceled()));
+	connect(m_ui->cancelSearchButton, &QPushButton::clicked, this, &QQTotozManager::totozSearchCanceled);
 
-#if(QT_VERSION >= QT_VERSION_CHECK(5, 2, 0))
 	m_ui->searchLineEdit->setClearButtonEnabled(true);
-#endif
 
-	connect(m_ui->qqTMTabWidget, SIGNAL(currentChanged(int)), this, SLOT(tabChanged(int)));
-	connect(m_ui->searchLineEdit, SIGNAL(returnPressed()), this, SLOT(searchTotoz()));
-	connect(m_ui->searchLineEdit, SIGNAL(textChanged(QString)), this, SLOT(handleSearchTextChanged(QString)));
+	connect(m_ui->qqTMTabWidget, &QTabWidget::currentChanged, this, &QQTotozManager::tabChanged);
+	connect(m_ui->searchLineEdit, &QLineEdit::returnPressed, this, &QQTotozManager::searchTotoz);
+	connect(m_ui->searchLineEdit, &QLineEdit::textChanged, this, &QQTotozManager::handleSearchTextChanged);
 
 	m_ui->dockWidgetContents->setMaximumWidth(m_ui->qqTMTabWidget->width());
 
@@ -144,7 +143,7 @@ void QQTotozManager::totozSearchFinished()
 
 	m_searchResultList = m_requester->results();
 
-	foreach (QString totoz, m_searchResultList) {
+	for (QString totoz : std::as_const(m_searchResultList)) {
 		m_totozDownloader->fetchTotoz(totoz);
 	}
 
@@ -188,11 +187,7 @@ QStringList QQTotozManager::bookmarkedTotozIds()
 
 	if(m_tTZBookmarkListCache.isEmpty())
 	{
-#if(QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
-		QDir dirData(QStandardPaths::writableLocation(QStandardPaths::DataLocation));
-#else
-		QDir dirData(QDesktopServices::storageLocation(QDesktopServices::DataLocation));
-#endif
+		QDir dirData(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation));
 		if(!dirData.exists())
 			dirData.mkpath(dirData.path());
 
@@ -217,11 +212,7 @@ void QQTotozManager::setBookmarkedTotozIds(QStringList newList)
 {
 	m_tTZBookmarkListCache = newList;
 
-#if(QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
-	QDir dirData(QStandardPaths::writableLocation(QStandardPaths::DataLocation));
-#else
-	QDir dirData(QDesktopServices::storageLocation(QDesktopServices::DataLocation));
-#endif
+	QDir dirData(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation));
 
 	if(!dirData.exists())
 		dirData.mkpath(dirData.path());
@@ -234,7 +225,7 @@ void QQTotozManager::setBookmarkedTotozIds(QStringList newList)
 	}
 
 	QTextStream str(& totozBmFile);
-	foreach(QString totozId, m_tTZBookmarkListCache)
+	for (const QString &totozId : std::as_const(m_tTZBookmarkListCache))
 		str << totozId << "\n";
 
 	totozBmFile.close();
@@ -317,8 +308,8 @@ void QQTotozManager::handleSearchTextChanged(QString text)
 		if(text.size() > 0)
 		{
 			QList<QQEmojiDef> l;
-			foreach (QQEmojiCat c, m_emojis) {
-				foreach (QQEmojiDef d, c.emojis) {
+			for (const QQEmojiCat &c : std::as_const(m_emojis)) {
+				for (const QQEmojiDef &d : std::as_const(c.emojis)) {
 					if(d.name.contains(text, Qt::CaseInsensitive) ||
 					   d.symbol == text)
 						l.append(d);
@@ -392,7 +383,8 @@ void QQTotozManager::updateTotozViewer()
 	QStringList ids;
 	if(searchText.length() > 0)
 	{
-		foreach (QString id, bookmarkedTotozIds())
+		const QStringList bookmarks = bookmarkedTotozIds();
+		for (const QString &id : bookmarks)
 		{
 			if(id.contains(searchText, Qt::CaseInsensitive))
 				ids.append(id);
@@ -401,7 +393,7 @@ void QQTotozManager::updateTotozViewer()
 	else
 		ids << bookmarkedTotozIds();
 
-	foreach (QString id, ids)
+	for (const QString &id : std::as_const(ids))
 	{
 		QQTotozViewer *viewer = new QQTotozViewer(m_bookmarkW);
 		viewer->setTotozDownloader(m_totozDownloader);
@@ -409,9 +401,8 @@ void QQTotozManager::updateTotozViewer()
 		viewer->setShowAtMousePos(false);
 		viewer->setTotozId(id);
 
-		connect(viewer, SIGNAL(totozBookmarkAct(QString,QQTotoz::TotozBookmarkAction)),
-		        this, SLOT(totozBookmarkDo(QString,QQTotoz::TotozBookmarkAction)));
-		connect(viewer, SIGNAL(totozClicked(QString)), this, SIGNAL(totozClicked(QString)));
+		connect(viewer, &QQTotozViewer::totozBookmarkAct, this, &QQTotozManager::totozBookmarkDo);
+		connect(viewer, &QQTotozViewer::totozClicked, this, &QQTotozManager::totozClicked);
 		l->addWidget(viewer);
 	}
 	QLayout *oldL = m_bookmarkW->layout();
@@ -432,7 +423,8 @@ void QQTotozManager::updateTotozViewer()
 	l = new QVBoxLayout();
 	l->setContentsMargins(0, 0, 0, 0);
 
-	foreach (QString id, m_searchResultList)
+	const QStringList &results = m_searchResultList;
+	for (const QString &id : results)
 	{
 		QQTotozViewer *viewer = new QQTotozViewer(m_searchW);
 		viewer->setTotozDownloader(m_totozDownloader);
@@ -440,9 +432,8 @@ void QQTotozManager::updateTotozViewer()
 		viewer->setShowAtMousePos(false);
 		viewer->setTotozId(id);
 
-		connect(viewer, SIGNAL(totozBookmarkAct(QString,QQTotoz::TotozBookmarkAction)),
-		        this, SLOT(totozBookmarkDo(QString,QQTotoz::TotozBookmarkAction)));
-		connect(viewer, SIGNAL(totozClicked(QString)), this, SIGNAL(totozClicked(QString)));
+		connect(viewer, &QQTotozViewer::totozBookmarkAct, this, &QQTotozManager::totozBookmarkDo);
+		connect(viewer, &QQTotozViewer::totozClicked, this, &QQTotozManager::totozClicked);
 		l->addWidget(viewer);
 	}
 
@@ -470,7 +461,7 @@ void QQTotozManager::emojiSelected()
 		if(o->property(EMOJI_IS_CAT).toBool())
 		{
 			bool found = false;
-			foreach (QQEmojiCat c, m_emojis)
+			for (const QQEmojiCat &c : std::as_const(m_emojis))
 			{
 				if(c.symbol == o->property(EMOJI_SYMBOL))
 				{
@@ -495,7 +486,7 @@ void QQTotozManager::emojiSelected()
 			{
 				/* Pas de sub trouve, on retourne au niveau 0 */
 				QList<QQEmojiDef> l;
-				foreach (QQEmojiCat c, m_emojis) {
+				for (const QQEmojiCat &c : std::as_const(m_emojis)) {
 					l.append(c);
 				}
 
@@ -521,7 +512,7 @@ void QQTotozManager::updateEmojiViewer(const QList<QQEmojiDef> &emojis)
 	QFont piniFont;
 	piniFont.fromString(settings.value(SETTINGS_GENERAL_DEFAULT_FONT, DEFAULT_GENERAL_DEFAULT_FONT).toString());
 
-	foreach (QQEmojiDef d, emojis)
+	for (const QQEmojiDef &d : std::as_const(emojis))
 	{
 		QPushButton *b = new QPushButton(widget);
 		b->setFlat(true);
@@ -530,7 +521,7 @@ void QQTotozManager::updateEmojiViewer(const QList<QQEmojiDef> &emojis)
 		b->setProperty(EMOJI_IS_CAT, d.type == CAT);
 		b->setText(QString(d.symbol).append(" ").append(d.name));
 		b->setFont(piniFont);
-		connect(b, SIGNAL(clicked(bool)), this, SLOT(emojiSelected()));
+		connect(b, &QPushButton::clicked, this, &QQTotozManager::emojiSelected);
 		layout->addWidget(b);
 	}
 
@@ -547,7 +538,7 @@ void QQTotozManager::updateEmojiViewer(const QList<QQEmojiDef> &emojis)
 void QQTotozManager::updateEmojiViewer(const QList<QQEmojiCat> &emojis)
 {
 	QList<QQEmojiDef> l;
-	foreach (QQEmojiCat c, emojis)
+	for (const QQEmojiCat &c : std::as_const(emojis))
 	{
 		l.append(c);
 	}

@@ -1,6 +1,8 @@
 #include "qqcmdtoolbuttons.h"
 #include "ui_qqcmdtoolbuttons.h"
 
+#include <QPushButton>
+
 //////////////////////////////////////////////////////////////
 /// \brief QQCmdToolButtons::QQCmdToolButtons
 /// \param parent
@@ -11,7 +13,7 @@ QQCmdToolButtons::QQCmdToolButtons(QWidget *parent) :
 {
 	ui->setupUi(this);
 
-	connect(ui->optionsPushButton, SIGNAL(clicked()), this, SLOT(optionsButtonClicked()));
+	connect(ui->optionsPushButton, &QPushButton::clicked, this, &QQCmdToolButtons::optionsButtonClicked);
 }
 
 //////////////////////////////////////////////////////////////

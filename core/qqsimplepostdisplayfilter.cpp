@@ -1,8 +1,8 @@
 #include "qqsimplepostdisplayfilter.h"
 
-#include "core/qqbouchot.h"
+#include "qqbouchot.h"
 
-#include <QRegExp>
+#include <QRegularExpression>
 
 //////////////////////////////////////////////////////////////
 /// \brief QQSimplePostDisplayFilter::QQSimplePostDisplayFilter
@@ -49,7 +49,7 @@ bool QQSimplePostDisplayFilter::Rule::validate(QQPost *post)
 		    return postValue.contains(value);
 	    case MATCHES:
 	    {
-		    QRegExp reg(value);
+		    QRegularExpression reg(value);
 			if(reg.isValid())
 				return postValue.contains(reg);
 	    }

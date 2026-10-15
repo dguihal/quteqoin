@@ -1,9 +1,8 @@
 #include "qutetools.h"
 
+#include <QObject>
 #include <QWidget>
-#if QT_VERSION >= QT_VERSION_CHECK(5, 10, 0)
 #include <QRandomGenerator>
-#endif
 
 QuteTools::QuteTools()
 = default;
@@ -18,11 +17,11 @@ bool QuteTools::checkFocusRecurse(QWidget *parent)
 	bool focus = parent->hasFocus();
 	if(! focus)
 	{
-		foreach(QObject *child, parent->children())
+		for (QObject *child : parent->children())
 		{
 			if(child->isWidgetType())
 			{
-				focus = QuteTools::checkFocusRecurse(dynamic_cast<QWidget *>(child));
+				focus = QuteTools::checkFocusRecurse(qobject_cast<QWidget *>(child));
 				if(focus)
 					break;
 			}
@@ -39,11 +38,7 @@ bool QuteTools::checkFocusRecurse(QWidget *parent)
 ///
 int QuteTools::randInt(int low, int high)
 {
-#if QT_VERSION >= QT_VERSION_CHECK(5, 10, 0)
 	return QRandomGenerator::global()->bounded(low, high);
-#else
-	return qrand() % ((high + 1) - low) + low;
-#endif
 }
 
 //////////////////////////////////////////////////////////////
@@ -55,17 +50,17 @@ QString QuteTools::statusStringFromState(QuteQoin::QQBoardStates s)
 {
 	QString flags;
 	if(s.hasResponse)
-		flags.append(QString::fromUtf8("\u2709")); //'ENVELOPE' (U+2709) -> '✉';
+		flags.append(QStringLiteral(u"\u2709")); //'ENVELOPE' (U+2709) -> '✉';
 	else if(s.hasNewPosts)
-		flags.append(QString::fromUtf8("*"));
+		flags.append(QStringLiteral("*"));
 
 	if(s.hasBigorno)
-		flags.append(QString::fromUtf8("\u260F")); //'WHITE TELEPHONE' (U+26A0) -> '☏';
+		flags.append(QStringLiteral(u"\u260F")); //'WHITE TELEPHONE' (U+26A0) -> '☏';
 
 	if(s.hasError)
-		flags.append(QString::fromUtf8("\u26A0")); //'WARNING SIGN' (U+26A0) -> '⚠';
+		flags.append(QStringLiteral(u"\u26A0")); //'WARNING SIGN' (U+26A0) -> '⚠';
 
 	if(s.isHidden)
-		flags.append(QString::fromUtf8("\xf0\x9f\x99\x88")); //'SEE-NO-EVIL MONKEY' (U+1F648) -> '🙈';
+		flags.append(QStringLiteral(u"\xf0\x9f\x99\x88")); //'SEE-NO-EVIL MONKEY' (U+1F648) -> '🙈';
 	return flags;
 }

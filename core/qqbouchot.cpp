@@ -2,14 +2,13 @@
 
 #include <cmath>
 
-#include "core/qqbackendupdatedevent.h"
-#include "core/qqboardstatechangeevent.h"
-#include "core/qqpurgebouchothistoevent.h"
-#include "core/qqsettings.h"
-#include "core/parsers/qqbackendparser.h"
-#include "core/parsers/qqcustomxmlparser.h"
-#include "core/parsers/qqtsvparser.h"
-#include "core/parsers/qqxmlparser.h"
+#include "qqbackendupdatedevent.h"
+#include "qqboardstatechangeevent.h"
+#include "qqpurgebouchothistoevent.h"
+#include "qqsettings.h"
+#include "parsers/qqbackendparser.h"
+#include "parsers/qqcustomxmlparser.h"
+#include "parsers/qqtsvparser.h"
 
 #include <QApplication>
 #include <QBuffer>
@@ -20,11 +19,8 @@
 #include <QNetworkProxyFactory>
 #include <QNetworkReply>
 #include <QNetworkRequest>
-#include <QRegExp>
 #include <QRegularExpression>
 #include <QSslError>
-#include <QXmlSimpleReader>
-#include <QXmlInputSource>
 #include <utility>
 
 constexpr char X_POST_ID_HEADER[] = "X-Post-Id";
@@ -44,13 +40,10 @@ using QQBouchotDef = struct
 
 //Définition des bouchots préconfigurés
 // tiré d'olcc by Chrisix
-const std::array<QQBouchotDef, 11> bouchotsDef =
+const std::array<QQBouchotDef, 8> bouchotsDef =
 {{
     { {"dlfp"}, {"https://linuxfr.org/board/index.xml"}, {"https://linuxfr.org/board"}, {"board%5Bmessage%5D=%m"},
       {"#dac0de"}, {"linuxfr,beyrouth,passite,dapassite"}, {"linuxfr.org_session=;remember_account_token="}, QQBouchot::SlipTagsEncoded
-    },
-    { {"batavie"}, {"http://batavie.leguyader.eu/remote.xml"}, {"http://batavie.leguyader.eu/index.php/add"}, {"message=%m"},
-      {"#ffccaa"}, {"llg"}, {""}, QQBouchot::SlipTagsRaw
     },
     { {"euromussels"}, {"http://faab.euromussels.eu/data/backend.xml"}, {"http://faab.euromussels.eu/add.php"}, {"message=%m"},
       {"#d0d0ff"}, {"euro,euroxers,eurofaab"}, {""}, QQBouchot::SlipTagsRaw },
@@ -58,18 +51,14 @@ const std::array<QQBouchotDef, 11> bouchotsDef =
       {"#ededdb"}, {"shoop,dax"}, {""}, QQBouchot::SlipTagsRaw },
     { {"moules"}, {"http://moules.org/board/last.php?backend=tsv&id=%i&order=desc"}, {"http://moules.org/board/add.php"}, {"message=%m"},
       {"#ffe3c9"}, {""}, {""}, QQBouchot::SlipTagsRaw },
-    { {"gabuzomeu"}, {"http://gabuzomeu.fr/tribune.xml"}, {"http://gabuzomeu.fr/tribune/post"}, {"message=%m"},
-      {"#aaffbb"}, {""}, {""}, QQBouchot::SlipTagsRaw },
-    { {"devnewton"}, {"https://jb3.devnewton.fr/legacy/xml?last=%i"}, {"https://jb3.devnewton.fr/legacy/post"}, {"message=%m"},
+    { {"devnewton"}, {"https://gb3.devnewton.fr/gb0/tsv"}, {"https://gb3.devnewton.fr/gb0/post"}, {"message=%m"},
       {"#666666"}, {""}, {""}, QQBouchot::SlipTagsEncoded },
-    { {"faab"}, {"http://ratatouille.leguyader.eu/data/backend.xml"}, {"http://ratatouille.leguyader.eu/add.php"}, {"message=%m"},
-      {"#C5D068"}, {"ratatouille"}, {""}, QQBouchot::SlipTagsRaw },
     { {"goboard"}, {"https://ototu.euromussels.eu/goboard/backend/tsv&last=%i"}, {"https://ototu.euromussels.eu/goboard/post"}, {"message=%m"},
       {"#fffabb"}, {"goboard"}, {""}, QQBouchot::SlipTagsEncoded },
     { {"sauf.ca"}, {"http://sauf.ca/feeds/all.tsv"}, {""}, {""},
       {"#4aff47"}, {""}, {""}, QQBouchot::SlipTagsRaw },
-    { {"42"}, {"http://www.miaoli.im/tribune/42/tsv"}, {"http://www.miaoli.im/tribune/42/post"}, {"message=%m"},
-      {"#ffd0d0"}, {""}, {""}, QQBouchot::SlipTagsRaw }
+    { {"gabuzomeu"}, {"https://gb3.plop.cc/gb0/tsv"}, {"https://gb3.plop.cc/gb0/post"}, {"message=%m"},
+     {"#aaffbb"}, {""}, {""}, QQBouchot::SlipTagsRaw }
 }};
 
 constexpr int REFRESH_RATIOS_SIZE = 15;
@@ -132,8 +121,8 @@ void QQBouchot::postMessage(const QString &message)
 	if(currentRefreshRatio() > 1.0F)
 		m_refreshRatioIndex = REFRESH_RATIOS_MID;
 
-	QString url = m_bSettings.postUrl();
-	QByteArray postData = m_bSettings.postData().toUtf8();
+	auto url = m_bSettings.postUrl();
+	auto postData = m_bSettings.postData().toUtf8();
 	QByteArray mark("%m");
 
 	if(postData.contains(mark))
@@ -145,7 +134,7 @@ void QQBouchot::postMessage(const QString &message)
 	request.setAttribute(QNetworkRequest::User, QQBouchot::PostRequest);
 	request.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded; charset=UTF-8");
 
-	QString ua = m_bSettings.ua();
+	auto ua = m_bSettings.ua();
 	if(ua.isEmpty())
 	{
 		QQSettings settings;
@@ -178,7 +167,7 @@ void QQBouchot::setSettings(const QQBouchotSettings &newSettings)
 	QList<QNetworkCookie> qlCookies;
 	static const QRegularExpression re("\\s*;\\s*");
 	QStringList cookies=newSettings.cookies().split(re);
-	foreach (QString cookie, cookies) {
+	for (const QString &cookie : std::as_const(cookies)) {
 		QStringList splittedCookie=cookie.split("=");
 		if(splittedCookie.size() >= 2)
 		{
@@ -434,6 +423,10 @@ bool QQBouchot::event(QEvent *e)
 //////////////////////////////////////////////////////////////
 /// \brief QQBouchot::fetchBackend
 ///
+static QRegularExpression fetchBackendRE1("&?\\w+=%i", QRegularExpression::NoPatternOption);
+static QRegularExpression fetchBackendRE2("\\?$", QRegularExpression::NoPatternOption);
+static QRegularExpression fetchBackendRE3("\\?&", QRegularExpression::NoPatternOption);
+
 void QQBouchot::fetchBackend()
 {
 	QString url = m_bSettings.backendUrl();
@@ -445,17 +438,10 @@ void QQBouchot::fetchBackend()
 	if(m_lastId < 0)
 	{
 		//1° appel au backend, on supprime le last/last_id/... de l'url
-		QRegExp reg;
-		reg.setCaseSensitivity(Qt::CaseSensitive);
-		reg.setPatternSyntax(QRegExp::RegExp2);
-		reg.setPattern("&?\\w+=%i");
-		url.replace(reg, "");
+		url.replace(fetchBackendRE1, "");
 		//Nettoyage de l'url finale
-		reg.setPattern("\\?$");
-		url.replace(reg, "");
-		reg.setPatternSyntax(QRegExp::FixedString);
-		reg.setPattern("?&");
-		url.replace(reg, "?");
+		url.replace(fetchBackendRE2, "");
+		url.replace(fetchBackendRE3, "?");
 	}
 	else
 	{
@@ -491,7 +477,7 @@ void QQBouchot::fetchBackend()
 void QQBouchot::slotSslErrors(const QList<QSslError> &errors)
 {
 	QString msgs;
-	foreach(QSslError err, errors)
+	for (const auto &err : errors)
 	{
 		switch (err.error()) {
 		    case QSslError::SelfSignedCertificate:
@@ -544,7 +530,7 @@ void QQBouchot::requestFinishedSlot(QNetworkReply *reply)
 {
 	if(reply->error() != QNetworkReply::NoError)
 	{
-		QString errMsg = reply->errorString();
+		auto errMsg = reply->errorString();
 		m_state.hasError = true;
 		qWarning() << Q_FUNC_INFO
 		           << "Bouchot :" << m_name
@@ -562,47 +548,45 @@ void QQBouchot::requestFinishedSlot(QNetworkReply *reply)
 				           << reply->request().attribute(QNetworkRequest::User, QQBouchot::UnknownRequest).toInt();
 		}
 
-
 		clearNetworkBackend();
-	}
-	else
-	{
+	} else {
 		m_state.hasError = false;
-		switch(reply->request().attribute(QNetworkRequest::User, QQBouchot::UnknownRequest).toInt())
-		{
-		    case QQBouchot::PostRequest:
-#ifndef QT_NO_DEBUG
-			    qDebug() << Q_FUNC_INFO << reply->attribute(QNetworkRequest::HttpStatusCodeAttribute);
-				foreach (QByteArray ba, reply->rawHeaderList()) {
-					qDebug() << Q_FUNC_INFO << ba << QString(reply->rawHeader(ba));
-				}
-				qDebug() << Q_FUNC_INFO << reply->readAll();
 
-				qDebug() << Q_FUNC_INFO << reply->request().url();
-				foreach (QByteArray ba, reply->request().rawHeaderList()) {
-					qDebug() << Q_FUNC_INFO << ba << QString(reply->request().rawHeader(ba));
-				}
+		switch (reply->request().attribute(QNetworkRequest::User, QQBouchot::UnknownRequest).toInt()) {
+		case QQBouchot::PostRequest: {
+#ifndef QT_NO_DEBUG
+			qDebug() << Q_FUNC_INFO << "Req URL headers" << reply->request().url();
+
+			qDebug() << Q_FUNC_INFO << "Reply Status Code"
+							 << reply->attribute(QNetworkRequest::HttpStatusCodeAttribute);
+
+			for (QByteArray ba : reply->rawHeaderList()) {
+				qDebug() << Q_FUNC_INFO << "Reply headers" << ba << QString(reply->rawHeader(ba));
+			}
+
+			qDebug() << Q_FUNC_INFO << "Reply data" << reply->readAll().toStdString();
 #endif
 
-				if(reply->hasRawHeader(QByteArray::fromStdString(X_POST_ID_HEADER)))
-				{
-					m_hasXPostId = true;
-					m_xPostIds.append(QString(reply->rawHeader(QByteArray::fromStdString(X_POST_ID_HEADER))));
-				}
+			auto xPostId = reply->rawHeader(QByteArray::fromStdString(X_POST_ID_HEADER)).toLower();
+			if (xPostId.length() > 0) {
+				m_hasXPostId = true;
+				m_xPostIds.append(xPostId);
+			}
 
 				fetchBackend();
 			    break;
-		    case QQBouchot::BackendRequest:
-			    if(reply->hasRawHeader("Last-Modified"))
-					m_lastModifiedBackend = QString(reply->rawHeader("Last-Modified"));
+		}
+		case QQBouchot::BackendRequest:
+			auto lastModified = reply->header(QNetworkRequest::LastModifiedHeader);
+			if (lastModified.isValid())
+				m_lastModifiedBackend = lastModified.toString();
 
-				if(reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toUInt() == HTTP_OK)
-				{
-					QString contentType = reply->header(QNetworkRequest::ContentTypeHeader).toString();
-					parseBackend(reply->readAll(), contentType);
-				}
-				emit refreshOK();
-			    break;
+			if (reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toUInt() == HTTP_OK) {
+				QString contentType = reply->header(QNetworkRequest::ContentTypeHeader).toString();
+				parseBackend(reply->readAll(), contentType);
+			}
+			emit refreshOK();
+			break;
 		}
 	}
 	reply->deleteLater();
@@ -612,12 +596,15 @@ void QQBouchot::requestFinishedSlot(QNetworkReply *reply)
 /// \brief QQBouchot::parseBackend
 /// \param data
 ///
+///
+static QRegularExpression parseBackendRE1("^<\\w+ ", QRegularExpression::NoPatternOption);
+static QRegularExpression parseBackendRE2("^\\d+\t", QRegularExpression::NoPatternOption);
+
 void QQBouchot::parseBackend(const QByteArray &data, const QString &contentType)
 {
 	if(contentType.startsWith("text/xml") ||
 	            contentType.startsWith("application/xml"))
-		//parseBackendXML(data);
-		parseBackendXMLCustom(data);
+		parseBackendXML(data);
 	else if(contentType.startsWith("text/tab-separated-values"))
 		parseBackendTSV(data);
 	else
@@ -631,15 +618,11 @@ void QQBouchot::parseBackend(const QByteArray &data, const QString &contentType)
 		{
 			QString l = b.readLine();
 			qDebug() << Q_FUNC_INFO << l;
-			if(l.startsWith("<?xml ") ||
-			        l.contains(QRegExp("^<\\w+ ")))
-			{
+			if (l.startsWith("<?xml ") || l.contains(parseBackendRE1)) {
 				qDebug() << Q_FUNC_INFO << "XML found";
 				parseBackendXML(data);
 				parserFound = true;
-			}
-			else if(l.contains(QRegExp("^\\d+\t")))
-			{
+			} else if (l.contains(parseBackendRE2)) {
 				qDebug() << Q_FUNC_INFO << "TSV found";
 				parseBackendTSV(data);
 				parserFound = true;
@@ -675,7 +658,7 @@ void QQBouchot::parseBackendTSV(const QByteArray &data)
 	p->parseBackend(data);
 }
 
-void QQBouchot::parseBackendXMLCustom(const QByteArray &data)
+void QQBouchot::parseBackendXML(const QByteArray &data)
 {
 	auto *p = qobject_cast<QQCustomXmlParser *>(m_parser);
 	if(p == nullptr)
@@ -693,34 +676,6 @@ void QQBouchot::parseBackendXMLCustom(const QByteArray &data)
 	p->setTypeSlip(m_bSettings.slipType());
 	p->setLastId(m_lastId);
 	p->parseBackend(data);
-}
-
-void QQBouchot::parseBackendXML(const QByteArray &data)
-{
-	auto *p = qobject_cast<QQXmlParser *>(m_parser);
-	if(p == nullptr)
-	{
-
-		    delete m_parser;
-
-		p = new QQXmlParser(this);
-
-		connect(p, &QQXmlParser::newPostReady, this, &QQBouchot::insertNewPost);
-		connect(p, &QQXmlParser::finished, this, &QQBouchot::parsingFinished);
-
-		m_parser=p;
-	}
-
-	QXmlSimpleReader xmlReader;
-	QXmlInputSource xmlSource;
-
-	p->setTypeSlip(m_bSettings.slipType());
-	p->setLastId(m_lastId);
-
-	xmlSource.setData(data);
-	xmlReader.setContentHandler(p);
-	xmlReader.setErrorHandler(p);
-	xmlReader.parse(&xmlSource);
 }
 
 //////////////////////////////////////////////////////////////
@@ -799,7 +754,7 @@ void QQBouchot::parsingFinished()
 			}
 			prevPost = m_history.last();
 		}
-		foreach(auto curPost, m_newPostHistory)
+		for(const auto &curPost : std::as_const(m_newPostHistory))
 		{
 			if(prevPost->norlogeMinute() == curPost->norlogeMinute())
 			{
@@ -896,16 +851,14 @@ void QQBouchot::updateLastUsers()
 ///
 void QQBouchot::sendBouchotEvents()
 {
-	foreach (EventReceiver evRcv, m_listEventReceivers)
+	for (const auto &evRcv : std::as_const(m_listEventReceivers))
 	{
 		if(evRcv.acceptedEvents.testFlag(NewPostsAvailable) && !m_newPostHistory.empty())
 		{
 			QApplication::postEvent(evRcv.receiver,
-			                        new QQBackendUpdatedEvent(
-			                            QQBackendUpdatedEvent::BACKEND_UPDATED,
-			                            m_bSettings.group()),
-			                        Qt::LowEventPriority
-			                        );
+			                        new QQBackendUpdatedEvent(QQBackendUpdatedEvent::BACKEND_UPDATED,
+			                                                  m_bSettings.group()),
+			                        Qt::LowEventPriority);
 		}
 		if(evRcv.acceptedEvents.testFlag(StateChanged))
 		{
@@ -994,7 +947,7 @@ QQBouchot * QQBouchot::bouchot(const QString &bouchotName)
 		ret = s_hashBouchots.value(bouchotName);
 	else
 	{
-		foreach (QQBouchot *bouchot, listBouchots())
+		for (QQBouchot *bouchot : listBouchots())
 		{
 			if(bouchot->settings().aliases().contains(bouchotName))
 			{
@@ -1042,8 +995,7 @@ QList<QQBouchot *> QQBouchot::listBouchotsGroup(const QString &groupName)
 QStringList QQBouchot::listGroups()
 {
 	QStringList listGroups;
-	for (auto bouchot : qAsConst(s_hashBouchots))
-	{
+	for (auto bouchot : std::as_const(s_hashBouchots)) {
 		QString group = bouchot->settings().group();
 		if(! listGroups.contains(group))
 			listGroups.append(group);

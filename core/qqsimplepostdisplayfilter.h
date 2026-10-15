@@ -1,7 +1,7 @@
 #ifndef QQSIMPLEPOSTDISPLAYFILTER_H
 #define QQSIMPLEPOSTDISPLAYFILTER_H
 
-#include "core/qqpostdisplayfilter.h"
+#include "qqpostdisplayfilter.h"
 
 #include <QList>
 #include <QString>

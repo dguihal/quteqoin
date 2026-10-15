@@ -63,7 +63,7 @@ void QQImageViewer::displayText(const QString &text)
 void QQImageViewer::displayMovie()
 {
 	setStyleSheet("QLabel { background-color : rgba(255, 255, 255, 0); color : black; }");
-	m_imgMovie.disconnect(SIGNAL(finished()));
+	disconnect(&m_imgMovie, &QMovie::finished, nullptr, nullptr);
 
 	m_imgMovie.jumpToFrame(0);
 
