@@ -93,7 +93,11 @@ public:
 	virtual ~VideoPlayer()
 	{
 		if(m_player != nullptr)
+		{
+			QObject::disconnect(m_player, nullptr, m_player->parent(), nullptr);
+			m_player->stop();
 			m_player->deleteLater();
+		}
 		if(m_gObj != nullptr)
 		{
 			m_gObj->hide();
@@ -105,6 +109,7 @@ public:
 	void show() override { m_gObj->show(); }
 	void hide() override { m_gObj->hide(); }
 	void stop() { m_player->stop(); }
+	QMediaPlayer *mediaPlayer() const { return m_player; }
 
 	QString errorString() { return m_player->errorString(); }
 
@@ -218,6 +223,11 @@ void QQPiniOverlay::dlReady(QUrl &url)
 ///
 void QQPiniOverlay::doVideoStateChanged(QMediaPlayer::PlaybackState newState)
 {
+	auto *player = qobject_cast<QMediaPlayer *>(sender());
+	if(m_pendingPlayer == nullptr || m_pendingPlayer->playerType() != OverlayPlayer::TypeVideoPlayer ||
+	        static_cast<VideoPlayer *>(m_pendingPlayer)->mediaPlayer() != player)
+		return;
+
 	if(newState == QMediaPlayer::PlayingState)
 	{
 		delete m_currentPlayer;
@@ -236,19 +246,20 @@ void QQPiniOverlay::doVideoStateChanged(QMediaPlayer::PlaybackState newState)
 ///
 void QQPiniOverlay::handleVideoError(QMediaPlayer::Error error, const QString &errorString)
 {
+	auto *player = qobject_cast<QMediaPlayer *>(sender());
+	const bool isPendingPlayer = m_pendingPlayer != nullptr &&
+	        m_pendingPlayer->playerType() == OverlayPlayer::TypeVideoPlayer &&
+	        static_cast<VideoPlayer *>(m_pendingPlayer)->mediaPlayer() == player;
+	const bool isCurrentPlayer = m_currentPlayer != nullptr &&
+	        m_currentPlayer->playerType() == OverlayPlayer::TypeVideoPlayer &&
+	        static_cast<VideoPlayer *>(m_currentPlayer)->mediaPlayer() == player;
+	if(!isPendingPlayer && !isCurrentPlayer)
+		return;
+
 	if(error != QMediaPlayer::NoError)
 	{
 		qWarning() << Q_FUNC_INFO << error;
-
-		if (m_pendingPlayer != nullptr
-			&& m_pendingPlayer->playerType() == OverlayPlayer::TypeVideoPlayer) {
-			dynamic_cast<VideoPlayer *>(m_pendingPlayer)->stop();
-			delete m_pendingPlayer;
-		} else if (m_currentPlayer != nullptr
-				   && m_currentPlayer->playerType() == OverlayPlayer::TypeVideoPlayer) {
-			dynamic_cast<VideoPlayer *>(m_currentPlayer)->stop();
-			delete m_currentPlayer;
-		}
+		clearOverview();
 
 		auto v = new QQImageViewer();
 		v->setText(QString("Error playing media : %1").arg(errorString));
@@ -322,6 +333,7 @@ void QQPiniOverlay::showTotoz(const QString &totozId)
 	        TOTOZ_VISUAL_MODE_DISABLED)
 		return;
 
+	clearOverview();
 	auto v = new QQTotozViewer(totozId, nullptr);
 	auto gpw = scene()->addWidget(v, Qt::Widget);
 	moveToMousePos(gpw, v->size());
@@ -337,7 +349,7 @@ void QQPiniOverlay::showTotoz(const QString &totozId)
 ///
 void QQPiniOverlay::showUrl(const QUrl &url, QString &contentType)
 {
-
+	clearOverview();
 #ifdef WIN32
 	if(contentType.startsWith("image/"))
 #else
@@ -361,11 +373,12 @@ void QQPiniOverlay::showUrl(const QUrl &url, QString &contentType)
 void QQPiniOverlay::clearOverview()
 {
 	m_pendingURLs.clear();
-	if(m_currentPlayer != nullptr)
-	{
-		delete m_currentPlayer;
-		m_currentPlayer = nullptr;
-	}
+	auto *pendingPlayer = m_pendingPlayer;
+	auto *currentPlayer = m_currentPlayer;
+	m_pendingPlayer = nullptr;
+	m_currentPlayer = nullptr;
+	delete pendingPlayer;
+	delete currentPlayer;
 
 	while(! m_tmpFiles.isEmpty())
 	{
@@ -406,7 +419,6 @@ void QQPiniOverlay::moveToMousePos(QGraphicsObject *gpw, const QSize &s)
 		ttPos.rx() += s.width();
 
 		QToolTip::hideText();
-		QCoreApplication::processEvents();
 		QToolTip::showText(mapToGlobal(ttPos), txt, parentWidget());
 	}
 }
@@ -424,6 +436,7 @@ void QQPiniOverlay::showVideo(const QUrl &url)
 	auto i = new QGraphicsVideoItem();
 	i->setAspectRatioMode(Qt::KeepAspectRatio);
 	i->setSize(s);
+	i->hide();
 	scene()->addItem(i);
 
 	auto player = new QMediaPlayer(this);
@@ -437,8 +450,6 @@ void QQPiniOverlay::showVideo(const QUrl &url)
 	moveToMousePos(i, s);
 
 	player->setVideoOutput(i);
-	player->setSource(url);
-
 	m_pendingPlayer = new VideoPlayer(i, player);
 	if(m_currentPlayer != nullptr)
 		m_currentPlayer->hide();
@@ -447,7 +458,10 @@ void QQPiniOverlay::showVideo(const QUrl &url)
 
 	connect(player, &QMediaPlayer::errorOccurred, this, &QQPiniOverlay::handleVideoError);
 
-	player->play();
+	player->setSource(url);
+	if(m_pendingPlayer != nullptr && m_pendingPlayer->playerType() == OverlayPlayer::TypeVideoPlayer &&
+	        static_cast<VideoPlayer *>(m_pendingPlayer)->mediaPlayer() == player)
+		player->play();
 }
 
 //////////////////////////////////////////////////////////////

@@ -232,6 +232,20 @@ if(BUILD_TESTING)
 		"core/qqsettings.cpp"
 		"core/qqmessagetransformfilter.cpp"
 		"ui/pinipede/qqpiniurlhelper.cpp"
+		"ui/pinipede/qqtextbrowser.cpp"
+		"ui/pinipede/qqpinioverlay.cpp"
+		"ui/pinipede/qqduckpixmapitem.cpp"
+		"ui/pinipede/qqhuntpixmapitem.cpp"
+		"ui/qqmessageblockuserdata.cpp"
+		"ui/qqimageviewer.cpp"
+		"ui/qqtotozviewer.cpp"
+		"core/qqnorlogeref.cpp"
+		"core/qqbigornoitem.cpp"
+		"core/qqwebdownloader.cpp"
+		"core/qqtotoz.cpp"
+		"core/qqtotozdownloader.cpp"
+		"core/qutetools.cpp"
+		"rc/quteqoin_anims.qrc"
 		"ui/settingsmanager/qqtotozsettings.cpp"
 		"ui/settingsmanager/qqtotozsettings.ui"
 		"core/qqbackendupdatedevent.cpp"
@@ -243,7 +257,7 @@ if(BUILD_TESTING)
 		"ui/qqproxyauthdialog.cpp"
 		"ui/qqproxyauthdialog.ui"
 	)
-	target_link_libraries(quteqoin_behavior_tests PRIVATE Qt6::Test Qt6::Widgets Qt6::Network)
+	target_link_libraries(quteqoin_behavior_tests PRIVATE Qt6::Test Qt6::Widgets Qt6::Network Qt6::MultimediaWidgets)
 	add_test(NAME quteqoin_behaviors COMMAND quteqoin_behavior_tests)
 	set_tests_properties(quteqoin_behaviors PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen")
 endif()

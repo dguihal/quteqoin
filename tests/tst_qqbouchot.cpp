@@ -2,15 +2,23 @@
 #include "core/qqboardstatechangeevent.h"
 #include "core/qqsettings.h"
 #include "ui/pinipede/qqpiniurlhelper.h"
+#include "ui/pinipede/qqpinioverlay.h"
+#include "ui/pinipede/qqtextbrowser.h"
+#include "core/qqwebdownloader.h"
 #include "ui/settingsmanager/qqtotozsettings.h"
 
+#include <QBuffer>
 #include <QDateTime>
+#include <QGraphicsScene>
+#include <QGraphicsVideoItem>
+#include <QImage>
 #include <QNetworkProxy>
 #include <QScopeGuard>
 #include <QSignalSpy>
 #include <QTcpServer>
 #include <QTcpSocket>
 #include <QTemporaryDir>
+#include <QToolTip>
 #include <QtTest>
 #include <limits>
 #include <memory>
@@ -37,6 +45,15 @@ public:
 		}
 		return QObject::event(event);
 	}
+};
+
+class TestTextBrowser : public QQTextBrowser
+{
+public:
+	TestTextBrowser() : QQTextBrowser("test") {}
+	using QQTextBrowser::leaveEvent;
+	using QQTextBrowser::onAnchorHighlighted;
+	using QQTextBrowser::onThumbnailUrlAvailable;
 };
 
 class LocalHttpServer : public QObject
@@ -306,6 +323,114 @@ private slots:
 		QTest::qWait(3100);
 		QCOMPARE(started.count(), 1);
 		QCOMPARE(server.requests.size(), 1);
+	}
+
+	void leavingLinkClosesOverlayWithoutTooltip()
+	{
+		TestTextBrowser browser;
+		QSignalSpy hidden(&browser, &QQTextBrowser::hideViewers);
+		browser.onAnchorHighlighted(QUrl("duck://test"));
+		QToolTip::hideText();
+		hidden.clear();
+		browser.onAnchorHighlighted(QUrl());
+		QCOMPARE(hidden.count(), 1);
+		browser.onAnchorHighlighted(QUrl("duck://test"));
+		hidden.clear();
+		QEvent leave(QEvent::Leave);
+		browser.leaveEvent(&leave);
+		QCOMPARE(hidden.count(), 1);
+	}
+
+	void lateThumbnailDoesNotReopenOverlay()
+	{
+		TestTextBrowser browser;
+		int displayed = 0;
+		connect(&browser, &QQTextBrowser::displayMmdaData, this,
+		        [&displayed](const QUrl &, QString &) { ++displayed; });
+		browser.onAnchorHighlighted(QUrl("duck://test"));
+		QUrl thumbnail("http://127.0.0.1/image.png");
+		QString contentType("image/png");
+		browser.onThumbnailUrlAvailable(thumbnail, contentType);
+		QCOMPARE(displayed, 1);
+		browser.onAnchorHighlighted(QUrl());
+		browser.onThumbnailUrlAvailable(thumbnail, contentType);
+		QCOMPARE(displayed, 1);
+	}
+
+	void leavingVideoCancelsPendingPlayer()
+	{
+		LocalHttpServer server;
+		QVERIFY(server.server.listen(QHostAddress::LocalHost));
+		QQPiniOverlay overlay;
+		QString contentType("video/mp4");
+		overlay.showUrl(QUrl(server.url()), contentType);
+		QPointer<QMediaPlayer> player = overlay.findChild<QMediaPlayer *>();
+		QVERIFY(!player.isNull());
+		auto *video = qobject_cast<QGraphicsVideoItem *>(player->videoOutput());
+		QVERIFY(video != nullptr);
+		overlay.clearOverview();
+		QCOMPARE(player->playbackState(), QMediaPlayer::StoppedState);
+		QVERIFY(!video->isVisible());
+		player->playbackStateChanged(QMediaPlayer::PlayingState);
+		player->errorOccurred(QMediaPlayer::ResourceError, "late video error");
+		for(auto *item : overlay.scene()->items())
+			QVERIFY(!item->isVisible());
+		overlay.clearOverview();
+		QCoreApplication::sendPostedEvents(nullptr, QEvent::DeferredDelete);
+		QVERIFY(player.isNull());
+	}
+
+	void switchingVideoIgnoresOldPlayer()
+	{
+		LocalHttpServer server;
+		QVERIFY(server.server.listen(QHostAddress::LocalHost));
+		QQPiniOverlay overlay;
+		QString contentType("video/mp4");
+		overlay.showUrl(QUrl(server.url() + "?first"), contentType);
+		auto *oldPlayer = overlay.findChild<QMediaPlayer *>();
+		QVERIFY(oldPlayer != nullptr);
+		overlay.showUrl(QUrl(server.url() + "?second"), contentType);
+		auto *newPlayer = overlay.findChildren<QMediaPlayer *>().constLast();
+		QVERIFY(newPlayer != oldPlayer);
+		auto *video = qobject_cast<QGraphicsVideoItem *>(newPlayer->videoOutput());
+		QVERIFY(video != nullptr);
+		const bool wasVisible = video->isVisible();
+		const auto itemCount = overlay.scene()->items().size();
+		oldPlayer->playbackStateChanged(QMediaPlayer::PlayingState);
+		oldPlayer->errorOccurred(QMediaPlayer::ResourceError, "obsolete video error");
+		QCOMPARE(video->isVisible(), wasVisible);
+		QCOMPARE(overlay.scene()->items().size(), itemCount);
+		newPlayer->playbackStateChanged(QMediaPlayer::PlayingState);
+		QVERIFY(video->isVisible());
+		overlay.clearOverview();
+		QVERIFY(!video->isVisible());
+		QCoreApplication::sendPostedEvents(nullptr, QEvent::DeferredDelete);
+	}
+
+	void lateImageDownloadDoesNotReopenOverlay()
+	{
+		LocalHttpServer server;
+		QVERIFY(server.server.listen(QHostAddress::LocalHost));
+		QQPiniOverlay overlay;
+		QString contentType("image/png");
+		int downloaded = 0;
+		auto *downloader = overlay.findChild<QQWebDownloader *>();
+		QVERIFY(downloader != nullptr);
+		connect(downloader, &QQWebDownloader::ready, this, [&downloaded](QUrl &) { ++downloaded; });
+		overlay.showUrl(QUrl(server.url()), contentType);
+		QTRY_COMPARE(server.requests.size(), 1);
+		overlay.clearOverview();
+		QImage image(2, 2, QImage::Format_RGB32);
+		image.fill(Qt::red);
+		QByteArray body;
+		QBuffer buffer(&body);
+		QVERIFY(buffer.open(QIODevice::WriteOnly));
+		QVERIFY(image.save(&buffer, "PNG"));
+		server.respond(0, "HTTP/1.1 200 OK\r\nContent-Type: image/png\r\nContent-Length: "
+		                  + QByteArray::number(body.size()) + "\r\nConnection: close\r\n\r\n" + body);
+		QTRY_COMPARE(downloaded, 1);
+		for(auto *item : overlay.scene()->items())
+			QVERIFY(!item->isVisible());
 	}
 
 	void debugContentMatchesBuildMode()
